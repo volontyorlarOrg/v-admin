@@ -1,7 +1,11 @@
 import "server-only";
 
 import { read } from "@/lib/api/gateway.server";
-import { applicationListSchema, type Application } from "@/lib/api/schemas";
+import {
+  applicationListSchema,
+  applicationSchema,
+  type Application,
+} from "@/lib/api/schemas";
 import type { Loaded } from "@/lib/api/load";
 import type { ApplicationStatus } from "@/lib/domain/vocabulary";
 
@@ -20,4 +24,8 @@ export function loadApplications(
       ...(filters.vacancyId ? { opportunityId: filters.vacancyId } : {}),
     },
   });
+}
+
+export function loadApplication(id: string): Promise<Loaded<Application>> {
+  return read("application", { schema: applicationSchema, params: { id } });
 }

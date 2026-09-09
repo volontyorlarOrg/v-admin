@@ -80,16 +80,18 @@ revokes the refresh token before the cookie is cleared.
 no endpoint anywhere that returns an existing password, and this portal has no
 control that asks for one.
 
+## Current state
+
+Every operation in the registry is `published`. The statuses are still carried,
+still tested, and still the first thing to check when adding an endpoint — the
+next one written will start as `announced` again.
+
 ## Where the portal fills a gap, and how
 
 - **The applications list carries `answers`, `volunteer` and `opportunity`, but
   no `attendance`.** The attendance screen renders an outcome only when the
   record is present and says "not published by the API" when it is not. It never
   guesses that an unresolved record means "awaiting confirmation".
-- **There is no single-record endpoint for a vacancy or an application.** Both
-  detail pages read the scoped list and select from it, which the list's own
-  scoping already makes safe: a coordinator cannot select a record the list did
-  not return, and the page renders `not-found` instead.
 - **`GET /admin/audit` is filtered and paged by the API** — `actorUserId`,
   `action`, `entityType`, `from`, `to`, `page`, `pageSize`. The portal sends
   those and pages on the envelope it gets back. `auditPageSchema` still accepts

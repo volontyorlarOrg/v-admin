@@ -54,6 +54,10 @@ A page therefore never sees an exception, only one of: `ready`, `awaitingContrac
 `denied`, `expired`, `missing`, `unconfigured`, `failed`. `LoadFailure` renders
 each of those, and a page renders the failure **and** whatever else it can.
 
+`awaitingContract` is not dead code now that `v-backend` has published this
+contract: it is what the next unpublished operation will render, and the
+registry's statuses are what decide when.
+
 ## Writing
 
 Every write is a Server Action returning `ActionResult`

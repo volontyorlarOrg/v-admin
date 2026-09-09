@@ -29,8 +29,7 @@ import {
 } from "@/lib/domain/vocabulary";
 import { applicationHref } from "@/lib/routing/routes";
 import { archiveVacancyAction, publishVacancyAction } from "@/lib/vacancies/actions";
-import { loadOrganizations, loadVacancies } from "@/lib/vacancies/data.server";
-import { findVacancy } from "@/lib/vacancies/filters";
+import { loadOrganizations, loadVacancy } from "@/lib/vacancies/data.server";
 import { errorCatalog, vacancyFormLabels } from "@/lib/vacancies/labels.server";
 import { toDateTimeLocal } from "@/lib/vacancies/form";
 import { updateVacancyAction } from "@/lib/vacancies/actions";
@@ -42,9 +41,8 @@ export async function generateMetadata({
 }: PageProps<"/[locale]/vacancies/[id]">): Promise<Metadata> {
   const { locale, id } = await params;
   const t = await getTranslations({ locale, namespace: "vacancies" });
-  const loaded = await loadVacancies();
-  const vacancy = isReady(loaded) ? findVacancy(loaded.data, id) : undefined;
-  return { title: vacancy?.title ?? t("detail.eyebrow") };
+  const loaded = await loadVacancy(id);
+  return { title: isReady(loaded) ? loaded.data.title : t("detail.eyebrow") };
 }
 
 export default async function VacancyPage({
@@ -60,7 +58,7 @@ export default async function VacancyPage({
   const errors = await getTranslations("errors");
   const format = await getFormatter();
 
-  const loaded = await loadVacancies();
+  const loaded = await loadVacancy(id);
   const failure = failureOf(loaded);
 
   if (failure) {
@@ -72,8 +70,9 @@ export default async function VacancyPage({
     );
   }
 
-  const vacancy = isReady(loaded) ? findVacancy(loaded.data, id) : undefined;
-  if (!vacancy) notFound();
+  if (!isReady(loaded)) notFound();
+
+  const vacancy = loaded.data;
 
   const stage = stageOf(vacancy);
   const [organizations, applications] = await Promise.all([

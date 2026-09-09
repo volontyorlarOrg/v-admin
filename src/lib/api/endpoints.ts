@@ -11,20 +11,25 @@ export type Endpoint = {
 };
 
 export const endpoints = {
-  logIn: { method: "POST", path: "/auth/admin/login", contract: "announced" },
+  logIn: { method: "POST", path: "/auth/admin/login", contract: "published" },
   refresh: { method: "POST", path: "/auth/refresh", contract: "published" },
   logOut: { method: "POST", path: "/auth/logout", contract: "published" },
   changePassword: {
     method: "POST",
     path: "/auth/password/change",
-    contract: "announced",
+    contract: "published",
   },
   currentUser: { method: "GET", path: "/me", contract: "published" },
 
-  statistics: { method: "GET", path: "/admin/statistics", contract: "announced" },
+  statistics: { method: "GET", path: "/admin/statistics", contract: "published" },
   audit: { method: "GET", path: "/admin/audit", contract: "published" },
 
   vacancies: { method: "GET", path: "/admin/opportunities", contract: "published" },
+  vacancy: {
+    method: "GET",
+    path: "/admin/opportunities/{id}",
+    contract: "published",
+  },
   createVacancy: {
     method: "POST",
     path: "/admin/opportunities",
@@ -47,6 +52,11 @@ export const endpoints = {
   },
 
   applications: { method: "GET", path: "/admin/applications", contract: "published" },
+  application: {
+    method: "GET",
+    path: "/admin/applications/{id}",
+    contract: "published",
+  },
   reviewApplication: {
     method: "PATCH",
     path: "/admin/applications/{id}/review",
@@ -59,44 +69,44 @@ export const endpoints = {
     contract: "published",
   },
 
-  users: { method: "GET", path: "/admin/users", contract: "announced" },
-  user: { method: "GET", path: "/admin/users/{id}", contract: "announced" },
+  users: { method: "GET", path: "/admin/users", contract: "published" },
+  user: { method: "GET", path: "/admin/users/{id}", contract: "published" },
   replaceUserPassword: {
     method: "PUT",
     path: "/admin/users/{id}/password",
-    contract: "announced",
+    contract: "published",
   },
 
-  coordinators: { method: "GET", path: "/admin/coordinators", contract: "announced" },
+  coordinators: { method: "GET", path: "/admin/coordinators", contract: "published" },
   createCoordinator: {
     method: "POST",
     path: "/admin/coordinators",
-    contract: "announced",
+    contract: "published",
   },
   coordinator: {
     method: "GET",
     path: "/admin/coordinators/{id}",
-    contract: "announced",
+    contract: "published",
   },
   blockCoordinator: {
     method: "POST",
     path: "/admin/coordinators/{id}/block",
-    contract: "announced",
+    contract: "published",
   },
   unblockCoordinator: {
     method: "POST",
     path: "/admin/coordinators/{id}/unblock",
-    contract: "announced",
+    contract: "published",
   },
   removeCoordinator: {
     method: "POST",
     path: "/admin/coordinators/{id}/remove",
-    contract: "announced",
+    contract: "published",
   },
   replaceCoordinatorPassword: {
     method: "PUT",
     path: "/admin/coordinators/{id}/password",
-    contract: "announced",
+    contract: "published",
   },
 
   organizations: { method: "GET", path: "/organizations", contract: "published" },
