@@ -1,0 +1,65 @@
+import type { EndpointName } from "@/lib/api/endpoints";
+import { isApiError, type ApiError } from "@/lib/api/errors";
+
+export type LoadSource = "api" | "fixtures";
+
+export type Loaded<T> =
+  | { state: "ready"; data: T; source: LoadSource }
+  | { state: "awaitingContract"; endpoint: EndpointName }
+  | { state: "denied" }
+  | { state: "expired" }
+  | { state: "missing" }
+  | { state: "unconfigured" }
+  | { state: "failed"; code: string; retryable: boolean };
+
+export function ready<T>(data: T, source: LoadSource = "api"): Loaded<T> {
+  return { state: "ready", data, source };
+}
+
+export function isReady<T>(
+  loaded: Loaded<T>,
+): loaded is { state: "ready"; data: T; source: LoadSource } {
+  return loaded.state === "ready";
+}
+
+export function dataOr<T>(loaded: Loaded<T>, fallback: T): T {
+  return isReady(loaded) ? loaded.data : fallback;
+}
+
+export function failureOf<T>(
+  loaded: Loaded<T>,
+): Exclude<Loaded<T>, { state: "ready" }> | null {
+  return isReady(loaded) ? null : loaded;
+}
+
+export function loadedFromError<T>(
+  error: unknown,
+  endpoint: EndpointName,
+  published: boolean,
+): Loaded<T> {
+  if (!isApiError(error)) return { state: "failed", code: "server", retryable: false };
+
+  const apiError: ApiError = error;
+
+  if (apiError.code === "notConfigured") return { state: "unconfigured" };
+  if (apiError.code === "unauthenticated") return { state: "expired" };
+  if (apiError.code === "forbidden") return { state: "denied" };
+
+  const unimplemented = !published && apiError.backendCode === null;
+
+  if (apiError.code === "notFound") {
+    return unimplemented
+      ? { state: "awaitingContract", endpoint }
+      : { state: "missing" };
+  }
+
+  if (apiError.code === "unavailable" && unimplemented) {
+    return { state: "awaitingContract", endpoint };
+  }
+
+  return {
+    state: "failed",
+    code: apiError.backendCode ?? apiError.code,
+    retryable: apiError.isRetryable,
+  };
+}

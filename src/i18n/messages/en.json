@@ -1,0 +1,662 @@
+{
+  "common": {
+    "organizationName": "Volontyorlar",
+    "portalName": "Administrator portal",
+    "skipToContent": "Skip to content",
+    "openMenu": "Open the menu",
+    "closeMenu": "Close the menu",
+    "language": "Interface language",
+    "theme": "Switch between light and dark",
+    "signOut": "Sign out",
+    "signingOut": "Signing out…",
+    "signedIn": "Signed in",
+    "fixtureMode": "Development fixtures — nothing on this screen comes from the API",
+    "apply": "Apply",
+    "reset": "Clear filters",
+    "previous": "Previous",
+    "next": "Next",
+    "pageOf": "Page {page} of {last} · {total} results",
+    "pagination": "Pagination",
+    "search": "Search",
+    "save": "Save",
+    "saving": "Saving…",
+    "cancel": "Cancel",
+    "create": "Create",
+    "creating": "Creating…",
+    "back": "Back",
+    "actions": "Actions",
+    "status": "Status",
+    "notSet": "Not set",
+    "never": "Never",
+    "none": "None",
+    "all": "All",
+    "yes": "Yes",
+    "no": "No",
+    "loading": "Loading…"
+  },
+  "nav": {
+    "label": "Portal sections",
+    "dashboard": "Dashboard",
+    "vacancies": "Vacancies",
+    "applications": "Applications",
+    "users": "Volunteers",
+    "attendance": "Attendance",
+    "activity": "My activity",
+    "changePassword": "Change password",
+    "coordinators": "Coordinators",
+    "organizations": "Organizations",
+    "audit": "Audit history"
+  },
+  "auth": {
+    "metaTitle": "Sign in",
+    "title": "Administrator sign-in",
+    "subtitle": "Sign in with your administrator email address and password.",
+    "email": "Email",
+    "password": "Password",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "submit": "Sign in",
+    "submitting": "Signing in…",
+    "accessNotice": "Administrator accounts are not created through any web interface, here or anywhere else in this product. There is no sign-up and no password recovery on this page.",
+    "fixtureHint": "Fixture mode is on. Sign in with {email} and the password {password}.",
+    "status": {
+      "expired": "Your session ended. Sign in again to continue.",
+      "signedOut": "You are signed out.",
+      "wrongRole": "That account is not an administrator."
+    }
+  },
+  "states": {
+    "awaitingContract": {
+      "title": "Waiting for the API",
+      "description": "This area needs {endpoint}, which v-backend has not published yet. Nothing is shown rather than something invented."
+    },
+    "expired": {
+      "title": "Your session ended",
+      "description": "Sign in again to carry on where you left off.",
+      "action": "Sign in"
+    },
+    "denied": {
+      "title": "You cannot open this",
+      "description": "Your account is not allowed to see this record. If that looks wrong, ask an administrator."
+    },
+    "missing": {
+      "title": "Not found",
+      "description": "This record does not exist, or it is no longer yours to open."
+    },
+    "unconfigured": {
+      "title": "The portal is not configured",
+      "description": "VOLONTYORLAR_API_URL is not set, so nothing can be read. This is a deployment setting, not something you can fix here."
+    },
+    "failed": {
+      "title": "This did not load",
+      "description": "Something went wrong on the way to the API. Reload the page to try again."
+    },
+    "loading": {
+      "list": "Loading the list…",
+      "panel": "Loading…",
+      "figures": "Loading the figures…"
+    }
+  },
+  "errors": {
+    "server": "Something went wrong. Try again.",
+    "network": "The API could not be reached. Check the connection and try again.",
+    "timeout": "The API took too long to answer. Try again.",
+    "rateLimited": "Too many attempts. Wait a moment and try again.",
+    "unavailable": "The API is unavailable right now. Try again shortly.",
+    "forbidden": "You are not allowed to do that.",
+    "notFound": "That record no longer exists.",
+    "conflict": "That change conflicts with the current state of the record.",
+    "invalidCredentials": "That email address and password do not match an account for this portal.",
+    "wrongRole": "That account cannot use this portal.",
+    "portalUnavailable": "Sign-in is unavailable because this portal is not fully configured.",
+    "accountDisabled": "This account is blocked. Ask an administrator to unblock it.",
+    "sessionExpired": "Your session ended. Sign in again.",
+    "awaitingContract": "The API has not published this operation yet, so it cannot be carried out.",
+    "validationFailed": "Check the highlighted fields and try again.",
+    "passwordChangeRequired": "Change your password before continuing.",
+    "required": "Fill this in.",
+    "email": "Enter a valid email address.",
+    "emailLong": "This email address is too long.",
+    "passwordShort": "Use at least 8 characters.",
+    "passwordLong": "Use at most 128 characters.",
+    "passwordMismatch": "The two passwords do not match.",
+    "passwordUnchanged": "Choose a password different from the current one.",
+    "weakPassword": "The API rejected this password as too easy to guess. Choose another.",
+    "nameLong": "This name is too long.",
+    "tooLong": "This is too long.",
+    "slug": "Use lowercase letters, numbers and single hyphens.",
+    "url": "Enter a full URL, including https://.",
+    "date": "Enter a valid date and time.",
+    "deadlineAfterStart": "The deadline must fall before the vacancy starts.",
+    "endBeforeStart": "The end must fall after the start.",
+    "capacity": "Enter a whole number of places, at least one.",
+    "hours": "Enter the hours as a number between 0 and 999.",
+    "confirmedHoursRequired": "Enter the hours before confirming attendance.",
+    "emailUnavailable": "Another account already uses this email address.",
+    "slugUnavailable": "Another record already uses this address.",
+    "opportunityNotFound": "That vacancy no longer exists, or it is not yours.",
+    "organizationNotVerified": "This vacancy cannot be published until its organization is verified.",
+    "applicationNotFound": "That application no longer exists, or it is not yours.",
+    "applicationCannotBeReviewed": "This application can no longer be reviewed.",
+    "attendanceNotFound": "There is no attendance record for this application.",
+    "attendanceOutcomeNotResolved": "Choose attended, excused or cancelled.",
+    "adminWorkflowsDisabled": "The API has these workflows switched off.",
+    "userNotFound": "That volunteer no longer exists, or you are not allowed to open the record.",
+    "coordinatorNotFound": "That coordinator no longer exists.",
+    "coordinatorHasActiveOpportunities": "This coordinator still owns active vacancies. Choose who takes them over first.",
+    "invalidCoordinatorReassignment": "Choose a different coordinator to take the vacancies over.",
+    "organizationNotFound": "That organization no longer exists.",
+    "rateLimitExceeded": "Too many attempts. Wait a moment and try again."
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "description": "Every figure below covers the whole product, not one coordinator.",
+    "eyebrow": "Overview",
+    "range": "{from} to {to}",
+    "figures": {
+      "vacancies": "Vacancies",
+      "publishedVacancies": "Published",
+      "applications": "Applications",
+      "pendingReview": "Awaiting review",
+      "accepted": "Accepted",
+      "awaitingAttendance": "Attendance to confirm",
+      "attended": "Attended",
+      "confirmedHours": "Confirmed hours",
+      "volunteers": "Volunteers"
+    },
+    "next": {
+      "title": "What needs you next",
+      "review": "Review {count, plural, =0 {no applications} one {one application} other {# applications}}",
+      "attendance": "Confirm {count, plural, =0 {no attendance} one {one attendance record} other {# attendance records}}",
+      "empty": "Nothing is waiting on you."
+    },
+    "coordinators": {
+      "title": "Coordinators",
+      "active": "Active",
+      "blocked": "Blocked",
+      "removed": "Removed"
+    }
+  },
+  "vacancies": {
+    "title": "Vacancies",
+    "description": "Every vacancy in the product, whoever created it.",
+    "new": "New vacancy",
+    "empty": {
+      "title": "No vacancies yet",
+      "description": "Create a vacancy, or wait for a coordinator to create one."
+    },
+    "noMatches": {
+      "title": "Nothing matches those filters",
+      "description": "Clear the filters to see every vacancy again."
+    },
+    "filters": {
+      "legend": "Filter vacancies",
+      "search": "Search by title or address",
+      "stage": "Stage"
+    },
+    "stage": {
+      "all": "Every stage",
+      "draft": "Draft",
+      "published": "Published",
+      "archived": "Archived"
+    },
+    "table": {
+      "caption": "Every vacancy",
+      "title": "Vacancy",
+      "organization": "Organization",
+      "stage": "Stage",
+      "deadline": "Applications close",
+      "starts": "Starts",
+      "open": "Open",
+      "coordinator": "Coordinator"
+    },
+    "detail": {
+      "eyebrow": "Vacancy",
+      "summary": "Summary",
+      "description": "Description",
+      "requirements": "Requirements",
+      "questions": "Application questions",
+      "noQuestions": "This vacancy asks no questions of its own.",
+      "details": "Details",
+      "applications": "Applications to this vacancy",
+      "noApplications": "No one has applied yet."
+    },
+    "fields": {
+      "title": "Title",
+      "slug": "Address",
+      "slugHelp": "Lowercase letters, numbers and single hyphens. It becomes part of the public link.",
+      "summary": "Summary",
+      "summaryHelp": "One or two sentences, shown in listings.",
+      "description": "Description",
+      "organization": "Organization",
+      "organizationHelp": "Only a verified organization can have its vacancies published.",
+      "region": "Region",
+      "format": "Format",
+      "city": "City",
+      "locationName": "Place",
+      "startsAt": "Starts",
+      "endsAt": "Ends",
+      "applicationDeadline": "Applications close",
+      "capacity": "Places",
+      "capacityHelp": "Leave empty when there is no limit.",
+      "requirements": "Requirements",
+      "requirementsHelp": "One requirement per line."
+    },
+    "form": {
+      "createTitle": "New vacancy",
+      "createDescription": "A new vacancy starts as a draft. Nothing is public until you publish it.",
+      "editTitle": "Edit vacancy",
+      "submitCreate": "Create the draft",
+      "submitUpdate": "Save changes",
+      "pending": "Saving…",
+      "created": "The draft was created.",
+      "updated": "The changes were saved.",
+      "noOrganizations": "No organization is available yet, so a vacancy cannot be created. Ask an administrator to add one."
+    },
+    "publish": {
+      "trigger": "Publish",
+      "title": "Publish this vacancy?",
+      "description": "Volunteers will see it and can start applying. You can archive it later.",
+      "confirm": "Publish",
+      "pending": "Publishing…"
+    },
+    "archive": {
+      "trigger": "Archive",
+      "title": "Archive this vacancy?",
+      "description": "It stops accepting applications and disappears from the public list. This cannot be undone from here.",
+      "confirm": "Archive",
+      "pending": "Archiving…"
+    },
+    "archivedNotice": "This vacancy is archived. It can no longer be edited."
+  },
+  "applications": {
+    "title": "Applications",
+    "description": "Every application in the product.",
+    "empty": {
+      "title": "No applications yet",
+      "description": "Applications appear here once volunteers apply to your published vacancies."
+    },
+    "noMatches": {
+      "title": "Nothing matches those filters",
+      "description": "Clear the filters to see every application again."
+    },
+    "filters": {
+      "legend": "Filter applications",
+      "search": "Search by volunteer or vacancy",
+      "status": "Status",
+      "vacancy": "Vacancy"
+    },
+    "status": {
+      "all": "Every status",
+      "draft": "Draft",
+      "submitted": "Submitted",
+      "under_review": "Under review",
+      "accepted": "Accepted",
+      "rejected": "Rejected",
+      "withdrawn": "Withdrawn",
+      "closed": "Closed"
+    },
+    "table": {
+      "caption": "Applications awaiting a decision",
+      "volunteer": "Volunteer",
+      "vacancy": "Vacancy",
+      "status": "Status",
+      "submitted": "Submitted",
+      "open": "Open"
+    },
+    "detail": {
+      "eyebrow": "Application",
+      "snapshot": "Profile as submitted",
+      "snapshotNote": "This is the profile the volunteer submitted with the application, not their profile today.",
+      "noSnapshot": "This application carries no profile snapshot.",
+      "answers": "Answers",
+      "noAnswers": "This application has no answers.",
+      "history": "History",
+      "reviewerNote": "Note to the volunteer",
+      "volunteer": "Volunteer record"
+    },
+    "history": {
+      "createdAt": "Started",
+      "submittedAt": "Submitted",
+      "reviewedAt": "Reviewed",
+      "withdrawnAt": "Withdrawn",
+      "updatedAt": "Last change"
+    },
+    "review": {
+      "title": "Record a decision",
+      "decision": "Decision",
+      "note": "Note to the volunteer",
+      "noteHelp": "Optional. The volunteer can read this.",
+      "submit": "Record the decision",
+      "pending": "Recording…",
+      "success": "The decision was recorded.",
+      "closed": "This application can no longer be reviewed."
+    },
+    "snapshotFields": {
+      "fullName": "Full name",
+      "region": "Region",
+      "school": "School",
+      "phone": "Phone",
+      "telegram": "Telegram"
+    }
+  },
+  "users": {
+    "title": "Volunteers",
+    "description": "Every volunteer in the product.",
+    "empty": {
+      "title": "No volunteers yet",
+      "description": "Volunteers appear here once they join and apply."
+    },
+    "noMatches": {
+      "title": "No volunteer matches that search",
+      "description": "Clear the search to see everyone again."
+    },
+    "filters": {
+      "legend": "Search volunteers",
+      "search": "Search by name or email"
+    },
+    "table": {
+      "caption": "Volunteers you can open",
+      "name": "Volunteer",
+      "email": "Email",
+      "applications": "Applications",
+      "attendance": "Attendance",
+      "passwordLogin": "Password sign-in",
+      "joined": "Joined",
+      "open": "Open",
+      "passwordChangedAt": "Password last changed",
+      "passwordChangeRequired": "Must change at next sign-in"
+    },
+    "detail": {
+      "eyebrow": "Volunteer",
+      "account": "Account",
+      "applications": "Applications",
+      "noApplications": "This volunteer has no application to your vacancies.",
+      "profile": "Profile as submitted"
+    },
+    "passwordState": {
+      "none": "No password sign-in",
+      "set": "Password set",
+      "changedAt": "Last changed {when}",
+      "neverChanged": "Never changed",
+      "required": "Must change at next sign-in"
+    },
+    "password": {
+      "title": "Assign a temporary password",
+      "description": "This replaces the volunteer's password and forces them to choose a new one at the next sign-in. Existing sessions end immediately.",
+      "privacy": "An existing password can never be read, by anyone, here or in the API. Assigning a replacement is the only option.",
+      "label": "Temporary password",
+      "help": "At least 8 characters. Tell it to the volunteer over a channel you trust.",
+      "trigger": "Assign a temporary password",
+      "confirm": "Assign it",
+      "pending": "Assigning…",
+      "success": "The temporary password was assigned."
+    }
+  },
+  "attendance": {
+    "title": "Attendance",
+    "description": "Confirm attendance and hours for any accepted volunteer.",
+    "empty": {
+      "title": "Nothing to confirm",
+      "description": "Accepted applications appear here when their attendance is still open."
+    },
+    "table": {
+      "caption": "Accepted volunteers awaiting an attendance decision",
+      "volunteer": "Volunteer",
+      "vacancy": "Vacancy",
+      "outcome": "Outcome",
+      "hours": "Hours",
+      "when": "Event"
+    },
+    "outcome": {
+      "attended": "Attended",
+      "excused": "Excused",
+      "cancelled": "Cancelled",
+      "awaiting_confirmation": "Awaiting confirmation",
+      "unknown": "Not published by the API"
+    },
+    "resolve": {
+      "trigger": "Confirm",
+      "title": "Confirm attendance",
+      "description": "This decision counts towards the volunteer's record, so it cannot be undone from here.",
+      "outcome": "Outcome",
+      "hours": "Confirmed hours",
+      "hoursHelp": "Required when the volunteer attended.",
+      "confirm": "Save the decision",
+      "pending": "Saving…",
+      "success": "Attendance was confirmed."
+    },
+    "resolved": "Resolved {when}"
+  },
+  "activity": {
+    "title": "My activity",
+    "description": "Everything you did in this portal, newest first.",
+    "empty": {
+      "title": "No activity yet",
+      "description": "Creating a coordinator, publishing a vacancy or confirming attendance is recorded here."
+    },
+    "noMatches": {
+      "title": "Nothing matches those filters",
+      "description": "Clear the filters to see the whole history again."
+    },
+    "filters": {
+      "legend": "Filter activity",
+      "search": "Search the history",
+      "action": "Action"
+    },
+    "table": {
+      "caption": "Your recorded actions",
+      "action": "Action",
+      "entity": "Record",
+      "when": "When"
+    }
+  },
+  "account": {
+    "title": "Change password",
+    "description": "Choose a new password for your administrator account.",
+    "required": {
+      "title": "Choose a new password",
+      "description": "An administrator gave you a temporary password. Change it before you can use the portal."
+    },
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "newPasswordHelp": "At least 8 characters. Do not reuse a password from anywhere else.",
+    "confirmPassword": "Repeat the new password",
+    "submit": "Change the password",
+    "pending": "Changing…",
+    "success": "Your password was changed.",
+    "continue": "Go to the dashboard"
+  },
+  "coordinators": {
+    "title": "Coordinators",
+    "description": "Create coordinators, and block, unblock or remove the ones that exist.",
+    "new": "New coordinator",
+    "empty": {
+      "title": "No coordinators yet",
+      "description": "Create the first coordinator to start delegating vacancies."
+    },
+    "noMatches": {
+      "title": "No coordinator matches those filters",
+      "description": "Clear the filters to see everyone again."
+    },
+    "filters": {
+      "legend": "Filter coordinators",
+      "search": "Search by name or email",
+      "status": "Status"
+    },
+    "status": {
+      "all": "Every status",
+      "active": "Active",
+      "blocked": "Blocked",
+      "removed": "Removed"
+    },
+    "table": {
+      "caption": "Coordinators",
+      "name": "Coordinator",
+      "email": "Email",
+      "status": "Status",
+      "vacancies": "Vacancies",
+      "passwordLogin": "Password sign-in",
+      "created": "Created",
+      "open": "Open"
+    },
+    "detail": {
+      "eyebrow": "Coordinator",
+      "account": "Account",
+      "vacancies": "Vacancies they own",
+      "noVacancies": "This coordinator owns no vacancies.",
+      "activity": "Their recorded actions",
+      "noActivity": "This coordinator has done nothing yet."
+    },
+    "create": {
+      "title": "New coordinator",
+      "description": "The coordinator signs in with this email address and the temporary password you set, and must choose a new password before doing anything else.",
+      "name": "Full name",
+      "email": "Email",
+      "temporaryPassword": "Temporary password",
+      "temporaryPasswordHelp": "At least 8 characters. Tell it to the coordinator over a channel you trust — it cannot be read back afterwards.",
+      "submit": "Create the coordinator",
+      "pending": "Creating…",
+      "success": "The coordinator was created and must change this password at first sign-in."
+    },
+    "block": {
+      "trigger": "Block",
+      "title": "Block this coordinator?",
+      "description": "They are signed out everywhere and cannot sign in again until you unblock them. Their vacancies are untouched.",
+      "confirm": "Block",
+      "pending": "Blocking…"
+    },
+    "unblock": {
+      "trigger": "Unblock",
+      "title": "Unblock this coordinator?",
+      "description": "They can sign in again with the password they already have.",
+      "confirm": "Unblock",
+      "pending": "Unblocking…"
+    },
+    "remove": {
+      "trigger": "Remove",
+      "title": "Remove this coordinator?",
+      "description": "They lose the coordinator role and every session ends. The record stays for the audit history.",
+      "reassign": "Give their active vacancies to",
+      "reassignHelp": "Active vacancies must go to another active coordinator before this one can be removed.",
+      "reassignPlaceholder": "Choose a coordinator",
+      "noCandidates": "There is no other active coordinator to take the vacancies over. Create one first.",
+      "confirm": "Remove",
+      "pending": "Removing…"
+    },
+    "password": {
+      "title": "Assign a temporary password",
+      "description": "This replaces the coordinator's password and forces them to choose a new one at the next sign-in. Existing sessions end immediately.",
+      "privacy": "An existing password can never be read, by anyone, here or in the API. Assigning a replacement is the only option.",
+      "label": "Temporary password",
+      "help": "At least 8 characters. Tell it to the coordinator over a channel you trust.",
+      "trigger": "Assign a temporary password",
+      "confirm": "Assign it",
+      "pending": "Assigning…",
+      "success": "The temporary password was assigned."
+    },
+    "adminNotice": "Administrators cannot be created, listed or reset here. That is deliberate: there is no web interface for it anywhere in this product."
+  },
+  "organizations": {
+    "title": "Organizations",
+    "description": "A vacancy can only be published under a verified organization.",
+    "new": "New organization",
+    "empty": {
+      "title": "No organizations yet",
+      "description": "Add the first organization so vacancies have somewhere to belong."
+    },
+    "noMatches": {
+      "title": "Nothing matches those filters",
+      "description": "Clear the filters to see every organization again."
+    },
+    "filters": {
+      "legend": "Filter organizations",
+      "search": "Search by name or address",
+      "verified": "Verification"
+    },
+    "verified": {
+      "all": "Any",
+      "yes": "Verified",
+      "no": "Not verified"
+    },
+    "table": {
+      "caption": "Organizations",
+      "name": "Organization",
+      "slug": "Address",
+      "verified": "Verified",
+      "edit": "Edit"
+    },
+    "fields": {
+      "name": "Name",
+      "slug": "Address",
+      "slugHelp": "Lowercase letters, numbers and single hyphens. It cannot be changed later.",
+      "logoUrl": "Logo URL",
+      "logoUrlHelp": "Optional. A full https:// address.",
+      "verified": "Verified",
+      "verifiedHelp": "Only a verified organization can have its vacancies published."
+    },
+    "create": {
+      "title": "New organization",
+      "submit": "Create the organization",
+      "pending": "Creating…",
+      "success": "The organization was created."
+    },
+    "update": {
+      "title": "Edit organization",
+      "submit": "Save changes",
+      "pending": "Saving…",
+      "success": "The changes were saved."
+    }
+  },
+  "audit": {
+    "title": "Audit history",
+    "description": "Every recorded action, filtered by coordinator and by action.",
+    "empty": {
+      "title": "Nothing recorded yet",
+      "description": "Actions appear here as coordinators and administrators work."
+    },
+    "noMatches": {
+      "title": "Nothing matches those filters",
+      "description": "Clear the filters to see the whole history again."
+    },
+    "filters": {
+      "legend": "Filter the audit history",
+      "search": "Search the history",
+      "action": "Action",
+      "actor": "Coordinator",
+      "from": "From",
+      "to": "To"
+    },
+    "table": {
+      "caption": "Recorded actions",
+      "action": "Action",
+      "entity": "Record",
+      "actor": "Who",
+      "when": "When"
+    },
+    "unknownActor": "Not recorded"
+  },
+  "vocabulary": {
+    "regions": {
+      "andijan": "Andijan",
+      "bukhara": "Bukhara",
+      "fergana": "Fergana",
+      "jizzakh": "Jizzakh",
+      "kashkadarya": "Kashkadarya",
+      "khorezm": "Khorezm",
+      "namangan": "Namangan",
+      "navoiy": "Navoiy",
+      "samarkand": "Samarkand",
+      "sirdaryo": "Sirdaryo",
+      "surkhandarya": "Surkhandarya",
+      "tashkent-region": "Tashkent region",
+      "tashkent-city": "Tashkent city",
+      "karakalpakstan": "Karakalpakstan"
+    },
+    "formats": {
+      "onsite": "On site",
+      "remote": "Remote",
+      "hybrid": "Hybrid"
+    }
+  }
+}
