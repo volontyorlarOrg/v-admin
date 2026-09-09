@@ -12,8 +12,8 @@ import { StatePanel } from "@/components/states/state-panel";
 import { buttonClass } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
 import { failureOf, isReady } from "@/lib/api/load";
-import { loadApplications } from "@/lib/applications/data.server";
-import { findApplication, volunteerNameOf } from "@/lib/applications/filters";
+import { loadApplication } from "@/lib/applications/data.server";
+import { volunteerNameOf } from "@/lib/applications/filters";
 import { REVIEW_DECISIONS, isReviewable } from "@/lib/domain/vocabulary";
 import { errorCatalog } from "@/lib/vacancies/labels.server";
 import { userHref, vacancyHref } from "@/lib/routing/routes";
@@ -39,7 +39,7 @@ export default async function ApplicationPage({
   const errors = await getTranslations("errors");
   const format = await getFormatter();
 
-  const loaded = await loadApplications();
+  const loaded = await loadApplication(id);
   const failure = failureOf(loaded);
 
   if (failure) {
@@ -51,8 +51,9 @@ export default async function ApplicationPage({
     );
   }
 
-  const application = isReady(loaded) ? findApplication(loaded.data, id) : undefined;
-  if (!application) notFound();
+  if (!isReady(loaded)) notFound();
+
+  const application = loaded.data;
 
   const name = volunteerNameOf(application);
   const snapshot = application.profileSnapshot;

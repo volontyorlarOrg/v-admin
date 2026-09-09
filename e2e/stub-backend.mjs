@@ -641,6 +641,9 @@ const server = createServer(async (request, response) => {
     const item = ownedVacancies(actor).find((candidate) => candidate.id === id);
     if (!item) return send(response, 404, { code: "opportunityNotFound" });
 
+    if (!verb && method === "GET") {
+      return send(response, 200, withOrganization(item));
+    }
     if (!verb && method === "PATCH") {
       Object.assign(item, body, { updatedAt: new Date().toISOString() });
       record("opportunity.updated", "Opportunity", item.id, actor.id);
@@ -678,6 +681,15 @@ const server = createServer(async (request, response) => {
         )
         .map(withRelations),
     );
+  }
+
+  const applicationMatch = /^\/(staff|admin)\/applications\/([^/]+)$/.exec(path);
+  if (applicationMatch && method === "GET") {
+    const item = ownedApplications(actor).find(
+      (candidate) => candidate.id === applicationMatch[2],
+    );
+    if (!item) return send(response, 404, { code: "applicationNotFound" });
+    return send(response, 200, withRelations(item));
   }
 
   const reviewMatch = /^\/(staff|admin)\/applications\/([^/]+)\/review$/.exec(path);

@@ -208,6 +208,14 @@ const readers: Record<string, (params: Params, query: Query) => unknown> = {
     return paged(filtered, query);
   },
   vacancies: () => ownedVacancies().map(withOrganization),
+  vacancy: (params) => {
+    const vacancy = ownedVacancies().find((item) => item.id === params?.id);
+    return vacancy ? withOrganization(vacancy) : undefined;
+  },
+  application: (params) => {
+    const application = ownedApplications().find((item) => item.id === params?.id);
+    return application ? withRelations(application) : undefined;
+  },
   applications: (_params, query) => {
     const status = text(query, "status");
     const opportunityId = text(query, "opportunityId");
