@@ -95,6 +95,11 @@
       "list": "Loading the list…",
       "panel": "Loading…",
       "figures": "Loading the figures…"
+    },
+    "passwordChangeRequired": {
+      "title": "Change your password first",
+      "description": "An administrator set a temporary password on your account. Change it and this screen will work again.",
+      "action": "Change password"
     }
   },
   "errors": {

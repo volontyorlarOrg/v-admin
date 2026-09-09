@@ -72,7 +72,6 @@ export default async function AuditPage({
 
   const failure = failureOf(loaded);
   const events = isReady(loaded) ? loaded.data.items : [];
-  const filtered = action ? events.filter((event) => event.action === action) : events;
   const listPath = navHref("audit");
 
   const actors = new Map(
@@ -99,7 +98,7 @@ export default async function AuditPage({
             resetHref={listPath}
             hideSearch
           >
-            <FilterSelect id="filter-action" name="action" label={t("filters.action")}>
+            <FilterSelect id="filter-action" label={t("filters.action")}>
               <NativeSelect id="filter-action" name="action" defaultValue={action}>
                 <NativeSelectOption value="">{common("all")}</NativeSelectOption>
                 {auditActionOptions(actionNames(events)).map((name) => (
@@ -110,7 +109,7 @@ export default async function AuditPage({
               </NativeSelect>
             </FilterSelect>
 
-            <FilterSelect id="filter-actor" name="actor" label={t("filters.actor")}>
+            <FilterSelect id="filter-actor" label={t("filters.actor")}>
               <NativeSelect id="filter-actor" name="actor" defaultValue={actorUserId}>
                 <NativeSelectOption value="">{common("all")}</NativeSelectOption>
                 {[...actors].map(([id, name]) => (
@@ -130,7 +129,7 @@ export default async function AuditPage({
             <FilterDate id="filter-to" name="to" label={t("filters.to")} value={to} />
           </FilterForm>
 
-          {filtered.length === 0 ? (
+          {events.length === 0 ? (
             <EmptyState
               title={
                 action || actorUserId || from || to
@@ -157,7 +156,7 @@ export default async function AuditPage({
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filtered.map((event) => (
+                    {events.map((event) => (
                       <TableRow key={event.id}>
                         <TableCell className="font-medium text-ink">
                           {event.action}

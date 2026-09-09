@@ -2,8 +2,6 @@ import { describe, expect, it } from "vitest";
 
 import {
   acceptedApplications,
-  awaitingAttendance,
-  findApplication,
   isAttendanceResolved,
   searchApplications,
   sortApplications,
@@ -100,52 +98,6 @@ describe("sortApplications", () => {
     ];
 
     expect(sortApplications(items).map((item) => item.id)).toEqual(["a", "b"]);
-  });
-});
-
-describe("awaitingAttendance", () => {
-  const base = { id: "x", status: "accepted" as const };
-
-  it("keeps accepted applications with no attendance decision yet", () => {
-    const items = [
-      application({ ...base, id: "none" }),
-      application({
-        ...base,
-        id: "awaiting",
-        attendance: {
-          id: "att",
-          outcome: "awaiting_confirmation",
-          applicationId: "awaiting",
-          volunteerId: "v",
-          opportunityId: "o",
-        },
-      }),
-      application({
-        ...base,
-        id: "attended",
-        attendance: {
-          id: "att2",
-          outcome: "attended",
-          applicationId: "attended",
-          volunteerId: "v",
-          opportunityId: "o",
-        },
-      }),
-      application({ id: "rejected", status: "rejected" }),
-    ];
-
-    expect(awaitingAttendance(items).map((item) => item.id)).toEqual([
-      "none",
-      "awaiting",
-    ]);
-  });
-});
-
-describe("findApplication", () => {
-  it("matches on the identifier only", () => {
-    const items = [application({ id: "a" })];
-    expect(findApplication(items, "a")?.id).toBe("a");
-    expect(findApplication(items, "vac-1")).toBeUndefined();
   });
 });
 

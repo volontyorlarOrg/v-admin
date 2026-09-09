@@ -8,6 +8,7 @@ export type Loaded<T> =
   | { state: "awaitingContract"; endpoint: EndpointName }
   | { state: "denied" }
   | { state: "expired" }
+  | { state: "passwordChangeRequired" }
   | { state: "missing" }
   | { state: "unconfigured" }
   | { state: "failed"; code: string; retryable: boolean };
@@ -20,10 +21,6 @@ export function isReady<T>(
   loaded: Loaded<T>,
 ): loaded is { state: "ready"; data: T; source: LoadSource } {
   return loaded.state === "ready";
-}
-
-export function dataOr<T>(loaded: Loaded<T>, fallback: T): T {
-  return isReady(loaded) ? loaded.data : fallback;
 }
 
 export function failureOf<T>(
@@ -43,7 +40,12 @@ export function loadedFromError<T>(
 
   if (apiError.code === "notConfigured") return { state: "unconfigured" };
   if (apiError.code === "unauthenticated") return { state: "expired" };
-  if (apiError.code === "forbidden") return { state: "denied" };
+
+  if (apiError.code === "forbidden") {
+    return apiError.requiresPasswordChange
+      ? { state: "passwordChangeRequired" }
+      : { state: "denied" };
+  }
 
   const unimplemented = !published && apiError.backendCode === null;
 

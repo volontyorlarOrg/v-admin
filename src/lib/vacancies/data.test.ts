@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { filterVacancies, findVacancy } from "@/lib/vacancies/filters";
+import { filterVacancies } from "@/lib/vacancies/filters";
 import type { Vacancy } from "@/lib/api/schemas";
 
 function vacancy(overrides: Partial<Vacancy> & { id: string }): Vacancy {
@@ -73,12 +73,5 @@ describe("filterVacancies", () => {
 
   it("combines a search with a stage", () => {
     expect(filterVacancies(all, { q: "room", stage: "draft" })).toEqual([]);
-  });
-});
-
-describe("findVacancy", () => {
-  it("matches an id or a slug", () => {
-    expect(findVacancy(all, "b")?.id).toBe("b");
-    expect(findVacancy(all, "nothing")).toBeUndefined();
   });
 });

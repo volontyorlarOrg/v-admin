@@ -86,7 +86,7 @@ export default async function ApplicationsPage({
             searchValue={q}
             resetHref={listPath}
           >
-            <FilterSelect id="filter-status" name="status" label={t("filters.status")}>
+            <FilterSelect id="filter-status" label={t("filters.status")}>
               <NativeSelect
                 id="filter-status"
                 name="status"

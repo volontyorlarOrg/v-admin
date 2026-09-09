@@ -111,11 +111,7 @@ export default async function OrganizationsPage({
             searchValue={q}
             resetHref={listPath}
           >
-            <FilterSelect
-              id="filter-verified"
-              name="verified"
-              label={t("filters.verified")}
-            >
+            <FilterSelect id="filter-verified" label={t("filters.verified")}>
               <NativeSelect
                 id="filter-verified"
                 name="verified"

@@ -15,9 +15,3 @@ export function filterOrganizations(
       return `${organization.name} ${organization.slug}`.toLowerCase().includes(term);
     });
 }
-
-export function publishableOrganizations(
-  organizations: Organization[],
-): Organization[] {
-  return organizations.filter((organization) => organization.verified);
-}

@@ -88,7 +88,7 @@ export default async function VacanciesPage({
             searchValue={q}
             resetHref={listPath}
           >
-            <FilterSelect id="filter-stage" name="stage" label={t("filters.stage")}>
+            <FilterSelect id="filter-stage" label={t("filters.stage")}>
               <NativeSelect id="filter-stage" name="stage" defaultValue={stage ?? ""}>
                 <NativeSelectOption value="">{t("stage.all")}</NativeSelectOption>
                 {VACANCY_STAGES.map((value) => (

@@ -28,11 +28,14 @@ import {
   stageOf,
 } from "@/lib/domain/vocabulary";
 import { applicationHref } from "@/lib/routing/routes";
-import { archiveVacancyAction, publishVacancyAction } from "@/lib/vacancies/actions";
+import {
+  archiveVacancyAction,
+  publishVacancyAction,
+  updateVacancyAction,
+} from "@/lib/vacancies/actions";
 import { loadOrganizations, loadVacancy } from "@/lib/vacancies/data.server";
 import { errorCatalog, vacancyFormLabels } from "@/lib/vacancies/labels.server";
 import { toDateTimeLocal } from "@/lib/vacancies/form";
-import { updateVacancyAction } from "@/lib/vacancies/actions";
 
 export const dynamic = "force-dynamic";
 

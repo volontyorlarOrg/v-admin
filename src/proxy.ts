@@ -37,11 +37,23 @@ function isNavigation(request: NextRequest) {
   return request.headers.get("accept")?.includes("text/html") ?? false;
 }
 
-function expireSessionCookie(response: NextResponse) {
-  response.cookies.set(SESSION_COOKIE_NAME, "", {
-    ...sessionCookieOptions(),
-    maxAge: 0,
-  });
+async function carrySession(
+  response: NextResponse,
+  rotated: SessionPayload | null,
+  cleared: boolean,
+) {
+  if (cleared) {
+    response.cookies.set(SESSION_COOKIE_NAME, "", {
+      ...sessionCookieOptions(),
+      maxAge: 0,
+    });
+    return response;
+  }
+
+  if (!rotated) return response;
+
+  const value = await encryptSession(rotated);
+  if (value) response.cookies.set(SESSION_COOKIE_NAME, value, sessionCookieOptions());
   return response;
 }
 
@@ -66,18 +78,21 @@ export default async function proxy(request: NextRequest) {
     }
   }
 
+  const redirectTo = (route: typeof ENTRY_ROUTE) =>
+    NextResponse.redirect(new URL(localePath(locale, route), request.url), 307);
+
   if (guard === "session" && !session) {
     const loginUrl = new URL(localePath(locale, ENTRY_ROUTE), request.url);
     loginUrl.searchParams.set("next", `${pathname}${search}`);
     if (cookie || refreshFailed) loginUrl.searchParams.set("session", "expired");
-    return expireSessionCookie(NextResponse.redirect(loginUrl, 307));
+    return carrySession(NextResponse.redirect(loginUrl, 307), null, true);
   }
 
   if (guard === "guest" && session) {
-    const destination = session.passwordChangeRequired ? PASSWORD_ROUTE : HOME_ROUTE;
-    return NextResponse.redirect(
-      new URL(localePath(locale, destination), request.url),
-      307,
+    return carrySession(
+      redirectTo(session.passwordChangeRequired ? PASSWORD_ROUTE : HOME_ROUTE),
+      rotated,
+      false,
     );
   }
 
@@ -86,25 +101,14 @@ export default async function proxy(request: NextRequest) {
     guard === "session" &&
     pathWithoutLocale(pathname) !== getRoute(PASSWORD_ROUTE).path
   ) {
-    return NextResponse.redirect(
-      new URL(localePath(locale, PASSWORD_ROUTE), request.url),
-      307,
-    );
+    return carrySession(redirectTo(PASSWORD_ROUTE), rotated, false);
   }
 
   const response = intl(request);
-
-  if (rotated) {
-    const value = await encryptSession(rotated);
-    if (value) response.cookies.set(SESSION_COOKIE_NAME, value, sessionCookieOptions());
-  } else if (refreshFailed) {
-    expireSessionCookie(response);
-  }
-
   response.headers.set("Cache-Control", "private, no-store");
   response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
 
-  return response;
+  return carrySession(response, rotated, refreshFailed);
 }
 
 export const config = {

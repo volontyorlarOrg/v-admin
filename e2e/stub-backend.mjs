@@ -214,6 +214,7 @@ function reset() {
       },
     ],
     sessions: new Map(),
+    broken: null,
   };
 }
 
@@ -503,6 +504,23 @@ const server = createServer(async (request, response) => {
     return send(response, 200, { status: "expired" });
   }
 
+  if (path === "/__stub/require-password-change" && method === "POST") {
+    const target = state.users.find((item) => item.email === body.email);
+    if (!target) return send(response, 404, { code: "userNotFound" });
+    target.passwordCredential = {
+      passwordChangedAt: new Date().toISOString(),
+      requiresPasswordChange: true,
+    };
+    return send(response, 200, { status: "changeRequired" });
+  }
+
+  if (path === "/__stub/break" && method === "POST") {
+    state.broken = body.path
+      ? { path: body.path, status: body.status ?? 503, code: body.code ?? "server" }
+      : null;
+    return send(response, 200, { broken: state.broken });
+  }
+
   if (path === "/auth/staff/login" || path === "/auth/admin/login") {
     const role = path === "/auth/admin/login" ? "admin" : "coordinator";
     const email = String(body.email ?? "")
@@ -526,6 +544,10 @@ const server = createServer(async (request, response) => {
     const user = userById(session.userId);
     if (!user?.isActive) return send(response, 401, { code: "invalidRefreshToken" });
     return send(response, 200, issueSession(user));
+  }
+
+  if (state.broken && path === state.broken.path) {
+    return send(response, state.broken.status, { code: state.broken.code });
   }
 
   const actor = authenticate(request);

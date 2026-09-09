@@ -51,7 +51,8 @@ Every read goes through `read()` in `src/lib/api/gateway.server.ts`, which:
 5. classifies any failure into the `Loaded` envelope.
 
 A page therefore never sees an exception, only one of: `ready`, `awaitingContract`,
-`denied`, `expired`, `missing`, `unconfigured`, `failed`. `LoadFailure` renders
+`denied`, `expired`, `passwordChangeRequired`, `missing`, `unconfigured`,
+`failed`. `LoadFailure` renders
 each of those, and a page renders the failure **and** whatever else it can.
 
 `awaitingContract` is not dead code now that `v-backend` has published this
@@ -59,6 +60,10 @@ contract: it is what the next unpublished operation will render, and the
 registry's statuses are what decide when.
 
 ## Writing
+
+A write that meets a `401` refreshes the session once and retries, because a
+Server Action can set a cookie where a render cannot: a coordinator who spent
+twenty minutes on a form does not lose it to an expired access token.
 
 Every write is a Server Action returning `ActionResult`
 (`idle` | `ok` | `error` with a code and field errors). Actions live in

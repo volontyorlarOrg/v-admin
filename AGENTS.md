@@ -36,8 +36,7 @@ otherwise.** So:
   else;
 - **every read is `read()` and every write is `write()`** in
   `src/lib/api/gateway.server.ts`. A page receives a `Loaded<T>` envelope, never
-  an exception, and renders `LoadFailure` for whichever of the six failures it
-  got. A response the Zod schema in `src/lib/api/schemas.ts` rejects is an error,
+  an exception, and renders `LoadFailure` for whichever failure it got. A response the Zod schema in `src/lib/api/schemas.ts` rejects is an error,
   never a guess;
 - **the portal needs `VOLONTYORLAR_API_URL` and
   `VOLONTYORLAR_ADMIN_SESSION_SECRET`.** Both are server-only. Without them

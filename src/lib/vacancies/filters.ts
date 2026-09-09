@@ -26,7 +26,3 @@ export function filterVacancies(
       .includes(term);
   });
 }
-
-export function findVacancy(vacancies: Vacancy[], id: string): Vacancy | undefined {
-  return vacancies.find((vacancy) => vacancy.id === id || vacancy.slug === id);
-}

@@ -3,7 +3,6 @@ import { describe, expect, it } from "vitest";
 import {
   activeVacanciesOf,
   byStatus,
-  countByStatus,
   needsReassignment,
   reassignmentCandidates,
   statusOf,
@@ -55,13 +54,6 @@ describe("byStatus", () => {
 
   it("returns everything when no status is chosen", () => {
     expect(byStatus(all, undefined)).toHaveLength(4);
-  });
-});
-
-describe("countByStatus", () => {
-  it("counts all three states, including the empty ones", () => {
-    expect(countByStatus(all)).toEqual({ active: 2, blocked: 1, removed: 1 });
-    expect(countByStatus([])).toEqual({ active: 0, blocked: 0, removed: 0 });
   });
 });
 

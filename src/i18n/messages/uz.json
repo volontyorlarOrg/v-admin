@@ -95,6 +95,11 @@
       "list": "Roʻyxat yuklanmoqda…",
       "panel": "Yuklanmoqda…",
       "figures": "Koʻrsatkichlar yuklanmoqda…"
+    },
+    "passwordChangeRequired": {
+      "title": "Avval parolni oʻzgartiring",
+      "description": "Administrator hisobingizga vaqtinchalik parol oʻrnatdi. Uni oʻzgartiring va bu ekran yana ishlaydi.",
+      "action": "Parolni oʻzgartirish"
     }
   },
   "errors": {

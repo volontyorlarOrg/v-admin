@@ -28,16 +28,6 @@ export function sortApplications(applications: Application[]): Application[] {
   });
 }
 
-export function awaitingAttendance(applications: Application[]): Application[] {
-  return applications.filter(
-    (application) =>
-      application.status === "accepted" &&
-      application.attendance?.outcome !== "attended" &&
-      application.attendance?.outcome !== "excused" &&
-      application.attendance?.outcome !== "cancelled",
-  );
-}
-
 export function acceptedApplications(applications: Application[]): Application[] {
   return applications.filter((application) => application.status === "accepted");
 }
@@ -53,11 +43,4 @@ export function unresolvedFirst(applications: Application[]): Application[] {
 export function isAttendanceResolved(application: Application): boolean {
   const outcome = application.attendance?.outcome;
   return outcome === "attended" || outcome === "excused" || outcome === "cancelled";
-}
-
-export function findApplication(
-  applications: Application[],
-  id: string,
-): Application | undefined {
-  return applications.find((application) => application.id === id);
 }

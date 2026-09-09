@@ -13,18 +13,6 @@ export function byStatus(
   return coordinators.filter((coordinator) => statusOf(coordinator) === status);
 }
 
-export function countByStatus(
-  coordinators: Coordinator[],
-): Record<CoordinatorStatus, number> {
-  return coordinators.reduce(
-    (totals, coordinator) => {
-      totals[statusOf(coordinator)] += 1;
-      return totals;
-    },
-    { active: 0, blocked: 0, removed: 0 } as Record<CoordinatorStatus, number>,
-  );
-}
-
 export function activeVacanciesOf(coordinator: CoordinatorDetail) {
   return coordinator.createdOpportunities.filter((vacancy) => !vacancy.archivedAt);
 }

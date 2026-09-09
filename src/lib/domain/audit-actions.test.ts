@@ -1,10 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  AUDIT_ACTIONS,
-  auditActionOptions,
-  knownAction,
-} from "@/lib/domain/audit-actions";
+import { AUDIT_ACTIONS, auditActionOptions } from "@/lib/domain/audit-actions";
 
 describe("the audit action vocabulary", () => {
   it("mirrors what the backend records, sorted and unique", () => {
@@ -25,11 +21,6 @@ describe("the audit action vocabulary", () => {
         prefix,
       ).toBe(true);
     }
-  });
-
-  it("recognises a known action and refuses an invented one", () => {
-    expect(knownAction("coordinator.created")).toBe(true);
-    expect(knownAction("coordinator.promoted")).toBe(false);
   });
 });
 

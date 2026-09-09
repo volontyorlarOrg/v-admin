@@ -13,7 +13,9 @@ import {
   type ActionResult,
 } from "@/lib/api/action-result";
 import { fixtureModeEnabled } from "@/lib/auth/config";
-import { getSession } from "@/lib/auth/session.server";
+import { refreshSession } from "@/lib/auth/refresh";
+import type { SessionPayload } from "@/lib/auth/session";
+import { getSession, writeSession } from "@/lib/auth/session.server";
 import { readFixture, writeFixture } from "@/lib/fixtures/store";
 
 type Params = Record<string, string>;
@@ -58,11 +60,14 @@ export async function read<TSchema extends z.ZodType>(
     });
     return ready(data as z.infer<TSchema>);
   } catch (error) {
-    if (isApiError(error) && error.requiresPasswordChange) {
-      return { state: "denied" };
-    }
     return loadedFromError(error, name, endpoint.contract === "published");
   }
+}
+
+async function renewedSession(session: SessionPayload): Promise<SessionPayload | null> {
+  const rotated = await refreshSession(session);
+  if (!rotated) return null;
+  return (await writeSession(rotated)) ? rotated : null;
 }
 
 export async function write(
@@ -77,15 +82,26 @@ export async function write(
   }
 
   const endpoint = endpoints[name];
+  const path = pathFor(name, params);
+  const send = (accessToken: string) =>
+    authedApi(path, accessToken, { method: endpoint.method, query, body });
 
   try {
-    await authedApi(pathFor(name, params), session.accessToken, {
-      method: endpoint.method,
-      query,
-      body,
-    });
+    await send(session.accessToken);
     return okResult;
   } catch (error) {
+    if (isApiError(error) && error.code === "unauthenticated") {
+      const renewed = await renewedSession(session);
+      if (!renewed) return failedResult("sessionExpired");
+
+      try {
+        await send(renewed.accessToken);
+        return okResult;
+      } catch (retried) {
+        return resultFromError(retried);
+      }
+    }
+
     if (
       isApiError(error) &&
       error.code === "notFound" &&
@@ -94,6 +110,7 @@ export async function write(
     ) {
       return failedResult("awaitingContract");
     }
+
     return resultFromError(error);
   }
 }

@@ -79,12 +79,10 @@ export async function FilterForm({
 
 export function FilterSelect({
   id,
-  name,
   label,
   children,
 }: {
   id: string;
-  name: string;
   label: string;
   children: ReactNode;
 }) {
@@ -92,7 +90,6 @@ export function FilterSelect({
     <div className="flex w-full flex-col gap-2 lg:w-56">
       <Label htmlFor={id}>{label}</Label>
       {children}
-      <input type="hidden" name={`${name}-present`} value="" />
     </div>
   );
 }
