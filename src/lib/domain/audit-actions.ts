@@ -14,10 +14,6 @@ export const AUDIT_ACTIONS = [
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];
 
-export function knownAction(value: string): value is AuditAction {
-  return (AUDIT_ACTIONS as readonly string[]).includes(value);
-}
-
 export function auditActionOptions(seen: readonly string[]): string[] {
   return [...new Set([...AUDIT_ACTIONS, ...seen])].sort();
 }

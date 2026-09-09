@@ -85,7 +85,7 @@ export default async function ActivityPage({
             searchValue={q}
             resetHref={listPath}
           >
-            <FilterSelect id="filter-action" name="action" label={t("filters.action")}>
+            <FilterSelect id="filter-action" label={t("filters.action")}>
               <NativeSelect id="filter-action" name="action" defaultValue={action}>
                 <NativeSelectOption value="">{common("all")}</NativeSelectOption>
                 {actionNames(all).map((name) => (

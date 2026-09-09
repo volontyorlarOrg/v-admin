@@ -30,6 +30,7 @@ export function StatePanel({
   return (
     <div
       role={role}
+      data-slot="state-panel"
       className={cn(
         "flex flex-col items-start gap-3 rounded-xl border px-5 py-6 sm:flex-row sm:items-center",
         TONE[tone],

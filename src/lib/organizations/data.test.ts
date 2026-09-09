@@ -2,10 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { fieldErrorsOf } from "@/lib/auth/credentials";
 import { createOrganizationSchema } from "@/lib/organizations/schema";
-import {
-  filterOrganizations,
-  publishableOrganizations,
-} from "@/lib/organizations/filters";
+import { filterOrganizations } from "@/lib/organizations/filters";
 import type { Organization } from "@/lib/api/schemas";
 
 const organizations: Organization[] = [
@@ -37,14 +34,6 @@ describe("filterOrganizations", () => {
     expect(
       filterOrganizations(organizations, { q: "READING" }).map((i) => i.id),
     ).toEqual(["a"]);
-  });
-});
-
-describe("publishableOrganizations", () => {
-  it("keeps only verified organizations, because publishing needs one", () => {
-    expect(publishableOrganizations(organizations).map((item) => item.id)).toEqual([
-      "a",
-    ]);
   });
 });
 

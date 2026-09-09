@@ -2,6 +2,7 @@ import {
   CircleSlash,
   Clock,
   FileQuestion,
+  KeyRound,
   PlugZap,
   ServerCog,
   TriangleAlert,
@@ -14,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
 import { endpoints } from "@/lib/api/endpoints";
 import type { Loaded } from "@/lib/api/load";
-import { ENTRY_ROUTE, navHref } from "@/lib/routing/routes";
+import { ENTRY_ROUTE, PASSWORD_ROUTE, navHref } from "@/lib/routing/routes";
 
 type Failure = Exclude<Loaded<unknown>, { state: "ready" }>;
 
@@ -22,6 +23,7 @@ const ICONS: Record<Failure["state"], ReactNode> = {
   awaitingContract: <PlugZap aria-hidden="true" className="size-6" />,
   denied: <CircleSlash aria-hidden="true" className="size-6" />,
   expired: <Clock aria-hidden="true" className="size-6" />,
+  passwordChangeRequired: <KeyRound aria-hidden="true" className="size-6" />,
   missing: <FileQuestion aria-hidden="true" className="size-6" />,
   unconfigured: <ServerCog aria-hidden="true" className="size-6" />,
   failed: <TriangleAlert aria-hidden="true" className="size-6" />,
@@ -57,6 +59,25 @@ export async function LoadFailure({ failure }: { failure: Failure }) {
           <Button size="sm" asChild>
             <Link href={`${navHref(ENTRY_ROUTE)}?session=expired`}>
               {t("expired.action")}
+            </Link>
+          </Button>
+        }
+      />
+    );
+  }
+
+  if (failure.state === "passwordChangeRequired") {
+    return (
+      <StatePanel
+        role="alert"
+        tone="notice"
+        icon={ICONS.passwordChangeRequired}
+        title={t("passwordChangeRequired.title")}
+        description={t("passwordChangeRequired.description")}
+        actions={
+          <Button size="sm" asChild>
+            <Link href={navHref(PASSWORD_ROUTE)}>
+              {t("passwordChangeRequired.action")}
             </Link>
           </Button>
         }

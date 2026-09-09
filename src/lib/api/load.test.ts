@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { ApiError } from "@/lib/api/errors";
-import { dataOr, failureOf, isReady, loadedFromError, ready } from "@/lib/api/load";
+import { failureOf, isReady, loadedFromError, ready } from "@/lib/api/load";
 
 describe("ready", () => {
   it("marks where the data came from, so fixtures can never pass as live", () => {
@@ -12,16 +12,6 @@ describe("ready", () => {
     });
     const fromFixtures = ready([1], "fixtures");
     expect(isReady(fromFixtures) && fromFixtures.source).toBe("fixtures");
-  });
-});
-
-describe("dataOr", () => {
-  it("returns the data when the load succeeded", () => {
-    expect(dataOr(ready(["a"]), [])).toEqual(["a"]);
-  });
-
-  it("never invents data for a failure: the caller supplies the fallback", () => {
-    expect(dataOr({ state: "denied" }, ["fallback"])).toEqual(["fallback"]);
   });
 });
 
@@ -49,6 +39,17 @@ describe("loadedFromError", () => {
     expect(asLoaded(new ApiError("forbidden", { status: 403 }))).toEqual({
       state: "denied",
     });
+  });
+
+  it("separates a required password change from a denial", () => {
+    expect(
+      asLoaded(
+        new ApiError("forbidden", {
+          status: 403,
+          details: { code: "passwordChangeRequired" },
+        }),
+      ),
+    ).toEqual({ state: "passwordChangeRequired" });
   });
 
   it("reports a missing record when the endpoint is published", () => {
