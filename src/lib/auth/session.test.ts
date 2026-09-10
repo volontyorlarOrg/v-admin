@@ -8,6 +8,7 @@ import {
   isAccessTokenExpiring,
   isSessionStatus,
   issuedSessionSchema,
+  SESSION_MAX_AGE_SECONDS,
   safeReturnPath,
   sessionCookieOptions,
   toPublicSession,
@@ -94,7 +95,9 @@ describe("the session cookie", () => {
       httpOnly: true,
       sameSite: "strict",
       path: "/",
+      maxAge: 60 * 60 * 24 * 90,
     });
+    expect(SESSION_MAX_AGE_SECONDS).toBe(60 * 60 * 24 * 90);
   });
 });
 

@@ -112,6 +112,9 @@ docs/                           stable documentation
 - **`replacePassword` refuses an administrator target.** The backend rejects it
   and this portal never offers it. Assigning a replacement temporary password is
   for volunteers and coordinators only.
+- **A newly created coordinator receives a permanent password.** Creation does
+  not force a password change; only the separate replacement-password operation
+  does.
 - **Removing a coordinator reassigns their work first.** A coordinator with
   active vacancies cannot be removed until another active coordinator is chosen
   to take them; the dialog will not submit without one, and the backend refuses

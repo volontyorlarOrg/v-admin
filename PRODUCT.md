@@ -31,10 +31,9 @@ application, volunteer and attendance record, and read the audit history.
 
 ## What an administrator does here
 
-- **Coordinators.** Create one with a name, an email and a temporary password
-  they choose; the coordinator must change it at first sign-in. Block and
-  unblock. Soft-remove, which requires handing any active vacancies to another
-  active coordinator first. See active, blocked and removed.
+- **Coordinators.** Create one with a name, an email and a permanent password.
+  Block and unblock. Soft-remove, which requires handing any active vacancies
+  to another active coordinator first. See active, blocked and removed.
 - **Everything a coordinator sees, globally.** Vacancies, applications,
   attendance and volunteers across the whole product, not one person's slice.
 - **Organizations.** A vacancy can only be published under a verified one, so

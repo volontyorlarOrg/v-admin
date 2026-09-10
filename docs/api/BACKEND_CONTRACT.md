@@ -74,7 +74,8 @@ neither is ever returned to a Client Component.
 
 `POST /auth/refresh` rotates the pair. `src/proxy.ts` rotates on a navigation
 once the access token is inside the 60-second skew, and `POST /auth/logout`
-revokes the refresh token before the cookie is cleared.
+revokes the refresh token before the cookie is cleared. The encrypted portal
+cookie and refresh-token lifetime are both 90 days and renew on rotation.
 
 `POST /auth/password/change` takes `{ currentPassword, newPassword }`. There is
 no endpoint anywhere that returns an existing password, and this portal has no

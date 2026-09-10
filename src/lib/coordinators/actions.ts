@@ -18,7 +18,7 @@ export async function createCoordinatorAction(
   const parsed = createCoordinatorSchema.safeParse({
     displayName: stringField(formData, "displayName"),
     email: stringField(formData, "email"),
-    temporaryPassword: stringField(formData, "temporaryPassword"),
+    password: stringField(formData, "password"),
   });
 
   if (!parsed.success) {

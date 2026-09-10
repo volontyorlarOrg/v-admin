@@ -515,14 +515,14 @@
     },
     "create": {
       "title": "New coordinator",
-      "description": "The coordinator signs in with this email address and the temporary password you set, and must choose a new password before doing anything else.",
+      "description": "The coordinator signs in with this email address and the permanent password you set.",
       "name": "Full name",
       "email": "Email",
-      "temporaryPassword": "Temporary password",
-      "temporaryPasswordHelp": "At least 8 characters. Tell it to the coordinator over a channel you trust — it cannot be read back afterwards.",
+      "password": "Permanent password",
+      "passwordHelp": "At least 8 characters. Share it over a trusted channel — it cannot be read back afterwards.",
       "submit": "Create the coordinator",
       "pending": "Creating…",
-      "success": "The coordinator was created and must change this password at first sign-in."
+      "success": "The coordinator was created and can keep using this password."
     },
     "block": {
       "trigger": "Block",

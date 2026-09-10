@@ -824,7 +824,7 @@ const server = createServer(async (request, response) => {
       if (state.users.some((item) => item.email === email)) {
         return send(response, 409, { code: "emailUnavailable" });
       }
-      if (!body.temporaryPassword || String(body.temporaryPassword).length < 8) {
+      if (!body.password || String(body.password).length < 8) {
         return send(response, 422, { code: "weakPassword" });
       }
       const id = randomUUID();
@@ -833,13 +833,13 @@ const server = createServer(async (request, response) => {
         id,
         displayName: body.displayName,
         email,
-        password: body.temporaryPassword,
+        password: body.password,
         roles: ["coordinator"],
         isActive: true,
         createdAt: now,
         emailVerifiedAt: null,
         profile: null,
-        passwordCredential: { passwordChangedAt: now, requiresPasswordChange: true },
+        passwordCredential: { passwordChangedAt: now, requiresPasswordChange: false },
         coordinatorAccount: {
           userId: id,
           status: "active",

@@ -558,24 +558,20 @@ test.describe("every locale and the keyboard", () => {
 });
 
 test.describe("coordinator management", () => {
-  test("creates a coordinator who must change the password given to them", async ({
-    page,
-  }) => {
+  test("creates a coordinator with a permanent password", async ({ page }) => {
     await signedIn(page);
     await page.goto("/en/coordinators/new");
 
     await page.getByLabel("Full name").fill("Shahnoza Rasulova");
     await page.getByLabel("Email").fill("shahnoza@example.org");
-    await page.getByLabel("Temporary password").fill("a-temporary-password");
+    await page.getByLabel("Permanent password").fill("a-permanent-password");
     await page.getByRole("button", { name: "Create the coordinator" }).click();
 
-    await expect(formMessage(page)).toContainText(
-      "must change this password at first sign-in",
-    );
+    await expect(formMessage(page)).toContainText("can keep using this password");
 
     await page.goto("/en/coordinators?q=shahnoza");
     await expect(page.getByRole("row", { name: /Shahnoza Rasulova/ })).toContainText(
-      "Must change at next sign-in",
+      "Password set",
     );
   });
 
@@ -585,7 +581,7 @@ test.describe("coordinator management", () => {
 
     await page.getByLabel("Full name").fill("Duplicate Person");
     await page.getByLabel("Email").fill(COORDINATOR);
-    await page.getByLabel("Temporary password").fill("a-temporary-password");
+    await page.getByLabel("Permanent password").fill("a-permanent-password");
     await page.getByRole("button", { name: "Create the coordinator" }).click();
 
     await expect(formMessage(page)).toContainText("already uses this email");

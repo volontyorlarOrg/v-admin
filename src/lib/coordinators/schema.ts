@@ -14,5 +14,5 @@ export const createCoordinatorSchema = z.object({
     .min(DISPLAY_NAME_MIN_LENGTH, "required")
     .max(DISPLAY_NAME_MAX_LENGTH, "nameLong"),
   email: emailField,
-  temporaryPassword: newPasswordField,
+  password: newPasswordField,
 });
