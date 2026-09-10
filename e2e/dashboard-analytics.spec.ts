@@ -58,6 +58,10 @@ test("keeps the dashboard useful when one breakdown source fails", async ({ page
   await expect(
     page.getByRole("heading", { name: "Application pipeline" }),
   ).toBeVisible();
-  await expect(page.locator('[data-slot="state-panel"]')).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Vacancies by region" })).toBeHidden();
+  await expect(page.locator('[data-slot="state-panel"]')).toHaveCount(3);
+  const regions = page
+    .locator("section")
+    .filter({ has: page.getByRole("heading", { name: "Vacancies by region" }) });
+  await expect(regions).toBeVisible();
+  await expect(regions.locator('[data-slot="state-panel"]')).toBeVisible();
 });

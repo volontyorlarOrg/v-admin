@@ -154,8 +154,9 @@ export default async function DashboardPage({
     ];
   });
 
-  const chartFailure =
-    failureOf(applications) ?? failureOf(users) ?? failureOf(vacancies);
+  const applicationFailure = failureOf(applications);
+  const userFailure = failureOf(users);
+  const vacancyFailure = failureOf(vacancies);
 
   return (
     <>
@@ -245,8 +246,6 @@ export default async function DashboardPage({
         </Panel>
       </div>
 
-      {chartFailure ? <LoadFailure failure={chartFailure} /> : null}
-
       <div className="grid items-start gap-6 lg:grid-cols-2">
         {applicationRows ? (
           <Panel
@@ -277,6 +276,13 @@ export default async function DashboardPage({
             ) : (
               empty
             )}
+          </Panel>
+        ) : applicationFailure ? (
+          <Panel
+            title={t("charts.trend.title")}
+            description={t("charts.trend.description")}
+          >
+            <LoadFailure failure={applicationFailure} />
           </Panel>
         ) : null}
 
@@ -331,6 +337,13 @@ export default async function DashboardPage({
               </p>
             )}
           </Panel>
+        ) : userFailure ? (
+          <Panel
+            title={t("charts.joins.title")}
+            description={t("charts.joins.description")}
+          >
+            <LoadFailure failure={userFailure} />
+          </Panel>
         ) : null}
       </div>
 
@@ -353,6 +366,13 @@ export default async function DashboardPage({
               empty
             )}
           </Panel>
+        ) : applicationFailure ? (
+          <Panel
+            title={t("charts.status.title")}
+            description={t("charts.status.description")}
+          >
+            <LoadFailure failure={applicationFailure} />
+          </Panel>
         ) : null}
 
         {vacancyRows ? (
@@ -372,6 +392,13 @@ export default async function DashboardPage({
             ) : (
               empty
             )}
+          </Panel>
+        ) : vacancyFailure ? (
+          <Panel
+            title={t("charts.regions.title")}
+            description={t("charts.regions.description")}
+          >
+            <LoadFailure failure={vacancyFailure} />
           </Panel>
         ) : null}
       </div>
@@ -401,6 +428,21 @@ export default async function DashboardPage({
             ) : (
               empty
             )}
+          </Panel>
+        </div>
+      ) : vacancyFailure ? (
+        <div className="grid items-start gap-6 lg:grid-cols-2">
+          <Panel
+            title={t("charts.stages.title")}
+            description={t("charts.stages.description")}
+          >
+            <LoadFailure failure={vacancyFailure} />
+          </Panel>
+          <Panel
+            title={t("charts.formats.title")}
+            description={t("charts.formats.description")}
+          >
+            <LoadFailure failure={vacancyFailure} />
           </Panel>
         </div>
       ) : null}

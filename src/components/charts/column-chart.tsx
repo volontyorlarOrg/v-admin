@@ -20,6 +20,8 @@ export function ColumnChart({
   to: string;
   className?: string;
 }) {
+  const single = columns.length === 1;
+
   return (
     <div className={cn("grid gap-2", className)}>
       <div className="flex gap-3">
@@ -27,12 +29,20 @@ export function ColumnChart({
           <span>{peak}</span>
           <span>0</span>
         </div>
-        <ol className="flex h-32 flex-1 items-end gap-[2px] border-b border-border">
+        <ol
+          className={cn(
+            "flex h-32 flex-1 items-end gap-[2px] border-b border-border",
+            single && "justify-center",
+          )}
+        >
           {columns.map((column) => (
             <li
               key={column.key}
               title={`${column.label} · ${column.value}`}
-              className="flex h-full min-w-0 flex-1 items-end"
+              className={cn(
+                "flex h-full min-w-0 items-end",
+                single ? "w-16 shrink-0" : "flex-1",
+              )}
             >
               <span className="sr-only">{`${column.label} · ${column.value}`}</span>
               <span
