@@ -40,8 +40,8 @@ export default async function NewCoordinatorPage({
           labels={{
             name: t("create.name"),
             email: t("create.email"),
-            temporaryPassword: t("create.temporaryPassword"),
-            temporaryPasswordHelp: t("create.temporaryPasswordHelp"),
+            password: t("create.password"),
+            passwordHelp: t("create.passwordHelp"),
             showPassword: auth("showPassword"),
             hidePassword: auth("hidePassword"),
             submit: t("create.submit"),

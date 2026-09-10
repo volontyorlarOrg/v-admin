@@ -1546,7 +1546,7 @@ export interface components {
         CreateCoordinatorDto: {
             displayName: string;
             email: string;
-            temporaryPassword: string;
+            password: string;
         };
         RemoveCoordinatorDto: {
             reassignToCoordinatorId?: string;

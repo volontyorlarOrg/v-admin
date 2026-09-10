@@ -6,7 +6,7 @@ import { PORTAL_ID, PORTAL_ROLE, SESSION_COOKIE_NAME } from "@/lib/portal";
 
 export { SESSION_COOKIE_NAME };
 
-export const SESSION_MAX_AGE_SECONDS = 60 * 60 * 8;
+export const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 90;
 export const ACCESS_TOKEN_REFRESH_SKEW_SECONDS = 60;
 
 export const ROLES = ["volunteer", "partner", "coordinator", "admin"] as const;

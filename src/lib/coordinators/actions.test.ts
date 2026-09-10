@@ -6,15 +6,15 @@ import { createCoordinatorSchema } from "@/lib/coordinators/schema";
 const valid = {
   displayName: "Nodira Alimova",
   email: "nodira@example.org",
-  temporaryPassword: "a-temporary-password",
+  password: "a-permanent-password",
 };
 
 describe("createCoordinatorSchema", () => {
-  it("asks for a name, an email and a temporary password, and nothing else", () => {
+  it("asks for a name, an email and a permanent password, and nothing else", () => {
     expect(Object.keys(createCoordinatorSchema.shape).sort()).toEqual([
       "displayName",
       "email",
-      "temporaryPassword",
+      "password",
     ]);
   });
 
@@ -22,12 +22,12 @@ describe("createCoordinatorSchema", () => {
     expect(createCoordinatorSchema.safeParse(valid).success).toBe(true);
   });
 
-  it("refuses a temporary password below the backend minimum", () => {
+  it("refuses a permanent password below the backend minimum", () => {
     const result = createCoordinatorSchema.safeParse({
       ...valid,
-      temporaryPassword: "short",
+      password: "short",
     });
-    expect(fieldErrorsOf(result.error!).temporaryPassword).toEqual(["passwordShort"]);
+    expect(fieldErrorsOf(result.error!).password).toEqual(["passwordShort"]);
   });
 
   it("refuses a malformed email", () => {

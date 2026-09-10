@@ -43,7 +43,7 @@ labelled development dataset instead.
 - **A forced first password change** for any account the backend flags.
 - **Dashboard** — global operational figures plus active, blocked and removed
   coordinators.
-- **Coordinators** — create with a name, email and temporary password; block,
+- **Coordinators** — create with a name, email and permanent password; block,
   unblock, soft-remove with reassignment of active vacancies; assign a
   replacement temporary password.
 - **Vacancies, applications, attendance, volunteers** — the same operational

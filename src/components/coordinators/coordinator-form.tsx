@@ -19,8 +19,8 @@ import {
 export type CoordinatorFormLabels = {
   name: string;
   email: string;
-  temporaryPassword: string;
-  temporaryPasswordHelp: string;
+  password: string;
+  passwordHelp: string;
   showPassword: string;
   hidePassword: string;
   submit: string;
@@ -62,21 +62,19 @@ export function CoordinatorForm({ labels }: { labels: CoordinatorFormLabels }) {
         <FieldError>{error("email")}</FieldError>
       </Field>
 
-      <Field invalid={Boolean(error("temporaryPassword"))}>
-        <FieldLabel htmlFor="temporaryPassword">{labels.temporaryPassword}</FieldLabel>
+      <Field invalid={Boolean(error("password"))}>
+        <FieldLabel htmlFor="password">{labels.password}</FieldLabel>
         <PasswordInput
-          id="temporaryPassword"
-          name="temporaryPassword"
+          id="password"
+          name="password"
           autoComplete="new-password"
           required
           showLabel={labels.showPassword}
           hideLabel={labels.hidePassword}
-          aria-describedby="temporaryPassword-help"
+          aria-describedby="password-help"
         />
-        <FieldDescription id="temporaryPassword-help">
-          {labels.temporaryPasswordHelp}
-        </FieldDescription>
-        <FieldError>{error("temporaryPassword")}</FieldError>
+        <FieldDescription id="password-help">{labels.passwordHelp}</FieldDescription>
+        <FieldError>{error("password")}</FieldError>
       </Field>
 
       <div>

@@ -515,14 +515,14 @@
     },
     "create": {
       "title": "Yangi koordinator",
-      "description": "Koordinator shu pochta va siz bergan vaqtinchalik parol bilan kiradi hamda boshqa ish qilishdan oldin yangi parol tanlashi shart.",
+      "description": "Koordinator shu pochta va siz belgilagan doimiy parol bilan kiradi.",
       "name": "Toʻliq ism",
       "email": "Pochta",
-      "temporaryPassword": "Vaqtinchalik parol",
-      "temporaryPasswordHelp": "Kamida 8 ta belgi. Uni koordinatorga ishonchli kanal orqali yetkazing — keyin parolni oʻqib boʻlmaydi.",
+      "password": "Doimiy parol",
+      "passwordHelp": "Kamida 8 ta belgi. Uni ishonchli kanal orqali yetkazing — keyin parolni oʻqib boʻlmaydi.",
       "submit": "Koordinatorni yaratish",
       "pending": "Yaratilmoqda…",
-      "success": "Koordinator yaratildi va birinchi kirishda bu parolni oʻzgartirishi shart."
+      "success": "Koordinator yaratildi va bu paroldan doimiy foydalanishi mumkin."
     },
     "block": {
       "trigger": "Bloklash",
