@@ -172,7 +172,7 @@
     "charts": {
       "pipeline": {
         "title": "Arizalar yoʻli",
-        "description": "Har bir bosqich unga yetib kelgan arizalarni sanaydi."
+        "description": "Har bir ish bosqichidagi joriy son."
       },
       "trend": {
         "title": "Yuborilgan arizalar",

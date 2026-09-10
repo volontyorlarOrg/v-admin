@@ -54,7 +54,7 @@ export async function PortalShell({
 
           <Link
             href={navHref(HOME_ROUTE)}
-            className="-m-1 min-w-0 rounded-lg p-1"
+            className="-m-1 hidden min-w-0 rounded-lg p-1 sm:block"
             aria-label={t("portalName")}
           >
             <BrandLockup name={t("organizationName")} portal={t("portalName")} />

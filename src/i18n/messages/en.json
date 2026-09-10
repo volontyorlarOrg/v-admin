@@ -172,7 +172,7 @@
     "charts": {
       "pipeline": {
         "title": "Application pipeline",
-        "description": "Each stage counts the applications that reached it."
+        "description": "Current counts at each operational checkpoint."
       },
       "trend": {
         "title": "Applications submitted",
