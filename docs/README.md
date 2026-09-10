@@ -7,6 +7,7 @@ Use this file to route a question to the smallest source that answers it.
 | What the product is, and what an administrator does                                               | [`../PRODUCT.md`](../PRODUCT.md)                                                       |
 | The design system as applied to an operational portal                                             | [`../DESIGN.md`](../DESIGN.md)                                                         |
 | Routes, rendering, module ownership, the two-portal split                                         | [`architecture/ARCHITECTURE.md`](architecture/ARCHITECTURE.md)                         |
+| Dashboard statistics, sources, completeness limits and chart rules                                | [`architecture/DASHBOARD_ANALYTICS.md`](architecture/DASHBOARD_ANALYTICS.md)           |
 | **The backend contract** — generated types, the endpoint registry, what "awaiting contract" means | [`api/BACKEND_CONTRACT.md`](api/BACKEND_CONTRACT.md)                                   |
 | Sessions, cookies, headers, secrets, password handling                                            | [`security/SECURITY.md`](security/SECURITY.md)                                         |
 | Setup, commands, environment, ports, CI, deployment                                               | [`operations/DEVELOPMENT_AND_DEPLOYMENT.md`](operations/DEVELOPMENT_AND_DEPLOYMENT.md) |

@@ -169,6 +169,47 @@
       "confirmedHours": "Confirmed hours",
       "volunteers": "Volunteers"
     },
+    "charts": {
+      "pipeline": {
+        "title": "Application pipeline",
+        "description": "Each stage counts the applications that reached it."
+      },
+      "trend": {
+        "title": "Applications submitted",
+        "description": "Every submitted application, by the day it arrived.",
+        "summary": "{total, plural, one {# application} other {# applications}} between {from} and {to}"
+      },
+      "joins": {
+        "title": "Volunteers joining",
+        "description": "New accounts by the day they were created.",
+        "summary": "{total, plural, one {# volunteer} other {# volunteers}} between {from} and {to}",
+        "partial": "Not drawn: the line needs every join date and the API returned {shown} of {total}."
+      },
+      "status": {
+        "title": "Applications by status",
+        "description": "Where every application stands right now."
+      },
+      "regions": {
+        "title": "Vacancies by region",
+        "description": "Only the regions that have a vacancy are listed."
+      },
+      "stages": {
+        "title": "Vacancies by stage",
+        "description": "Draft, published and archived, as shares of every vacancy."
+      },
+      "formats": {
+        "title": "Vacancies by format",
+        "description": "How volunteers take part."
+      },
+      "published": {
+        "label": "Vacancies published"
+      },
+      "attendance": {
+        "label": "Attendance confirmed"
+      },
+      "of": "{value} of {total}",
+      "empty": "Nothing has been recorded in this range yet."
+    },
     "next": {
       "title": "What needs you next",
       "review": "Review {count, plural, =0 {no applications} one {one application} other {# applications}}",
@@ -179,7 +220,8 @@
       "title": "Coordinators",
       "active": "Active",
       "blocked": "Blocked",
-      "removed": "Removed"
+      "removed": "Removed",
+      "description": "Every coordinator account, by state."
     }
   },
   "vacancies": {

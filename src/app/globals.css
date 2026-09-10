@@ -31,6 +31,13 @@
   --color-danger-ink: #8f1e18;
   --color-danger-muted: #f7e3e2;
 
+  --color-chart-strong: #004a73;
+  --color-chart-mid: #007fc2;
+  --color-chart-soft: #388fbe;
+  --color-chart-track: #d7e8f4;
+  --color-chart-person: #e85d30;
+  --color-chart-person-track: #f8ded3;
+
   --color-background: var(--color-paper);
   --color-foreground: var(--color-ink);
   --color-card: var(--color-surface);
@@ -54,6 +61,9 @@
   --text-page-title: clamp(1.625rem, 2.4vw, 2.125rem);
   --text-page-title--line-height: 1.15;
   --text-page-title--letter-spacing: -0.022em;
+  --text-hero: clamp(2.75rem, 6vw, 3.75rem);
+  --text-hero--line-height: 1;
+  --text-hero--letter-spacing: -0.035em;
   --text-section: 1.0625rem;
   --text-section--line-height: 1.35;
   --text-section--letter-spacing: -0.012em;
@@ -101,6 +111,13 @@
     --color-danger: #e4655c;
     --color-danger-ink: #f08a83;
     --color-danger-muted: #2a1614;
+
+    --color-chart-strong: #9ecdec;
+    --color-chart-mid: #3aa0e4;
+    --color-chart-soft: #2d7cab;
+    --color-chart-track: #1b3243;
+    --color-chart-person: #f08a55;
+    --color-chart-person-track: #3d2419;
   }
 
   html {
