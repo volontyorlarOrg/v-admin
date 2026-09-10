@@ -169,6 +169,47 @@
       "confirmedHours": "Tasdiqlangan soatlar",
       "volunteers": "Volontyorlar"
     },
+    "charts": {
+      "pipeline": {
+        "title": "Arizalar yoʻli",
+        "description": "Har bir bosqich unga yetib kelgan arizalarni sanaydi."
+      },
+      "trend": {
+        "title": "Yuborilgan arizalar",
+        "description": "Har bir yuborilgan ariza kelgan kuni boʻyicha.",
+        "summary": "{from} — {to} oraligʻida {total, plural, one {# ta ariza} other {# ta ariza}}"
+      },
+      "joins": {
+        "title": "Qoʻshilayotgan volontyorlar",
+        "description": "Yangi hisoblar yaratilgan kuni boʻyicha.",
+        "summary": "{from} — {to} oraligʻida {total, plural, one {# ta volontyor} other {# ta volontyor}}",
+        "partial": "Chizilmadi: chiziq har bir qoʻshilish sanasini talab qiladi, API {total} tadan {shown} tasini qaytardi."
+      },
+      "status": {
+        "title": "Arizalar holati boʻyicha",
+        "description": "Hozirda har bir ariza qaysi bosqichda."
+      },
+      "regions": {
+        "title": "Vakansiyalar hududlar boʻyicha",
+        "description": "Faqat vakansiyasi bor hududlar koʻrsatilgan."
+      },
+      "stages": {
+        "title": "Vakansiyalar bosqichi boʻyicha",
+        "description": "Qoralama, eʼlon qilingan va arxivlangan — barcha vakansiyalardagi ulushi."
+      },
+      "formats": {
+        "title": "Vakansiyalar formati boʻyicha",
+        "description": "Volontyorlar qanday ishtirok etadi."
+      },
+      "published": {
+        "label": "Eʼlon qilingan vakansiyalar"
+      },
+      "attendance": {
+        "label": "Ishtirok tasdiqlangan"
+      },
+      "of": "{total} tadan {value} ta",
+      "empty": "Bu davrda hech narsa qayd etilmagan."
+    },
     "next": {
       "title": "Sizni nima kutmoqda",
       "review": "{count, plural, =0 {Koʻrib chiqiladigan ariza yoʻq} one {Bitta arizani koʻrib chiqish} other {# ta arizani koʻrib chiqish}}",
@@ -179,7 +220,8 @@
       "title": "Koordinatorlar",
       "active": "Faol",
       "blocked": "Bloklangan",
-      "removed": "Olib tashlangan"
+      "removed": "Olib tashlangan",
+      "description": "Barcha koordinator hisoblari holati boʻyicha."
     }
   },
   "vacancies": {
