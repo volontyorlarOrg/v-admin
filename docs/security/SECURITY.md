@@ -12,7 +12,7 @@ scopes the query.
 
 - Encrypted, not signed: `jose` `EncryptJWT` with `dir` / `A256GCM`. The payload
   — both tokens included — is unreadable without the secret.
-- `httpOnly`, `sameSite=strict`, `secure` in production, `path=/`, 90 days.
+- `httpOnly`, `sameSite=strict`, `secure` in production, `path=/`, two days.
 - The key is derived from `SHA-256(portal-id + secret)`, so even two portals
   configured with the same secret by mistake cannot decrypt each other's cookie.
 - The payload carries `portal`, and `decryptSession` rejects a cookie whose

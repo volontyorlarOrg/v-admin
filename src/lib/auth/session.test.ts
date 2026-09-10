@@ -95,9 +95,9 @@ describe("the session cookie", () => {
       httpOnly: true,
       sameSite: "strict",
       path: "/",
-      maxAge: 60 * 60 * 24 * 90,
+      maxAge: 60 * 60 * 24 * 2,
     });
-    expect(SESSION_MAX_AGE_SECONDS).toBe(60 * 60 * 24 * 90);
+    expect(SESSION_MAX_AGE_SECONDS).toBe(60 * 60 * 24 * 2);
   });
 });
 
