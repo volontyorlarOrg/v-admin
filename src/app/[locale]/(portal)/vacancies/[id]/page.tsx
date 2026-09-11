@@ -6,8 +6,6 @@ import {
   AttendanceRoster,
   type RosterRow,
 } from "@/components/attendance/attendance-roster";
-import { ConfirmAction } from "@/components/forms/confirm-action";
-import { VacancyDecisionForm } from "@/components/vacancies/decision-form";
 import { DefinitionList } from "@/components/portal/definition-list";
 import { Panel } from "@/components/portal/panel";
 import {
@@ -18,15 +16,16 @@ import {
 import { LoadFailure } from "@/components/states/load-failure";
 import { PageHeader } from "@/components/states/page-header";
 import { StatePanel } from "@/components/states/state-panel";
-import { VacancyForm } from "@/components/vacancies/vacancy-form";
-import { buttonClass } from "@/components/ui/button";
+import { ReadinessList } from "@/components/vacancies/readiness-list";
+import { VacancyDialog } from "@/components/vacancies/vacancy-dialog";
+import { VacancyWorkflow } from "@/components/vacancies/vacancy-workflow";
+import { Button, buttonClass } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
 import { failureOf, isReady } from "@/lib/api/load";
 import { loadApplications } from "@/lib/applications/data.server";
 import { isAttendanceResolved, volunteerNameOf } from "@/lib/applications/filters";
 import {
   REGIONS,
-  VACANCY_DECISIONS,
   RESOLVABLE_ATTENDANCE_OUTCOMES,
   VACANCY_FORMATS,
   canArchive,
@@ -45,11 +44,17 @@ import {
 } from "@/lib/vacancies/approval";
 import {
   archiveVacancyAction,
+  decideVacancyAction,
   submitVacancyForApprovalAction,
   updateVacancyAction,
 } from "@/lib/vacancies/actions";
 import { loadOrganizations, loadVacancy } from "@/lib/vacancies/data.server";
-import { errorCatalog, vacancyFormLabels } from "@/lib/vacancies/labels.server";
+import {
+  errorCatalog,
+  vacancyDecisionLabels,
+  vacancyDialogLabels,
+  vacancyWorkflowLabels,
+} from "@/lib/vacancies/labels.server";
 import { toDateTimeLocal } from "@/lib/vacancies/form";
 
 export const dynamic = "force-dynamic";
@@ -125,21 +130,21 @@ export default async function VacancyPage({
     now,
   );
 
-  const decisions = VACANCY_DECISIONS.filter((decision) => {
-    if (decision === "approve") {
-      return canApproveVacancy(vacancy) && missing.length === 0;
-    }
-    if (decision === "request_changes") return canRequestVacancyChanges(vacancy);
-    return canRejectVacancy(vacancy);
-  });
-  const confirmErrors = await errorCatalog();
-  const labels = await vacancyFormLabels(
-    t("form.submitUpdate"),
-    t("form.pending"),
-    t("form.updated"),
-  );
+  const abilities = {
+    submit: canSubmitForApproval(vacancy),
+    approve: canApproveVacancy(vacancy),
+    requestChanges: canRequestVacancyChanges(vacancy),
+    reject: canRejectVacancy(vacancy),
+    archive: canArchive(vacancy),
+  };
+
+  const workflowLabels = await vacancyWorkflowLabels();
+  const decisionLabels = await vacancyDecisionLabels();
+  const editLabels = await vacancyDialogLabels("edit");
+  const editable = canEditVacancy(vacancy) && isReady(organizations);
 
   const rows = isReady(applications) ? applications.data : [];
+  const applicationsFailure = failureOf(applications);
   const accepted = rows.filter((application) => application.status === "accepted");
   const attendanceOpen = isAttendanceOpen(vacancy, now);
   const opensAt = attendanceOpensAt(vacancy);
@@ -207,6 +212,28 @@ export default async function VacancyPage({
     };
   });
 
+  const stateNotice = {
+    pending_review: {
+      tone: "notice" as const,
+      title: t("approval.pendingTitle"),
+      description: t("approval.pendingDescription"),
+    },
+    changes_requested: {
+      tone: "notice" as const,
+      title: t("approval.changesTitle"),
+      description: vacancy.approvalNote ?? t("approval.changesDescription"),
+    },
+    rejected: {
+      tone: "danger" as const,
+      title: t("approval.rejectedTitle"),
+      description: vacancy.approvalNote ?? t("approval.rejectedDescription"),
+    },
+    archived: {
+      tone: "neutral" as const,
+      title: t("archivedNotice"),
+    },
+  }[state as string];
+
   return (
     <>
       <PageHeader
@@ -215,39 +242,61 @@ export default async function VacancyPage({
         description={vacancy.summary}
         actions={
           <>
-            {canSubmitForApproval(vacancy) && missing.length === 0 ? (
-              <ConfirmAction
-                action={submitVacancyForApprovalAction}
-                fields={{ id: vacancy.id }}
-                labels={{
-                  trigger: t("submit.trigger"),
-                  title: t("submit.title"),
-                  description: t("submit.description"),
-                  confirm: t("submit.confirm"),
-                  cancel: common("cancel"),
-                  pending: t("submit.pending"),
-                  fallbackError: errors("server"),
-                  errors: confirmErrors,
+            {editable ? (
+              <VacancyDialog
+                action={updateVacancyAction}
+                id={vacancy.id}
+                labels={editLabels}
+                defaults={{
+                  title: vacancy.title,
+                  slug: vacancy.slug,
+                  summary: vacancy.summary,
+                  description: vacancy.description,
+                  organizationId: vacancy.organizationId,
+                  region: vacancy.region,
+                  format: vacancy.format,
+                  city: vacancy.city ?? "",
+                  locationName: vacancy.locationName ?? "",
+                  startsAt: toDateTimeLocal(vacancy.startsAt),
+                  endsAt: toDateTimeLocal(vacancy.endsAt),
+                  applicationDeadline: toDateTimeLocal(vacancy.applicationDeadline),
+                  capacity:
+                    vacancy.capacity === undefined ? "" : String(vacancy.capacity),
+                  estimatedTotalHours:
+                    vacancy.estimatedTotalHours === undefined
+                      ? ""
+                      : String(vacancy.estimatedTotalHours),
+                  requirements: vacancy.requirements.join("\n"),
                 }}
+                organizations={
+                  isReady(organizations)
+                    ? organizations.data.map((item) => ({
+                        id: item.id,
+                        name: item.name,
+                        verified: item.verified,
+                      }))
+                    : []
+                }
+                regions={REGIONS}
+                formats={VACANCY_FORMATS}
+                trigger={
+                  <Button type="button" size="sm" variant="outline">
+                    {t("form.editTitle")}
+                  </Button>
+                }
               />
             ) : null}
-            {canArchive(vacancy) ? (
-              <ConfirmAction
-                action={archiveVacancyAction}
-                tone="danger"
-                fields={{ id: vacancy.id }}
-                labels={{
-                  trigger: t("archive.trigger"),
-                  title: t("archive.title"),
-                  description: t("archive.description"),
-                  confirm: t("archive.confirm"),
-                  cancel: common("cancel"),
-                  pending: t("archive.pending"),
-                  fallbackError: errors("server"),
-                  errors: confirmErrors,
-                }}
-              />
-            ) : null}
+
+            <VacancyWorkflow
+              vacancyId={vacancy.id}
+              abilities={abilities}
+              missing={missing}
+              labels={workflowLabels}
+              decisionLabels={decisionLabels}
+              submitAction={submitVacancyForApprovalAction}
+              decideAction={decideVacancyAction}
+              archiveAction={archiveVacancyAction}
+            />
           </>
         }
       />
@@ -259,86 +308,35 @@ export default async function VacancyPage({
         ) : null}
       </div>
 
-      {state === "pending_review" ? (
+      {stateNotice ? (
         <StatePanel
           role="status"
-          tone="notice"
-          title={t("approval.pendingTitle")}
-          description={t("approval.pendingDescription")}
+          tone={stateNotice.tone}
+          title={stateNotice.title}
+          {...(stateNotice.description ? { description: stateNotice.description } : {})}
         />
       ) : null}
-
-      {state === "changes_requested" ? (
-        <StatePanel
-          role="status"
-          tone="notice"
-          title={t("approval.changesTitle")}
-          description={vacancy.approvalNote ?? t("approval.changesDescription")}
-        />
-      ) : null}
-
-      {state === "rejected" ? (
-        <StatePanel
-          role="status"
-          tone="danger"
-          title={t("approval.rejectedTitle")}
-          description={vacancy.approvalNote ?? t("approval.rejectedDescription")}
-        />
-      ) : null}
-
-      {state === "archived" ? (
-        <StatePanel role="status" title={t("archivedNotice")} />
-      ) : null}
-
-      {missing.length > 0 && state !== "archived" && state !== "rejected" ? (
-        <StatePanel
-          role="status"
-          tone="notice"
-          title={t("approval.missingTitle")}
-          description={`${t("approval.missingDescription")} ${missing
-            .map((requirement) => t(`approval.requirements.${requirement}`))
-            .join(", ")}`}
-        />
-      ) : null}
-
-      <Panel title={t("decide.title")} description={t("decide.description")}>
-        {decisions.length === 0 ? (
-          <StatePanel
-            role="status"
-            title={t("decide.closedTitle")}
-            description={t("decide.closedDescription")}
-          />
-        ) : (
-          <VacancyDecisionForm
-            vacancyId={vacancy.id}
-            decisions={decisions}
-            labels={{
-              decision: t("decide.decision"),
-              decisions: Object.fromEntries(
-                VACANCY_DECISIONS.map((decision) => [
-                  decision,
-                  t(`decide.${decision}`),
-                ]),
-              ),
-              note: t("decide.note"),
-              noteHelp: t("decide.noteHelp"),
-              submit: t("decide.submit"),
-              pending: t("decide.pending"),
-              success: t("decide.success"),
-              rejectConfirm: {
-                title: t("decide.rejectConfirm.title"),
-                description: t("decide.rejectConfirm.description"),
-                confirm: t("decide.rejectConfirm.confirm"),
-                cancel: t("decide.rejectConfirm.cancel"),
-              },
-              fallbackError: errors("server"),
-              errors: confirmErrors,
-            }}
-          />
-        )}
-      </Panel>
 
       <Panel title={t("approval.title")} description={t("approval.description")}>
+        {state !== "archived" && state !== "rejected" ? (
+          <div className="mb-5 rounded-lg border border-border bg-surface-sunk/50 px-4 py-3">
+            <p className="text-sm font-semibold text-ink">
+              {missing.length === 0
+                ? t("approval.readyTitle")
+                : t("approval.missingTitle")}
+            </p>
+            {missing.length === 0 ? (
+              <p className="mt-1 text-sm text-ink-muted">{t("approval.readyLine")}</p>
+            ) : (
+              <ReadinessList
+                missing={missing}
+                labels={workflowLabels.readiness}
+                className="mt-2"
+              />
+            )}
+          </div>
+        ) : null}
+
         <DefinitionList
           items={[
             { term: t("approval.status"), value: t(`state.${state}`) },
@@ -458,7 +456,9 @@ export default async function VacancyPage({
         title={attendanceCopy("roster.title")}
         description={attendanceCopy("roster.description")}
       >
-        {accepted.length === 0 ? (
+        {applicationsFailure ? (
+          <LoadFailure failure={applicationsFailure} />
+        ) : accepted.length === 0 ? (
           <p className="text-sm text-ink-muted">
             {attendanceCopy("roster.noAccepted")}
           </p>
@@ -517,7 +517,9 @@ export default async function VacancyPage({
       </Panel>
 
       <Panel title={t("detail.applications")}>
-        {rows.length === 0 ? (
+        {applicationsFailure ? (
+          <LoadFailure failure={applicationsFailure} />
+        ) : rows.length === 0 ? (
           <p className="text-sm text-ink-muted">{t("detail.noApplications")}</p>
         ) : (
           <ul className="flex flex-col divide-y divide-border">
@@ -546,43 +548,6 @@ export default async function VacancyPage({
           </ul>
         )}
       </Panel>
-
-      {canEditVacancy(vacancy) && isReady(organizations) ? (
-        <Panel title={t("form.editTitle")}>
-          <VacancyForm
-            action={updateVacancyAction}
-            id={vacancy.id}
-            labels={labels}
-            defaults={{
-              title: vacancy.title,
-              slug: vacancy.slug,
-              summary: vacancy.summary,
-              description: vacancy.description,
-              organizationId: vacancy.organizationId,
-              region: vacancy.region,
-              format: vacancy.format,
-              city: vacancy.city ?? "",
-              locationName: vacancy.locationName ?? "",
-              startsAt: toDateTimeLocal(vacancy.startsAt),
-              endsAt: toDateTimeLocal(vacancy.endsAt),
-              applicationDeadline: toDateTimeLocal(vacancy.applicationDeadline),
-              capacity: vacancy.capacity === undefined ? "" : String(vacancy.capacity),
-              estimatedTotalHours:
-                vacancy.estimatedTotalHours === undefined
-                  ? ""
-                  : String(vacancy.estimatedTotalHours),
-              requirements: vacancy.requirements.join("\n"),
-            }}
-            organizations={organizations.data.map((organization) => ({
-              id: organization.id,
-              name: organization.name,
-              verified: organization.verified,
-            }))}
-            regions={REGIONS}
-            formats={VACANCY_FORMATS}
-          />
-        </Panel>
-      ) : null}
     </>
   );
 }

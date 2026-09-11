@@ -32,7 +32,7 @@ export async function FilterForm({
     <form
       method="get"
       action={action}
-      className="panel-surface rounded-xl border border-border/70 px-5 py-4"
+      className="rounded-xl border border-border/70 panel-surface px-5 py-4"
     >
       <fieldset className="flex flex-col gap-4">
         <legend className="sr-only">{legend}</legend>

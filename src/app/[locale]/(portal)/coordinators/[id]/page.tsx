@@ -1,7 +1,7 @@
 import { getFormatter, getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
 
-import { ConfirmAction } from "@/components/forms/confirm-action";
+import { FormDialog } from "@/components/forms/form-dialog";
 import { RemoveCoordinator } from "@/components/coordinators/remove-coordinator";
 import { DefinitionList } from "@/components/portal/definition-list";
 import { Panel } from "@/components/portal/panel";
@@ -14,7 +14,7 @@ import { TemporaryPasswordForm } from "@/components/portal/temporary-password-fo
 import { LoadFailure } from "@/components/states/load-failure";
 import { PageHeader } from "@/components/states/page-header";
 import { StatePanel } from "@/components/states/state-panel";
-import { buttonClass } from "@/components/ui/button";
+import { Button, buttonClass } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
 import { failureOf, isReady } from "@/lib/api/load";
 import {
@@ -111,34 +111,50 @@ export default async function CoordinatorPage({
           status === "removed" ? undefined : (
             <>
               {status === "active" ? (
-                <ConfirmAction
+                <FormDialog
                   action={blockCoordinatorAction}
+                  size="sm"
                   fields={{ id: coordinator.id }}
                   labels={{
-                    trigger: t("block.trigger"),
                     title: t("block.title"),
                     description: t("block.description"),
-                    confirm: t("block.confirm"),
-                    cancel: common("cancel"),
+                    submit: t("block.confirm"),
                     pending: t("block.pending"),
+                    success: t("block.success"),
+                    cancel: common("cancel"),
+                    close: common("close"),
+                    summary: common("fixFields"),
                     fallbackError: errors("server"),
                     errors: confirmErrors,
                   }}
+                  trigger={
+                    <Button type="button" size="sm" variant="outline">
+                      {t("block.trigger")}
+                    </Button>
+                  }
                 />
               ) : (
-                <ConfirmAction
+                <FormDialog
                   action={unblockCoordinatorAction}
+                  size="sm"
                   fields={{ id: coordinator.id }}
                   labels={{
-                    trigger: t("unblock.trigger"),
                     title: t("unblock.title"),
                     description: t("unblock.description"),
-                    confirm: t("unblock.confirm"),
-                    cancel: common("cancel"),
+                    submit: t("unblock.confirm"),
                     pending: t("unblock.pending"),
+                    success: t("unblock.success"),
+                    cancel: common("cancel"),
+                    close: common("close"),
+                    summary: common("fixFields"),
                     fallbackError: errors("server"),
                     errors: confirmErrors,
                   }}
+                  trigger={
+                    <Button type="button" size="sm" variant="outline">
+                      {t("unblock.trigger")}
+                    </Button>
+                  }
                 />
               )}
 
@@ -149,16 +165,19 @@ export default async function CoordinatorPage({
                   id: candidate.id,
                   name: candidate.displayName ?? candidate.id,
                 }))}
+                trigger={t("remove.trigger")}
                 reassignLabel={t("remove.reassign")}
                 reassignHelp={t("remove.reassignHelp")}
                 reassignPlaceholder={t("remove.reassignPlaceholder")}
                 labels={{
-                  trigger: t("remove.trigger"),
                   title: t("remove.title"),
                   description: t("remove.description"),
-                  confirm: t("remove.confirm"),
-                  cancel: common("cancel"),
+                  submit: t("remove.confirm"),
                   pending: t("remove.pending"),
+                  success: t("remove.success"),
+                  cancel: common("cancel"),
+                  close: common("close"),
+                  summary: common("fixFields"),
                   fallbackError: errors("server"),
                   errors: confirmErrors,
                 }}

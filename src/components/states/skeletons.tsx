@@ -6,7 +6,7 @@ export function TableSkeleton({ rows = 6, label }: { rows?: number; label: strin
       role="status"
       aria-live="polite"
       aria-busy="true"
-      className="panel-surface rounded-xl border border-border/70"
+      className="rounded-xl border border-border/70 panel-surface"
     >
       <span className="sr-only">{label}</span>
       <div className="border-b border-border px-5 py-3">
@@ -31,7 +31,7 @@ export function PanelSkeleton({ label }: { label: string }) {
       role="status"
       aria-live="polite"
       aria-busy="true"
-      className="panel-surface rounded-xl border border-border/70 p-5"
+      className="rounded-xl border border-border/70 panel-surface p-5"
     >
       <span className="sr-only">{label}</span>
       <Skeleton className="h-4 w-32" />
@@ -57,7 +57,10 @@ export function FigureSkeleton({
     >
       <span className="sr-only">{label}</span>
       {Array.from({ length: count }, (_, index) => (
-        <div key={index} className="panel-surface rounded-xl border border-border/70 p-5">
+        <div
+          key={index}
+          className="rounded-xl border border-border/70 panel-surface p-5"
+        >
           <Skeleton className="h-3 w-24" />
           <Skeleton className="mt-4 h-8 w-16" />
         </div>
@@ -70,13 +73,13 @@ export function DashboardSkeleton({ label }: { label: string }) {
   return (
     <div role="status" aria-live="polite" aria-busy="true" className="grid gap-6">
       <span className="sr-only">{label}</span>
-      <div className="panel-surface rounded-xl border border-border/70 p-5">
+      <div className="rounded-xl border border-border/70 panel-surface p-5">
         <Skeleton className="h-3 w-28" />
         <Skeleton className="mt-4 h-12 w-40" />
         <Skeleton className="mt-4 h-3 w-52" />
       </div>
       <div className="grid gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-        <div className="panel-surface rounded-xl border border-border/70 p-5">
+        <div className="rounded-xl border border-border/70 panel-surface p-5">
           <Skeleton className="h-4 w-40" />
           <div className="mt-6 flex flex-col gap-5">
             {Array.from({ length: 5 }, (_, index) => (
@@ -87,7 +90,7 @@ export function DashboardSkeleton({ label }: { label: string }) {
             ))}
           </div>
         </div>
-        <div className="panel-surface rounded-xl border border-border/70 p-5">
+        <div className="rounded-xl border border-border/70 panel-surface p-5">
           {Array.from({ length: 2 }, (_, index) => (
             <div key={index} className="mt-6 grid gap-2 first:mt-0">
               <Skeleton className="h-3 w-28" />

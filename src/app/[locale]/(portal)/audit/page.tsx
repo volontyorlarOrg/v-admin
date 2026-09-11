@@ -144,7 +144,7 @@ export default async function AuditPage({
             />
           ) : (
             <>
-              <div className="panel-surface rounded-xl border border-border/70">
+              <div className="rounded-xl border border-border/70 panel-surface">
                 <Table>
                   <TableCaption className="sr-only">{t("table.caption")}</TableCaption>
                   <TableHeader>

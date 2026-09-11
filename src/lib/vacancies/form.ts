@@ -6,9 +6,37 @@ import { hasMeetingCredentials, requiresVenue } from "@/lib/vacancies/approval";
 export const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 export const MAX_ESTIMATED_TOTAL_HOURS = 100_000;
 
+export const VACANCY_FIELDS = [
+  "title",
+  "slug",
+  "summary",
+  "description",
+  "organizationId",
+  "region",
+  "format",
+  "city",
+  "locationName",
+  "startsAt",
+  "endsAt",
+  "applicationDeadline",
+  "capacity",
+  "estimatedTotalHours",
+  "requirements",
+] as const;
+
 const trimmed = z.string().trim();
 
-export const vacancyFormSchema = z
+function withEveryField(value: unknown) {
+  const record = (value ?? {}) as Record<string, unknown>;
+  return Object.fromEntries(
+    VACANCY_FIELDS.map((field) => [
+      field,
+      typeof record[field] === "string" ? record[field] : "",
+    ]),
+  );
+}
+
+const vacancyShape = z
   .object({
     title: trimmed.min(2, "required").max(180, "tooLong"),
     slug: trimmed.min(2, "required").max(160, "tooLong").regex(SLUG_PATTERN, "slug"),
@@ -107,25 +135,9 @@ export const vacancyFormSchema = z
     }
   });
 
-export type VacancyFormValues = z.infer<typeof vacancyFormSchema>;
+export const vacancyFormSchema = z.preprocess(withEveryField, vacancyShape);
 
-export const VACANCY_FIELDS = [
-  "title",
-  "slug",
-  "summary",
-  "description",
-  "organizationId",
-  "region",
-  "format",
-  "city",
-  "locationName",
-  "startsAt",
-  "endsAt",
-  "applicationDeadline",
-  "capacity",
-  "estimatedTotalHours",
-  "requirements",
-] as const;
+export type VacancyFormValues = z.infer<typeof vacancyShape>;
 
 export function vacancyFromFormData(formData: FormData): Record<string, string> {
   const output: Record<string, string> = {};

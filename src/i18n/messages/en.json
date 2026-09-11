@@ -32,7 +32,9 @@
     "all": "All",
     "yes": "Yes",
     "no": "No",
-    "loading": "Loading…"
+    "loading": "Loading…",
+    "close": "Close",
+    "fixFields": "Check these fields"
   },
   "nav": {
     "label": "Portal sections",
@@ -331,14 +333,25 @@
       "pending": "Saving…",
       "created": "The draft was created.",
       "updated": "The changes were saved.",
-      "noOrganizations": "No organization is available yet, so a vacancy cannot be created. Ask an administrator to add one."
+      "noOrganizations": "No organization is available yet, so a vacancy cannot be created. Ask an administrator to add one.",
+      "sections": {
+        "about": "The vacancy",
+        "organization": "Organization",
+        "place": "Where it happens",
+        "when": "When it happens",
+        "volunteers": "Volunteers"
+      },
+      "unverified": "not verified",
+      "unverifiedNotice": "This organization is not verified yet. A vacancy under it cannot be approved until an administrator verifies it.",
+      "editDescription": "Changes stay a draft until the vacancy is sent for approval again."
     },
     "archive": {
       "trigger": "Archive",
       "title": "Archive this vacancy?",
       "description": "It stops accepting applications and disappears from the public list. This cannot be undone from here.",
       "confirm": "Archive",
-      "pending": "Archiving…"
+      "pending": "Archiving…",
+      "success": "The vacancy was archived."
     },
     "archivedNotice": "This vacancy is archived. It can no longer be edited.",
     "submit": {
@@ -346,7 +359,8 @@
       "title": "Send this vacancy for approval?",
       "description": "An administrator decides whether it is published. You cannot edit it while it is under review.",
       "confirm": "Send for approval",
-      "pending": "Sending…"
+      "pending": "Sending…",
+      "success": "The vacancy was sent for approval."
     },
     "approval": {
       "title": "Approval",
@@ -379,30 +393,43 @@
         "capacity": "how many places",
         "estimatedTotalHours": "the estimated hours",
         "location": "where it happens"
-      }
+      },
+      "readyTitle": "Ready for volunteers",
+      "readyBlocked": "This vacancy is not ready yet",
+      "met": "Done",
+      "unmet": "Still needed",
+      "readyLine": "Everything approval needs is in place."
     },
     "decide": {
-      "title": "Decision",
-      "description": "Approve this vacancy and publish it, send it back for changes, or reject it for good.",
-      "decision": "Decision",
-      "approve": "Approve and publish",
-      "request_changes": "Request changes",
-      "reject": "Reject permanently",
       "note": "Note to the coordinator",
       "noteHelp": "Required when you request changes or reject. The coordinator reads it on the vacancy.",
-      "submit": "Record the decision",
-      "pending": "Recording…",
-      "success": "The decision was recorded.",
-      "rejectConfirm": {
-        "title": "Reject this vacancy permanently?",
-        "description": "The coordinator cannot edit or resubmit it. Your note will be included with the decision.",
-        "confirm": "Reject permanently",
-        "cancel": "Cancel"
-      },
-      "closedTitle": "Nothing to decide",
-      "closedDescription": "This vacancy is not waiting for a decision.",
       "queue": "Waiting for approval",
-      "queueEmpty": "No vacancy is waiting for approval."
+      "queueEmpty": "No vacancy is waiting for approval.",
+      "noteRequiredHelp": "Required. The coordinator reads it on the vacancy.",
+      "approve": {
+        "trigger": "Approve and publish",
+        "title": "Approve and publish this vacancy?",
+        "description": "Volunteers will see it straight away and can start applying.",
+        "confirm": "Approve and publish",
+        "pending": "Publishing…",
+        "success": "The vacancy was approved and published."
+      },
+      "requestChanges": {
+        "trigger": "Request changes",
+        "title": "Send this vacancy back for changes?",
+        "description": "The coordinator can edit it and send it for approval again. Say what has to change.",
+        "confirm": "Request changes",
+        "pending": "Sending…",
+        "success": "The vacancy was sent back for changes."
+      },
+      "reject": {
+        "trigger": "Reject",
+        "title": "Reject this vacancy permanently?",
+        "description": "It becomes read-only for good — the coordinator cannot edit it or send it again. Say why.",
+        "confirm": "Reject permanently",
+        "pending": "Rejecting…",
+        "success": "The vacancy was rejected."
+      }
     }
   },
   "applications": {
@@ -692,14 +719,16 @@
       "title": "Block this coordinator?",
       "description": "They are signed out everywhere and cannot sign in again until you unblock them. Their vacancies are untouched.",
       "confirm": "Block",
-      "pending": "Blocking…"
+      "pending": "Blocking…",
+      "success": "The coordinator was blocked."
     },
     "unblock": {
       "trigger": "Unblock",
       "title": "Unblock this coordinator?",
       "description": "They can sign in again with the password they already have.",
       "confirm": "Unblock",
-      "pending": "Unblocking…"
+      "pending": "Unblocking…",
+      "success": "The coordinator was unblocked."
     },
     "remove": {
       "trigger": "Remove",
@@ -710,7 +739,8 @@
       "reassignPlaceholder": "Choose a coordinator",
       "noCandidates": "There is no other active coordinator to take the vacancies over. Create one first.",
       "confirm": "Remove",
-      "pending": "Removing…"
+      "pending": "Removing…",
+      "success": "The coordinator was removed."
     },
     "password": {
       "title": "Assign a temporary password",
@@ -767,13 +797,15 @@
       "title": "New organization",
       "submit": "Create the organization",
       "pending": "Creating…",
-      "success": "The organization was created."
+      "success": "The organization was created.",
+      "description": "Add the organization that vacancies will be published under. Its address cannot be changed later."
     },
     "update": {
       "title": "Edit organization",
       "submit": "Save changes",
       "pending": "Saving…",
-      "success": "The changes were saved."
+      "success": "The changes were saved.",
+      "description": "The address cannot be changed. Verification decides whether vacancies under this organization can be approved."
     }
   },
   "audit": {
