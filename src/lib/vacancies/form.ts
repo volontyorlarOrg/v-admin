@@ -1,8 +1,10 @@
 import { z } from "zod";
 
 import { REGIONS, VACANCY_FORMATS } from "@/lib/domain/vocabulary";
+import { hasMeetingCredentials, requiresVenue } from "@/lib/vacancies/approval";
 
 export const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+export const MAX_ESTIMATED_TOTAL_HOURS = 999;
 
 const trimmed = z.string().trim();
 
@@ -18,14 +20,16 @@ export const vacancyFormSchema = z
     city: trimmed.max(120, "tooLong").optional(),
     locationName: trimmed.max(160, "tooLong").optional(),
     startsAt: trimmed.min(1, "required"),
-    endsAt: trimmed.optional(),
+    endsAt: trimmed.min(1, "required"),
     applicationDeadline: trimmed.min(1, "required"),
-    capacity: trimmed.optional(),
+    capacity: trimmed.min(1, "required"),
+    estimatedTotalHours: trimmed.min(1, "required"),
     requirements: trimmed.optional(),
   })
   .superRefine((values, context) => {
     const starts = Date.parse(values.startsAt);
     const deadline = Date.parse(values.applicationDeadline);
+    const ends = Date.parse(values.endsAt);
 
     if (Number.isNaN(starts)) {
       context.addIssue({ code: "custom", path: ["startsAt"], message: "date" });
@@ -44,23 +48,62 @@ export const vacancyFormSchema = z
         message: "deadlineAfterStart",
       });
     }
-    if (values.endsAt) {
-      const ends = Date.parse(values.endsAt);
-      if (Number.isNaN(ends)) {
-        context.addIssue({ code: "custom", path: ["endsAt"], message: "date" });
-      } else if (!Number.isNaN(starts) && ends < starts) {
+    if (values.endsAt && Number.isNaN(ends)) {
+      context.addIssue({ code: "custom", path: ["endsAt"], message: "date" });
+    } else if (values.endsAt && !Number.isNaN(starts) && ends <= starts) {
+      context.addIssue({
+        code: "custom",
+        path: ["endsAt"],
+        message: "endBeforeStart",
+      });
+    }
+
+    const capacity = Number(values.capacity);
+    if (values.capacity && (!Number.isInteger(capacity) || capacity < 1)) {
+      context.addIssue({ code: "custom", path: ["capacity"], message: "capacity" });
+    }
+
+    const hours = Number(values.estimatedTotalHours);
+    if (
+      values.estimatedTotalHours &&
+      (!Number.isFinite(hours) || hours <= 0 || hours > MAX_ESTIMATED_TOTAL_HOURS)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["estimatedTotalHours"],
+        message: "estimatedHours",
+      });
+    }
+
+    if (requiresVenue(values.format)) {
+      if (!values.city) {
+        context.addIssue({ code: "custom", path: ["city"], message: "cityRequired" });
+      }
+      if (!values.locationName) {
         context.addIssue({
           code: "custom",
-          path: ["endsAt"],
-          message: "endBeforeStart",
+          path: ["locationName"],
+          message: "venueRequired",
         });
       }
+      return;
     }
-    if (values.capacity) {
-      const capacity = Number(values.capacity);
-      if (!Number.isInteger(capacity) || capacity < 1) {
-        context.addIssue({ code: "custom", path: ["capacity"], message: "capacity" });
-      }
+
+    if (!values.locationName) {
+      context.addIssue({
+        code: "custom",
+        path: ["locationName"],
+        message: "onlineLocationRequired",
+      });
+      return;
+    }
+
+    if (hasMeetingCredentials(values.locationName)) {
+      context.addIssue({
+        code: "custom",
+        path: ["locationName"],
+        message: "onlineLocationCredentials",
+      });
     }
   });
 
@@ -80,6 +123,7 @@ export const VACANCY_FIELDS = [
   "endsAt",
   "applicationDeadline",
   "capacity",
+  "estimatedTotalHours",
   "requirements",
 ] as const;
 
@@ -104,11 +148,12 @@ export function toVacancyPayload(values: VacancyFormValues) {
     region: values.region,
     format: values.format,
     startsAt: new Date(values.startsAt).toISOString(),
+    endsAt: new Date(values.endsAt).toISOString(),
     applicationDeadline: new Date(values.applicationDeadline).toISOString(),
+    capacity: Number(values.capacity),
+    estimatedTotalHours: Number(values.estimatedTotalHours),
     ...(values.city ? { city: values.city } : {}),
     ...(values.locationName ? { locationName: values.locationName } : {}),
-    ...(values.endsAt ? { endsAt: new Date(values.endsAt).toISOString() } : {}),
-    ...(values.capacity ? { capacity: Number(values.capacity) } : {}),
     ...(values.requirements
       ? {
           requirements: values.requirements

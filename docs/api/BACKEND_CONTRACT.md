@@ -84,16 +84,65 @@ control that asks for one.
 
 ## Current state
 
-Every operation in the registry is `published`. The statuses are still carried,
-still tested, and still the first thing to check when adding an endpoint — the
-next one written will start as `announced` again.
+Every operation in the registry is `published` except the four the approval
+workflow added — `approveVacancy`, `requestVacancyChanges`, `rejectVacancy` and
+`resolveVacancyAttendance` — which are `announced`: written in `v-backend`'s
+source, not yet in the published document. When the backend publishes them,
+`endpoints.test.ts` fails and the fix is one word each. The batch attendance
+operation is deliberately the `staff` path: `v-backend` exposes it once, to
+coordinators and administrators alike.
+
+## The vacancy approval workflow
+
+A vacancy no longer goes public because its coordinator said so. Every vacancy
+carries an `approvalStatus` — `draft`, `pending_review`, `changes_requested`,
+`approved`, `rejected` — beside the timestamps it already had:
+
+| Field                  | Meaning                                                  |
+| ---------------------- | -------------------------------------------------------- |
+| `approvalStatus`       | Where the vacancy is in the workflow.                    |
+| `approvalSubmittedAt`  | When the coordinator last sent it for approval.          |
+| `approvalReviewedAt`   | When an administrator last decided.                      |
+| `approvalReviewedById` | Who decided, with `approvalReviewedBy` when expanded.    |
+| `approvalNote`         | Why changes were requested, or why it was rejected.      |
+| `estimatedTotalHours`  | Hours a volunteer earns for the whole event.             |
+
+`src/lib/vacancies/approval.ts` reads that state and nothing else. A response
+without `approvalStatus` — a record written before the workflow existed — is
+read as `approved` when it is published and `draft` when it is not, so the
+screens work against either deployment.
+
+`vacancyStateOf` folds `archivedAt` over the approval status, and the list
+filter (`?state=`) offers those six states rather than the old three stages.
+
+An administrator decides a vacancy waiting for review through
+`POST /admin/opportunities/{id}/approve`, `/request-changes` or `/reject`. The
+two refusals carry a required `note`, which the coordinator reads on the
+vacancy; approval clears the note and publishes. The backend answers
+`opportunityNotPendingApproval` when the vacancy is not waiting,
+`approvalNoteRequired` when a refusal has no note, and `opportunityIncomplete`,
+`organizationNotVerified` or `deadlinePassed` when approval would publish
+something unfinished. Editing is refused outside `draft` and
+`changes_requested` (`opportunityNotEditable`).
+
+## Attendance opens when the event ends
+
+`PUT /staff/attendance/{applicationId}` resolves one volunteer, and
+`PUT /staff/opportunities/{id}/attendance` resolves a batch:
+`{ records: [{ applicationId, outcome, confirmedHours? }] }`, applied in one
+transaction. The roster on the vacancy sends one outcome and one number of
+hours for everyone selected, then lets a single row be corrected afterwards.
+
+Both refuse before `endsAt` — or `startsAt` for a legacy record with no end —
+with `attendanceNotOpen`. `isAttendanceOpen` in `src/lib/vacancies/approval.ts`
+is the same rule, so the portal explains the wait instead of failing at it.
 
 ## Where the portal fills a gap, and how
 
-- **The applications list carries `answers`, `volunteer` and `opportunity`, but
-  no `attendance`.** The attendance screen renders an outcome only when the
-  record is present and says "not published by the API" when it is not. It never
-  guesses that an unresolved record means "awaiting confirmation".
+- **The applications list carries `answers`, `volunteer`, `opportunity` and
+  `attendance`.** The roster renders an outcome only when the record is present
+  and says "not published by the API" when it is not. It never guesses that a
+  missing record means "awaiting confirmation".
 - **`GET /admin/audit` is filtered and paged by the API** — `actorUserId`,
   `action`, `entityType`, `from`, `to`, `page`, `pageSize`. The portal sends
   those and pages on the envelope it gets back. `auditPageSchema` still accepts

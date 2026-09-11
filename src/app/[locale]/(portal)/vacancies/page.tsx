@@ -2,7 +2,7 @@ import { getFormatter, getTranslations, setRequestLocale } from "next-intl/serve
 import type { Metadata } from "next";
 
 import { FilterForm, FilterSelect } from "@/components/forms/filter-form";
-import { StatusBadge, vacancyStageTone } from "@/components/portal/status-badge";
+import { StatusBadge, vacancyStateTone } from "@/components/portal/status-badge";
 import { EmptyState } from "@/components/states/empty-state";
 import { LoadFailure } from "@/components/states/load-failure";
 import { PageHeader } from "@/components/states/page-header";
@@ -20,7 +20,8 @@ import {
 } from "@/components/ui/table";
 import { Link } from "@/i18n/navigation";
 import { failureOf, isReady } from "@/lib/api/load";
-import { VACANCY_STAGES, stageOf } from "@/lib/domain/vocabulary";
+import { VACANCY_STATES } from "@/lib/domain/vocabulary";
+import { vacancyStateOf } from "@/lib/vacancies/approval";
 import { navHref, vacancyHref } from "@/lib/routing/routes";
 import {
   DEFAULT_PAGE_SIZE,
@@ -56,12 +57,12 @@ export default async function VacanciesPage({
 
   const query = await searchParams;
   const q = readParam(query, "q");
-  const stage = readOption(query, "stage", VACANCY_STAGES);
+  const state = readOption(query, "state", VACANCY_STATES);
   const page = readPage(query);
 
   const loaded = await loadVacancies();
   const failure = failureOf(loaded);
-  const filtered = isReady(loaded) ? filterVacancies(loaded.data, { q, stage }) : [];
+  const filtered = isReady(loaded) ? filterVacancies(loaded.data, { q, state }) : [];
   const pageState = paginate(filtered, page, DEFAULT_PAGE_SIZE);
   const listPath = navHref("vacancies");
 
@@ -88,12 +89,12 @@ export default async function VacanciesPage({
             searchValue={q}
             resetHref={listPath}
           >
-            <FilterSelect id="filter-stage" label={t("filters.stage")}>
-              <NativeSelect id="filter-stage" name="stage" defaultValue={stage ?? ""}>
-                <NativeSelectOption value="">{t("stage.all")}</NativeSelectOption>
-                {VACANCY_STAGES.map((value) => (
+            <FilterSelect id="filter-state" label={t("filters.state")}>
+              <NativeSelect id="filter-state" name="state" defaultValue={state ?? ""}>
+                <NativeSelectOption value="">{t("state.all")}</NativeSelectOption>
+                {VACANCY_STATES.map((value) => (
                   <NativeSelectOption key={value} value={value}>
-                    {t(`stage.${value}`)}
+                    {t(`state.${value}`)}
                   </NativeSelectOption>
                 ))}
               </NativeSelect>
@@ -117,7 +118,7 @@ export default async function VacanciesPage({
                   <TableHeader>
                     <TableRow>
                       <TableHead scope="col">{t("table.title")}</TableHead>
-                      <TableHead scope="col">{t("table.stage")}</TableHead>
+                      <TableHead scope="col">{t("table.state")}</TableHead>
                       <TableHead scope="col">{t("table.deadline")}</TableHead>
                       <TableHead scope="col">{t("table.starts")}</TableHead>
                       <TableHead scope="col">
@@ -136,8 +137,8 @@ export default async function VacanciesPage({
                         </TableCell>
                         <TableCell>
                           <StatusBadge
-                            label={t(`stage.${stageOf(vacancy)}`)}
-                            tone={vacancyStageTone(stageOf(vacancy))}
+                            label={t(`state.${vacancyStateOf(vacancy)}`)}
+                            tone={vacancyStateTone(vacancyStateOf(vacancy))}
                           />
                         </TableCell>
                         <TableCell className="tabular whitespace-nowrap">
@@ -166,7 +167,7 @@ export default async function VacanciesPage({
 
               <Pagination
                 state={pageState}
-                hrefFor={(next) => hrefWith(listPath, { q, stage, page: next })}
+                hrefFor={(next) => hrefWith(listPath, { q, state, page: next })}
               />
             </>
           )}

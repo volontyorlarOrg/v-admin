@@ -1,7 +1,6 @@
 import { getFormatter, getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
 
-import { ResolveAttendanceForm } from "@/components/attendance/resolve-form";
 import { Panel } from "@/components/portal/panel";
 import { StatusBadge, attendanceTone } from "@/components/portal/status-badge";
 import { EmptyState } from "@/components/states/empty-state";
@@ -12,16 +11,10 @@ import { buttonClass } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
 import { failureOf, isReady } from "@/lib/api/load";
 import { loadApplications } from "@/lib/applications/data.server";
-import {
-  acceptedApplications,
-  sortApplications,
-  unresolvedFirst,
-  volunteerNameOf,
-} from "@/lib/applications/filters";
-import { RESOLVABLE_ATTENDANCE_OUTCOMES } from "@/lib/domain/vocabulary";
-import { applicationHref, navHref } from "@/lib/routing/routes";
+import { volunteerNameOf } from "@/lib/applications/filters";
+import { groupAttendance, unresolvedCount } from "@/lib/attendance/queue";
+import { applicationHref, navHref, vacancyHref } from "@/lib/routing/routes";
 import { hrefWith, paginate, readPage } from "@/lib/routing/search-params";
-import { errorCatalog } from "@/lib/vacancies/labels.server";
 
 export const dynamic = "force-dynamic";
 
@@ -44,42 +37,17 @@ export default async function AttendancePage({
 
   const t = await getTranslations("attendance");
   const applicationsCopy = await getTranslations("applications");
-  const errors = await getTranslations("errors");
   const format = await getFormatter();
 
   const query = await searchParams;
   const page = readPage(query);
+  const now = new Date();
 
   const loaded = await loadApplications({ status: "accepted" });
   const failure = failureOf(loaded);
-  const rows = isReady(loaded)
-    ? unresolvedFirst(sortApplications(acceptedApplications(loaded.data)))
-    : [];
-  const pageState = paginate(rows, page, PAGE_SIZE);
-
-  const catalog = await errorCatalog([
-    "server",
-    "network",
-    "timeout",
-    "rateLimited",
-    "unavailable",
-    "forbidden",
-    "notFound",
-    "conflict",
-    "validationFailed",
-    "awaitingContract",
-    "sessionExpired",
-    "required",
-    "hours",
-    "confirmedHoursRequired",
-    "attendanceNotFound",
-    "attendanceOutcomeNotResolved",
-    "adminWorkflowsDisabled",
-  ]);
-
-  const outcomeLabels = Object.fromEntries(
-    RESOLVABLE_ATTENDANCE_OUTCOMES.map((outcome) => [outcome, t(`outcome.${outcome}`)]),
-  );
+  const groups = isReady(loaded) ? groupAttendance(loaded.data, now) : [];
+  const waiting = groups.filter((group) => group.unresolved.length > 0);
+  const pageState = paginate(waiting, page, PAGE_SIZE);
 
   return (
     <>
@@ -92,74 +60,68 @@ export default async function AttendancePage({
           <EmptyState title={t("empty.title")} description={t("empty.description")} />
         ) : (
           <>
-            {pageState.items.map((application) => (
+            <p role="status" className="text-sm text-ink-muted">
+              {t("queue.total", { count: unresolvedCount(waiting) })}
+            </p>
+
+            {pageState.items.map((group) => (
               <Panel
-                key={application.id}
-                title={volunteerNameOf(application) || application.volunteerId}
-                description={application.opportunity?.title}
+                key={group.vacancyId}
+                title={group.title}
+                description={
+                  group.open
+                    ? t("queue.waiting", { count: group.unresolved.length })
+                    : group.opensAt
+                      ? t("queue.opensAt", {
+                          when: format.dateTime(group.opensAt, "stamp"),
+                        })
+                      : t("queue.opensUnknown")
+                }
                 actions={
                   <Link
-                    href={applicationHref(application.id)}
-                    className={buttonClass({ variant: "ghost", size: "sm" })}
+                    href={vacancyHref(group.vacancyId)}
+                    className={buttonClass({ size: "sm" })}
                   >
-                    {applicationsCopy("table.open")}
+                    {t("queue.open")}
                   </Link>
                 }
               >
-                <div className="mb-4 flex flex-wrap items-center gap-3">
-                  <StatusBadge
-                    label={
-                      application.attendance
-                        ? t(`outcome.${application.attendance.outcome}`)
-                        : t("outcome.unknown")
-                    }
-                    tone={attendanceTone(
-                      application.attendance?.outcome ?? "awaiting_confirmation",
-                    )}
-                  />
-                  {application.attendance?.resolvedAt ? (
-                    <span className="tabular text-sm text-ink-muted">
-                      {t("resolved", {
-                        when: format.dateTime(
-                          new Date(application.attendance.resolvedAt),
-                          "date",
-                        ),
-                      })}
-                    </span>
-                  ) : application.submittedAt ? (
-                    <span className="tabular text-sm text-ink-muted">
-                      {format.dateTime(new Date(application.submittedAt), "date")}
-                    </span>
-                  ) : null}
-                  {application.attendance?.confirmedHours === undefined ? null : (
-                    <span className="tabular text-sm text-ink-muted">
-                      {t("table.hours")}:{" "}
-                      {format.number(application.attendance.confirmedHours)}
-                    </span>
-                  )}
-                </div>
+                <ul className="flex flex-col divide-y divide-border">
+                  {group.unresolved.map((application) => (
+                    <li
+                      key={application.id}
+                      className="flex items-center justify-between gap-4 py-3"
+                    >
+                      <span className="min-w-0">
+                        <span className="block truncate text-sm font-medium text-ink">
+                          {volunteerNameOf(application) || application.volunteerId}
+                        </span>
+                        <StatusBadge
+                          label={
+                            application.attendance
+                              ? t(`outcome.${application.attendance.outcome}`)
+                              : t("outcome.unknown")
+                          }
+                          tone={attendanceTone(
+                            application.attendance?.outcome ?? "awaiting_confirmation",
+                          )}
+                        />
+                      </span>
+                      <Link
+                        href={applicationHref(application.id)}
+                        className={buttonClass({ variant: "ghost", size: "sm" })}
+                      >
+                        {applicationsCopy("table.open")}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
 
-                <ResolveAttendanceForm
-                  applicationId={application.id}
-                  outcomes={RESOLVABLE_ATTENDANCE_OUTCOMES}
-                  {...(application.attendance?.outcome
-                    ? { currentOutcome: application.attendance.outcome }
-                    : {})}
-                  {...(application.attendance?.confirmedHours === undefined
-                    ? {}
-                    : { currentHours: String(application.attendance.confirmedHours) })}
-                  labels={{
-                    outcome: t("resolve.outcome"),
-                    outcomes: outcomeLabels,
-                    hours: t("resolve.hours"),
-                    hoursHelp: t("resolve.hoursHelp"),
-                    submit: t("resolve.confirm"),
-                    pending: t("resolve.pending"),
-                    success: t("resolve.success"),
-                    fallbackError: errors("server"),
-                    errors: catalog,
-                  }}
-                />
+                {group.resolved.length > 0 ? (
+                  <p className="mt-4 text-sm text-ink-muted">
+                    {t("queue.resolvedCount", { count: group.resolved.length })}
+                  </p>
+                ) : null}
               </Panel>
             ))}
 

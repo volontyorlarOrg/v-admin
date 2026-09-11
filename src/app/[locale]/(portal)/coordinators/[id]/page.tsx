@@ -8,7 +8,7 @@ import { Panel } from "@/components/portal/panel";
 import {
   StatusBadge,
   coordinatorStatusTone,
-  vacancyStageTone,
+  vacancyStateTone,
 } from "@/components/portal/status-badge";
 import { TemporaryPasswordForm } from "@/components/portal/temporary-password-form";
 import { LoadFailure } from "@/components/states/load-failure";
@@ -29,7 +29,7 @@ import {
   reassignmentCandidates,
   statusOf,
 } from "@/lib/coordinators/status";
-import { stageOf } from "@/lib/domain/vocabulary";
+import { vacancyStateOf } from "@/lib/vacancies/approval";
 import { MAX_PAGE_SIZE } from "@/lib/routing/search-params";
 import { vacancyHref } from "@/lib/routing/routes";
 import { passwordLoginState } from "@/lib/users/password-state";
@@ -230,8 +230,8 @@ export default async function CoordinatorPage({
                     {vacancy.title}
                   </span>
                   <StatusBadge
-                    label={vacancies(`stage.${stageOf(vacancy)}`)}
-                    tone={vacancyStageTone(stageOf(vacancy))}
+                    label={vacancies(`state.${vacancyStateOf(vacancy)}`)}
+                    tone={vacancyStateTone(vacancyStateOf(vacancy))}
                   />
                 </span>
                 <Link
