@@ -27,7 +27,7 @@ export default defineConfig({
       url: `${stubURL}/health/live`,
       reuseExistingServer: !process.env.CI,
       timeout: 30_000,
-      env: { STUB_PORT: String(STUB_PORT), STUB_ACCESS_TTL: "30" },
+      env: { STUB_PORT: String(STUB_PORT) },
     },
     {
       command: `npm run build && npx next start -p ${PORT}`,
