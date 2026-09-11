@@ -2,7 +2,7 @@ import { createServer } from "node:http";
 import { randomUUID } from "node:crypto";
 
 const PORT = Number(process.env.STUB_PORT ?? 3603);
-const ACCESS_TOKEN_TTL_SECONDS = Number(process.env.STUB_ACCESS_TTL ?? 900);
+const ACCESS_TOKEN_TTL_SECONDS = Number(process.env.STUB_ACCESS_TTL ?? 259_200);
 const DAY = 86_400_000;
 const START = Date.UTC(2026, 8, 1, 6, 0, 0);
 
@@ -303,7 +303,6 @@ function issueSession(user) {
   return {
     userId: user.id,
     accessToken,
-    refreshToken,
     accessTokenExpiresAt: Math.floor(Date.now() / 1000) + ACCESS_TOKEN_TTL_SECONDS,
     displayName: user.displayName,
     roles: user.roles,

@@ -4,7 +4,7 @@ import type { z } from "zod";
 
 import { authedApi, type QueryParams } from "@/lib/api/client.server";
 import { endpoints, pathFor, type EndpointName } from "@/lib/api/endpoints";
-import { isApiError } from "@/lib/api/errors";
+import { isApiError, isSessionOver } from "@/lib/api/errors";
 import { loadedFromError, ready, type Loaded } from "@/lib/api/load";
 import {
   failedResult,
@@ -82,7 +82,7 @@ export async function write(
     await send(session.accessToken);
     return okResult;
   } catch (error) {
-    if (isApiError(error) && error.code === "unauthenticated") {
+    if (isSessionOver(error)) {
       return failedResult("sessionExpired");
     }
 
