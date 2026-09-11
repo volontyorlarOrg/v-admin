@@ -30,9 +30,9 @@ export function SidebarNav({
             onClick={onNavigate}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors",
+              "relative flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors",
               active
-                ? "bg-surface-soft text-primary-ink"
+                ? "bg-surface-soft font-semibold text-primary-ink before:absolute before:inset-y-2 before:left-0 before:w-0.5 before:rounded-full before:bg-primary-ink"
                 : "text-ink-muted hover:bg-surface-sunk hover:text-ink",
             )}
           >

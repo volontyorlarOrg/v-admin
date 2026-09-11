@@ -1,7 +1,12 @@
 import { getFormatter, getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
 
+import { ShieldCheck } from "lucide-react";
+
+import { StackedBar } from "@/components/charts/stacked-bar";
 import { FilterForm, FilterSelect } from "@/components/forms/filter-form";
+import { Avatar } from "@/components/portal/avatar";
+import { Panel } from "@/components/portal/panel";
 import { StatusBadge, coordinatorStatusTone } from "@/components/portal/status-badge";
 import { EmptyState } from "@/components/states/empty-state";
 import { LoadFailure } from "@/components/states/load-failure";
@@ -32,9 +37,17 @@ import {
   readPage,
   readParam,
 } from "@/lib/routing/search-params";
+import { coordinatorSplit } from "@/lib/statistics/charts";
+import { loadStatistics } from "@/lib/statistics/data.server";
 import { passwordLoginState } from "@/lib/users/password-state";
 
 export const dynamic = "force-dynamic";
+
+const COORDINATOR_TONE = {
+  active: "strong",
+  blocked: "mid",
+  removed: "soft",
+} as const;
 
 export async function generateMetadata({
   params,
@@ -61,9 +74,13 @@ export default async function CoordinatorsPage({
   const status = readOption(query, "status", COORDINATOR_STATUSES);
   const page = readPage(query);
 
-  const loaded = await loadCoordinators({ q, page, pageSize: DEFAULT_PAGE_SIZE });
+  const [loaded, statistics] = await Promise.all([
+    loadCoordinators({ q, page, pageSize: DEFAULT_PAGE_SIZE }),
+    loadStatistics(),
+  ]);
   const failure = failureOf(loaded);
   const rows = isReady(loaded) ? byStatus(loaded.data.items, status) : [];
+  const split = isReady(statistics) ? coordinatorSplit(statistics.data.totals) : null;
   const listPath = navHref("coordinators");
 
   return (
@@ -81,7 +98,27 @@ export default async function CoordinatorsPage({
         }
       />
 
+      <StatePanel
+        role="status"
+        icon={<ShieldCheck aria-hidden="true" className="size-5" />}
+        title={t("adminNotice")}
+      />
+
       {failure ? <LoadFailure failure={failure} /> : null}
+
+      {split ? (
+        <Panel title={t("summary")} description={t("summaryDescription")}>
+          <StackedBar
+            segments={split.map((segment) => ({
+              key: segment.key,
+              label: t(`status.${segment.key}`),
+              value: format.number(segment.value),
+              share: segment.share,
+              tone: COORDINATOR_TONE[segment.key],
+            }))}
+          />
+        </Panel>
+      ) : null}
 
       {isReady(loaded) ? (
         <>
@@ -121,13 +158,12 @@ export default async function CoordinatorsPage({
             />
           ) : (
             <>
-              <div className="rounded-xl border border-border bg-card">
+              <div className="rounded-xl border border-border/70 panel-surface">
                 <Table>
                   <TableCaption className="sr-only">{t("table.caption")}</TableCaption>
                   <TableHeader>
                     <TableRow>
                       <TableHead scope="col">{t("table.name")}</TableHead>
-                      <TableHead scope="col">{t("table.email")}</TableHead>
                       <TableHead scope="col">{t("table.status")}</TableHead>
                       <TableHead scope="col">{t("table.vacancies")}</TableHead>
                       <TableHead scope="col">{t("table.passwordLogin")}</TableHead>
@@ -143,11 +179,18 @@ export default async function CoordinatorsPage({
 
                       return (
                         <TableRow key={coordinator.id}>
-                          <TableCell className="font-medium text-ink">
-                            {coordinator.displayName ?? common("notSet")}
-                          </TableCell>
-                          <TableCell className="break-all">
-                            {coordinator.email ?? common("notSet")}
+                          <TableCell>
+                            <div className="flex items-center gap-3">
+                              <Avatar name={coordinator.displayName} />
+                              <div className="min-w-0">
+                                <p className="font-medium text-ink">
+                                  {coordinator.displayName ?? common("notSet")}
+                                </p>
+                                <p className="text-xs text-ink-muted">
+                                  {coordinator.email ?? common("notSet")}
+                                </p>
+                              </div>
+                            </div>
                           </TableCell>
                           <TableCell>
                             <StatusBadge
@@ -192,8 +235,6 @@ export default async function CoordinatorsPage({
               />
             </>
           )}
-
-          <StatePanel role="status" title={t("adminNotice")} />
         </>
       ) : null}
     </>

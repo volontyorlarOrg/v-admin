@@ -12,7 +12,7 @@ export function Figure({
   className?: string;
 }) {
   return (
-    <div className={cn("rounded-xl border border-border bg-card p-5", className)}>
+    <div className={cn("panel-surface rounded-xl border border-border/70 p-5", className)}>
       <p className="eyebrow text-ink-muted">{label}</p>
       <p
         className={cn(

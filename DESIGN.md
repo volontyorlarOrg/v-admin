@@ -45,10 +45,77 @@ labels for regions of a screen, not statements.
 | ------------ | --------------------------------------- |
 | `page-title` | the one `h1` per page                   |
 | `section`    | a panel heading                         |
+| `hero`       | the one leading number on the dashboard |
 | `figure`     | a dashboard number                      |
 | `eyebrow`    | a small uppercase label above something |
 
 Numbers use `.tabular`, always, so a column of counts and hours lines up.
+
+## Charts
+
+The dashboard is the one screen that draws its numbers rather than only printing
+them. Every mark on it comes from a real count: `pipeline`, `publishedRatio`,
+`attendanceRatio` and `coordinatorSplit` derive from `/admin/statistics`; the
+breakdowns and the submission trend derive from the full `/admin/opportunities`
+and `/admin/applications` lists; the joining rate derives from every page of
+`/admin/users`. Nothing is interpolated, smoothed, projected or
+padded, a zero draws no bar, and a chart with nothing to show says so instead of
+drawing an empty frame. The derivations live in `src/lib/statistics/` as pure,
+tested functions — never in JSX.
+
+Two of those sources are paginated, and that is not allowed to become a lie.
+`loadEveryUser` reads page one, learns the total, and fetches the rest in
+parallel; a set too large to read in full is **not drawn at all** — the panel
+says how many of how many the API returned. A rate charted from an arbitrary
+page would be worse than no chart.
+
+Time is bucketed by Tashkent day, not UTC day, because that is the day the
+formatter prints. A span is divided into at most thirty buckets, so a year
+reads as weeks and a fortnight reads as days. One bucket is not a rate: a
+single day of joins is drawn as a column, never as a flat line implying a
+trend that was never measured.
+
+The form follows the job:
+
+| The reader is doing                       | Form                                                           |
+| ----------------------------------------- | -------------------------------------------------------------- |
+| comparing magnitudes                      | horizontal bars, one hue, value at the row end                 |
+| reading one ratio against its limit       | a meter: fill plus a lighter track of the same ramp            |
+| reading a part-to-whole of ordered states | a stacked bar, 2px surface gaps, a legend carrying every value |
+| reading change over time                  | columns on a hairline baseline                                 |
+
+Two rules keep it honest. **Length carries the value; hue never doubles for it.**
+A comparison is one colour and the bars do the work. **Only an ordered set gets
+the ramp** — coordinator states and vacancy stages — because a three-step
+blue-on-blue ramp is a legitimate ordinal scale but an illegible categorical one.
+Nominal sets (regions, formats, statuses) are bars instead.
+
+`chart-strong`, `chart-mid` and `chart-soft` are that ramp, and `chart-track` and
+`chart-person-track` are the meter tracks. Both ramps were checked against the
+data-visualisation colour rules — one hue, monotone lightness, a visible step
+between neighbours, and a pale end that still clears the surface — in light and
+dark separately, rather than one being flipped from the other. Chart marks are
+the one place `action` and `band` do not apply: those are the tokens for solid UI
+fills, and a data mark is not a button. Text beside a mark keeps its text token;
+only the mark wears the data colour.
+
+`text-hero` is the dashboard's single leading number. There is exactly one per
+screen.
+
+## Background
+
+The portal sits on a moving ground: a canvas of Perlin-noise lines adapted from
+React Bits' `Waves`, drawn in `border` at 60% so it is the faintest thing on the
+page and correct in both themes. It is `aria-hidden`, `pointer-events-none`, and
+it obeys the same reduced-motion promise as everything else — under
+`prefers-reduced-motion` it paints one still frame and never asks for another.
+It lives in `PortalShell`, so every screen inside the portal shares it and the
+sign-in screen does not.
+
+`panel-surface` is what makes that readable: every panel, table frame, filter bar
+and empty state sits at 82% card with a blur behind it, so the ground shows
+through without touching the contrast of anything on top. It is one utility, in
+one place — a surface that differs per screen is a surface nobody trusts.
 
 ## Layout
 
@@ -56,6 +123,11 @@ Desktop: a fixed sidebar of sections and a top bar carrying identity, language,
 theme and sign-out. Below the large breakpoint the sidebar collapses into a menu
 button and the content takes the full width. Content is capped at 72rem so a
 table stays readable on a wide monitor.
+
+The top bar and the sidebar are sticky, so the identity, the sections and the
+sign-out stay reachable down a long table. A person in a list carries their
+initials, their name and their address in one cell rather than three columns:
+the row is scanned by who it is, not by which column the address landed in.
 
 A screen is a page header, then panels. A panel is a bordered card with an
 optional heading and actions. Tables scroll inside their own container so the

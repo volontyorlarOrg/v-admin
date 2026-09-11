@@ -2,6 +2,7 @@ import { getFormatter, getTranslations, setRequestLocale } from "next-intl/serve
 import type { Metadata } from "next";
 
 import { FilterForm } from "@/components/forms/filter-form";
+import { Avatar } from "@/components/portal/avatar";
 import { EmptyState } from "@/components/states/empty-state";
 import { LoadFailure } from "@/components/states/load-failure";
 import { PageHeader } from "@/components/states/page-header";
@@ -80,13 +81,12 @@ export default async function UsersPage({
             />
           ) : (
             <>
-              <div className="rounded-xl border border-border bg-card">
+              <div className="rounded-xl border border-border/70 panel-surface">
                 <Table>
                   <TableCaption className="sr-only">{t("table.caption")}</TableCaption>
                   <TableHeader>
                     <TableRow>
                       <TableHead scope="col">{t("table.name")}</TableHead>
-                      <TableHead scope="col">{t("table.email")}</TableHead>
                       <TableHead scope="col">{t("table.applications")}</TableHead>
                       <TableHead scope="col">{t("table.passwordLogin")}</TableHead>
                       <TableHead scope="col">{t("table.joined")}</TableHead>
@@ -101,11 +101,18 @@ export default async function UsersPage({
 
                       return (
                         <TableRow key={user.id}>
-                          <TableCell className="font-medium text-ink">
-                            {user.displayName ?? common("notSet")}
-                          </TableCell>
-                          <TableCell className="break-all">
-                            {user.email ?? common("notSet")}
+                          <TableCell>
+                            <div className="flex items-center gap-3">
+                              <Avatar name={user.displayName} />
+                              <div className="min-w-0">
+                                <p className="font-medium text-ink">
+                                  {user.displayName ?? common("notSet")}
+                                </p>
+                                <p className="text-xs text-ink-muted">
+                                  {user.email ?? common("notSet")}
+                                </p>
+                              </div>
+                            </div>
                           </TableCell>
                           <TableCell className="tabular">
                             {format.number(user._count?.applications ?? 0)}

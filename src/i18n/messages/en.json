@@ -637,6 +637,8 @@
     "title": "Coordinators",
     "description": "Create coordinators, and block, unblock or remove the ones that exist.",
     "new": "New coordinator",
+    "summary": "Coordinator accounts",
+    "summaryDescription": "Every coordinator across the product, by state — not only this page.",
     "empty": {
       "title": "No coordinators yet",
       "description": "Create the first coordinator to start delegating vacancies."
