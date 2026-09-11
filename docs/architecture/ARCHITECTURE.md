@@ -8,12 +8,12 @@ theme toggle, the locale switcher, the mobile menu and the confirmation dialog,
 and nothing else.
 
 ```text
-src/proxy.ts                    locale routing, the session guard, token rotation,
+src/proxy.ts                    locale routing, the session guard, session expiry,
                                 the forced password change, private cache headers
 src/app/[locale]/(auth)/        the one public surface: sign-in
 src/app/[locale]/(portal)/      every signed-in screen, behind a role check
 src/lib/portal.ts               what makes this repository this portal
-src/lib/auth/                   config, the encrypted cookie, refresh, the actions
+src/lib/auth/                   config, the encrypted cookie, the legacy upgrade, the actions
 src/lib/api/                    the server-only client, the endpoint registry,
                                 the Zod schemas, error codes, the Loaded envelope
 src/lib/<domain>/               data.server.ts reads, actions.ts writes,
@@ -61,9 +61,20 @@ registry's statuses are what decide when.
 
 ## Writing
 
-A write that meets a `401` refreshes the session once and retries, because a
-Server Action can set a cookie where a render cannot: a coordinator who spent
-twenty minutes on a form does not lose it to an expired access token.
+A write that meets a `401` fails with `sessionExpired`, but only when the
+backend's own code says the session is finished (`isSessionOver`). A `401`
+carrying `invalidCredentials` — a wrong current password on the change-password
+form — is the answer to the question that was asked, not a dead session, and is
+reported as such. There is no second token to renew from: the session token
+lasts three days, and a session-over `401` means it really is over — run out, or
+revoked by a sign-out elsewhere. A coordinator who spent twenty minutes on a
+form is protected by the three days, not by a retry.
+
+Because nothing rotates, the cookie no longer learns anything after sign-in. A
+password change the administrator requires _mid-session_ therefore arrives as a
+`403 passwordChangeRequired` from the API rather than as a proxy redirect, and
+the screen explains it with a link to the password page. A requirement already
+true at sign-in is in the session payload, and still redirects.
 
 Every write is a Server Action returning `ActionResult`
 (`idle` | `ok` | `error` with a code and field errors). Actions live in

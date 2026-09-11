@@ -52,7 +52,6 @@ export function toSessionPayload(issued: IssuedSession): SessionPayload {
     accessToken: issued.accessToken,
     roles: issued.roles,
     passwordChangeRequired: issued.passwordChangeRequired,
-    ...(issued.refreshToken !== undefined ? { refreshToken: issued.refreshToken } : {}),
     ...(issued.accessTokenExpiresAt !== undefined
       ? { accessTokenExpiresAt: issued.accessTokenExpiresAt }
       : {}),

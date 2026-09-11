@@ -147,10 +147,7 @@ export function missingForApproval(
   return missing;
 }
 
-export function isReadyForApproval(
-  vacancy: ApprovalCandidate,
-  now?: Date,
-): boolean {
+export function isReadyForApproval(vacancy: ApprovalCandidate, now?: Date): boolean {
   return missingForApproval(vacancy, now).length === 0;
 }
 
