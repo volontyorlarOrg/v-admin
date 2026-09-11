@@ -89,15 +89,18 @@ describe("vacancyFormSchema", () => {
     expect(fieldErrorsOf(result.error!).slug).toEqual(["slug"]);
   });
 
-  it("refuses a deadline after the vacancy starts", () => {
-    const result = vacancyFormSchema.safeParse({
-      ...valid,
-      applicationDeadline: "2026-10-02T18:00",
-    });
-    expect(fieldErrorsOf(result.error!).applicationDeadline).toEqual([
-      "deadlineAfterStart",
-    ]);
-  });
+  it.each(["2026-10-01T09:00", "2026-10-02T18:00"])(
+    "refuses a deadline at or after the vacancy starts (%s)",
+    (applicationDeadline) => {
+      const result = vacancyFormSchema.safeParse({
+        ...valid,
+        applicationDeadline,
+      });
+      expect(fieldErrorsOf(result.error!).applicationDeadline).toEqual([
+        "deadlineAfterStart",
+      ]);
+    },
+  );
 
   it("refuses an end before the start", () => {
     const result = vacancyFormSchema.safeParse({

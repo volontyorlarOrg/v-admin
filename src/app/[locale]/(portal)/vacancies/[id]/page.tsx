@@ -38,11 +38,16 @@ import {
   canEditVacancy,
   canRejectVacancy,
   canRequestVacancyChanges,
+  canSubmitForApproval,
   isAttendanceOpen,
   missingForApproval,
   vacancyStateOf,
 } from "@/lib/vacancies/approval";
-import { archiveVacancyAction, updateVacancyAction } from "@/lib/vacancies/actions";
+import {
+  archiveVacancyAction,
+  submitVacancyForApprovalAction,
+  updateVacancyAction,
+} from "@/lib/vacancies/actions";
 import { loadOrganizations, loadVacancy } from "@/lib/vacancies/data.server";
 import { errorCatalog, vacancyFormLabels } from "@/lib/vacancies/labels.server";
 import { toDateTimeLocal } from "@/lib/vacancies/form";
@@ -120,7 +125,6 @@ export default async function VacancyPage({
     now,
   );
 
-  const decidable = ["draft", "pending_review", "changes_requested"];
   const decisions = VACANCY_DECISIONS.filter((decision) => {
     if (decision === "approve") {
       return canApproveVacancy(vacancy) && missing.length === 0;
@@ -211,6 +215,22 @@ export default async function VacancyPage({
         description={vacancy.summary}
         actions={
           <>
+            {canSubmitForApproval(vacancy) && missing.length === 0 ? (
+              <ConfirmAction
+                action={submitVacancyForApprovalAction}
+                fields={{ id: vacancy.id }}
+                labels={{
+                  trigger: t("submit.trigger"),
+                  title: t("submit.title"),
+                  description: t("submit.description"),
+                  confirm: t("submit.confirm"),
+                  cancel: common("cancel"),
+                  pending: t("submit.pending"),
+                  fallbackError: errors("server"),
+                  errors: confirmErrors,
+                }}
+              />
+            ) : null}
             {canArchive(vacancy) ? (
               <ConfirmAction
                 action={archiveVacancyAction}
@@ -270,7 +290,7 @@ export default async function VacancyPage({
         <StatePanel role="status" title={t("archivedNotice")} />
       ) : null}
 
-      {missing.length > 0 && decidable.includes(state) ? (
+      {missing.length > 0 && state !== "archived" && state !== "rejected" ? (
         <StatePanel
           role="status"
           tone="notice"
@@ -282,25 +302,40 @@ export default async function VacancyPage({
       ) : null}
 
       <Panel title={t("decide.title")} description={t("decide.description")}>
-        <VacancyDecisionForm
-          vacancyId={vacancy.id}
-          decisions={decisions}
-          labels={{
-            closedTitle: t("decide.closedTitle"),
-            closedDescription: t("decide.closedDescription"),
-            decision: t("decide.decision"),
-            decisions: Object.fromEntries(
-              VACANCY_DECISIONS.map((decision) => [decision, t(`decide.${decision}`)]),
-            ),
-            note: t("decide.note"),
-            noteHelp: t("decide.noteHelp"),
-            submit: t("decide.submit"),
-            pending: t("decide.pending"),
-            success: t("decide.success"),
-            fallbackError: errors("server"),
-            errors: confirmErrors,
-          }}
-        />
+        {decisions.length === 0 ? (
+          <StatePanel
+            role="status"
+            title={t("decide.closedTitle")}
+            description={t("decide.closedDescription")}
+          />
+        ) : (
+          <VacancyDecisionForm
+            vacancyId={vacancy.id}
+            decisions={decisions}
+            labels={{
+              decision: t("decide.decision"),
+              decisions: Object.fromEntries(
+                VACANCY_DECISIONS.map((decision) => [
+                  decision,
+                  t(`decide.${decision}`),
+                ]),
+              ),
+              note: t("decide.note"),
+              noteHelp: t("decide.noteHelp"),
+              submit: t("decide.submit"),
+              pending: t("decide.pending"),
+              success: t("decide.success"),
+              rejectConfirm: {
+                title: t("decide.rejectConfirm.title"),
+                description: t("decide.rejectConfirm.description"),
+                confirm: t("decide.rejectConfirm.confirm"),
+                cancel: t("decide.rejectConfirm.cancel"),
+              },
+              fallbackError: errors("server"),
+              errors: confirmErrors,
+            }}
+          />
+        )}
       </Panel>
 
       <Panel title={t("approval.title")} description={t("approval.description")}>

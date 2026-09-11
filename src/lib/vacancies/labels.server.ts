@@ -42,7 +42,6 @@ const ERROR_CODES = [
   "opportunityNotEditable",
   "approvalNoteRequired",
   "deadlinePassed",
-  "duplicateAttendanceApplication",
 ] as const;
 
 export async function errorCatalog(
