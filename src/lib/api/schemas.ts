@@ -4,6 +4,7 @@ import {
   APPLICATION_STATUSES,
   ATTENDANCE_OUTCOMES,
   COORDINATOR_STATUSES,
+  OPPORTUNITY_APPROVAL_STATUSES,
   QUESTION_TYPES,
   REGIONS,
   VACANCY_FORMATS,
@@ -65,6 +66,11 @@ export const vacancyQuestionSchema = z.object({
   position: z.number().int().default(0),
 });
 
+export const approvalReviewerSchema = z.object({
+  id,
+  displayName: optional(z.string()),
+});
+
 export const vacancySchema = z.object({
   id,
   slug: z.string(),
@@ -82,6 +88,13 @@ export const vacancySchema = z.object({
   locationName: optional(z.string()),
   imageUrl: optional(z.string()),
   capacity: optional(z.number().int()),
+  estimatedTotalHours: decimal,
+  approvalStatus: optional(z.enum(OPPORTUNITY_APPROVAL_STATUSES)),
+  approvalSubmittedAt: optional(isoDate),
+  approvalReviewedAt: optional(isoDate),
+  approvalNote: optional(z.string()),
+  approvalReviewedById: optional(id),
+  approvalReviewedBy: optional(approvalReviewerSchema),
   publishedAt: optional(isoDate),
   archivedAt: optional(isoDate),
   createdAt: isoDate,
@@ -104,12 +117,29 @@ export const attendanceSchema = z.object({
   scheduledHours: decimal,
   confirmedHours: decimal,
   resolvedAt: optional(isoDate),
-  applicationId: id,
-  volunteerId: id,
-  opportunityId: id,
+  applicationId: optional(id),
+  volunteerId: optional(id),
+  opportunityId: optional(id),
 });
 
 export type Attendance = z.infer<typeof attendanceSchema>;
+
+export const applicationOpportunitySchema = z.object({
+  id,
+  slug: z.string(),
+  title: z.string(),
+  format: optional(z.enum(VACANCY_FORMATS)),
+  region: optional(z.enum(REGIONS)),
+  city: optional(z.string()),
+  locationName: optional(z.string()),
+  startsAt: optional(isoDate),
+  endsAt: optional(isoDate),
+  applicationDeadline: optional(isoDate),
+  capacity: optional(z.number().int()),
+  estimatedTotalHours: decimal,
+});
+
+export type ApplicationOpportunity = z.infer<typeof applicationOpportunitySchema>;
 
 export const applicationAnswerSchema = z.object({
   id: optional(id),
@@ -128,11 +158,19 @@ export const applicationAnswerSchema = z.object({
 
 export const profileSnapshotSchema = z.object({
   fullName: optional(z.string()),
+  bio: optional(z.string()),
   region: optional(z.string()),
+  city: optional(z.string()),
   school: optional(z.string()),
+  gradeYear: optional(z.string()),
+  languages: optional(z.array(z.string())),
+  skills: optional(z.array(z.string())),
+  links: optional(z.array(z.string())),
   phone: optional(z.string()),
   telegram: optional(z.string()),
 });
+
+export type ProfileSnapshot = z.infer<typeof profileSnapshotSchema>;
 
 export const applicationSchema = z.object({
   id,
@@ -153,7 +191,7 @@ export const applicationSchema = z.object({
       profile: optional(profileSnapshotSchema.loose()),
     }),
   ),
-  opportunity: optional(z.object({ id, slug: z.string(), title: z.string() })),
+  opportunity: optional(applicationOpportunitySchema),
   answers: z.array(applicationAnswerSchema).default([]),
   attendance: optional(attendanceSchema),
 });
@@ -286,6 +324,7 @@ export const coordinatorDetailSchema = coordinatorSchema.extend({
         slug: z.string(),
         title: z.string(),
         status: z.enum(VACANCY_STATUSES),
+        approvalStatus: optional(z.enum(OPPORTUNITY_APPROVAL_STATUSES)),
         publishedAt: optional(isoDate),
         archivedAt: optional(isoDate),
         createdAt: isoDate,

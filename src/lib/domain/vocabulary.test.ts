@@ -4,8 +4,6 @@ import {
   ATTENDANCE_OUTCOMES,
   RESOLVABLE_ATTENDANCE_OUTCOMES,
   canArchive,
-  canEdit,
-  canPublish,
   isAwaitingReview,
   isReviewable,
   stageOf,
@@ -33,21 +31,10 @@ describe("stageOf", () => {
 });
 
 describe("lifecycle permissions", () => {
-  it("publishes only a draft", () => {
-    expect(canPublish(draft)).toBe(true);
-    expect(canPublish(published)).toBe(false);
-    expect(canPublish(archived)).toBe(false);
-  });
-
   it("archives anything not already archived", () => {
     expect(canArchive(draft)).toBe(true);
     expect(canArchive(published)).toBe(true);
     expect(canArchive(archived)).toBe(false);
-  });
-
-  it("stops editing once archived", () => {
-    expect(canEdit(published)).toBe(true);
-    expect(canEdit(archived)).toBe(false);
   });
 });
 

@@ -19,9 +19,10 @@ export function StatusBadge({
   return <Badge variant={VARIANT[tone]}>{label}</Badge>;
 }
 
-export function vacancyStageTone(stage: string): StatusTone {
-  if (stage === "published") return "structure";
-  if (stage === "archived") return "muted";
+export function vacancyStateTone(state: string): StatusTone {
+  if (state === "approved") return "structure";
+  if (state === "pending_review") return "person";
+  if (state === "archived" || state === "rejected") return "muted";
   return "neutral";
 }
 
