@@ -210,6 +210,14 @@
   }
 }
 
+@utility panel-surface {
+  background-color: color-mix(in oklab, var(--color-card) 82%, transparent);
+
+  @supports (backdrop-filter: blur(1px)) {
+    backdrop-filter: blur(14px);
+  }
+}
+
 @layer components {
   .eyebrow {
     font-size: var(--text-eyebrow);

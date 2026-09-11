@@ -1,7 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { extendTailwindMerge } from "tailwind-merge";
 
-const TYPE_SCALE = ["page-title", "figure", "section", "eyebrow"];
+const TYPE_SCALE = ["page-title", "hero", "figure", "section", "eyebrow"];
 
 const twMerge = extendTailwindMerge({
   extend: {

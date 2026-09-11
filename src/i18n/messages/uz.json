@@ -637,6 +637,8 @@
     "title": "Koordinatorlar",
     "description": "Koordinatorlar yarating hamda mavjudlarini bloklang, blokdan chiqaring yoki olib tashlang.",
     "new": "Yangi koordinator",
+    "summary": "Koordinator hisoblari",
+    "summaryDescription": "Mahsulotdagi barcha koordinatorlar holati boʻyicha — faqat shu sahifa emas.",
     "empty": {
       "title": "Hali koordinator yoʻq",
       "description": "Vakansiyalarni topshirishni boshlash uchun birinchi koordinatorni yarating."

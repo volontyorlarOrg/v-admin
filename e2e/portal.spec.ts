@@ -818,6 +818,26 @@ test.describe("coordinator management", () => {
     );
   });
 
+  test("summarises every coordinator account above the page it is showing", async ({
+    page,
+  }) => {
+    await signedIn(page);
+    await page.goto("/en/coordinators");
+
+    const summary = page
+      .locator("section")
+      .filter({ has: page.getByRole("heading", { name: "Coordinator accounts" }) });
+
+    await expect(summary).toBeVisible();
+    for (const state of ["Active", "Blocked", "Removed"]) {
+      await expect(summary.getByText(state, { exact: true })).toBeVisible();
+    }
+
+    await expect(page.getByRole("row", { name: /Nodira Alimova/ })).toContainText(
+      "coordinator@example.org",
+    );
+  });
+
   test("offers no way to create or reset an administrator", async ({ page }) => {
     await signedIn(page);
     await page.goto("/en/coordinators");
@@ -903,6 +923,106 @@ test.describe("organizations and the audit history", () => {
 
     expect(options).toContain("attendance.resolved");
     expect(options).toContain("coordinator.removed");
+  });
+});
+
+test.describe("the dashboard charts", () => {
+  test("charts the pipeline, the trend and every breakdown from real counts", async ({
+    page,
+  }) => {
+    await signedIn(page);
+
+    const panel = (name: string) =>
+      page.locator("section").filter({ has: page.getByRole("heading", { name }) });
+
+    await expect(
+      page.getByRole("heading", { name: "Application pipeline" }),
+    ).toBeVisible();
+    const pipeline = panel("Application pipeline");
+    for (const stage of [
+      "Applications",
+      "Awaiting review",
+      "Accepted",
+      "Attendance to confirm",
+      "Attended",
+    ]) {
+      await expect(pipeline.getByText(stage, { exact: true })).toBeVisible();
+    }
+
+    await expect(page.getByText("Vacancies published")).toBeVisible();
+    await expect(page.getByText("Attendance confirmed")).toBeVisible();
+
+    for (const title of [
+      "Applications submitted",
+      "Applications by status",
+      "Vacancies by region",
+      "Vacancies by stage",
+      "Vacancies by format",
+    ]) {
+      await expect(page.getByRole("heading", { name: title })).toBeVisible();
+    }
+
+    const stages = panel("Vacancies by stage");
+    await expect(stages.getByText("Published", { exact: true })).toBeVisible();
+    await expect(stages.getByText("Draft", { exact: true })).toBeVisible();
+    await expect(stages.getByText("Archived", { exact: true })).toBeVisible();
+  });
+
+  test("draws no bar for a count of zero rather than inventing one", async ({
+    page,
+  }) => {
+    await signedIn(page);
+
+    const widths = await page
+      .locator("section")
+      .filter({ has: page.getByRole("heading", { name: "Application pipeline" }) })
+      .locator("li > div > div")
+      .evaluateAll((bars) => bars.map((bar) => (bar as HTMLElement).style.inlineSize));
+
+    expect(widths.length).toBe(5);
+    expect(widths.every((width) => /^\d/.test(width))).toBe(true);
+  });
+
+  test("draws the joining rate as a line with a readable scale", async ({ page }) => {
+    await signedIn(page);
+
+    const joins = page
+      .locator("section")
+      .filter({ has: page.getByRole("heading", { name: "Volunteers joining" }) });
+
+    await expect(joins).toBeVisible();
+    await expect(joins.locator("li")).not.toHaveCount(0);
+    await expect(joins.getByText("0", { exact: true })).toBeVisible();
+    await expect(joins).toContainText("volunteers between");
+  });
+
+  test("keeps the background out of the accessibility tree and off the pointer", async ({
+    page,
+  }) => {
+    await signedIn(page);
+
+    const background = page.locator("canvas").locator("..");
+    await expect(background).toHaveAttribute("aria-hidden", "true");
+    await expect(background).toHaveCSS("pointer-events", "none");
+  });
+
+  test("says so plainly when a breakdown has nothing to chart", async ({ page }) => {
+    await signedIn(page);
+    await page.request.post(`${STUB}/__stub/break`, {
+      data: { path: "/admin/opportunities", status: 503, code: "upstreamUnavailable" },
+    });
+
+    await page.goto("/en/dashboard");
+
+    await expect(
+      page.getByRole("heading", { name: "Application pipeline" }),
+    ).toBeVisible();
+    await expect(statePanel(page)).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Vacancies by region" }),
+    ).toBeHidden();
+
+    await page.request.post(`${STUB}/__stub/break`, { data: { path: null } });
   });
 });
 
