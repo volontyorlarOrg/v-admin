@@ -67,14 +67,20 @@ than printing the code at a coordinator.
 ## Sessions
 
 `POST /auth/staff/login` and `POST /auth/admin/login` return
-`{ userId, accessToken, refreshToken, accessTokenExpiresAt, displayName, roles,
+`{ userId, accessToken, accessTokenExpiresAt, displayName, roles,
 passwordChangeRequired }`. `issuedSessionSchema` parses that and drops any role
-this product does not define. Both tokens go straight into the encrypted cookie;
-neither is ever returned to a Client Component.
+this product does not define. The token goes straight into the encrypted cookie
+and is never returned to a Client Component.
 
-`POST /auth/refresh` rotates the pair. `src/proxy.ts` rotates on a navigation
-once the access token is inside the 60-second skew, and `POST /auth/logout`
-revokes the refresh token before the cookie is cleared. The encrypted portal
+There is one token and no refresh token: it lasts `SESSION_TTL_SECONDS`, three
+days by default, and when it runs out the coordinator signs in again.
+`POST /auth/logout` sends the token as the bearer and the backend revokes the
+session it names, before the cookie is cleared.
+
+`POST /auth/refresh` is called in one place only — `src/proxy.ts`, on a cookie
+written before this portal moved to a single token, to trade its refresh token
+once for a session token. Nothing issues refresh tokens any more, so that path
+dies out on its own. The encrypted portal
 cookie and refresh-token lifetime are both 90 days and renew on rotation.
 
 `POST /auth/password/change` takes `{ currentPassword, newPassword }`. There is

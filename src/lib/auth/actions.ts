@@ -102,7 +102,6 @@ export async function signOutAction(formData: FormData) {
     try {
       await authedApi(pathFor("logOut"), session.accessToken, {
         method: endpoints.logOut.method,
-        body: session.refreshToken ? { refreshToken: session.refreshToken } : {},
       });
     } catch (error) {
       console.error(

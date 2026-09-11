@@ -13,9 +13,7 @@ import {
   type ActionResult,
 } from "@/lib/api/action-result";
 import { fixtureModeEnabled } from "@/lib/auth/config";
-import { refreshSession } from "@/lib/auth/refresh";
-import type { SessionPayload } from "@/lib/auth/session";
-import { getSession, writeSession } from "@/lib/auth/session.server";
+import { getSession } from "@/lib/auth/session.server";
 import { readFixture, writeFixture } from "@/lib/fixtures/store";
 
 type Params = Record<string, string>;
@@ -64,12 +62,6 @@ export async function read<TSchema extends z.ZodType>(
   }
 }
 
-async function renewedSession(session: SessionPayload): Promise<SessionPayload | null> {
-  const rotated = await refreshSession(session);
-  if (!rotated) return null;
-  return (await writeSession(rotated)) ? rotated : null;
-}
-
 export async function write(
   name: EndpointName,
   { params, body, query }: WriteOptions = {},
@@ -91,15 +83,7 @@ export async function write(
     return okResult;
   } catch (error) {
     if (isApiError(error) && error.code === "unauthenticated") {
-      const renewed = await renewedSession(session);
-      if (!renewed) return failedResult("sessionExpired");
-
-      try {
-        await send(renewed.accessToken);
-        return okResult;
-      } catch (retried) {
-        return resultFromError(retried);
-      }
+      return failedResult("sessionExpired");
     }
 
     if (
