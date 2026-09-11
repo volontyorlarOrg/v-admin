@@ -4,7 +4,7 @@ import { randomUUID } from "node:crypto";
 const PORT = Number(process.env.STUB_PORT ?? 3603);
 const ACCESS_TOKEN_TTL_SECONDS = Number(process.env.STUB_ACCESS_TTL ?? 900);
 const DAY = 86_400_000;
-const START = Date.UTC(2026, 8, 1, 6, 0, 0);
+const START = new Date(new Date().setUTCHours(6, 0, 0, 0)).getTime();
 
 const at = (days, hour = 9) =>
   new Date(START + days * DAY + (hour - 6) * 3_600_000).toISOString();
@@ -117,6 +117,8 @@ function reset() {
       volunteer("00000000-0000-4000-8000-000000000201", "Dilnoza Karimova"),
       volunteer("00000000-0000-4000-8000-000000000202", "Sardor Toshmatov"),
       volunteer("00000000-0000-4000-8000-000000000203", "Aziza Nazarova"),
+      volunteer("00000000-0000-4000-8000-000000000204", "Jasur Qodirov"),
+      volunteer("00000000-0000-4000-8000-000000000205", "Malika Sobirova"),
     ],
     organizations: [
       {
@@ -141,7 +143,14 @@ function reset() {
         "Winter book drive",
         COORDINATOR,
         {
+          approvalStatus: "approved",
+          approvalSubmittedAt: at(-7),
+          approvalReviewedAt: at(-6),
+          approvalReviewedBy: { id: ADMIN, displayName: "Stub Administrator" },
           publishedAt: at(-6),
+          startsAt: at(-3, 9),
+          endsAt: at(-3, 15),
+          applicationDeadline: at(-6, 18),
         },
       ),
       vacancy(
@@ -157,7 +166,47 @@ function reset() {
         "City sports day",
         OTHER_COORDINATOR,
         {
+          approvalStatus: "approved",
+          approvalSubmittedAt: at(-4),
+          approvalReviewedAt: at(-3),
+          approvalReviewedBy: { id: ADMIN, displayName: "Stub Administrator" },
           publishedAt: at(-3),
+        },
+      ),
+      vacancy(
+        "00000000-0000-4000-8000-000000000404",
+        "photo-archive-week",
+        "Photo archive week",
+        COORDINATOR,
+        {
+          approvalStatus: "changes_requested",
+          approvalSubmittedAt: at(-4),
+          approvalReviewedAt: at(-3),
+          approvalNote: "Name the venue and the hours a volunteer earns.",
+          approvalReviewedBy: { id: ADMIN, displayName: "Stub Administrator" },
+        },
+      ),
+      vacancy(
+        "00000000-0000-4000-8000-000000000405",
+        "winter-clothing-drive",
+        "Winter clothing drive",
+        COORDINATOR,
+        {
+          approvalStatus: "pending_review",
+          approvalSubmittedAt: at(-1),
+        },
+      ),
+      vacancy(
+        "00000000-0000-4000-8000-000000000406",
+        "night-shelter-support",
+        "Night shelter support",
+        COORDINATOR,
+        {
+          approvalStatus: "rejected",
+          approvalSubmittedAt: at(-5),
+          approvalReviewedAt: at(-4),
+          approvalNote: "This work is not suitable for school volunteers.",
+          approvalReviewedBy: { id: ADMIN, displayName: "Stub Administrator" },
         },
       ),
     ],
@@ -191,6 +240,42 @@ function reset() {
         "00000000-0000-4000-8000-000000000403",
         "00000000-0000-4000-8000-000000000203",
         "submitted",
+      ),
+      application(
+        "00000000-0000-4000-8000-000000000605",
+        "00000000-0000-4000-8000-000000000402",
+        "00000000-0000-4000-8000-000000000205",
+        "accepted",
+        {
+          attendance: {
+            id: "00000000-0000-4000-8000-000000000803",
+            outcome: "awaiting_confirmation",
+            scheduledHours: "4.00",
+            confirmedHours: null,
+            resolvedAt: null,
+            applicationId: "00000000-0000-4000-8000-000000000605",
+            volunteerId: "00000000-0000-4000-8000-000000000205",
+            opportunityId: "00000000-0000-4000-8000-000000000402",
+          },
+        },
+      ),
+      application(
+        "00000000-0000-4000-8000-000000000604",
+        "00000000-0000-4000-8000-000000000401",
+        "00000000-0000-4000-8000-000000000204",
+        "accepted",
+        {
+          attendance: {
+            id: "00000000-0000-4000-8000-000000000802",
+            outcome: "awaiting_confirmation",
+            scheduledHours: "4.00",
+            confirmedHours: null,
+            resolvedAt: null,
+            applicationId: "00000000-0000-4000-8000-000000000604",
+            volunteerId: "00000000-0000-4000-8000-000000000204",
+            opportunityId: "00000000-0000-4000-8000-000000000401",
+          },
+        },
       ),
     ],
     audit: [
@@ -247,11 +332,17 @@ function vacancy(id, slug, title, createdById, overrides) {
     format: "onsite",
     status: "open",
     startsAt: at(12, 10),
-    endsAt: null,
+    endsAt: at(12, 16),
     applicationDeadline: at(5, 18),
-    locationName: null,
+    locationName: "Chilonzor library",
     imageUrl: null,
     capacity: 20,
+    estimatedTotalHours: "6.00",
+    approvalStatus: "draft",
+    approvalSubmittedAt: null,
+    approvalReviewedAt: null,
+    approvalNote: null,
+    approvalReviewedBy: null,
     publishedAt: null,
     archivedAt: null,
     createdAt: at(-8),
@@ -261,6 +352,42 @@ function vacancy(id, slug, title, createdById, overrides) {
     questions: [],
     ...overrides,
   };
+}
+
+function approvalOf(item) {
+  return item.approvalStatus ?? (item.publishedAt ? "approved" : "draft");
+}
+
+function attendanceOpensAt(item) {
+  return new Date(item.endsAt ?? item.startsAt).getTime();
+}
+
+function approvalRefusal(item) {
+  const organization = state.organizations.find((o) => o.id === item.organizationId);
+  if (!organization?.verified) return { code: "organizationNotVerified" };
+  if (new Date(item.applicationDeadline) <= new Date()) {
+    return { code: "deadlinePassed" };
+  }
+  const missing = missingForApproval(item);
+  if (missing.length > 0) return { code: "opportunityIncomplete", fields: missing };
+  return null;
+}
+
+function missingForApproval(item) {
+  const organization = state.organizations.find((o) => o.id === item.organizationId);
+  const missing = [];
+  if (!organization?.verified) missing.push("organization");
+  if (!item.endsAt) missing.push("endsAt");
+  if (!item.capacity || item.capacity < 1) missing.push("capacity");
+  if (!item.estimatedTotalHours || Number(item.estimatedTotalHours) <= 0) {
+    missing.push("estimatedTotalHours");
+  }
+  if (item.format === "remote") {
+    if (!item.locationName) missing.push("location");
+  } else if (!item.city || !item.locationName) {
+    missing.push("location");
+  }
+  return missing;
 }
 
 function application(id, opportunityId, volunteerId, status, overrides = {}) {
@@ -642,13 +769,17 @@ const server = createServer(async (request, response) => {
         region: body.region,
         format: body.format,
         city: body.city ?? null,
+        locationName: body.locationName ?? null,
         startsAt: body.startsAt,
+        endsAt: body.endsAt ?? null,
         applicationDeadline: body.applicationDeadline,
         organizationId: body.organizationId,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         requirements: body.requirements ?? [],
         capacity: body.capacity ?? null,
+        estimatedTotalHours: body.estimatedTotalHours ?? null,
+        approvalStatus: "draft",
       });
       state.vacancies.unshift(created);
       record("opportunity.created", "Opportunity", created.id, actor.id);
@@ -657,30 +788,120 @@ const server = createServer(async (request, response) => {
   }
 
   const vacancyMatch =
-    /^\/(staff|admin)\/opportunities\/([^/]+)(?:\/(publish|archive))?$/.exec(path);
+    /^\/(staff|admin)\/opportunities\/([^/]+)(?:\/(submit-for-approval|approve|request-changes|reject|archive|attendance))?$/.exec(
+      path,
+    );
   if (vacancyMatch) {
-    const [, , id, verb] = vacancyMatch;
+    const [, scope, id, verb] = vacancyMatch;
     const item = ownedVacancies(actor).find((candidate) => candidate.id === id);
     if (!item) return send(response, 404, { code: "opportunityNotFound" });
+
+    const decisions = ["approve", "request-changes", "reject"];
+    if (decisions.includes(verb) && (scope !== "admin" || !isAdmin(actor))) {
+      return send(response, 403, { code: "forbidden" });
+    }
 
     if (!verb && method === "GET") {
       return send(response, 200, withOrganization(item));
     }
     if (!verb && method === "PATCH") {
+      const approval = approvalOf(item);
+      if (item.archivedAt || approval === "pending_review" || approval === "rejected") {
+        return send(response, 409, { code: "opportunityNotEditable" });
+      }
       Object.assign(item, body, { updatedAt: new Date().toISOString() });
       record("opportunity.updated", "Opportunity", item.id, actor.id);
       return send(response, 200, item);
     }
-    if (verb === "publish" && method === "POST") {
-      const organization = state.organizations.find(
-        (o) => o.id === item.organizationId,
-      );
-      if (!organization?.verified) {
-        return send(response, 409, { code: "organizationNotVerified" });
+    if (verb === "submit-for-approval" && method === "POST") {
+      const approval = approvalOf(item);
+      if (item.archivedAt || !["draft", "changes_requested"].includes(approval)) {
+        return send(response, 409, { code: "opportunityCannotBeSubmitted" });
       }
-      item.publishedAt = new Date().toISOString();
-      record("opportunity.published", "Opportunity", item.id, actor.id);
+      const refusal = approvalRefusal(item);
+      if (refusal) return send(response, 409, refusal);
+      item.approvalStatus = "pending_review";
+      item.approvalSubmittedAt = new Date().toISOString();
+      item.approvalReviewedAt = null;
+      item.approvalNote = null;
+      item.approvalReviewedBy = null;
+      item.updatedAt = item.approvalSubmittedAt;
+      record("opportunity.submitted_for_approval", "Opportunity", item.id, actor.id);
       return send(response, 201, item);
+    }
+    if (verb === "approve" && method === "POST") {
+      const approval = approvalOf(item);
+      if (item.archivedAt || approval !== "pending_review") {
+        return send(response, 409, { code: "opportunityNotPendingApproval" });
+      }
+      const refusal = approvalRefusal(item);
+      if (refusal) return send(response, 409, refusal);
+      const decidedAt = new Date().toISOString();
+      item.approvalStatus = "approved";
+      item.approvalReviewedAt = decidedAt;
+      item.approvalNote = null;
+      item.approvalReviewedById = actor.id;
+      item.approvalReviewedBy = { id: actor.id, displayName: actor.displayName };
+      item.publishedAt = item.publishedAt ?? decidedAt;
+      item.archivedAt = null;
+      item.updatedAt = decidedAt;
+      record("opportunity.approved", "Opportunity", item.id, actor.id);
+      return send(response, 201, item);
+    }
+    if ((verb === "request-changes" || verb === "reject") && method === "POST") {
+      if (approvalOf(item) !== "pending_review" || item.archivedAt) {
+        return send(response, 409, { code: "opportunityNotPendingApproval" });
+      }
+      const note = String(body.note ?? "").trim();
+      if (!note) return send(response, 422, { code: "approvalNoteRequired" });
+      const decidedAt = new Date().toISOString();
+      item.approvalStatus = verb === "reject" ? "rejected" : "changes_requested";
+      item.approvalReviewedAt = decidedAt;
+      item.approvalNote = note;
+      item.approvalReviewedById = actor.id;
+      item.approvalReviewedBy = { id: actor.id, displayName: actor.displayName };
+      item.updatedAt = decidedAt;
+      record(`opportunity.${item.approvalStatus}`, "Opportunity", item.id, actor.id);
+      return send(response, 201, item);
+    }
+    if (verb === "attendance" && method === "PUT") {
+      if (Date.now() < attendanceOpensAt(item)) {
+        return send(response, 409, { code: "attendanceNotOpen" });
+      }
+      const records = Array.isArray(body.records) ? body.records : [];
+      if (records.length === 0) {
+        return send(response, 422, { code: "noVolunteersSelected" });
+      }
+      if (
+        records.some(
+          (record) =>
+            record.outcome === "attended" && record.confirmedHours === undefined,
+        )
+      ) {
+        return send(response, 409, { code: "confirmedHoursRequired" });
+      }
+      const targets = records.map((record) =>
+        state.applications.find(
+          (candidate) =>
+            candidate.id === record.applicationId &&
+            candidate.opportunityId === item.id &&
+            candidate.status === "accepted" &&
+            candidate.attendance,
+        ),
+      );
+      if (targets.some((target) => !target)) {
+        return send(response, 409, { code: "attendanceBatchFailed" });
+      }
+      const resolvedAt = new Date().toISOString();
+      for (const [index, target] of targets.entries()) {
+        const resolution = records[index];
+        target.attendance.outcome = resolution.outcome;
+        target.attendance.confirmedHours =
+          resolution.outcome === "attended" ? String(resolution.confirmedHours) : null;
+        target.attendance.resolvedAt = resolvedAt;
+        record("attendance.resolved", "attendance", target.attendance.id, actor.id);
+      }
+      return send(response, 200, { items: targets, total: targets.length });
     }
     if (verb === "archive" && method === "POST") {
       item.archivedAt = new Date().toISOString();
@@ -749,6 +970,10 @@ const server = createServer(async (request, response) => {
       (candidate) => candidate.id === attendanceMatch[2],
     );
     if (!item?.attendance) return send(response, 404, { code: "attendanceNotFound" });
+    const opportunity = state.vacancies.find((v) => v.id === item.opportunityId);
+    if (opportunity && Date.now() < attendanceOpensAt(opportunity)) {
+      return send(response, 409, { code: "attendanceNotOpen" });
+    }
     if (body.outcome === "attended" && body.confirmedHours === undefined) {
       return send(response, 409, { code: "confirmedHoursRequired" });
     }

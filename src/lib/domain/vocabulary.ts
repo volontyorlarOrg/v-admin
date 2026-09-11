@@ -25,6 +25,21 @@ export type VacancyStatus = (typeof VACANCY_STATUSES)[number];
 export const VACANCY_STAGES = ["draft", "published", "archived"] as const;
 export type VacancyStage = (typeof VACANCY_STAGES)[number];
 
+export const OPPORTUNITY_APPROVAL_STATUSES = [
+  "draft",
+  "pending_review",
+  "changes_requested",
+  "approved",
+  "rejected",
+] as const;
+export type OpportunityApprovalStatus = (typeof OPPORTUNITY_APPROVAL_STATUSES)[number];
+
+export const VACANCY_DECISIONS = ["approve", "request_changes", "reject"] as const;
+export type VacancyDecision = (typeof VACANCY_DECISIONS)[number];
+
+export const VACANCY_STATES = [...OPPORTUNITY_APPROVAL_STATUSES, "archived"] as const;
+export type VacancyState = (typeof VACANCY_STATES)[number];
+
 export const QUESTION_TYPES = [
   "short_text",
   "long_text",
@@ -90,21 +105,7 @@ export function stageOf(vacancy: {
   return "draft";
 }
 
-export function canPublish(vacancy: {
-  publishedAt?: string | undefined;
-  archivedAt?: string | undefined;
-}): boolean {
-  return stageOf(vacancy) === "draft";
-}
-
 export function canArchive(vacancy: {
-  publishedAt?: string | undefined;
-  archivedAt?: string | undefined;
-}): boolean {
-  return stageOf(vacancy) !== "archived";
-}
-
-export function canEdit(vacancy: {
   publishedAt?: string | undefined;
   archivedAt?: string | undefined;
 }): boolean {

@@ -188,9 +188,10 @@ export function VacancyForm({
 
         {text("city")}
         {text("locationName")}
-        {text("capacity", { type: "number" })}
+        {text("capacity", { type: "number", required: true })}
+        {text("estimatedTotalHours", { type: "number", required: true })}
         {text("startsAt", { type: "datetime-local", required: true })}
-        {text("endsAt", { type: "datetime-local" })}
+        {text("endsAt", { type: "datetime-local", required: true })}
         {text("applicationDeadline", { type: "datetime-local", required: true })}
       </div>
 

@@ -5,7 +5,12 @@ import { revalidatePath } from "next/cache";
 import { failedResult, type ActionResult } from "@/lib/api/action-result";
 import { write } from "@/lib/api/gateway.server";
 import { fieldErrorsOf, stringField } from "@/lib/auth/credentials";
-import { resolveAttendanceSchema } from "@/lib/attendance/schema";
+import {
+  attendanceBody,
+  attendanceRecords,
+  batchAttendanceSchema,
+  resolveAttendanceSchema,
+} from "@/lib/attendance/schema";
 
 export async function resolveAttendanceAction(
   _previous: ActionResult,
@@ -26,11 +31,37 @@ export async function resolveAttendanceAction(
 
   const result = await write("resolveAttendance", {
     params: { applicationId },
+    body: attendanceBody(parsed.data),
+  });
+
+  if (result.status === "ok") revalidatePath("/", "layout");
+  return result;
+}
+
+export async function resolveVacancyAttendanceAction(
+  _previous: ActionResult,
+  formData: FormData,
+): Promise<ActionResult> {
+  const id = stringField(formData, "vacancyId");
+  if (!id) return failedResult("opportunityNotFound");
+
+  const hours = stringField(formData, "confirmedHours").trim();
+  const parsed = batchAttendanceSchema.safeParse({
+    outcome: stringField(formData, "outcome"),
+    ...(hours ? { confirmedHours: hours } : {}),
+    applicationIds: formData
+      .getAll("applicationIds")
+      .filter((value): value is string => typeof value === "string" && value !== ""),
+  });
+
+  if (!parsed.success) {
+    return failedResult("validationFailed", fieldErrorsOf(parsed.error));
+  }
+
+  const result = await write("resolveVacancyAttendance", {
+    params: { id },
     body: {
-      outcome: parsed.data.outcome,
-      ...(parsed.data.outcome === "attended"
-        ? { confirmedHours: Number(parsed.data.confirmedHours) }
-        : {}),
+      records: attendanceRecords(parsed.data),
     },
   });
 
