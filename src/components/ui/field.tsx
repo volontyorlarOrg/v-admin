@@ -36,7 +36,10 @@ function FieldLabel({ className, ...props }: ComponentProps<typeof Label>) {
   return (
     <Label
       data-slot="field-label"
-      className={cn("w-fit group-data-[disabled=true]/field:opacity-60", className)}
+      className={cn(
+        "w-fit group-data-[disabled=true]/field:opacity-60 group-data-[invalid]/field:text-danger-ink",
+        className,
+      )}
       {...props}
     />
   );
@@ -60,7 +63,7 @@ function FieldError({ className, children, ...props }: ComponentProps<"p">) {
       role="alert"
       data-slot="field-error"
       className={cn(
-        "flex items-start gap-2 text-sm font-medium text-foreground",
+        "flex items-start gap-2 text-sm font-medium text-danger-ink",
         className,
       )}
       {...props}

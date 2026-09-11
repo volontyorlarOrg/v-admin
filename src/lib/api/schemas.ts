@@ -11,6 +11,11 @@ import {
   VACANCY_STATUSES,
 } from "@/lib/domain/vocabulary";
 
+export const apiRegion = z
+  .string()
+  .transform((value) => value.replaceAll("_", "-"))
+  .pipe(z.enum(REGIONS));
+
 export function optional<T extends z.ZodTypeAny>(schema: T) {
   return schema
     .nullish()
@@ -78,7 +83,7 @@ export const vacancySchema = z.object({
   summary: z.string().default(""),
   description: z.string().default(""),
   requirements: z.array(z.string()).default([]),
-  region: z.enum(REGIONS),
+  region: apiRegion,
   city: optional(z.string()),
   format: z.enum(VACANCY_FORMATS),
   status: z.enum(VACANCY_STATUSES),
@@ -129,7 +134,7 @@ export const applicationOpportunitySchema = z.object({
   slug: z.string(),
   title: z.string(),
   format: optional(z.enum(VACANCY_FORMATS)),
-  region: optional(z.enum(REGIONS)),
+  region: optional(apiRegion),
   city: optional(z.string()),
   locationName: optional(z.string()),
   startsAt: optional(isoDate),

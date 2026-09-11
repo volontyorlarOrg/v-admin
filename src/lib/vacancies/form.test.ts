@@ -186,3 +186,17 @@ describe("toDateTimeLocal", () => {
     );
   });
 });
+
+describe("a form that arrives with fields missing", () => {
+  it("names every empty field in the portal's own words, not the parser's", () => {
+    const parsed = vacancyFormSchema.safeParse({});
+
+    expect(parsed.success).toBe(false);
+    const codes = new Set(
+      parsed.success ? [] : parsed.error.issues.map((issue) => issue.message),
+    );
+
+    expect(codes).toContain("required");
+    expect([...codes].every((code) => !code.includes("expected string"))).toBe(true);
+  });
+});

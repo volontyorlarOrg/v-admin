@@ -8,6 +8,7 @@ import { SidebarNav, type NavItem } from "@/components/portal/sidebar-nav";
 import { SignOutForm } from "@/components/portal/sign-out-form";
 import { ThemeToggle } from "@/components/portal/theme-toggle";
 import { WavesBackground } from "@/components/portal/waves-background";
+import { Toaster } from "@/components/ui/sonner";
 import { BrandLockup } from "@/components/brand/logo";
 import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
@@ -43,10 +44,11 @@ export async function PortalShell({
       </a>
 
       <WavesBackground />
+      <Toaster />
 
       <FixtureBanner />
 
-      <header className="panel-surface sticky top-0 z-30 border-b border-border/70">
+      <header className="sticky top-0 z-30 border-b border-border/70 panel-surface">
         <div className="flex min-h-16 items-center gap-3 px-4 sm:px-6">
           <MobileNav
             items={items}

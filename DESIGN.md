@@ -141,9 +141,41 @@ method and path the screen is waiting for. Every write ships pending, error and
 success. `LoadFailure` and `StatePanel` render them; nothing invents a fallback
 value to fill a gap.
 
-Destructive actions open a confirmation dialog that says what will happen and
-what cannot be undone, and keep their failure inside the dialog rather than
-closing on an error.
+Every write happens in a dialog. `FormDialog` is the only one: it holds the
+pending state, keeps itself open on failure, closes on success, and says so with
+a toast that survives the revalidation. Destructive actions wear `danger` and
+say what cannot be undone.
+
+## Error
+
+`danger` is not decoration and it is not only for destructive confirmations: an
+invalid field wears it. The control takes a `danger` border, a `danger-muted`
+fill and a 2px ring; the message under it is `danger-ink` with a warning mark,
+tied to the control with `aria-describedby` and announced as `role="alert"`. A
+form with more than one bad field repeats them in a summary at the top, each one
+a link to its control; with a single bad field the summary would only say the
+same thing twice, so there is none.
+
+Colour is never the only carrier. A readiness list marks what is missing in red
+**and** says "Still needed" in words only a screen reader hears, so the state
+survives without colour.
+
+## State chips
+
+A vacancy's state is a chip, and every one of them stays inside the two brand
+colours:
+
+| State                  | Chip                                 |
+| ---------------------- | ------------------------------------ |
+| Draft                  | grey outline                         |
+| Waiting for approval   | filled `surface-soft`, `primary-ink` |
+| Changes requested      | `primary-muted` outline              |
+| Approved and published | solid `action`                       |
+| Rejected, archived     | dashed, uppercase, muted             |
+
+Orange stays out of this table. It means what a volunteer earned — an accepted
+application, a confirmed attendance, confirmed hours — and a vacancy waiting for
+an administrator has earned nothing.
 
 ## Accessibility
 

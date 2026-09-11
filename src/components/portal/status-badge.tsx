@@ -1,12 +1,15 @@
 import { Badge } from "@/components/ui/badge";
 
-export type StatusTone = "neutral" | "structure" | "person" | "muted";
+export type StatusTone =
+  "neutral" | "structure" | "person" | "muted" | "live" | "provisional";
 
 const VARIANT = {
   neutral: "neutral",
   structure: "structure",
   person: "achievement",
   muted: "status",
+  live: "default",
+  provisional: "returned",
 } as const;
 
 export function StatusBadge({
@@ -20,8 +23,9 @@ export function StatusBadge({
 }
 
 export function vacancyStateTone(state: string): StatusTone {
-  if (state === "approved") return "structure";
-  if (state === "pending_review") return "person";
+  if (state === "approved") return "live";
+  if (state === "pending_review") return "structure";
+  if (state === "changes_requested") return "provisional";
   if (state === "archived" || state === "rejected") return "muted";
   return "neutral";
 }

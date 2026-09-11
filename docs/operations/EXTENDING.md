@@ -38,16 +38,26 @@ Client components receive their labels as props: the root layout gives
    file, which may export only async functions.
 2. Write the Server Action in `actions.ts`, returning `ActionResult` and
    revalidating on success.
-3. Build the client form with `useActionState`, `Field`/`FieldError`, and
-   `SubmitButton`. Pass the labels and the error catalog as props.
-4. Field errors are codes, translated by `fieldMessage`. Form-level errors go
-   through `formError`, which stays quiet when the fields already say it.
+3. Build it with `FormDialog`, which owns `useActionState`, the pending state,
+   the red error summary, focus on the first bad field, closing on success and
+   the toast that follows. Give it a render-prop child so the fields can read
+   their own errors. A form that must also work without JavaScript keeps a
+   route of its own and renders the same fields through `VacancyForm`.
+4. Pass the labels and the error catalog as props: the root layout gives
+   `NextIntlClientProvider` `messages={null}`, so a client component cannot call
+   `useTranslations`.
+5. Field errors are codes, translated by `fieldMessage`. Form-level errors go
+   through `formError`, which stays quiet when the fields already say it. Every
+   required field must carry its own code — a schema that lets a missing value
+   fall through prints the parser's English, not the portal's.
 
 ## A destructive action
 
-Wrap it in `ConfirmAction`. It states what will happen and what cannot be
-undone, keeps the confirm button in a dialog, and shows the failure inside the
-dialog rather than closing on an error.
+Give it a `FormDialog` with `tone="danger"`. It states what will happen and what
+cannot be undone, keeps the confirmation inside the dialog, and shows the
+failure there rather than closing on an error. A decision the API refuses
+without a reason (requesting changes, rejecting) asks for that reason in the
+same dialog and marks it red when it is missing.
 
 ## A state
 

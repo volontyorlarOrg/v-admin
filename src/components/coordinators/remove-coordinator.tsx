@@ -1,6 +1,7 @@
 "use client";
 
-import { ConfirmAction, type ConfirmLabels } from "@/components/forms/confirm-action";
+import { FormDialog, type FormDialogLabels } from "@/components/forms/form-dialog";
+import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { removeCoordinatorAction } from "@/lib/coordinators/actions";
@@ -10,6 +11,7 @@ export function RemoveCoordinator({
   candidates,
   needsReassignment,
   labels,
+  trigger,
   reassignLabel,
   reassignHelp,
   reassignPlaceholder,
@@ -17,41 +19,52 @@ export function RemoveCoordinator({
   coordinatorId: string;
   candidates: Array<{ id: string; name: string }>;
   needsReassignment: boolean;
-  labels: ConfirmLabels;
+  labels: FormDialogLabels;
+  trigger: string;
   reassignLabel: string;
   reassignHelp: string;
   reassignPlaceholder: string;
 }) {
   return (
-    <ConfirmAction
+    <FormDialog
       action={removeCoordinatorAction}
-      tone="danger"
-      fields={{ id: coordinatorId }}
       labels={labels}
-      extra={
-        needsReassignment ? (
-          <Field>
-            <FieldLabel htmlFor="reassignToCoordinatorId">{reassignLabel}</FieldLabel>
-            <NativeSelect
-              id="reassignToCoordinatorId"
-              name="reassignToCoordinatorId"
-              required
-              defaultValue=""
-              aria-describedby="reassign-help"
-            >
-              <option value="" disabled>
-                {reassignPlaceholder}
-              </option>
-              {candidates.map((candidate) => (
-                <NativeSelectOption key={candidate.id} value={candidate.id}>
-                  {candidate.name}
-                </NativeSelectOption>
-              ))}
-            </NativeSelect>
-            <FieldDescription id="reassign-help">{reassignHelp}</FieldDescription>
-          </Field>
-        ) : null
+      tone="danger"
+      size="sm"
+      fields={{ id: coordinatorId }}
+      trigger={
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          className="text-danger-ink hover:border-danger hover:text-danger-ink"
+        >
+          {trigger}
+        </Button>
       }
-    />
+    >
+      {needsReassignment ? (
+        <Field>
+          <FieldLabel htmlFor="reassignToCoordinatorId">{reassignLabel}</FieldLabel>
+          <NativeSelect
+            id="reassignToCoordinatorId"
+            name="reassignToCoordinatorId"
+            required
+            defaultValue=""
+            aria-describedby="reassign-help"
+          >
+            <option value="" disabled>
+              {reassignPlaceholder}
+            </option>
+            {candidates.map((candidate) => (
+              <NativeSelectOption key={candidate.id} value={candidate.id}>
+                {candidate.name}
+              </NativeSelectOption>
+            ))}
+          </NativeSelect>
+          <FieldDescription id="reassign-help">{reassignHelp}</FieldDescription>
+        </Field>
+      ) : null}
+    </FormDialog>
   );
 }

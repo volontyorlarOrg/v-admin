@@ -11,7 +11,7 @@ export function EmptyState({
   actions?: ReactNode;
 }) {
   return (
-    <div className="panel-surface flex flex-col items-center gap-3 rounded-xl border border-dashed border-border px-6 py-14 text-center">
+    <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border panel-surface px-6 py-14 text-center">
       <Inbox aria-hidden="true" className="size-7 text-ink-muted" />
       <p className="text-section font-semibold text-ink">{title}</p>
       {description ? (

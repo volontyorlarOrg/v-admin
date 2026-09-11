@@ -124,12 +124,10 @@ describe("missingForApproval", () => {
   });
 
   it("refuses a deadline that has already passed, as the API does", () => {
-    expect(
-      missingForApproval(ready, new Date("2026-09-21T00:00:00.000Z")),
-    ).toContain("applicationDeadline");
-    expect(
-      missingForApproval(ready, new Date("2026-09-19T00:00:00.000Z")),
-    ).toEqual([]);
+    expect(missingForApproval(ready, new Date("2026-09-21T00:00:00.000Z"))).toContain(
+      "applicationDeadline",
+    );
+    expect(missingForApproval(ready, new Date("2026-09-19T00:00:00.000Z"))).toEqual([]);
   });
 
   it("requires the deadline to fall before the vacancy starts", () => {

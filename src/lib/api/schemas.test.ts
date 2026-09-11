@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  apiRegion,
   applicationSchema,
   attendanceSchema,
   auditEventSchema,
@@ -251,5 +252,20 @@ describe("organizationListSchema", () => {
 
     expect(organizationListSchema.parse([organization])).toHaveLength(1);
     expect(organizationListSchema.parse({ items: [organization] })).toHaveLength(1);
+  });
+});
+
+describe("apiRegion", () => {
+  it("reads the region the contract publishes", () => {
+    expect(apiRegion.parse("tashkent-city")).toBe("tashkent-city");
+  });
+
+  it("reads the database spelling a management route may still send, so a Tashkent vacancy is not lost to an unreleased fix", () => {
+    expect(apiRegion.parse("tashkent_city")).toBe("tashkent-city");
+    expect(apiRegion.parse("tashkent_region")).toBe("tashkent-region");
+  });
+
+  it("refuses a region that is neither", () => {
+    expect(() => apiRegion.parse("atlantis")).toThrow();
   });
 });

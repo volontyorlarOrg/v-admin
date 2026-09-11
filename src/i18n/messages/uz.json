@@ -32,7 +32,9 @@
     "all": "Barchasi",
     "yes": "Ha",
     "no": "Yoʻq",
-    "loading": "Yuklanmoqda…"
+    "loading": "Yuklanmoqda…",
+    "close": "Yopish",
+    "fixFields": "Bu maydonlarni tekshiring"
   },
   "nav": {
     "label": "Portal boʻlimlari",
@@ -331,14 +333,25 @@
       "pending": "Saqlanmoqda…",
       "created": "Qoralama yaratildi.",
       "updated": "Oʻzgarishlar saqlandi.",
-      "noOrganizations": "Hali birorta tashkilot yoʻq, shuning uchun vakansiya yaratib boʻlmaydi. Administratordan tashkilot qoʻshishni soʻrang."
+      "noOrganizations": "Hali birorta tashkilot yoʻq, shuning uchun vakansiya yaratib boʻlmaydi. Administratordan tashkilot qoʻshishni soʻrang.",
+      "sections": {
+        "about": "Vakansiya",
+        "organization": "Tashkilot",
+        "place": "Qayerda oʻtadi",
+        "when": "Qachon oʻtadi",
+        "volunteers": "Koʻngillilar"
+      },
+      "unverified": "tasdiqlanmagan",
+      "unverifiedNotice": "Bu tashkilot hali tasdiqlanmagan. Administrator uni tasdiqlamaguncha uning vakansiyasi maʻqullanmaydi.",
+      "editDescription": "Oʻzgarishlar vakansiya yana maʻqullashga yuborilmaguncha qoralama boʻlib qoladi."
     },
     "archive": {
       "trigger": "Arxivga",
       "title": "Vakansiya arxivga olinsinmi?",
       "description": "Arizalar qabul qilinmaydi va vakansiya ochiq roʻyxatdan yoʻqoladi. Buni bu yerdan qaytarib boʻlmaydi.",
       "confirm": "Arxivga olish",
-      "pending": "Arxivlanmoqda…"
+      "pending": "Arxivlanmoqda…",
+      "success": "Vakansiya arxivlandi."
     },
     "archivedNotice": "Bu vakansiya arxivda. Uni endi tahrirlab boʻlmaydi.",
     "submit": {
@@ -346,7 +359,8 @@
       "title": "Vakansiya tasdiqlashga yuborilsinmi?",
       "description": "Uni eʼlon qilishni administrator hal qiladi. Koʻrib chiqish davomida tahrirlab boʻlmaydi.",
       "confirm": "Tasdiqlashga yuborish",
-      "pending": "Yuborilmoqda…"
+      "pending": "Yuborilmoqda…",
+      "success": "Vakansiya maʻqullash uchun yuborildi."
     },
     "approval": {
       "title": "Tasdiqlash",
@@ -379,30 +393,43 @@
         "capacity": "joylar soni",
         "estimatedTotalHours": "taxminiy soatlar",
         "location": "oʻtkaziladigan joy"
-      }
+      },
+      "readyTitle": "Koʻngillilar uchun tayyor",
+      "readyBlocked": "Bu vakansiya hali tayyor emas",
+      "met": "Tayyor",
+      "unmet": "Hali kerak",
+      "readyLine": "Maʻqullash uchun kerak boʻlgan hamma narsa joyida."
     },
     "decide": {
-      "title": "Qaror",
-      "description": "Vakansiyani tasdiqlab eʼlon qiling, oʻzgartirish uchun qaytaring yoki butunlay rad eting.",
-      "decision": "Qaror",
-      "approve": "Tasdiqlash va eʼlon qilish",
-      "request_changes": "Oʻzgartirish soʻrash",
-      "reject": "Butunlay rad etish",
       "note": "Koordinatorga izoh",
       "noteHelp": "Oʻzgartirish soʻraganda yoki rad etganda majburiy. Koordinator uni vakansiyada oʻqiydi.",
-      "submit": "Qarorni qayd etish",
-      "pending": "Qayd etilmoqda…",
-      "success": "Qaror qayd etildi.",
-      "rejectConfirm": {
-        "title": "Vakansiya butunlay rad etilsinmi?",
-        "description": "Koordinator uni tahrirlay yoki qayta yubora olmaydi. Izohingiz qarorga qoʻshiladi.",
-        "confirm": "Butunlay rad etish",
-        "cancel": "Bekor qilish"
-      },
-      "closedTitle": "Hal qiladigan narsa yoʻq",
-      "closedDescription": "Bu vakansiya qaror kutmayapti.",
       "queue": "Tasdiqlash kutilmoqda",
-      "queueEmpty": "Hech bir vakansiya tasdiqlash kutmayapti."
+      "queueEmpty": "Hech bir vakansiya tasdiqlash kutmayapti.",
+      "noteRequiredHelp": "Majburiy. Koordinator buni vakansiyada oʻqiydi.",
+      "approve": {
+        "trigger": "Maʻqullash va eʻlon qilish",
+        "title": "Bu vakansiya maʻqullanib eʻlon qilinsinmi?",
+        "description": "Koʻngillilar uni darhol koʻradi va ariza topshira boshlaydi.",
+        "confirm": "Maʻqullash va eʻlon qilish",
+        "pending": "Eʻlon qilinmoqda…",
+        "success": "Vakansiya maʻqullandi va eʻlon qilindi."
+      },
+      "requestChanges": {
+        "trigger": "Oʻzgartirishga qaytarish",
+        "title": "Bu vakansiya oʻzgartirishga qaytarilsinmi?",
+        "description": "Koordinator uni tahrirlab, yana maʻqullashga yuboradi. Nimani oʻzgartirish kerakligini yozing.",
+        "confirm": "Oʻzgartirishga qaytarish",
+        "pending": "Yuborilmoqda…",
+        "success": "Vakansiya oʻzgartirishga qaytarildi."
+      },
+      "reject": {
+        "trigger": "Rad etish",
+        "title": "Bu vakansiya butunlay rad etilsinmi?",
+        "description": "U butunlay faqat oʻqish uchun qoladi — koordinator uni tahrirlay ham, qayta yubora ham olmaydi. Sababini yozing.",
+        "confirm": "Butunlay rad etish",
+        "pending": "Rad etilmoqda…",
+        "success": "Vakansiya rad etildi."
+      }
     }
   },
   "applications": {
@@ -692,14 +719,16 @@
       "title": "Koordinator bloklansinmi?",
       "description": "U hamma joydan chiqariladi va siz blokni ochmaguningizcha kira olmaydi. Vakansiyalari tegilmaydi.",
       "confirm": "Bloklash",
-      "pending": "Bloklanmoqda…"
+      "pending": "Bloklanmoqda…",
+      "success": "Koordinator bloklandi."
     },
     "unblock": {
       "trigger": "Blokdan chiqarish",
       "title": "Koordinator blokdan chiqarilsinmi?",
       "description": "U mavjud paroli bilan qaytadan kira oladi.",
       "confirm": "Blokdan chiqarish",
-      "pending": "Chiqarilmoqda…"
+      "pending": "Chiqarilmoqda…",
+      "success": "Koordinator blokdan chiqarildi."
     },
     "remove": {
       "trigger": "Olib tashlash",
@@ -710,7 +739,8 @@
       "reassignPlaceholder": "Koordinatorni tanlang",
       "noCandidates": "Vakansiyalarni qabul qiladigan boshqa faol koordinator yoʻq. Avval bittasini yarating.",
       "confirm": "Olib tashlash",
-      "pending": "Olib tashlanmoqda…"
+      "pending": "Olib tashlanmoqda…",
+      "success": "Koordinator oʻchirildi."
     },
     "password": {
       "title": "Vaqtinchalik parol berish",
@@ -767,13 +797,15 @@
       "title": "Yangi tashkilot",
       "submit": "Tashkilotni yaratish",
       "pending": "Yaratilmoqda…",
-      "success": "Tashkilot yaratildi."
+      "success": "Tashkilot yaratildi.",
+      "description": "Vakansiyalar eʻlon qilinadigan tashkilotni qoʻshing. Uning manzilini keyin oʻzgartirib boʻlmaydi."
     },
     "update": {
       "title": "Tashkilotni tahrirlash",
       "submit": "Oʻzgarishlarni saqlash",
       "pending": "Saqlanmoqda…",
-      "success": "Oʻzgarishlar saqlandi."
+      "success": "Oʻzgarishlar saqlandi.",
+      "description": "Manzilni oʻzgartirib boʻlmaydi. Tasdiqlash bu tashkilot vakansiyalarini maʻqullash mumkinligini hal qiladi."
     }
   },
   "audit": {

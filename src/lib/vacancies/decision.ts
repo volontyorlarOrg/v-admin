@@ -1,8 +1,9 @@
 import { z } from "zod";
 
 import { VACANCY_DECISIONS } from "@/lib/domain/vocabulary";
+import { MAX_DECISION_NOTE } from "@/lib/vacancies/approval";
 
-export const MAX_DECISION_NOTE = 2000;
+export { MAX_DECISION_NOTE };
 
 export const vacancyDecisionSchema = z
   .object({

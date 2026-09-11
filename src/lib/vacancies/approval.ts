@@ -4,6 +4,8 @@ import {
   type VacancyState,
 } from "@/lib/domain/vocabulary";
 
+export const MAX_DECISION_NOTE = 2000;
+
 export type ApprovalSubject = {
   approvalStatus?: OpportunityApprovalStatus | undefined;
   publishedAt?: string | undefined;
@@ -147,10 +149,7 @@ export function missingForApproval(
   return missing;
 }
 
-export function isReadyForApproval(
-  vacancy: ApprovalCandidate,
-  now?: Date,
-): boolean {
+export function isReadyForApproval(vacancy: ApprovalCandidate, now?: Date): boolean {
   return missingForApproval(vacancy, now).length === 0;
 }
 
