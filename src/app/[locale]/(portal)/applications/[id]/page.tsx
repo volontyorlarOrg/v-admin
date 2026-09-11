@@ -119,12 +119,20 @@ export default async function ApplicationPage({
                 value: snapshot.fullName ?? common("notSet"),
               },
               {
+                term: t("snapshotFields.bio"),
+                value: snapshot.bio ?? common("notSet"),
+              },
+              {
                 term: t("snapshotFields.region"),
                 value: snapshot.region ?? common("notSet"),
               },
               {
                 term: t("snapshotFields.school"),
                 value: snapshot.school ?? common("notSet"),
+              },
+              {
+                term: t("snapshotFields.languages"),
+                value: snapshot.languages?.join(", ") || common("notSet"),
               },
               {
                 term: t("snapshotFields.phone"),

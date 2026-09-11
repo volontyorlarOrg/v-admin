@@ -161,18 +161,17 @@
     "opportunityNotSubmittable": "This vacancy cannot be sent for approval as it stands.",
     "opportunityNotPending": "This vacancy is not waiting for a decision.",
     "decisionNoteRequired": "Write a note explaining the decision.",
-    "noVolunteersSelected": "Choose at least one volunteer.",
-    "tooManyVolunteers": "Choose fewer volunteers and repeat.",
-    "attendanceNotOpen": "Attendance opens once the event has ended.",
-    "attendanceBatchFailed": "Nothing was saved. Check the volunteers you chose and try again.",
-    "applicationNotAccepted": "That volunteer was not accepted for this vacancy.",
     "opportunityIncomplete": "Complete the required vacancy details before sending it for approval.",
     "opportunityCannotBeSubmitted": "This vacancy cannot be sent for approval in its current state.",
     "opportunityNotPendingApproval": "This vacancy is not waiting for an approval decision.",
     "opportunityNotEditable": "This vacancy is locked in its current approval state.",
     "approvalNoteRequired": "Write a note explaining the decision.",
     "deadlinePassed": "The application deadline has already passed.",
-    "duplicateAttendanceApplication": "Each volunteer can appear only once in an attendance update."
+    "noVolunteersSelected": "Choose at least one volunteer.",
+    "tooManyVolunteers": "Choose fewer volunteers and repeat.",
+    "attendanceNotOpen": "Attendance opens once the event has ended.",
+    "attendanceBatchFailed": "Nothing was saved. Check the volunteers you chose and try again.",
+    "applicationNotAccepted": "That volunteer was not accepted for this vacancy."
   },
   "dashboard": {
     "title": "Dashboard",
@@ -247,11 +246,11 @@
   },
   "vacancies": {
     "title": "Vacancies",
-    "description": "The vacancies you created, from draft to archive.",
+    "description": "Every vacancy in the product, whoever created it.",
     "new": "New vacancy",
     "empty": {
       "title": "No vacancies yet",
-      "description": "Create a vacancy, publish it once its organization is verified, and applications arrive here."
+      "description": "Create a vacancy, or wait for a coordinator to create one."
     },
     "noMatches": {
       "title": "Nothing matches those filters",
@@ -261,6 +260,12 @@
       "legend": "Filter vacancies",
       "search": "Search by title or address",
       "state": "State"
+    },
+    "stage": {
+      "all": "Every stage",
+      "draft": "Draft",
+      "published": "Published",
+      "archived": "Archived"
     },
     "state": {
       "all": "Every state",
@@ -272,13 +277,14 @@
       "archived": "Archived"
     },
     "table": {
-      "caption": "Vacancies you created",
+      "caption": "Every vacancy",
       "title": "Vacancy",
       "organization": "Organization",
       "state": "State",
       "deadline": "Applications close",
       "starts": "Starts",
-      "open": "Open"
+      "open": "Open",
+      "coordinator": "Coordinator"
     },
     "detail": {
       "eyebrow": "Vacancy",
@@ -335,6 +341,13 @@
       "pending": "Archiving…"
     },
     "archivedNotice": "This vacancy is archived. It can no longer be edited.",
+    "submit": {
+      "trigger": "Send for approval",
+      "title": "Send this vacancy for approval?",
+      "description": "An administrator decides whether it is published. You cannot edit it while it is under review.",
+      "confirm": "Send for approval",
+      "pending": "Sending…"
+    },
     "approval": {
       "title": "Approval",
       "description": "An administrator decides whether this vacancy reaches volunteers.",
@@ -345,8 +358,8 @@
       "note": "Note from the administrator",
       "noNote": "No note",
       "notSubmitted": "Not sent yet",
-      "pendingTitle": "Waiting for an administrator",
-      "pendingDescription": "The vacancy is locked while it is reviewed. You can archive it, but not edit it.",
+      "pendingTitle": "Review required",
+      "pendingDescription": "Approve and publish this vacancy, request changes, or reject it permanently.",
       "changesTitle": "Changes were requested",
       "changesDescription": "Edit the vacancy and send it for approval again.",
       "rejectedTitle": "This vacancy was rejected",
@@ -380,13 +393,16 @@
       "submit": "Record the decision",
       "pending": "Recording…",
       "success": "The decision was recorded.",
+      "rejectConfirm": {
+        "title": "Reject this vacancy permanently?",
+        "description": "The coordinator cannot edit or resubmit it. Your note will be included with the decision.",
+        "confirm": "Reject permanently",
+        "cancel": "Cancel"
+      },
       "closedTitle": "Nothing to decide",
-      "closedDescription": "This vacancy is not waiting for a decision."
-    },
-    "stage": {
-      "draft": "Draft",
-      "published": "Published",
-      "archived": "Archived"
+      "closedDescription": "This vacancy is not waiting for a decision.",
+      "queue": "Waiting for approval",
+      "queueEmpty": "No vacancy is waiting for approval."
     }
   },
   "applications": {
@@ -454,7 +470,9 @@
     },
     "snapshotFields": {
       "fullName": "Full name",
+      "bio": "Bio",
       "region": "Region",
+      "languages": "Languages",
       "school": "School",
       "phone": "Phone",
       "telegram": "Telegram"
@@ -515,7 +533,7 @@
   },
   "attendance": {
     "title": "Attendance",
-    "description": "Confirm attendance and hours for volunteers you accepted.",
+    "description": "Confirm attendance and hours for any accepted volunteer.",
     "empty": {
       "title": "Nothing to confirm",
       "description": "Accepted applications appear here when their attendance is still open."

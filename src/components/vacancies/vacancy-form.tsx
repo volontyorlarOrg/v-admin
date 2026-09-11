@@ -52,7 +52,16 @@ export function VacancyForm({
   const message = formError(result, labels.errors, labels.fallbackError);
   const error = (name: string) => fieldMessage(fields, name, labels.errors);
 
-  const text = (name: string, options: { type?: string; required?: boolean } = {}) => {
+  const text = (
+    name: string,
+    options: {
+      type?: string;
+      required?: boolean;
+      min?: number;
+      max?: number;
+      step?: number;
+    } = {},
+  ) => {
     const invalid = error(name);
     return (
       <Field invalid={Boolean(invalid)}>
@@ -62,6 +71,9 @@ export function VacancyForm({
           name={name}
           type={options.type ?? "text"}
           required={options.required}
+          min={options.min}
+          max={options.max}
+          step={options.step}
           defaultValue={defaults[name] ?? ""}
           aria-invalid={Boolean(invalid) || undefined}
           aria-describedby={
@@ -188,8 +200,14 @@ export function VacancyForm({
 
         {text("city")}
         {text("locationName")}
-        {text("capacity", { type: "number", required: true })}
-        {text("estimatedTotalHours", { type: "number", required: true })}
+        {text("capacity", { type: "number", required: true, min: 1, step: 1 })}
+        {text("estimatedTotalHours", {
+          type: "number",
+          required: true,
+          min: 0.25,
+          max: 100_000,
+          step: 0.01,
+        })}
         {text("startsAt", { type: "datetime-local", required: true })}
         {text("endsAt", { type: "datetime-local", required: true })}
         {text("applicationDeadline", { type: "datetime-local", required: true })}

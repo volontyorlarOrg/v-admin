@@ -40,20 +40,25 @@ export const endpoints = {
     path: "/admin/opportunities/{id}",
     contract: "published",
   },
+  submitVacancyForApproval: {
+    method: "POST",
+    path: "/admin/opportunities/{id}/submit-for-approval",
+    contract: "published",
+  },
   approveVacancy: {
     method: "POST",
     path: "/admin/opportunities/{id}/approve",
-    contract: "announced",
+    contract: "published",
   },
   requestVacancyChanges: {
     method: "POST",
     path: "/admin/opportunities/{id}/request-changes",
-    contract: "announced",
+    contract: "published",
   },
   rejectVacancy: {
     method: "POST",
     path: "/admin/opportunities/{id}/reject",
-    contract: "announced",
+    contract: "published",
   },
   archiveVacancy: {
     method: "POST",
@@ -81,9 +86,8 @@ export const endpoints = {
   resolveVacancyAttendance: {
     method: "PUT",
     path: "/staff/opportunities/{id}/attendance",
-    contract: "announced",
+    contract: "published",
   },
-
   users: { method: "GET", path: "/admin/users", contract: "published" },
   user: { method: "GET", path: "/admin/users/{id}", contract: "published" },
   replaceUserPassword: {
