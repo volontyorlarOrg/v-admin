@@ -19,7 +19,9 @@ describe("vacancyDecisionSchema", () => {
   });
 
   it("refuses a decision the workflow does not have", () => {
-    expect(vacancyDecisionSchema.safeParse({ decision: "publish" }).success).toBe(false);
+    expect(vacancyDecisionSchema.safeParse({ decision: "publish" }).success).toBe(
+      false,
+    );
   });
 });
 

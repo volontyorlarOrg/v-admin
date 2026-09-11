@@ -161,18 +161,17 @@
     "opportunityNotSubmittable": "Bu vakansiyani hozirgi holatida tasdiqlashga yuborib boʻlmaydi.",
     "opportunityNotPending": "Bu vakansiya qaror kutmayapti.",
     "decisionNoteRequired": "Qarorni tushuntiruvchi izoh yozing.",
-    "noVolunteersSelected": "Kamida bitta koʻngillini tanlang.",
-    "tooManyVolunteers": "Kamroq koʻngilli tanlab, qaytadan urinib koʻring.",
-    "attendanceNotOpen": "Tasdiqlash tadbir tugagach ochiladi.",
-    "attendanceBatchFailed": "Hech narsa saqlanmadi. Tanlagan koʻngillilaringizni tekshirib, qayta urinib koʻring.",
-    "applicationNotAccepted": "Bu koʻngilli ushbu vakansiyaga qabul qilinmagan.",
     "opportunityIncomplete": "Tasdiqlashga yuborishdan oldin vakansiyaning majburiy maʼlumotlarini toʻldiring.",
     "opportunityCannotBeSubmitted": "Bu vakansiyani joriy holatida tasdiqlashga yuborib boʻlmaydi.",
     "opportunityNotPendingApproval": "Bu vakansiya tasdiqlash qarorini kutmayapti.",
     "opportunityNotEditable": "Vakansiya joriy tasdiqlash holatida tahrirlash uchun yopiq.",
     "approvalNoteRequired": "Qarorni tushuntiruvchi izoh yozing.",
     "deadlinePassed": "Ariza topshirish muddati allaqachon tugagan.",
-    "duplicateAttendanceApplication": "Har bir koʻngilli ishtirok yangilanishida faqat bir marta koʻrsatilishi mumkin."
+    "noVolunteersSelected": "Kamida bitta koʻngillini tanlang.",
+    "tooManyVolunteers": "Kamroq koʻngilli tanlab, qaytadan urinib koʻring.",
+    "attendanceNotOpen": "Tasdiqlash tadbir tugagach ochiladi.",
+    "attendanceBatchFailed": "Hech narsa saqlanmadi. Tanlagan koʻngillilaringizni tekshirib, qayta urinib koʻring.",
+    "applicationNotAccepted": "Bu koʻngilli ushbu vakansiyaga qabul qilinmagan."
   },
   "dashboard": {
     "title": "Boshqaruv paneli",
@@ -247,11 +246,11 @@
   },
   "vacancies": {
     "title": "Vakansiyalar",
-    "description": "Siz yaratgan vakansiyalar — qoralamadan arxivgacha.",
+    "description": "Mahsulotdagi barcha vakansiyalar, kim yaratganidan qatʼi nazar.",
     "new": "Yangi vakansiya",
     "empty": {
       "title": "Hali vakansiya yoʻq",
-      "description": "Vakansiya yarating, tashkilot tasdiqlangach eʼlon qiling — arizalar shu yerda paydo boʻladi."
+      "description": "Vakansiya yarating yoki koordinator yaratishini kuting."
     },
     "noMatches": {
       "title": "Filtrlarga mos yozuv yoʻq",
@@ -261,6 +260,12 @@
       "legend": "Vakansiyalarni filtrlash",
       "search": "Nomi yoki manzili boʻyicha qidirish",
       "state": "Holat"
+    },
+    "stage": {
+      "all": "Har qanday bosqich",
+      "draft": "Qoralama",
+      "published": "Eʼlon qilingan",
+      "archived": "Arxivda"
     },
     "state": {
       "all": "Har qanday holat",
@@ -272,13 +277,14 @@
       "archived": "Arxivda"
     },
     "table": {
-      "caption": "Siz yaratgan vakansiyalar",
+      "caption": "Barcha vakansiyalar",
       "title": "Vakansiya",
       "organization": "Tashkilot",
       "state": "Holat",
       "deadline": "Arizalar yopiladi",
       "starts": "Boshlanishi",
-      "open": "Ochish"
+      "open": "Ochish",
+      "coordinator": "Koordinator"
     },
     "detail": {
       "eyebrow": "Vakansiya",
@@ -335,6 +341,13 @@
       "pending": "Arxivlanmoqda…"
     },
     "archivedNotice": "Bu vakansiya arxivda. Uni endi tahrirlab boʻlmaydi.",
+    "submit": {
+      "trigger": "Tasdiqlashga yuborish",
+      "title": "Vakansiya tasdiqlashga yuborilsinmi?",
+      "description": "Uni eʼlon qilishni administrator hal qiladi. Koʻrib chiqish davomida tahrirlab boʻlmaydi.",
+      "confirm": "Tasdiqlashga yuborish",
+      "pending": "Yuborilmoqda…"
+    },
     "approval": {
       "title": "Tasdiqlash",
       "description": "Bu vakansiya koʻngillilarga yetib borishini administrator hal qiladi.",
@@ -345,8 +358,8 @@
       "note": "Administrator izohi",
       "noNote": "Izoh yoʻq",
       "notSubmitted": "Hali yuborilmagan",
-      "pendingTitle": "Administrator kutilmoqda",
-      "pendingDescription": "Koʻrib chiqilayotganda vakansiya qulflanadi. Uni arxivga olish mumkin, tahrirlash esa mumkin emas.",
+      "pendingTitle": "Qaror talab qilinadi",
+      "pendingDescription": "Vakansiyani tasdiqlab eʼlon qiling, oʻzgartirish soʻrang yoki butunlay rad eting.",
       "changesTitle": "Oʻzgartirish soʻraldi",
       "changesDescription": "Vakansiyani tahrirlab, qayta tasdiqlashga yuboring.",
       "rejectedTitle": "Bu vakansiya rad etildi",
@@ -380,13 +393,16 @@
       "submit": "Qarorni qayd etish",
       "pending": "Qayd etilmoqda…",
       "success": "Qaror qayd etildi.",
+      "rejectConfirm": {
+        "title": "Vakansiya butunlay rad etilsinmi?",
+        "description": "Koordinator uni tahrirlay yoki qayta yubora olmaydi. Izohingiz qarorga qoʻshiladi.",
+        "confirm": "Butunlay rad etish",
+        "cancel": "Bekor qilish"
+      },
       "closedTitle": "Hal qiladigan narsa yoʻq",
-      "closedDescription": "Bu vakansiya qaror kutmayapti."
-    },
-    "stage": {
-      "draft": "Qoralama",
-      "published": "Eʼlon qilingan",
-      "archived": "Arxivda"
+      "closedDescription": "Bu vakansiya qaror kutmayapti.",
+      "queue": "Tasdiqlash kutilmoqda",
+      "queueEmpty": "Hech bir vakansiya tasdiqlash kutmayapti."
     }
   },
   "applications": {
@@ -454,7 +470,9 @@
     },
     "snapshotFields": {
       "fullName": "Toʻliq ism",
+      "bio": "Oʻzi haqida",
       "region": "Viloyat",
+      "languages": "Tillar",
       "school": "Oʻquv muassasasi",
       "phone": "Telefon",
       "telegram": "Telegram"
@@ -515,7 +533,7 @@
   },
   "attendance": {
     "title": "Ishtirok",
-    "description": "Qabul qilgan volontyorlaringizning ishtiroki va soatlarini tasdiqlang.",
+    "description": "Har qanday qabul qilingan volontyorning ishtiroki va soatlarini tasdiqlang.",
     "empty": {
       "title": "Tasdiqlanadigan yozuv yoʻq",
       "description": "Qabul qilingan arizalar ishtiroki hal qilinmagunicha shu yerda turadi."

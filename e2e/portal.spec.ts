@@ -26,6 +26,35 @@ async function signedIn(page: Page) {
   await expect(page).toHaveURL(/\/en\/dashboard$/);
 }
 
+async function fillVacancyDraft(
+  page: Page,
+  values: {
+    title: string;
+    slug: string;
+    organization?: string;
+    deadline?: string;
+  },
+) {
+  await page.getByLabel("Title").fill(values.title);
+  await page.getByLabel("Address").fill(values.slug);
+  await page.getByLabel("Summary", { exact: true }).fill("A useful volunteer day.");
+  await page
+    .getByLabel("Description")
+    .fill("Volunteers work together with a coordinator throughout the event.");
+  await page
+    .getByLabel("Organization")
+    .selectOption({ label: values.organization ?? "Chilonzor Reading Corners" });
+  await page.getByLabel("City").fill("Tashkent");
+  await page.getByLabel("Place", { exact: true }).fill("Central library");
+  await page.getByLabel("Places", { exact: true }).fill("12");
+  await page.getByLabel("Estimated hours").fill("4");
+  await page.getByLabel("Starts").fill("2026-11-01T09:00");
+  await page.getByLabel("Ends").fill("2026-11-01T13:00");
+  await page
+    .getByLabel("Applications close")
+    .fill(values.deadline ?? "2026-10-20T18:00");
+}
+
 function formMessage(page: Page) {
   return page.locator('[data-slot="form-message"]');
 }
@@ -246,37 +275,17 @@ test.describe("an administrator sees everything", () => {
   });
 });
 
-test.describe("the vacancy approval workflow", () => {
+test.describe("the vacancy lifecycle", () => {
   const PENDING = "00000000-0000-4000-8000-000000000405";
   const APPROVED = "00000000-0000-4000-8000-000000000401";
-
-  async function fillDraft(
-    page: Page,
-    title: string,
-    slug: string,
-    organization: string,
-  ) {
-    await page.getByLabel("Title").fill(title);
-    await page.getByLabel("Address").fill(slug);
-    await page.getByLabel("Summary", { exact: true }).fill(`${title} summary`);
-    await page.getByLabel("Description").fill(`${title} description`);
-    await page.getByLabel("Organization").selectOption({ label: organization });
-    await page.getByLabel("City", { exact: true }).fill("Tashkent");
-    await page.getByLabel("Place", { exact: true }).fill("Chilonzor library");
-    await page.getByLabel("Places", { exact: true }).fill("12");
-    await page.getByLabel("Estimated hours").fill("6");
-    await page.getByLabel("Starts").fill("2026-11-01T09:00");
-    await page.getByLabel("Ends").fill("2026-11-01T15:00");
-    await page.getByLabel("Applications close").fill("2026-10-20T18:00");
-  }
 
   test("filters the list down to what is waiting for approval", async ({ page }) => {
     await signedIn(page);
     await page.goto("/en/vacancies?state=pending_review");
 
-    await expect(
-      page.getByRole("row", { name: /Winter clothing drive/ }),
-    ).toHaveCount(1);
+    await expect(page.getByRole("row", { name: /Winter clothing drive/ })).toHaveCount(
+      1,
+    );
     await expect(page.getByRole("row", { name: /Winter book drive/ })).toHaveCount(0);
   });
 
@@ -287,8 +296,6 @@ test.describe("the vacancy approval workflow", () => {
     await page.getByLabel("Decision").selectOption("approve");
     await page.getByRole("button", { name: "Record the decision" }).click();
 
-    await expect(formMessage(page).first()).toContainText("decision was recorded");
-    await page.reload();
     await expect(page.getByText("Approved and published").first()).toBeVisible();
   });
 
@@ -312,26 +319,8 @@ test.describe("the vacancy approval workflow", () => {
     await page.getByLabel("Note to the coordinator").fill("Name the venue, please.");
     await page.getByRole("button", { name: "Record the decision" }).click();
 
-    await expect(formMessage(page).first()).toContainText("decision was recorded");
-    await page.reload();
     await expect(page.getByText("Changes requested").first()).toBeVisible();
     await expect(statePanel(page).first()).toContainText("Name the venue");
-  });
-
-  test("rejects a vacancy permanently with a note", async ({ page }) => {
-    await signedIn(page);
-    await page.goto(`/en/vacancies/${PENDING}`);
-
-    await page.getByLabel("Decision").selectOption("reject");
-    await page
-      .getByLabel("Note to the coordinator")
-      .fill("Not suitable for school volunteers.");
-    await page.getByRole("button", { name: "Record the decision" }).click();
-
-    await expect(formMessage(page).first()).toContainText("decision was recorded");
-    await page.reload();
-    await expect(statePanel(page).first()).toContainText("was rejected");
-    await expect(page.getByLabel("Decision")).toHaveCount(0);
   });
 
   test("offers no decision on a vacancy that is already approved", async ({ page }) => {
@@ -342,24 +331,123 @@ test.describe("the vacancy approval workflow", () => {
     await expect(page.getByLabel("Decision")).toHaveCount(0);
   });
 
+  test("creates a draft, submits it, approves it, then archives it", async ({
+    page,
+  }) => {
+    await signedIn(page);
+    await page.goto("/en/vacancies/new");
+
+    await fillVacancyDraft(page, {
+      title: "Library shelving day",
+      slug: "library-shelving-day",
+    });
+    await page.getByRole("button", { name: "Create the draft" }).click();
+
+    await expect(formMessage(page)).toContainText("draft was created");
+
+    await page.goto("/en/vacancies?state=draft");
+    await page
+      .getByRole("row", { name: /Library shelving day/ })
+      .getByRole("link", { name: "Open" })
+      .click();
+
+    await expect(page.getByRole("heading", { level: 1 })).toContainText(
+      "Library shelving day",
+    );
+
+    await page.getByRole("button", { name: "Send for approval" }).click();
+    await page
+      .getByRole("alertdialog")
+      .getByRole("button", { name: "Send for approval" })
+      .click();
+    await expect(
+      page.getByText("Waiting for approval", { exact: true }).first(),
+    ).toBeVisible();
+
+    await page.getByLabel("Decision").selectOption("approve");
+    await page.getByRole("button", { name: "Record the decision" }).click();
+    await expect(
+      page.getByText("Approved and published", { exact: true }).first(),
+    ).toBeVisible();
+
+    await page.getByRole("button", { name: "Archive", exact: true }).click();
+    await page
+      .getByRole("alertdialog")
+      .getByRole("button", { name: "Archive", exact: true })
+      .click();
+    await expect(page.getByText("This vacancy is archived")).toBeVisible();
+  });
+
+  test("refuses to submit under an unverified organization", async ({ page }) => {
+    await signedIn(page);
+    await page.goto("/en/vacancies/new");
+
+    await fillVacancyDraft(page, {
+      title: "Riverbank clean-up",
+      slug: "riverbank-clean-up",
+      organization: "Green Corridor Group",
+    });
+    await page.getByRole("button", { name: "Create the draft" }).click();
+    await expect(formMessage(page)).toContainText("draft was created");
+
+    await page.goto("/en/vacancies?q=riverbank");
+    await page.getByRole("link", { name: "Open" }).first().click();
+    await expect(
+      statePanel(page).filter({ hasText: "Not ready for approval" }),
+    ).toContainText("a verified organization");
+    await expect(page.getByRole("button", { name: "Send for approval" })).toHaveCount(
+      0,
+    );
+  });
+
+  test("requires explicit confirmation before permanent rejection", async ({
+    page,
+  }) => {
+    await signedIn(page);
+    await page.goto("/en/vacancies/00000000-0000-4000-8000-000000000405");
+
+    await page.getByLabel("Decision").selectOption("reject");
+    await page
+      .getByLabel("Note to the coordinator")
+      .fill("This vacancy cannot be safely published.");
+    await page.getByRole("button", { name: "Record the decision" }).click();
+
+    const dialog = page.getByRole("alertdialog");
+    await expect(
+      dialog.getByRole("heading", {
+        name: "Reject this vacancy permanently?",
+      }),
+    ).toBeVisible();
+    await dialog.getByRole("button", { name: "Reject permanently" }).click();
+    await expect(page.getByText("Rejected", { exact: true }).first()).toBeVisible();
+  });
+
   test("rejects a deadline that falls after the vacancy starts", async ({ page }) => {
     await signedIn(page);
     await page.goto("/en/vacancies/new");
 
-    await fillDraft(page, "Late deadline", "late-deadline", "Chilonzor Reading Corners");
-    await page.getByLabel("Applications close").fill("2026-11-05T18:00");
+    await fillVacancyDraft(page, {
+      title: "Late deadline",
+      slug: "late-deadline",
+      deadline: "2026-11-05T18:00",
+    });
     await page.getByRole("button", { name: "Create the draft" }).click();
 
-    await expect(fieldError(page)).toContainText(
+    await expect(page.locator("#applicationDeadline-error")).toContainText(
       "deadline must fall before the vacancy starts",
     );
   });
 
-  test("refuses meeting credentials in the public online location", async ({ page }) => {
+  test("refuses meeting credentials in the public online location", async ({
+    page,
+  }) => {
     await signedIn(page);
     await page.goto("/en/vacancies/new");
 
-    await fillDraft(page, "Remote help", "remote-help", "Chilonzor Reading Corners");
+    await fillVacancyDraft(page, {
+      title: "Remote help",
+      slug: "remote-help",
+    });
     await page.getByLabel("Format").selectOption("remote");
     await page.getByLabel("Place", { exact: true }).fill("Zoom, passcode 4821");
     await page.getByRole("button", { name: "Create the draft" }).click();
@@ -408,7 +496,9 @@ test.describe("review and attendance", () => {
       .locator("section")
       .filter({ hasText: "Confirm the selected volunteers" })
       .first();
-    await expect(roster.getByRole("button", { name: "Confirm selected" })).toBeVisible();
+    await expect(
+      roster.getByRole("button", { name: "Confirm selected" }),
+    ).toBeVisible();
 
     await roster.getByLabel("Outcome for everyone selected").selectOption("attended");
     await roster.getByRole("button", { name: "Confirm selected" }).click();

@@ -100,7 +100,7 @@ describe("what an administrator may do", () => {
     expect(canRejectVacancy({ approvalStatus: "approved" })).toBe(false);
   });
 
-  it("approves only after a coordinator submits the draft", () => {
+  it("approves only after the draft has entered review", () => {
     expect(canApproveVacancy({ approvalStatus: "draft" })).toBe(false);
     expect(canApproveVacancy({ approvalStatus: "pending_review" })).toBe(true);
     expect(canApproveVacancy({ approvalStatus: "approved" })).toBe(false);
@@ -133,12 +133,14 @@ describe("missingForApproval", () => {
   });
 
   it("requires the deadline to fall before the vacancy starts", () => {
-    expect(
-      missingForApproval({
-        ...ready,
-        applicationDeadline: "2026-10-02T18:00:00.000Z",
-      }),
-    ).toContain("applicationDeadline");
+    for (const applicationDeadline of [
+      "2026-10-01T09:00:00.000Z",
+      "2026-10-02T18:00:00.000Z",
+    ]) {
+      expect(missingForApproval({ ...ready, applicationDeadline })).toContain(
+        "applicationDeadline",
+      );
+    }
   });
 
   it("requires a positive whole number of places", () => {

@@ -4,21 +4,21 @@ import { REGIONS, VACANCY_FORMATS } from "@/lib/domain/vocabulary";
 import { hasMeetingCredentials, requiresVenue } from "@/lib/vacancies/approval";
 
 export const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-export const MAX_ESTIMATED_TOTAL_HOURS = 999;
+export const MAX_ESTIMATED_TOTAL_HOURS = 100_000;
 
 const trimmed = z.string().trim();
 
 export const vacancyFormSchema = z
   .object({
-    title: trimmed.min(2, "required").max(160, "tooLong"),
+    title: trimmed.min(2, "required").max(180, "tooLong"),
     slug: trimmed.min(2, "required").max(160, "tooLong").regex(SLUG_PATTERN, "slug"),
     summary: trimmed.min(2, "required").max(400, "tooLong"),
-    description: trimmed.min(2, "required").max(8000, "tooLong"),
+    description: trimmed.min(2, "required").max(10_000, "tooLong"),
     organizationId: trimmed.min(1, "required"),
     region: z.enum(REGIONS, { message: "required" }),
     format: z.enum(VACANCY_FORMATS, { message: "required" }),
-    city: trimmed.max(120, "tooLong").optional(),
-    locationName: trimmed.max(160, "tooLong").optional(),
+    city: trimmed.max(100, "tooLong").optional(),
+    locationName: trimmed.max(200, "tooLong").optional(),
     startsAt: trimmed.min(1, "required"),
     endsAt: trimmed.min(1, "required"),
     applicationDeadline: trimmed.min(1, "required"),
@@ -41,7 +41,7 @@ export const vacancyFormSchema = z
         message: "date",
       });
     }
-    if (!Number.isNaN(starts) && !Number.isNaN(deadline) && deadline > starts) {
+    if (!Number.isNaN(starts) && !Number.isNaN(deadline) && deadline >= starts) {
       context.addIssue({
         code: "custom",
         path: ["applicationDeadline"],
