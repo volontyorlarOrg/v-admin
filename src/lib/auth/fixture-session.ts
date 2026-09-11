@@ -32,7 +32,6 @@ export function fixtureSessionFor(
   return {
     userId: fixtureUserId,
     accessToken: "development-fixture-access-token",
-    refreshToken: "development-fixture-refresh-token",
     accessTokenExpiresAt: Math.floor(Date.now() / 1000) + ACCESS_TOKEN_TTL_SECONDS,
     displayName: fixtureDisplayName,
     roles: [PORTAL_ROLE],

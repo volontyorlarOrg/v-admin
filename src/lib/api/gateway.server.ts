@@ -4,7 +4,7 @@ import type { z } from "zod";
 
 import { authedApi, type QueryParams } from "@/lib/api/client.server";
 import { endpoints, pathFor, type EndpointName } from "@/lib/api/endpoints";
-import { isApiError } from "@/lib/api/errors";
+import { isApiError, isSessionOver } from "@/lib/api/errors";
 import { loadedFromError, ready, type Loaded } from "@/lib/api/load";
 import {
   failedResult,
@@ -13,9 +13,7 @@ import {
   type ActionResult,
 } from "@/lib/api/action-result";
 import { fixtureModeEnabled } from "@/lib/auth/config";
-import { refreshSession } from "@/lib/auth/refresh";
-import type { SessionPayload } from "@/lib/auth/session";
-import { getSession, writeSession } from "@/lib/auth/session.server";
+import { getSession } from "@/lib/auth/session.server";
 import { readFixture, writeFixture } from "@/lib/fixtures/store";
 
 type Params = Record<string, string>;
@@ -64,12 +62,6 @@ export async function read<TSchema extends z.ZodType>(
   }
 }
 
-async function renewedSession(session: SessionPayload): Promise<SessionPayload | null> {
-  const rotated = await refreshSession(session);
-  if (!rotated) return null;
-  return (await writeSession(rotated)) ? rotated : null;
-}
-
 export async function write(
   name: EndpointName,
   { params, body, query }: WriteOptions = {},
@@ -90,16 +82,8 @@ export async function write(
     await send(session.accessToken);
     return okResult;
   } catch (error) {
-    if (isApiError(error) && error.code === "unauthenticated") {
-      const renewed = await renewedSession(session);
-      if (!renewed) return failedResult("sessionExpired");
-
-      try {
-        await send(renewed.accessToken);
-        return okResult;
-      } catch (retried) {
-        return resultFromError(retried);
-      }
+    if (isSessionOver(error)) {
+      return failedResult("sessionExpired");
     }
 
     if (

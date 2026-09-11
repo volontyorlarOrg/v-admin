@@ -37,6 +37,10 @@ function isNavigation(request: NextRequest) {
   return request.headers.get("accept")?.includes("text/html") ?? false;
 }
 
+function isLegacySession(session: SessionPayload) {
+  return Boolean(session.refreshToken) && isAccessTokenExpiring(session);
+}
+
 async function carrySession(
   response: NextResponse,
   rotated: SessionPayload | null,
@@ -65,17 +69,17 @@ export default async function proxy(request: NextRequest) {
   const cookie = request.cookies.get(SESSION_COOKIE_NAME)?.value;
   const current = await decryptSession(cookie);
   let session: SessionPayload | null = current;
-  let rotated: SessionPayload | null = null;
-  let refreshFailed = false;
+  let upgraded: SessionPayload | null = null;
+  let sessionEnded = false;
 
-  if (current && isAccessTokenExpiring(current) && isNavigation(request)) {
-    rotated = await refreshSession(current);
-    if (rotated) {
-      session = rotated;
-    } else if (isAccessTokenExpired(current)) {
-      refreshFailed = true;
-      session = null;
-    }
+  if (current && isLegacySession(current) && isNavigation(request)) {
+    upgraded = await refreshSession(current);
+    if (upgraded) session = upgraded;
+  }
+
+  if (session && isAccessTokenExpired(session)) {
+    session = null;
+    sessionEnded = Boolean(current);
   }
 
   const redirectTo = (route: typeof ENTRY_ROUTE) =>
@@ -84,14 +88,14 @@ export default async function proxy(request: NextRequest) {
   if (guard === "session" && !session) {
     const loginUrl = new URL(localePath(locale, ENTRY_ROUTE), request.url);
     loginUrl.searchParams.set("next", `${pathname}${search}`);
-    if (cookie || refreshFailed) loginUrl.searchParams.set("session", "expired");
+    if (cookie || sessionEnded) loginUrl.searchParams.set("session", "expired");
     return carrySession(NextResponse.redirect(loginUrl, 307), null, true);
   }
 
   if (guard === "guest" && session) {
     return carrySession(
       redirectTo(session.passwordChangeRequired ? PASSWORD_ROUTE : HOME_ROUTE),
-      rotated,
+      upgraded,
       false,
     );
   }
@@ -101,14 +105,14 @@ export default async function proxy(request: NextRequest) {
     guard === "session" &&
     pathWithoutLocale(pathname) !== getRoute(PASSWORD_ROUTE).path
   ) {
-    return carrySession(redirectTo(PASSWORD_ROUTE), rotated, false);
+    return carrySession(redirectTo(PASSWORD_ROUTE), upgraded, false);
   }
 
   const response = intl(request);
   response.headers.set("Cache-Control", "private, no-store");
   response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
 
-  return carrySession(response, rotated, refreshFailed);
+  return carrySession(response, upgraded, sessionEnded);
 }
 
 export const config = {
