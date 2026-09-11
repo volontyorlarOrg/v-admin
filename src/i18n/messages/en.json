@@ -151,7 +151,28 @@
     "coordinatorHasActiveOpportunities": "This coordinator still owns active vacancies. Choose who takes them over first.",
     "invalidCoordinatorReassignment": "Choose a different coordinator to take the vacancies over.",
     "organizationNotFound": "That organization no longer exists.",
-    "rateLimitExceeded": "Too many attempts. Wait a moment and try again."
+    "rateLimitExceeded": "Too many attempts. Wait a moment and try again.",
+    "estimatedHours": "Enter the hours as a number above 0 and at most 999.",
+    "cityRequired": "Enter the city volunteers travel to.",
+    "venueRequired": "Enter the place volunteers turn up at.",
+    "onlineLocationRequired": "Describe where the work happens online.",
+    "onlineLocationCredentials": "Remove the meeting password. Every volunteer can read this field.",
+    "opportunityNotReadyForApproval": "This vacancy is missing something approval needs.",
+    "opportunityNotSubmittable": "This vacancy cannot be sent for approval as it stands.",
+    "opportunityNotPending": "This vacancy is not waiting for a decision.",
+    "decisionNoteRequired": "Write a note explaining the decision.",
+    "noVolunteersSelected": "Choose at least one volunteer.",
+    "tooManyVolunteers": "Choose fewer volunteers and repeat.",
+    "attendanceNotOpen": "Attendance opens once the event has ended.",
+    "attendanceBatchFailed": "Nothing was saved. Check the volunteers you chose and try again.",
+    "applicationNotAccepted": "That volunteer was not accepted for this vacancy.",
+    "opportunityIncomplete": "Complete the required vacancy details before sending it for approval.",
+    "opportunityCannotBeSubmitted": "This vacancy cannot be sent for approval in its current state.",
+    "opportunityNotPendingApproval": "This vacancy is not waiting for an approval decision.",
+    "opportunityNotEditable": "This vacancy is locked in its current approval state.",
+    "approvalNoteRequired": "Write a note explaining the decision.",
+    "deadlinePassed": "The application deadline has already passed.",
+    "duplicateAttendanceApplication": "Each volunteer can appear only once in an attendance update."
   },
   "dashboard": {
     "title": "Dashboard",
@@ -226,11 +247,11 @@
   },
   "vacancies": {
     "title": "Vacancies",
-    "description": "Every vacancy in the product, whoever created it.",
+    "description": "The vacancies you created, from draft to archive.",
     "new": "New vacancy",
     "empty": {
       "title": "No vacancies yet",
-      "description": "Create a vacancy, or wait for a coordinator to create one."
+      "description": "Create a vacancy, publish it once its organization is verified, and applications arrive here."
     },
     "noMatches": {
       "title": "Nothing matches those filters",
@@ -239,23 +260,25 @@
     "filters": {
       "legend": "Filter vacancies",
       "search": "Search by title or address",
-      "stage": "Stage"
+      "state": "State"
     },
-    "stage": {
-      "all": "Every stage",
+    "state": {
+      "all": "Every state",
       "draft": "Draft",
-      "published": "Published",
+      "pending_review": "Waiting for approval",
+      "changes_requested": "Changes requested",
+      "approved": "Approved and published",
+      "rejected": "Rejected",
       "archived": "Archived"
     },
     "table": {
-      "caption": "Every vacancy",
+      "caption": "Vacancies you created",
       "title": "Vacancy",
       "organization": "Organization",
-      "stage": "Stage",
+      "state": "State",
       "deadline": "Applications close",
       "starts": "Starts",
-      "open": "Open",
-      "coordinator": "Coordinator"
+      "open": "Open"
     },
     "detail": {
       "eyebrow": "Vacancy",
@@ -263,10 +286,10 @@
       "description": "Description",
       "requirements": "Requirements",
       "questions": "Application questions",
-      "noQuestions": "This vacancy asks no questions of its own.",
       "details": "Details",
       "applications": "Applications to this vacancy",
-      "noApplications": "No one has applied yet."
+      "noApplications": "No one has applied yet.",
+      "questionsLegacy": "Kept from an older vacancy. A new vacancy asks nothing beyond the reusable profile."
     },
     "fields": {
       "title": "Title",
@@ -285,13 +308,17 @@
       "endsAt": "Ends",
       "applicationDeadline": "Applications close",
       "capacity": "Places",
-      "capacityHelp": "Leave empty when there is no limit.",
+      "capacityHelp": "How many volunteers this vacancy needs. At least one.",
       "requirements": "Requirements",
-      "requirementsHelp": "One requirement per line."
+      "requirementsHelp": "One requirement per line.",
+      "estimatedTotalHours": "Estimated hours",
+      "estimatedTotalHoursHelp": "Hours a volunteer earns for the whole event.",
+      "locationNameHelp": "The venue on site, or a public description of where the work happens online. Never a meeting password.",
+      "cityHelp": "Required when volunteers turn up in person."
     },
     "form": {
       "createTitle": "New vacancy",
-      "createDescription": "A new vacancy starts as a draft. Nothing is public until you publish it.",
+      "createDescription": "A new vacancy starts as a draft. An administrator approves it before any volunteer sees it.",
       "editTitle": "Edit vacancy",
       "submitCreate": "Create the draft",
       "submitUpdate": "Save changes",
@@ -300,13 +327,6 @@
       "updated": "The changes were saved.",
       "noOrganizations": "No organization is available yet, so a vacancy cannot be created. Ask an administrator to add one."
     },
-    "publish": {
-      "trigger": "Publish",
-      "title": "Publish this vacancy?",
-      "description": "Volunteers will see it and can start applying. You can archive it later.",
-      "confirm": "Publish",
-      "pending": "Publishing…"
-    },
     "archive": {
       "trigger": "Archive",
       "title": "Archive this vacancy?",
@@ -314,7 +334,60 @@
       "confirm": "Archive",
       "pending": "Archiving…"
     },
-    "archivedNotice": "This vacancy is archived. It can no longer be edited."
+    "archivedNotice": "This vacancy is archived. It can no longer be edited.",
+    "approval": {
+      "title": "Approval",
+      "description": "An administrator decides whether this vacancy reaches volunteers.",
+      "status": "State",
+      "submitted": "Sent for approval",
+      "decided": "Decided",
+      "reviewer": "Decided by",
+      "note": "Note from the administrator",
+      "noNote": "No note",
+      "notSubmitted": "Not sent yet",
+      "pendingTitle": "Waiting for an administrator",
+      "pendingDescription": "The vacancy is locked while it is reviewed. You can archive it, but not edit it.",
+      "changesTitle": "Changes were requested",
+      "changesDescription": "Edit the vacancy and send it for approval again.",
+      "rejectedTitle": "This vacancy was rejected",
+      "rejectedDescription": "It stays read-only. Create a new vacancy instead.",
+      "missingTitle": "Not ready for approval",
+      "missingDescription": "Fill these in before sending it:",
+      "requirements": {
+        "organization": "a verified organization",
+        "title": "a title",
+        "summary": "a summary",
+        "description": "a description",
+        "format": "a format",
+        "region": "a region",
+        "startsAt": "a start",
+        "endsAt": "an end",
+        "applicationDeadline": "a deadline before the start",
+        "capacity": "how many places",
+        "estimatedTotalHours": "the estimated hours",
+        "location": "where it happens"
+      }
+    },
+    "decide": {
+      "title": "Decision",
+      "description": "Approve this vacancy and publish it, send it back for changes, or reject it for good.",
+      "decision": "Decision",
+      "approve": "Approve and publish",
+      "request_changes": "Request changes",
+      "reject": "Reject permanently",
+      "note": "Note to the coordinator",
+      "noteHelp": "Required when you request changes or reject. The coordinator reads it on the vacancy.",
+      "submit": "Record the decision",
+      "pending": "Recording…",
+      "success": "The decision was recorded.",
+      "closedTitle": "Nothing to decide",
+      "closedDescription": "This vacancy is not waiting for a decision."
+    },
+    "stage": {
+      "draft": "Draft",
+      "published": "Published",
+      "archived": "Archived"
+    }
   },
   "applications": {
     "title": "Applications",
@@ -442,7 +515,7 @@
   },
   "attendance": {
     "title": "Attendance",
-    "description": "Confirm attendance and hours for any accepted volunteer.",
+    "description": "Confirm attendance and hours for volunteers you accepted.",
     "empty": {
       "title": "Nothing to confirm",
       "description": "Accepted applications appear here when their attendance is still open."
@@ -473,7 +546,35 @@
       "pending": "Saving…",
       "success": "Attendance was confirmed."
     },
-    "resolved": "Resolved {when}"
+    "resolved": "Resolved {when}",
+    "queue": {
+      "total": "{count, plural, =0 {Nothing is waiting} one {# volunteer is waiting} other {# volunteers are waiting}}",
+      "waiting": "{count, plural, one {# volunteer to confirm} other {# volunteers to confirm}}",
+      "opensAt": "Opens {when}, once the event has ended.",
+      "opensUnknown": "Opens once the event has ended.",
+      "open": "Open the vacancy",
+      "resolvedCount": "{count, plural, one {# volunteer already confirmed} other {# volunteers already confirmed}}"
+    },
+    "roster": {
+      "title": "Attendance",
+      "description": "Confirm who turned up once the event has ended.",
+      "caption": "Accepted volunteers and their attendance",
+      "noAccepted": "No volunteer has been accepted yet.",
+      "closedTitle": "Attendance is not open yet",
+      "closedDescription": "It opens when the event ends, on {when}.",
+      "closedUnknown": "It opens when the event ends.",
+      "select": "Select",
+      "selectAll": "Select every volunteer",
+      "selected": "{count, plural, =0 {No one selected} one {# selected} other {# selected}}",
+      "correct": "Correct",
+      "batchTitle": "Confirm the selected volunteers",
+      "batchHelp": "One outcome and one number of hours for everyone selected. Correct a single row afterwards.",
+      "submit": "Confirm selected",
+      "pending": "Confirming…",
+      "success": "Attendance was confirmed.",
+      "outcome": "Outcome for everyone selected",
+      "hours": "Hours for everyone selected"
+    }
   },
   "activity": {
     "title": "My activity",

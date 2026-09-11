@@ -24,9 +24,25 @@ const ERROR_CODES = [
   "deadlineAfterStart",
   "endBeforeStart",
   "capacity",
+  "estimatedHours",
+  "cityRequired",
+  "venueRequired",
+  "onlineLocationRequired",
+  "onlineLocationCredentials",
   "slugUnavailable",
   "opportunityNotFound",
   "organizationNotVerified",
+  "opportunityNotReadyForApproval",
+  "opportunityNotSubmittable",
+  "opportunityNotPending",
+  "decisionNoteRequired",
+  "opportunityIncomplete",
+  "opportunityCannotBeSubmitted",
+  "opportunityNotPendingApproval",
+  "opportunityNotEditable",
+  "approvalNoteRequired",
+  "deadlinePassed",
+  "duplicateAttendanceApplication",
 ] as const;
 
 export async function errorCatalog(
@@ -60,6 +76,7 @@ export async function vacancyFormLabels(
       endsAt: t("fields.endsAt"),
       applicationDeadline: t("fields.applicationDeadline"),
       capacity: t("fields.capacity"),
+      estimatedTotalHours: t("fields.estimatedTotalHours"),
       requirements: t("fields.requirements"),
     },
     help: {
@@ -67,6 +84,9 @@ export async function vacancyFormLabels(
       summary: t("fields.summaryHelp"),
       organizationId: t("fields.organizationHelp"),
       capacity: t("fields.capacityHelp"),
+      estimatedTotalHours: t("fields.estimatedTotalHoursHelp"),
+      locationName: t("fields.locationNameHelp"),
+      city: t("fields.cityHelp"),
       requirements: t("fields.requirementsHelp"),
     },
     regions: Object.fromEntries(

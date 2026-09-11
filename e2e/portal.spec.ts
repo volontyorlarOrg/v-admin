@@ -246,94 +246,125 @@ test.describe("an administrator sees everything", () => {
   });
 });
 
-test.describe("the vacancy lifecycle", () => {
-  test("creates a draft, publishes it, then archives it", async ({ page }) => {
-    await signedIn(page);
-    await page.goto("/en/vacancies/new");
+test.describe("the vacancy approval workflow", () => {
+  const PENDING = "00000000-0000-4000-8000-000000000405";
+  const APPROVED = "00000000-0000-4000-8000-000000000401";
 
-    await page.getByLabel("Title").fill("Library shelving day");
-    await page.getByLabel("Address").fill("library-shelving-day");
-    await page.getByLabel("Summary", { exact: true }).fill("Shelve returned books.");
-    await page.getByLabel("Description").fill("A morning of sorting and shelving.");
-    await page
-      .getByLabel("Organization")
-      .selectOption({ label: "Chilonzor Reading Corners" });
+  async function fillDraft(
+    page: Page,
+    title: string,
+    slug: string,
+    organization: string,
+  ) {
+    await page.getByLabel("Title").fill(title);
+    await page.getByLabel("Address").fill(slug);
+    await page.getByLabel("Summary", { exact: true }).fill(`${title} summary`);
+    await page.getByLabel("Description").fill(`${title} description`);
+    await page.getByLabel("Organization").selectOption({ label: organization });
+    await page.getByLabel("City", { exact: true }).fill("Tashkent");
+    await page.getByLabel("Place", { exact: true }).fill("Chilonzor library");
+    await page.getByLabel("Places", { exact: true }).fill("12");
+    await page.getByLabel("Estimated hours").fill("6");
     await page.getByLabel("Starts").fill("2026-11-01T09:00");
+    await page.getByLabel("Ends").fill("2026-11-01T15:00");
     await page.getByLabel("Applications close").fill("2026-10-20T18:00");
-    await page.getByRole("button", { name: "Create the draft" }).click();
+  }
 
-    await expect(formMessage(page)).toContainText("draft was created");
+  test("filters the list down to what is waiting for approval", async ({ page }) => {
+    await signedIn(page);
+    await page.goto("/en/vacancies?state=pending_review");
 
-    await page.goto("/en/vacancies?stage=draft");
-    await page
-      .getByRole("row", { name: /Library shelving day/ })
-      .getByRole("link", { name: "Open" })
-      .click();
-
-    await expect(page.getByRole("heading", { level: 1 })).toContainText(
-      "Library shelving day",
-    );
-
-    await page.getByRole("button", { name: "Publish", exact: true }).click();
-    await page
-      .getByRole("alertdialog")
-      .getByRole("button", { name: "Publish", exact: true })
-      .click();
-    await expect(page.getByText("Published", { exact: true }).first()).toBeVisible();
-
-    await page.getByRole("button", { name: "Archive", exact: true }).click();
-    await page
-      .getByRole("alertdialog")
-      .getByRole("button", { name: "Archive", exact: true })
-      .click();
-    await expect(page.getByText("This vacancy is archived")).toBeVisible();
+    await expect(
+      page.getByRole("row", { name: /Winter clothing drive/ }),
+    ).toHaveCount(1);
+    await expect(page.getByRole("row", { name: /Winter book drive/ })).toHaveCount(0);
   });
 
-  test("refuses to publish under an unverified organization", async ({ page }) => {
+  test("approves a pending vacancy and publishes it", async ({ page }) => {
     await signedIn(page);
-    await page.goto("/en/vacancies/new");
+    await page.goto(`/en/vacancies/${PENDING}`);
 
-    await page.getByLabel("Title").fill("Riverbank clean-up");
-    await page.getByLabel("Address").fill("riverbank-clean-up");
-    await page.getByLabel("Summary", { exact: true }).fill("Clear the riverbank.");
-    await page.getByLabel("Description").fill("Gloves are provided.");
+    await page.getByLabel("Decision").selectOption("approve");
+    await page.getByRole("button", { name: "Record the decision" }).click();
+
+    await expect(formMessage(page).first()).toContainText("decision was recorded");
+    await page.reload();
+    await expect(page.getByText("Approved and published").first()).toBeVisible();
+  });
+
+  test("refuses to request changes without a note", async ({ page }) => {
+    await signedIn(page);
+    await page.goto(`/en/vacancies/${PENDING}`);
+
+    await page.getByLabel("Decision").selectOption("request_changes");
+    await page.getByRole("button", { name: "Record the decision" }).click();
+
+    await expect(fieldError(page).first()).toContainText("Write a note");
+  });
+
+  test("sends a vacancy back for changes with a note the coordinator reads", async ({
+    page,
+  }) => {
+    await signedIn(page);
+    await page.goto(`/en/vacancies/${PENDING}`);
+
+    await page.getByLabel("Decision").selectOption("request_changes");
+    await page.getByLabel("Note to the coordinator").fill("Name the venue, please.");
+    await page.getByRole("button", { name: "Record the decision" }).click();
+
+    await expect(formMessage(page).first()).toContainText("decision was recorded");
+    await page.reload();
+    await expect(page.getByText("Changes requested").first()).toBeVisible();
+    await expect(statePanel(page).first()).toContainText("Name the venue");
+  });
+
+  test("rejects a vacancy permanently with a note", async ({ page }) => {
+    await signedIn(page);
+    await page.goto(`/en/vacancies/${PENDING}`);
+
+    await page.getByLabel("Decision").selectOption("reject");
     await page
-      .getByLabel("Organization")
-      .selectOption({ label: "Green Corridor Group" });
-    await page.getByLabel("Starts").fill("2026-11-01T09:00");
-    await page.getByLabel("Applications close").fill("2026-10-20T18:00");
-    await page.getByRole("button", { name: "Create the draft" }).click();
-    await expect(formMessage(page)).toContainText("draft was created");
+      .getByLabel("Note to the coordinator")
+      .fill("Not suitable for school volunteers.");
+    await page.getByRole("button", { name: "Record the decision" }).click();
 
-    await page.goto("/en/vacancies?q=riverbank");
-    await page.getByRole("link", { name: "Open" }).first().click();
-    await page.getByRole("button", { name: "Publish", exact: true }).click();
-    await page
-      .getByRole("alertdialog")
-      .getByRole("button", { name: "Publish", exact: true })
-      .click();
+    await expect(formMessage(page).first()).toContainText("decision was recorded");
+    await page.reload();
+    await expect(statePanel(page).first()).toContainText("was rejected");
+    await expect(page.getByLabel("Decision")).toHaveCount(0);
+  });
 
-    await expect(formMessage(page)).toContainText("organization is verified");
+  test("offers no decision on a vacancy that is already approved", async ({ page }) => {
+    await signedIn(page);
+    await page.goto(`/en/vacancies/${APPROVED}`);
+
+    await expect(page.getByText("Nothing to decide")).toBeVisible();
+    await expect(page.getByLabel("Decision")).toHaveCount(0);
   });
 
   test("rejects a deadline that falls after the vacancy starts", async ({ page }) => {
     await signedIn(page);
     await page.goto("/en/vacancies/new");
 
-    await page.getByLabel("Title").fill("Late deadline");
-    await page.getByLabel("Address").fill("late-deadline");
-    await page.getByLabel("Summary", { exact: true }).fill("Summary");
-    await page.getByLabel("Description").fill("Description");
-    await page
-      .getByLabel("Organization")
-      .selectOption({ label: "Chilonzor Reading Corners" });
-    await page.getByLabel("Starts").fill("2026-11-01T09:00");
+    await fillDraft(page, "Late deadline", "late-deadline", "Chilonzor Reading Corners");
     await page.getByLabel("Applications close").fill("2026-11-05T18:00");
     await page.getByRole("button", { name: "Create the draft" }).click();
 
     await expect(fieldError(page)).toContainText(
       "deadline must fall before the vacancy starts",
     );
+  });
+
+  test("refuses meeting credentials in the public online location", async ({ page }) => {
+    await signedIn(page);
+    await page.goto("/en/vacancies/new");
+
+    await fillDraft(page, "Remote help", "remote-help", "Chilonzor Reading Corners");
+    await page.getByLabel("Format").selectOption("remote");
+    await page.getByLabel("Place", { exact: true }).fill("Zoom, passcode 4821");
+    await page.getByRole("button", { name: "Create the draft" }).click();
+
+    await expect(fieldError(page)).toContainText("Remove the meeting password");
   });
 });
 
@@ -353,21 +384,61 @@ test.describe("review and attendance", () => {
     await expect(formMessage(page)).toContainText("decision was recorded");
   });
 
-  test("confirms attendance with hours, and refuses hours-free attendance", async ({
+  test("groups unresolved attendance by vacancy and links to the vacancy", async ({
     page,
   }) => {
     await signedIn(page);
     await page.goto("/en/attendance");
 
-    await expect(page.getByRole("heading", { level: 2 }).first()).toBeVisible();
+    await expect(
+      page.getByRole("heading", { level: 2, name: "Winter book drive" }),
+    ).toBeVisible();
+    await page.getByRole("link", { name: "Open the vacancy" }).first().click();
 
-    await page.getByLabel("Outcome").first().selectOption("attended");
-    await page.getByRole("button", { name: "Save the decision" }).first().click();
-    await expect(fieldError(page).first()).toContainText("Enter the hours");
+    await expect(page).toHaveURL(/\/en\/vacancies\/[0-9a-f-]+$/);
+  });
 
-    await page.getByLabel("Confirmed hours").first().fill("4");
-    await page.getByRole("button", { name: "Save the decision" }).first().click();
-    await expect(formMessage(page).first()).toContainText("Attendance was confirmed");
+  test("confirms a batch of accepted volunteers, then corrects one row", async ({
+    page,
+  }) => {
+    await signedIn(page);
+    await page.goto("/en/vacancies/00000000-0000-4000-8000-000000000401");
+
+    const roster = page
+      .locator("section")
+      .filter({ hasText: "Confirm the selected volunteers" })
+      .first();
+    await expect(roster.getByRole("button", { name: "Confirm selected" })).toBeVisible();
+
+    await roster.getByLabel("Outcome for everyone selected").selectOption("attended");
+    await roster.getByRole("button", { name: "Confirm selected" }).click();
+    await expect(roster.locator('[data-slot="field-error"]').first()).toContainText(
+      "Enter the hours",
+    );
+
+    await roster.getByLabel("Hours for everyone selected").fill("4");
+    await roster.getByRole("button", { name: "Confirm selected" }).click();
+    await expect(roster.locator('[data-slot="form-message"]').first()).toContainText(
+      "Attendance was confirmed",
+    );
+
+    await page.reload();
+    await expect(roster.getByText("Attended").first()).toBeVisible();
+
+    await roster.locator("summary").first().click();
+    await roster.getByLabel("Outcome", { exact: true }).first().selectOption("excused");
+    await roster.getByRole("button", { name: "Save the decision" }).first().click();
+    await expect(roster.locator('[data-slot="form-message"]').first()).toContainText(
+      "Attendance was confirmed",
+    );
+  });
+
+  test("keeps attendance shut until the event has ended", async ({ page }) => {
+    await signedIn(page);
+    await page.goto("/en/vacancies/00000000-0000-4000-8000-000000000402");
+
+    await expect(statePanel(page).last()).toContainText("Attendance is not open yet");
+    await expect(page.getByRole("button", { name: "Confirm selected" })).toHaveCount(0);
   });
 });
 

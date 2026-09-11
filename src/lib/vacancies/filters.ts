@@ -1,9 +1,10 @@
 import type { Vacancy } from "@/lib/api/schemas";
-import { stageOf, type VacancyStage } from "@/lib/domain/vocabulary";
+import type { VacancyState } from "@/lib/domain/vocabulary";
+import { vacancyStateOf } from "@/lib/vacancies/approval";
 
 export type VacancyFilters = {
   q?: string;
-  stage?: VacancyStage;
+  state?: VacancyState;
 };
 
 function sortByCreated(vacancies: Vacancy[]): Vacancy[] {
@@ -14,15 +15,21 @@ function sortByCreated(vacancies: Vacancy[]): Vacancy[] {
 
 export function filterVacancies(
   vacancies: Vacancy[],
-  { q, stage }: VacancyFilters,
+  { q, state }: VacancyFilters,
 ): Vacancy[] {
   const term = q?.trim().toLowerCase() ?? "";
 
   return sortByCreated(vacancies).filter((vacancy) => {
-    if (stage && stageOf(vacancy) !== stage) return false;
+    if (state && vacancyStateOf(vacancy) !== state) return false;
     if (!term) return true;
     return `${vacancy.title} ${vacancy.summary} ${vacancy.slug}`
       .toLowerCase()
       .includes(term);
   });
+}
+
+export function awaitingDecision(vacancies: Vacancy[]): Vacancy[] {
+  return sortByCreated(vacancies).filter(
+    (vacancy) => vacancyStateOf(vacancy) === "pending_review",
+  );
 }

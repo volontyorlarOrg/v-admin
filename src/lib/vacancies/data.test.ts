@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { filterVacancies } from "@/lib/vacancies/filters";
+import { awaitingDecision, filterVacancies } from "@/lib/vacancies/filters";
 import type { Vacancy } from "@/lib/api/schemas";
 
 function vacancy(overrides: Partial<Vacancy> & { id: string }): Vacancy {
@@ -42,6 +42,14 @@ const archived = vacancy({
   createdAt: "2026-09-01T00:00:00.000Z",
 });
 
+const waiting = vacancy({
+  id: "d",
+  title: "Sports day",
+  approvalStatus: "pending_review",
+  approvalSubmittedAt: "2026-09-04T00:00:00.000Z",
+  createdAt: "2026-09-04T00:00:00.000Z",
+});
+
 const all = [published, archived, draft];
 
 describe("filterVacancies", () => {
@@ -49,16 +57,21 @@ describe("filterVacancies", () => {
     expect(filterVacancies(all, {}).map((item) => item.id)).toEqual(["a", "b", "c"]);
   });
 
-  it("filters by lifecycle stage", () => {
-    expect(filterVacancies(all, { stage: "draft" }).map((item) => item.id)).toEqual([
+  it("filters by the state the approval workflow puts a vacancy in", () => {
+    expect(filterVacancies(all, { state: "draft" }).map((item) => item.id)).toEqual([
       "a",
     ]);
-    expect(filterVacancies(all, { stage: "published" }).map((item) => item.id)).toEqual(
-      ["b"],
-    );
-    expect(filterVacancies(all, { stage: "archived" }).map((item) => item.id)).toEqual([
+    expect(filterVacancies(all, { state: "approved" }).map((item) => item.id)).toEqual([
+      "b",
+    ]);
+    expect(filterVacancies(all, { state: "archived" }).map((item) => item.id)).toEqual([
       "c",
     ]);
+    expect(
+      filterVacancies([...all, waiting], { state: "pending_review" }).map(
+        (item) => item.id,
+      ),
+    ).toEqual(["d"]);
   });
 
   it("searches the title, summary and slug case-insensitively", () => {
@@ -71,7 +84,13 @@ describe("filterVacancies", () => {
     expect(filterVacancies(all, { q: "   " })).toHaveLength(3);
   });
 
-  it("combines a search with a stage", () => {
-    expect(filterVacancies(all, { q: "room", stage: "draft" })).toEqual([]);
+  it("combines a search with a state", () => {
+    expect(filterVacancies(all, { q: "room", state: "draft" })).toEqual([]);
+  });
+});
+
+describe("awaitingDecision", () => {
+  it("keeps only what an administrator still has to decide", () => {
+    expect(awaitingDecision([...all, waiting]).map((item) => item.id)).toEqual(["d"]);
   });
 });
