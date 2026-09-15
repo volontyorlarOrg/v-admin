@@ -13,20 +13,19 @@ history.
 
 ```bash
 npm ci
-cp .env.example .env.local
-openssl rand -base64 48   # paste as VOLONTYORLAR_ADMIN_SESSION_SECRET
-npm run dev
+npm run dev:local
 ```
 
-http://localhost:3003 redirects to `/uz/login`. Set `VOLONTYORLAR_API_URL` to a
-running `v-backend`, or set `VOLONTYORLAR_FIXTURES=on` to work against the
-labelled development dataset instead.
+http://localhost:3003 redirects to `/uz/login`. The local command loads the
+shared real-API configuration and keeps fixtures off. Use `npm run dev` with an
+ignored `.env.local` for a standalone setup or fixture work.
 
 ## Commands
 
 | Command             | What it does                                    |
 | ------------------- | ----------------------------------------------- |
 | `npm run dev`       | Turbopack development server on port 3003       |
+| `npm run dev:local` | Server with the shared real-API local config    |
 | `npm run build`     | Production build                                |
 | `npm run start`     | Serve an existing production build on port 3003 |
 | `npm run lint`      | ESLint                                          |
