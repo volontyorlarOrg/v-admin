@@ -8,13 +8,14 @@ Node.js 22.13 or newer, npm, and either a running `v-backend` or fixture mode.
 
 ```bash
 npm ci
-cp .env.example .env.local
-openssl rand -base64 48        # paste into the session secret in .env.local
-npm run dev
+npm run dev:local
 ```
 
 There is no database and no service to start here. Everything comes from
-`v-backend`.
+`v-backend`. `npm run dev:local` loads `../env/local/admin.local.env`, disables
+fixtures, and uses the local backend backed by the separate development Neon
+branch. Run `npm run dev` when intentionally maintaining a standalone ignored
+`.env.local` instead.
 
 ## Working without the backend
 
@@ -32,6 +33,7 @@ on the sign-in page. Fixture mode is refused when `NODE_ENV=production`.
 | Command             | What it does                                   |
 | ------------------- | ---------------------------------------------- |
 | `npm run dev`       | Turbopack development server                   |
+| `npm run dev:local` | Shared real-API local server                   |
 | `npm run build`     | Production build                               |
 | `npm run start`     | Serve an existing production build             |
 | `npm run lint`      | ESLint                                         |
