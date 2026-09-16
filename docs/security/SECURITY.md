@@ -11,8 +11,13 @@ scopes the query.
 ## The session cookie
 
 - Encrypted, not signed: `jose` `EncryptJWT` with `dir` / `A256GCM`. The payload
-  — both tokens included — is unreadable without the secret.
-- `httpOnly`, `sameSite=strict`, `secure` in production, `path=/`, two days.
+  — the session token included — is unreadable without the secret.
+- `httpOnly`, `sameSite=strict`, `secure` in production, `path=/`, two days —
+  the same two days as the token it carries, from the backend's
+  `MANAGEMENT_SESSION_TTL_SECONDS`. An account that can act on other people's
+  data is trusted for less time than a volunteer's three days, and the two
+  lifetimes are kept equal on purpose: a cookie outliving its token would only
+  leave an administrator looking signed in while every request came back 401.
 - The key is derived from `SHA-256(portal-id + secret)`, so even two portals
   configured with the same secret by mistake cannot decrypt each other's cookie.
 - The payload carries `portal`, and `decryptSession` rejects a cookie whose
@@ -22,10 +27,17 @@ scopes the query.
 
 ## Tokens
 
-The access and refresh tokens exist in three places only: the encrypted cookie,
-the server-only API client, and `v-backend`. They never reach a Client
-Component, `localStorage`, `sessionStorage`, a URL, or the HTML. An end-to-end
-test asserts all of that on a signed-in page.
+A sign-in issues one token and nothing else. It exists in three places only:
+the encrypted cookie, the server-only API client, and `v-backend`. It never
+reaches a Client Component, `localStorage`, `sessionStorage`, a URL, or the
+HTML. An end-to-end test asserts all of that on a signed-in page.
+
+Nothing is renewed. When the three days are up, `src/proxy.ts` clears the
+cookie and returns to `/{locale}/login?session=expired`, and a `401` from the
+backend — the token expired, or its session revoked by a sign-out — fails the
+write with `sessionExpired`. Signing out revokes the session at the backend, so
+the token stops working at once rather than staying good for the rest of its
+three days.
 
 `src/lib/api/client.server.ts` and every `*.server.ts` module import
 `server-only`, so a client bundle that reached for one would fail the build.

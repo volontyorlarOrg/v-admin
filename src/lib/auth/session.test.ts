@@ -8,12 +8,12 @@ import {
   isAccessTokenExpiring,
   isSessionStatus,
   issuedSessionSchema,
-  SESSION_MAX_AGE_SECONDS,
   safeReturnPath,
+  SESSION_MAX_AGE_SECONDS,
   sessionCookieOptions,
+  type SessionPayload,
   toPublicSession,
   toSessionPayload,
-  type SessionPayload,
 } from "@/lib/auth/session";
 import { PORTAL_ID, PORTAL_ROLE, SESSION_SECRET_VARIABLE } from "@/lib/portal";
 
@@ -98,6 +98,19 @@ describe("the session cookie", () => {
       maxAge: 60 * 60 * 24 * 2,
     });
     expect(SESSION_MAX_AGE_SECONDS).toBe(60 * 60 * 24 * 2);
+  });
+
+  it("stores no refresh token, even when a backend still sends one", () => {
+    expect(
+      toSessionPayload(
+        issuedSessionSchema.parse({
+          userId: "u1",
+          accessToken: "a",
+          refreshToken: "r",
+          roles: ["coordinator", "admin"],
+        }),
+      ),
+    ).not.toHaveProperty("refreshToken");
   });
 });
 
