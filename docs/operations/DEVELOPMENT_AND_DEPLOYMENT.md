@@ -8,14 +8,14 @@ Node.js 22.13 or newer, npm, and either a running `v-backend` or fixture mode.
 
 ```bash
 npm ci
-npm run dev:local
+npm run dev
 ```
 
 There is no database and no service to start here. Everything comes from
-`v-backend`. `npm run dev:local` loads `../env/local/admin.local.env`, disables
-fixtures, and uses the local backend backed by the separate development Neon
-branch. Run `npm run dev` when intentionally maintaining a standalone ignored
-`.env.local` instead.
+`v-backend`. `npm run dev` loads `../env/local/admin.local.env`, disables
+fixtures, binds to `127.0.0.1`, and uses the local backend backed by the
+separate development database. `npm run dev:standalone` is available only for
+an intentionally maintained ignored `.env.local`.
 
 ## Working without the backend
 
@@ -30,18 +30,19 @@ on the sign-in page. Fixture mode is refused when `NODE_ENV=production`.
 
 ## Commands
 
-| Command             | What it does                                   |
-| ------------------- | ---------------------------------------------- |
-| `npm run dev`       | Turbopack development server                   |
-| `npm run dev:local` | Shared real-API local server                   |
-| `npm run build`     | Production build                               |
-| `npm run start`     | Serve an existing production build             |
-| `npm run lint`      | ESLint                                         |
-| `npm run typecheck` | `next typegen && tsc --noEmit`                 |
-| `npm run test`      | Vitest — units and components                  |
-| `npm run test:e2e`  | Playwright, against the stub backend in `e2e/` |
-| `npm run api:types` | Regenerate the API types from `v-backend`      |
-| `npm run check`     | lint + typecheck + test                        |
+| Command                             | What it does                                   |
+| ----------------------------------- | ---------------------------------------------- |
+| `npm run dev` / `npm run dev:local` | Shared real-API local server                   |
+| `npm run dev:webpack`               | Shared real-API Webpack fallback               |
+| `npm run dev:standalone`            | Raw `.env.local` local server                  |
+| `npm run build`                     | Production build                               |
+| `npm run start`                     | Serve an existing production build             |
+| `npm run lint`                      | ESLint                                         |
+| `npm run typecheck`                 | `next typegen && tsc --noEmit`                 |
+| `npm run test`                      | Vitest — units and components                  |
+| `npm run test:e2e`                  | Playwright, against the stub backend in `e2e/` |
+| `npm run api:types`                 | Regenerate the API types from `v-backend`      |
+| `npm run check`                     | lint + typecheck + test                        |
 
 ## Ports
 
