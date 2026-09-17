@@ -59,13 +59,14 @@ side: `v-staff` on 3602/3603 and `v-admin` on 3702/3703. Override with
 
 ## Environment
 
-| Variable                            | Where       | Purpose                                                  |
-| ----------------------------------- | ----------- | -------------------------------------------------------- |
-| `NEXT_PUBLIC_PORTAL_URL`            | browser     | This portal's origin. Decides `secure` cookies and HSTS. |
-| `VOLONTYORLAR_API_URL`              | server only | `v-backend`'s origin.                                    |
-| `VOLONTYORLAR_STAFF_SESSION_SECRET` | server only | The coordinator portal's cookie key, 32+ characters.     |
-| `VOLONTYORLAR_ADMIN_SESSION_SECRET` | server only | The administrator portal's cookie key, 32+ characters.   |
-| `VOLONTYORLAR_FIXTURES`             | server only | `on` for development fixtures. Inert in production.      |
+| Variable                            | Where       | Purpose                                                    |
+| ----------------------------------- | ----------- | ---------------------------------------------------------- |
+| `NEXT_PUBLIC_PORTAL_URL`            | browser     | This portal's origin. Decides `secure` cookies and HSTS.   |
+| `VOLONTYORLAR_API_URL`              | server only | `v-backend`'s origin.                                      |
+| `VOLONTYORLAR_STAFF_SESSION_SECRET` | server only | The coordinator portal's cookie key, 32+ characters.       |
+| `VOLONTYORLAR_ADMIN_SESSION_SECRET` | server only | The administrator portal's cookie key, 32+ characters.     |
+| `VOLONTYORLAR_PROXY_SECRET`         | server only | Equals backend `FRONTEND_PROXY_SECRET`; per-visitor limit. |
+| `VOLONTYORLAR_FIXTURES`             | server only | `on` for development fixtures. Inert in production.        |
 
 Each portal reads only its own secret. They must differ from each other and from
 the volunteer application's.

@@ -1,6 +1,7 @@
 import { rawSessionSecret } from "@/lib/portal";
 
 const MINIMUM_SESSION_SECRET_LENGTH = 32;
+const MINIMUM_PROXY_SECRET_LENGTH = 32;
 
 export const AUTH_ROUTE_MAX_DURATION_SECONDS = 60;
 export const AUTH_REQUEST_TIMEOUT_MS = 55_000;
@@ -21,6 +22,11 @@ export function apiBaseUrl(): string | null {
 export function sessionSecret(): string | null {
   const value = rawSessionSecret()?.trim();
   return value && value.length >= MINIMUM_SESSION_SECRET_LENGTH ? value : null;
+}
+
+export function proxySecret(): string | null {
+  const value = process.env.VOLONTYORLAR_PROXY_SECRET?.trim();
+  return value && value.length >= MINIMUM_PROXY_SECRET_LENGTH ? value : null;
 }
 
 export function isProduction(): boolean {
