@@ -62,10 +62,14 @@ export async function PortalShell({
             className="-m-1 hidden min-w-0 rounded-lg p-1 sm:block"
             aria-label={t("portalName")}
           >
-            <BrandLockup name={t("organizationName")} portal={t("portalName")} />
+            <BrandLockup
+              name={t("organizationName")}
+              portal={t("portalName")}
+              condensed
+            />
           </Link>
 
-          <div className="ml-auto flex items-center gap-2">
+          <div className="ml-auto flex min-w-0 items-center gap-2">
             <p className="hidden max-w-40 truncate text-sm font-medium text-ink-muted sm:block">
               {session.displayName ?? t("signedIn")}
             </p>

@@ -8,7 +8,7 @@ The design brief is therefore density, legibility and a complete set of states â
 not delight.
 
 It takes its brand from the Volontyorlar design system already in `../v-web` and
-`../v-app`: the same mark, the same two brand colours with the same roles, the
+`../v-app`: the same logo, the same two brand colours with the same roles, the
 same typeface, the same semantic tokens. What it drops is the whiteboard ground,
 the display serif and the entry motion. A table of applications does not need
 a hero.
@@ -18,12 +18,14 @@ a hero.
 Two brand colours, each with one job, exactly as in the volunteer application:
 
 - **Blue is the institution.** Navigation, structure, chips for a system state,
-  primary actions, the mark.
+  primary actions.
 - **Orange is the person.** An accepted application, a confirmed attendance,
   confirmed hours â€” what a volunteer earned.
 
-Blue and orange sit 1.25:1 apart and are never combined. Each has a graphics
-value and a text value; solid fills use `action` and `band`, never `primary-ink`.
+Blue and orange sit 1.25:1 apart and are never combined. The one exception is
+the logo, whose orange heart the logo kit draws as its own shape beside the
+blue. Each has a graphics value and a text value; solid fills use `action` and
+`band`, never `primary-ink`.
 
 **One colour is added here that the volunteer application does not define:**
 `danger` `#B3261E`. This portal blocks, removes and replaces passwords, and a
@@ -35,6 +37,23 @@ orange means achievement, and it stops meaning that the moment it also means
 operator must not miss. It is never a decoration.
 
 Use semantic tokens, never a literal hex.
+
+## Logo
+
+The logo is the Volontyorlar web logo kit, drawn inline by
+`src/components/brand/logo.tsx` from the kit's paths in `logo-paths.ts`, with
+the same `BrandIcon` and `BrandWordmark` as `../v-web` and `../v-app`;
+`../v-web/docs/brand/BRAND_ASSETS.md` is the authority. `BrandLockup` is the kit's icon and wordmark, sized from one
+variable (`--logo: 2.65rem`) so the wordmark stays above the kit's 120px
+minimum, followed by a hairline and the portal's name. The wordmark is blue in
+the light theme and white in the dark, and the heart is always orange.
+
+The header is crowded between the small and large breakpoints, so the shell
+passes `condensed`: the icon alone until the large breakpoint, then the whole
+lockup with the portal's name. The sign-in header has room, so it shows the
+icon and wordmark at every width and adds the portal's name from the small
+breakpoint. The favicon, SVG icon and Apple touch icon in `src/app/` are the
+kit's own files.
 
 ## Type
 

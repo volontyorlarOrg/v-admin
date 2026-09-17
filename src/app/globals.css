@@ -27,6 +27,10 @@
   --color-accent: #e85d30;
   --color-accent-ink: #b34917;
 
+  --color-logo-blue: #007fc2;
+  --color-logo-orange: #e85d30;
+  --color-logo-word: #007fc2;
+
   --color-danger: #b3261e;
   --color-danger-ink: #8f1e18;
   --color-danger-muted: #f7e3e2;
@@ -107,6 +111,7 @@
     --color-band-copy: #a9cfea;
 
     --color-accent-ink: #f08a55;
+    --color-logo-word: #ffffff;
 
     --color-danger: #e4655c;
     --color-danger-ink: #f08a83;
