@@ -6,9 +6,10 @@
     "node": ">=22.13.0"
   },
   "scripts": {
-    "dev": "next dev --turbopack -p 3003",
-    "dev:local": "node scripts/dev-local.mjs ../env/local/admin.local.env 3003",
-    "dev:webpack": "next dev --webpack -p 3003",
+    "dev": "node scripts/dev-local.mjs ../env/local/admin.local.env 3003 --turbopack",
+    "dev:local": "npm run dev",
+    "dev:webpack": "node scripts/dev-local.mjs ../env/local/admin.local.env 3003 --webpack",
+    "dev:standalone": "next dev --turbopack -H 127.0.0.1 -p 3003",
     "build": "next build --webpack",
     "start": "next start -p 3003",
     "lint": "eslint",
