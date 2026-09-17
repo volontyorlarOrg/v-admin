@@ -1,11 +1,14 @@
 import "server-only";
 
+import { headers } from "next/headers";
+import { unstable_rethrow } from "next/navigation";
 import createClient, { type Client, type Middleware } from "openapi-fetch";
 import type { z } from "zod";
 
 import { ApiError, classifyApiError, codeForStatus } from "@/lib/api/errors";
 import type { paths } from "@/lib/api/generated/schema";
-import { apiBaseUrl } from "@/lib/auth/config";
+import { visitorHeaders } from "@/lib/api/visitor";
+import { apiBaseUrl, proxySecret } from "@/lib/auth/config";
 
 const DEFAULT_TIMEOUT_MS = 30_000;
 const REQUEST_ID_HEADER = "X-Request-Id";
@@ -112,6 +115,17 @@ function requestSignal(
   return signal ? AbortSignal.any([signal, timeout]) : timeout;
 }
 
+async function forwardedVisitor(): Promise<Record<string, string>> {
+  const secret = proxySecret();
+  if (!secret) return {};
+  try {
+    return visitorHeaders(secret, await headers());
+  } catch (error) {
+    unstable_rethrow(error);
+    return {};
+  }
+}
+
 function logFailure(method: string, path: string, error: ApiError) {
   console.error(
     `[api] ${method} ${path} -> ${error.code}` +
@@ -143,6 +157,10 @@ export async function api<TSchema extends z.ZodType | undefined = undefined>(
   }
 
   const request = clientFor(baseUrl).request as unknown as RawRequest;
+  const outgoingHeaders = {
+    ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+    ...(await forwardedVisitor()),
+  };
   let data: unknown;
   let response: Response;
 
@@ -150,7 +168,7 @@ export async function api<TSchema extends z.ZodType | undefined = undefined>(
     ({ data, response } = await request(method, path, {
       params: { query: cleanQuery(query) },
       body,
-      headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+      headers: outgoingHeaders,
       signal: requestSignal(signal, timeoutMs),
       parseAs: "text",
       fetch: (outgoing: Request) => fetch(outgoing, { cache: "no-store" }),

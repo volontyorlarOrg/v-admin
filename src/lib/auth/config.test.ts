@@ -5,6 +5,7 @@ import {
   fixtureModeEnabled,
   isAuthConfigured,
   isSecureCookieTransport,
+  proxySecret,
   sessionSecret,
 } from "@/lib/auth/config";
 import { SESSION_SECRET_VARIABLE } from "@/lib/portal";
@@ -90,5 +91,22 @@ describe("isSecureCookieTransport", () => {
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("NEXT_PUBLIC_PORTAL_URL", "http://127.0.0.1:3002");
     expect(isSecureCookieTransport()).toBe(false);
+  });
+});
+
+describe("proxySecret", () => {
+  it("returns the shared secret the backend uses to trust a visitor address", () => {
+    vi.stubEnv(
+      "VOLONTYORLAR_PROXY_SECRET",
+      "  frontend-proxy-secret-value-at-least-32-characters ",
+    );
+    expect(proxySecret()).toBe("frontend-proxy-secret-value-at-least-32-characters");
+  });
+
+  it("stays off while the secret is missing or too short to trust", () => {
+    for (const value of ["", "short-secret"]) {
+      vi.stubEnv("VOLONTYORLAR_PROXY_SECRET", value);
+      expect(proxySecret(), value).toBeNull();
+    }
   });
 });
