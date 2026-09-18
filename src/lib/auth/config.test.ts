@@ -2,7 +2,6 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   apiBaseUrl,
-  fixtureModeEnabled,
   isAuthConfigured,
   isSecureCookieTransport,
   proxySecret,
@@ -53,25 +52,6 @@ describe("isAuthConfigured", () => {
 
     vi.stubEnv(SESSION_SECRET_VARIABLE, LONG_ENOUGH);
     expect(isAuthConfigured()).toBe(true);
-  });
-});
-
-describe("fixtureModeEnabled", () => {
-  it("is off unless explicitly turned on", () => {
-    vi.stubEnv("VOLONTYORLAR_FIXTURES", "");
-    expect(fixtureModeEnabled()).toBe(false);
-  });
-
-  it("is refused in production even when the variable is set", () => {
-    vi.stubEnv("VOLONTYORLAR_FIXTURES", "on");
-    vi.stubEnv("NODE_ENV", "production");
-    expect(fixtureModeEnabled()).toBe(false);
-  });
-
-  it("is on in development when the variable says so", () => {
-    vi.stubEnv("VOLONTYORLAR_FIXTURES", "on");
-    vi.stubEnv("NODE_ENV", "development");
-    expect(fixtureModeEnabled()).toBe(true);
   });
 });
 

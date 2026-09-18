@@ -787,7 +787,7 @@ const server = createServer(async (request, response) => {
   }
 
   const vacancyMatch =
-    /^\/(staff|admin)\/opportunities\/([^/]+)(?:\/(submit-for-approval|approve|request-changes|reject|archive|attendance))?$/.exec(
+    /^\/(staff|admin)\/opportunities\/([^/]+)(?:\/(submit-for-approval|publish|approve|request-changes|reject|archive|attendance))?$/.exec(
       path,
     );
   if (vacancyMatch) {
@@ -795,7 +795,7 @@ const server = createServer(async (request, response) => {
     const item = ownedVacancies(actor).find((candidate) => candidate.id === id);
     if (!item) return send(response, 404, { code: "opportunityNotFound" });
 
-    const decisions = ["approve", "request-changes", "reject"];
+    const decisions = ["publish", "approve", "request-changes", "reject"];
     if (decisions.includes(verb) && (scope !== "admin" || !isAdmin(actor))) {
       return send(response, 403, { code: "forbidden" });
     }
@@ -845,6 +845,29 @@ const server = createServer(async (request, response) => {
       item.archivedAt = null;
       item.updatedAt = decidedAt;
       record("opportunity.approved", "Opportunity", item.id, actor.id);
+      return send(response, 201, item);
+    }
+    if (verb === "publish" && method === "POST") {
+      const approval = approvalOf(item);
+      if (
+        item.archivedAt ||
+        !["draft", "changes_requested", "pending_review"].includes(approval)
+      ) {
+        return send(response, 409, { code: "opportunityCannotBePublished" });
+      }
+      const refusal = approvalRefusal(item);
+      if (refusal) return send(response, 409, refusal);
+      const publishedAt = new Date().toISOString();
+      item.approvalStatus = "approved";
+      item.approvalSubmittedAt = item.approvalSubmittedAt ?? publishedAt;
+      item.approvalReviewedAt = publishedAt;
+      item.approvalNote = null;
+      item.approvalReviewedById = actor.id;
+      item.approvalReviewedBy = { id: actor.id, displayName: actor.displayName };
+      item.publishedAt = item.publishedAt ?? publishedAt;
+      item.archivedAt = null;
+      item.updatedAt = publishedAt;
+      record("opportunity.published", "Opportunity", item.id, actor.id);
       return send(response, 201, item);
     }
     if ((verb === "request-changes" || verb === "reject") && method === "POST") {

@@ -12,9 +12,7 @@ import {
   resultFromError,
   type ActionResult,
 } from "@/lib/api/action-result";
-import { fixtureModeEnabled } from "@/lib/auth/config";
 import { getSession } from "@/lib/auth/session.server";
-import { readFixture, writeFixture } from "@/lib/fixtures/store";
 
 type Params = Record<string, string>;
 
@@ -37,17 +35,6 @@ export async function read<TSchema extends z.ZodType>(
   const session = await getSession();
   if (!session) return { state: "expired" };
 
-  if (fixtureModeEnabled()) {
-    const fixture = readFixture(name, { params, query });
-    if (fixture === undefined) return { state: "awaitingContract", endpoint: name };
-
-    const parsed = schema.safeParse(fixture);
-    if (!parsed.success) {
-      return { state: "failed", code: "invalidResponse", retryable: false };
-    }
-    return ready(parsed.data as z.infer<TSchema>, "fixtures");
-  }
-
   const endpoint = endpoints[name];
 
   try {
@@ -68,10 +55,6 @@ export async function write(
 ): Promise<ActionResult> {
   const session = await getSession();
   if (!session) return failedResult("sessionExpired");
-
-  if (fixtureModeEnabled()) {
-    return writeFixture(name, { params, body });
-  }
 
   const endpoint = endpoints[name];
   const path = pathFor(name, params);

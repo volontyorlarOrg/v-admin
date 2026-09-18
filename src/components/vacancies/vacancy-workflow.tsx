@@ -18,6 +18,7 @@ export type WorkflowActionLabels = FormDialogLabels & { trigger: string };
 
 export type VacancyWorkflowLabels = {
   submit: WorkflowActionLabels;
+  publish: WorkflowActionLabels;
   archive: WorkflowActionLabels;
   readinessTitle: string;
   readinessBlocked: string;
@@ -36,6 +37,7 @@ export type VacancyDecisionLabels = {
 
 export type VacancyWorkflowAbilities = {
   submit: boolean;
+  publish: boolean;
   approve: boolean;
   requestChanges: boolean;
   reject: boolean;
@@ -101,6 +103,7 @@ export function VacancyWorkflow({
   labels,
   decisionLabels,
   submitAction,
+  publishAction,
   decideAction,
   archiveAction,
 }: {
@@ -110,6 +113,7 @@ export function VacancyWorkflow({
   labels: VacancyWorkflowLabels;
   decisionLabels?: VacancyDecisionLabels;
   submitAction?: (previous: ActionResult, formData: FormData) => Promise<ActionResult>;
+  publishAction?: (previous: ActionResult, formData: FormData) => Promise<ActionResult>;
   decideAction?: (previous: ActionResult, formData: FormData) => Promise<ActionResult>;
   archiveAction: (previous: ActionResult, formData: FormData) => Promise<ActionResult>;
 }) {
@@ -133,6 +137,34 @@ export function VacancyWorkflow({
           trigger={
             <Button type="button" size="sm">
               {labels.submit.trigger}
+            </Button>
+          }
+        >
+          {incomplete ? null : (
+            <p className="flex items-start gap-2 text-sm text-ink-muted">
+              <Check aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
+              <span className="min-w-0">{labels.readyLine}</span>
+            </p>
+          )}
+        </FormDialog>
+      ) : null}
+
+      {abilities.publish && publishAction ? (
+        <FormDialog
+          action={publishAction}
+          labels={labels.publish}
+          fields={{ id: vacancyId }}
+          blocked={incomplete}
+          blockedNotice={
+            <BlockedNotice
+              title={labels.readinessBlocked}
+              missing={missing}
+              labels={labels.readiness}
+            />
+          }
+          trigger={
+            <Button type="button" size="sm">
+              {labels.publish.trigger}
             </Button>
           }
         >

@@ -90,13 +90,9 @@ control that asks for one.
 
 ## Current state
 
-Every operation in the registry is `published` except the four the approval
-workflow added — `approveVacancy`, `requestVacancyChanges`, `rejectVacancy` and
-`resolveVacancyAttendance` — which are `announced`: written in `v-backend`'s
-source, not yet in the published document. When the backend publishes them,
-`endpoints.test.ts` fails and the fix is one word each. The batch attendance
-operation is deliberately the `staff` path: `v-backend` exposes it once, to
-coordinators and administrators alike.
+Every operation in the registry is `published`. The batch attendance operation
+is deliberately the `staff` path: `v-backend` exposes it once, to coordinators
+and administrators alike.
 
 ## The vacancy approval workflow
 
@@ -130,6 +126,12 @@ vacancy; approval clears the note and publishes. The backend answers
 `organizationNotVerified` or `deadlinePassed` when approval would publish
 something unfinished. Editing is refused outside `draft` and
 `changes_requested` (`opportunityNotEditable`).
+
+An administrator can also publish a complete `draft` or `changes_requested`
+vacancy directly through `POST /admin/opportunities/{id}/publish`; coordinators
+still submit their vacancies for review. The direct action records the
+administrator as reviewer and returns `opportunityCannotBePublished` when the
+vacancy is already in a final state.
 
 ## Attendance opens when the event ends
 

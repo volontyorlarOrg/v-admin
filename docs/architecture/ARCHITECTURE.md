@@ -18,7 +18,6 @@ src/lib/api/                    the server-only client, the endpoint registry,
                                 the Zod schemas, error codes, the Loaded envelope
 src/lib/<domain>/               data.server.ts reads, actions.ts writes,
                                 filters.ts and schema.ts hold pure logic
-src/lib/fixtures/               the labelled development dataset
 src/components/                 ui primitives, portal chrome, states, forms
 src/i18n/                       routing, navigation, request config, catalogs
 e2e/                            Playwright, with a stub backend beside it
@@ -45,10 +44,9 @@ environment variable away from administrator access.
 Every read goes through `read()` in `src/lib/api/gateway.server.ts`, which:
 
 1. requires a session, or returns `expired`;
-2. serves a fixture and marks the source when fixture mode is on;
-3. calls the endpoint with the access token;
-4. parses the response with its Zod schema;
-5. classifies any failure into the `Loaded` envelope.
+2. calls the endpoint with the access token;
+3. parses the response with its Zod schema;
+4. classifies any failure into the `Loaded` envelope.
 
 A page therefore never sees an exception, only one of: `ready`, `awaitingContract`,
 `denied`, `expired`, `passwordChangeRequired`, `missing`, `unconfigured`,

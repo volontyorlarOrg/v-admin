@@ -1,7 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
 
-import { FixtureBanner } from "@/components/portal/fixture-banner";
 import { LocaleSwitcher } from "@/components/portal/locale-switcher";
 import { MobileNav } from "@/components/portal/mobile-nav";
 import { SidebarNav, type NavItem } from "@/components/portal/sidebar-nav";
@@ -45,8 +44,6 @@ export async function PortalShell({
 
       <WavesBackground />
       <Toaster />
-
-      <FixtureBanner />
 
       <header className="sticky top-0 z-30 border-b border-border/70 panel-surface">
         <div className="flex min-h-16 items-center gap-3 px-4 sm:px-6">

@@ -10,7 +10,6 @@
     "signOut": "Sign out",
     "signingOut": "Signing out…",
     "signedIn": "Signed in",
-    "fixtureMode": "Development fixtures — nothing on this screen comes from the API",
     "apply": "Apply",
     "reset": "Clear filters",
     "previous": "Previous",
@@ -60,7 +59,6 @@
     "submit": "Sign in",
     "submitting": "Signing in…",
     "accessNotice": "Administrator accounts are not created through any web interface, here or anywhere else in this product. There is no sign-up and no password recovery on this page.",
-    "fixtureHint": "Fixture mode is on. Sign in with {email} and the password {password}.",
     "status": {
       "expired": "Your session ended. Sign in again to continue.",
       "signedOut": "You are signed out.",
@@ -165,6 +163,7 @@
     "decisionNoteRequired": "Write a note explaining the decision.",
     "opportunityIncomplete": "Complete the required vacancy details before sending it for approval.",
     "opportunityCannotBeSubmitted": "This vacancy cannot be sent for approval in its current state.",
+    "opportunityCannotBePublished": "This vacancy cannot be published in its current state.",
     "opportunityNotPendingApproval": "This vacancy is not waiting for an approval decision.",
     "opportunityNotEditable": "This vacancy is locked in its current approval state.",
     "approvalNoteRequired": "Write a note explaining the decision.",
@@ -361,6 +360,14 @@
       "confirm": "Send for approval",
       "pending": "Sending…",
       "success": "The vacancy was sent for approval."
+    },
+    "publish": {
+      "trigger": "Publish now",
+      "title": "Publish this vacancy?",
+      "description": "Volunteers will see it immediately and can apply until the deadline.",
+      "confirm": "Publish now",
+      "pending": "Publishing…",
+      "success": "The vacancy was published."
     },
     "approval": {
       "title": "Approval",

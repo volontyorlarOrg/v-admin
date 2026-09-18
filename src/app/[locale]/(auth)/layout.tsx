@@ -1,6 +1,5 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
-import { FixtureBanner } from "@/components/portal/fixture-banner";
 import { LocaleSwitcher } from "@/components/portal/locale-switcher";
 import { ThemeToggle } from "@/components/portal/theme-toggle";
 import { BrandLockup } from "@/components/brand/logo";
@@ -22,8 +21,6 @@ export default async function AuthLayout({
       >
         {t("skipToContent")}
       </a>
-
-      <FixtureBanner />
 
       <header className="flex min-h-16 items-center justify-between gap-4 px-4 sm:px-6">
         <BrandLockup name={t("organizationName")} portal={t("portalName")} />

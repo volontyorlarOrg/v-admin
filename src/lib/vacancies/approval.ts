@@ -39,6 +39,11 @@ export function canSubmitForApproval(vacancy: ApprovalSubject): boolean {
   return state === "draft" || state === "changes_requested";
 }
 
+export function canPublishVacancy(vacancy: ApprovalSubject): boolean {
+  const state = vacancyStateOf(vacancy);
+  return state === "draft" || state === "changes_requested";
+}
+
 export function canApproveVacancy(vacancy: ApprovalSubject): boolean {
   return vacancyStateOf(vacancy) === "pending_review";
 }

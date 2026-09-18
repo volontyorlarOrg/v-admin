@@ -2,7 +2,7 @@
 
 ## Requirements
 
-Node.js 22.13 or newer, npm, and either a running `v-backend` or fixture mode.
+Node.js 22.13 or newer, npm, and a running `v-backend`.
 
 ## Setup
 
@@ -12,21 +12,14 @@ npm run dev
 ```
 
 There is no database and no service to start here. Everything comes from
-`v-backend`. `npm run dev` loads `../env/local/admin.local.env`, disables
-fixtures, binds to `127.0.0.1`, and uses the local backend backed by the
+`v-backend`. `npm run dev` loads `../env/local/admin.local.env`, binds to
+`127.0.0.1`, and uses the local backend backed by the
 separate development database. `npm run dev:standalone` is available only for
 an intentionally maintained ignored `.env.local`.
 
-## Working without the backend
-
-```bash
-# .env.local
-VOLONTYORLAR_FIXTURES=on
-```
-
-Every screen then renders the labelled dataset in `src/lib/fixtures/`, each page
-carries a banner saying so, and sign-in accepts only the fixture account printed
-on the sign-in page. Fixture mode is refused when `NODE_ENV=production`.
+Runtime development has no fixture fallback. The Playwright suite keeps its
+deterministic stub backend under `e2e/`; the development server always exercises
+the same HTTP contract as production.
 
 ## Commands
 
@@ -66,7 +59,6 @@ side: `v-staff` on 3602/3603 and `v-admin` on 3702/3703. Override with
 | `VOLONTYORLAR_STAFF_SESSION_SECRET` | server only | The coordinator portal's cookie key, 32+ characters.       |
 | `VOLONTYORLAR_ADMIN_SESSION_SECRET` | server only | The administrator portal's cookie key, 32+ characters.     |
 | `VOLONTYORLAR_PROXY_SECRET`         | server only | Equals backend `FRONTEND_PROXY_SECRET`; per-visitor limit. |
-| `VOLONTYORLAR_FIXTURES`             | server only | `on` for development fixtures. Inert in production.        |
 
 Each portal reads only its own secret. They must differ from each other and from
 the volunteer application's.

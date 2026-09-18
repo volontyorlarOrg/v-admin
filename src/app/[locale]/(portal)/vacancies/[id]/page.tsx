@@ -35,9 +35,9 @@ import {
   attendanceOpensAt,
   canApproveVacancy,
   canEditVacancy,
+  canPublishVacancy,
   canRejectVacancy,
   canRequestVacancyChanges,
-  canSubmitForApproval,
   isAttendanceOpen,
   missingForApproval,
   vacancyStateOf,
@@ -45,7 +45,7 @@ import {
 import {
   archiveVacancyAction,
   decideVacancyAction,
-  submitVacancyForApprovalAction,
+  publishVacancyAction,
   updateVacancyAction,
 } from "@/lib/vacancies/actions";
 import { loadOrganizations, loadVacancy } from "@/lib/vacancies/data.server";
@@ -131,7 +131,8 @@ export default async function VacancyPage({
   );
 
   const abilities = {
-    submit: canSubmitForApproval(vacancy),
+    submit: false,
+    publish: canPublishVacancy(vacancy),
     approve: canApproveVacancy(vacancy),
     requestChanges: canRequestVacancyChanges(vacancy),
     reject: canRejectVacancy(vacancy),
@@ -293,7 +294,7 @@ export default async function VacancyPage({
               missing={missing}
               labels={workflowLabels}
               decisionLabels={decisionLabels}
-              submitAction={submitVacancyForApprovalAction}
+              publishAction={publishVacancyAction}
               decideAction={decideVacancyAction}
               archiveAction={archiveVacancyAction}
             />

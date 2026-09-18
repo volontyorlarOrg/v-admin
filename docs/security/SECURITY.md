@@ -84,11 +84,3 @@ address, never a credential.
 never gain a `NEXT_PUBLIC_` prefix. The only public variable is
 `NEXT_PUBLIC_PORTAL_URL`, an origin. `.env.example` documents both without
 holding a value; real values live in `.env.local`, which is not tracked.
-
-## Development fixtures
-
-`VOLONTYORLAR_FIXTURES=on` serves `src/lib/fixtures/` instead of calling the API.
-It is refused when `NODE_ENV=production`, sign-in accepts only the one fixture
-account, and every page carries a banner saying nothing on screen came from the
-API. It exists so the interface can be built before the backend contract lands —
-never to make an unfinished feature look finished.

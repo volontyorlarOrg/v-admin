@@ -10,7 +10,6 @@
     "signOut": "Chiqish",
     "signingOut": "Chiqilmoqda…",
     "signedIn": "Tizimdasiz",
-    "fixtureMode": "Ishlab chiqish uchun namunaviy maʼlumot — bu sahifada API dan kelgan hech narsa yoʻq",
     "apply": "Qoʻllash",
     "reset": "Filtrlarni tozalash",
     "previous": "Orqaga",
@@ -60,7 +59,6 @@
     "submit": "Kirish",
     "submitting": "Kirilmoqda…",
     "accessNotice": "Administrator hisoblari na bu yerda, na mahsulotning boshqa biror veb-interfeysida yaratilmaydi. Bu sahifada roʻyxatdan oʻtish ham, parolni tiklash ham yoʻq.",
-    "fixtureHint": "Namunaviy maʼlumot rejimi yoqilgan. {email} va {password} paroli bilan kiring.",
     "status": {
       "expired": "Seans tugadi. Davom etish uchun qaytadan kiring.",
       "signedOut": "Portaldan chiqdingiz.",
@@ -165,6 +163,7 @@
     "decisionNoteRequired": "Qarorni tushuntiruvchi izoh yozing.",
     "opportunityIncomplete": "Tasdiqlashga yuborishdan oldin vakansiyaning majburiy maʼlumotlarini toʻldiring.",
     "opportunityCannotBeSubmitted": "Bu vakansiyani joriy holatida tasdiqlashga yuborib boʻlmaydi.",
+    "opportunityCannotBePublished": "Bu vakansiyani joriy holatida eʼlon qilib boʻlmaydi.",
     "opportunityNotPendingApproval": "Bu vakansiya tasdiqlash qarorini kutmayapti.",
     "opportunityNotEditable": "Vakansiya joriy tasdiqlash holatida tahrirlash uchun yopiq.",
     "approvalNoteRequired": "Qarorni tushuntiruvchi izoh yozing.",
@@ -361,6 +360,14 @@
       "confirm": "Tasdiqlashga yuborish",
       "pending": "Yuborilmoqda…",
       "success": "Vakansiya maʻqullash uchun yuborildi."
+    },
+    "publish": {
+      "trigger": "Hozir eʼlon qilish",
+      "title": "Bu vakansiya eʼlon qilinsinmi?",
+      "description": "Koʻngillilar uni darhol koʻradi va muddat tugaguncha ariza topshira oladi.",
+      "confirm": "Eʼlon qilish",
+      "pending": "Eʼlon qilinmoqda…",
+      "success": "Vakansiya eʼlon qilindi."
     },
     "approval": {
       "title": "Tasdiqlash",

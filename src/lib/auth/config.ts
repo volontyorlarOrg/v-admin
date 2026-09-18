@@ -33,12 +33,7 @@ export function isProduction(): boolean {
   return process.env.NODE_ENV === "production";
 }
 
-export function fixtureModeEnabled(): boolean {
-  return !isProduction() && process.env.VOLONTYORLAR_FIXTURES?.trim() === "on";
-}
-
 export function isAuthConfigured(): boolean {
-  if (fixtureModeEnabled()) return sessionSecret() !== null;
   return apiBaseUrl() !== null && sessionSecret() !== null;
 }
 
