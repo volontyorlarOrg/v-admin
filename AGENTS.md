@@ -29,11 +29,9 @@ otherwise.** So:
   "waiting for the API", naming the method and path.** A `404` _with_ a code is
   a missing or unauthorised record. See
   [`.agent-memory/uncoded-404-means-no-route.md`](.agent-memory/uncoded-404-means-no-route.md);
-- **fixtures exist in exactly two places:** `e2e/stub-backend.mjs` and
-  `src/lib/fixtures/`, the latter reachable only through
-  `VOLONTYORLAR_FIXTURES=on`, refused in production, and announced by a banner on
-  every page. Never fabricate a successful sign-in, a record, or a count anywhere
-  else;
+- **test data exists only in tests:** `e2e/stub-backend.mjs` supplies the
+  deterministic browser-test contract. Runtime development always uses
+  `v-backend`; never fabricate a successful sign-in, a record, or a count;
 - **every read is `read()` and every write is `write()`** in
   `src/lib/api/gateway.server.ts`. A page receives a `Loaded<T>` envelope, never
   an exception, and renders `LoadFailure` for whichever failure it got. A response the Zod schema in `src/lib/api/schemas.ts` rejects is an error,
@@ -85,7 +83,6 @@ src/lib/api/                    server-only client, endpoint registry, schemas,
                                 error codes, the Loaded envelope, the gateway
 src/lib/<domain>/               data.server.ts reads · actions.ts writes ·
                                 filters.ts / schema.ts / form.ts pure logic
-src/lib/fixtures/               the labelled development dataset
 src/lib/routing/                the route registry and search-param helpers
 src/app/[locale]/(auth)/login/  the one public screen
 src/app/[locale]/(portal)/      dashboard, vacancies[/new|/id], applications[/id],

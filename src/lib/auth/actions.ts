@@ -11,11 +11,7 @@ import {
   resultFromError,
   type ActionResult,
 } from "@/lib/api/action-result";
-import {
-  AUTH_REQUEST_TIMEOUT_MS,
-  fixtureModeEnabled,
-  isAuthConfigured,
-} from "@/lib/auth/config";
+import { AUTH_REQUEST_TIMEOUT_MS, isAuthConfigured } from "@/lib/auth/config";
 import {
   changePasswordFromFormData,
   changePasswordSchema,
@@ -24,7 +20,6 @@ import {
   logInSchema,
   stringField,
 } from "@/lib/auth/credentials";
-import { fixtureSessionFor } from "@/lib/auth/fixture-session";
 import {
   holdsPortalRole,
   issuedSessionSchema,
@@ -59,29 +54,21 @@ export async function logInAction(
   const locale = localeOf(formData);
   let passwordChangeRequired = false;
 
-  if (fixtureModeEnabled()) {
-    const issued = fixtureSessionFor(parsed.data.email, parsed.data.password);
-    if (!issued) return failedResult("invalidCredentials");
-    if (!(await writeSession(toSessionPayload(issued)))) {
-      return failedResult("portalUnavailable");
-    }
-  } else {
-    try {
-      const issued = await api(pathFor("logIn"), {
-        method: endpoints.logIn.method,
-        body: parsed.data,
-        schema: issuedSessionSchema,
-        timeoutMs: AUTH_REQUEST_TIMEOUT_MS,
-      });
+  try {
+    const issued = await api(pathFor("logIn"), {
+      method: endpoints.logIn.method,
+      body: parsed.data,
+      schema: issuedSessionSchema,
+      timeoutMs: AUTH_REQUEST_TIMEOUT_MS,
+    });
 
-      const session = toSessionPayload(issued);
-      if (!holdsPortalRole(session)) return failedResult("wrongRole");
+    const session = toSessionPayload(issued);
+    if (!holdsPortalRole(session)) return failedResult("wrongRole");
 
-      passwordChangeRequired = session.passwordChangeRequired;
-      if (!(await writeSession(session))) return failedResult("portalUnavailable");
-    } catch (error) {
-      return resultFromError(error);
-    }
+    passwordChangeRequired = session.passwordChangeRequired;
+    if (!(await writeSession(session))) return failedResult("portalUnavailable");
+  } catch (error) {
+    return resultFromError(error);
   }
 
   revalidatePath("/", "layout");
@@ -98,7 +85,7 @@ export async function signOutAction(formData: FormData) {
   const locale = localeOf(formData);
   const session = await getSession();
 
-  if (session && !fixtureModeEnabled()) {
+  if (session) {
     try {
       await authedApi(pathFor("logOut"), session.accessToken, {
         method: endpoints.logOut.method,
@@ -128,18 +115,16 @@ export async function changePasswordAction(
   const session = await getSession();
   if (!session) return failedResult("sessionExpired");
 
-  if (!fixtureModeEnabled()) {
-    try {
-      await authedApi(pathFor("changePassword"), session.accessToken, {
-        method: endpoints.changePassword.method,
-        body: {
-          currentPassword: parsed.data.currentPassword,
-          newPassword: parsed.data.newPassword,
-        },
-      });
-    } catch (error) {
-      return resultFromError(error);
-    }
+  try {
+    await authedApi(pathFor("changePassword"), session.accessToken, {
+      method: endpoints.changePassword.method,
+      body: {
+        currentPassword: parsed.data.currentPassword,
+        newPassword: parsed.data.newPassword,
+      },
+    });
+  } catch (error) {
+    return resultFromError(error);
   }
 
   await writeSession({ ...session, passwordChangeRequired: false });

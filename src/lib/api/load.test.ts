@@ -1,17 +1,15 @@
 import { describe, expect, it } from "vitest";
 
 import { ApiError } from "@/lib/api/errors";
-import { failureOf, isReady, loadedFromError, ready } from "@/lib/api/load";
+import { failureOf, loadedFromError, ready } from "@/lib/api/load";
 
 describe("ready", () => {
-  it("marks where the data came from, so fixtures can never pass as live", () => {
+  it("marks every successful load as real API data", () => {
     expect(ready([1, 2, 3])).toEqual({
       state: "ready",
       data: [1, 2, 3],
       source: "api",
     });
-    const fromFixtures = ready([1], "fixtures");
-    expect(isReady(fromFixtures) && fromFixtures.source).toBe("fixtures");
   });
 });
 

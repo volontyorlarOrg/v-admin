@@ -3,9 +3,7 @@ import type { Metadata } from "next";
 
 import { LoginForm } from "@/components/auth/login-form";
 import { FormMessage } from "@/components/forms/form-message";
-import { fixtureModeEnabled, isAuthConfigured } from "@/lib/auth/config";
-import { fixtureEmail } from "@/lib/auth/fixture-session";
-import { FIXTURE_PASSWORD } from "@/lib/fixtures/data";
+import { isAuthConfigured } from "@/lib/auth/config";
 import { isSessionStatus, safeReturnPath } from "@/lib/auth/session";
 
 export const dynamic = "force-dynamic";
@@ -51,12 +49,6 @@ export default async function LoginPage({
           {errors("portalUnavailable")}
         </FormMessage>
       )}
-
-      {fixtureModeEnabled() ? (
-        <FormMessage tone="success" className="mb-5">
-          {t("fixtureHint", { email: fixtureEmail, password: FIXTURE_PASSWORD })}
-        </FormMessage>
-      ) : null}
 
       <div className="rounded-xl border border-border bg-card p-6">
         <LoginForm

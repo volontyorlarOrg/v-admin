@@ -62,8 +62,9 @@ export async function loadEveryUser(): Promise<Loaded<UserScan>> {
     users.push(...loaded.data.items);
   }
 
-  return ready(
-    { users, total: first.data.total, complete: users.length >= first.data.total },
-    first.source,
-  );
+  return ready({
+    users,
+    total: first.data.total,
+    complete: users.length >= first.data.total,
+  });
 }

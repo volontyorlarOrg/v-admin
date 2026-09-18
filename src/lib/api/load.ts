@@ -1,10 +1,8 @@
 import type { EndpointName } from "@/lib/api/endpoints";
 import { isApiError, type ApiError } from "@/lib/api/errors";
 
-export type LoadSource = "api" | "fixtures";
-
 export type Loaded<T> =
-  | { state: "ready"; data: T; source: LoadSource }
+  | { state: "ready"; data: T; source: "api" }
   | { state: "awaitingContract"; endpoint: EndpointName }
   | { state: "denied" }
   | { state: "expired" }
@@ -13,13 +11,13 @@ export type Loaded<T> =
   | { state: "unconfigured" }
   | { state: "failed"; code: string; retryable: boolean };
 
-export function ready<T>(data: T, source: LoadSource = "api"): Loaded<T> {
-  return { state: "ready", data, source };
+export function ready<T>(data: T): Loaded<T> {
+  return { state: "ready", data, source: "api" };
 }
 
 export function isReady<T>(
   loaded: Loaded<T>,
-): loaded is { state: "ready"; data: T; source: LoadSource } {
+): loaded is { state: "ready"; data: T; source: "api" } {
   return loaded.state === "ready";
 }
 

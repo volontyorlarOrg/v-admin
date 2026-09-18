@@ -45,6 +45,11 @@ export const endpoints = {
     path: "/admin/opportunities/{id}/submit-for-approval",
     contract: "published",
   },
+  publishVacancy: {
+    method: "POST",
+    path: "/admin/opportunities/{id}/publish",
+    contract: "published",
+  },
   approveVacancy: {
     method: "POST",
     path: "/admin/opportunities/{id}/approve",

@@ -5,6 +5,7 @@ import {
   attendanceOpensAt,
   canApproveVacancy,
   canEditVacancy,
+  canPublishVacancy,
   canRejectVacancy,
   canRequestVacancyChanges,
   canSubmitForApproval,
@@ -93,6 +94,14 @@ describe("what a coordinator may do", () => {
 });
 
 describe("what an administrator may do", () => {
+  it("publishes a draft or corrected vacancy directly", () => {
+    expect(canPublishVacancy({ approvalStatus: "draft" })).toBe(true);
+    expect(canPublishVacancy({ approvalStatus: "changes_requested" })).toBe(true);
+    expect(canPublishVacancy({ approvalStatus: "pending_review" })).toBe(false);
+    expect(canPublishVacancy({ approvalStatus: "approved" })).toBe(false);
+    expect(canPublishVacancy({ approvalStatus: "rejected" })).toBe(false);
+  });
+
   it("decides only a vacancy waiting for review", () => {
     expect(canRequestVacancyChanges({ approvalStatus: "pending_review" })).toBe(true);
     expect(canRejectVacancy({ approvalStatus: "pending_review" })).toBe(true);

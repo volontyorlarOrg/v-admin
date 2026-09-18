@@ -353,13 +353,11 @@ test.describe("the vacancy lifecycle", () => {
     await page.goto("/en/vacancies?q=riverbank");
     await page.getByRole("link", { name: "Open" }).first().click();
 
-    await openDialog(page, "Send for approval");
+    await openDialog(page, "Publish now");
     const blocked = dialog(page);
     await expect(blocked).toContainText("This vacancy is not ready yet");
     await expect(blocked).toContainText("a verified organization");
-    await expect(
-      blocked.getByRole("button", { name: "Send for approval" }),
-    ).toBeDisabled();
+    await expect(blocked.getByRole("button", { name: "Publish now" })).toBeDisabled();
   });
 
   test("refuses to request changes without a note, in red, beside the field", async ({
@@ -422,9 +420,7 @@ test.describe("the vacancy lifecycle", () => {
     await expect(page.getByRole("button", { name: "Reject" })).toHaveCount(0);
   });
 
-  test("creates a draft in a dialog, submits it, approves it, then archives it", async ({
-    page,
-  }) => {
+  test("creates a draft, publishes it directly, then archives it", async ({ page }) => {
     await signedIn(page);
     await page.goto("/en/vacancies");
 
@@ -446,14 +442,8 @@ test.describe("the vacancy lifecycle", () => {
       "Library shelving day",
     );
 
-    await openDialog(page, "Send for approval");
-    await dialog(page).getByRole("button", { name: "Send for approval" }).click();
-    await expect(
-      page.getByText("Waiting for approval", { exact: true }).first(),
-    ).toBeVisible();
-
-    await openDialog(page, "Approve and publish");
-    await dialog(page).getByRole("button", { name: "Approve and publish" }).click();
+    await openDialog(page, "Publish now");
+    await dialog(page).getByRole("button", { name: "Publish now" }).click();
     await expect(
       page.getByText("Approved and published", { exact: true }).first(),
     ).toBeVisible();

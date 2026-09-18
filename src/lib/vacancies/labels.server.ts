@@ -45,6 +45,7 @@ const ERROR_CODES = [
   "decisionNoteRequired",
   "opportunityIncomplete",
   "opportunityCannotBeSubmitted",
+  "opportunityCannotBePublished",
   "opportunityNotPendingApproval",
   "opportunityNotEditable",
   "approvalNoteRequired",
@@ -174,6 +175,15 @@ export async function vacancyWorkflowLabels(): Promise<VacancyWorkflowLabels> {
       submit: t("submit.confirm"),
       pending: t("submit.pending"),
       success: t("submit.success"),
+    },
+    publish: {
+      ...shared,
+      trigger: t("publish.trigger"),
+      title: t("publish.title"),
+      description: t("publish.description"),
+      submit: t("publish.confirm"),
+      pending: t("publish.pending"),
+      success: t("publish.success"),
     },
     archive: {
       ...shared,

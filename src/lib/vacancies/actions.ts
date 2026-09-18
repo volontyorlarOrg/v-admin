@@ -88,6 +88,18 @@ export async function submitVacancyForApprovalAction(
   return result;
 }
 
+export async function publishVacancyAction(
+  _previous: ActionResult,
+  formData: FormData,
+): Promise<ActionResult> {
+  const id = stringField(formData, "id");
+  if (!id) return failedResult("opportunityNotFound");
+
+  const result = await write("publishVacancy", { params: { id } });
+  if (result.status === "ok") revalidateVacancies();
+  return result;
+}
+
 export async function archiveVacancyAction(
   _previous: ActionResult,
   formData: FormData,
