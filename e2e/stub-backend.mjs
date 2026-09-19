@@ -277,6 +277,31 @@ function reset() {
           },
         },
       ),
+      application(
+        "00000000-0000-4000-8000-000000000606",
+        "00000000-0000-4000-8000-000000000402",
+        "00000000-0000-4000-8000-000000000204",
+        "draft",
+        { profileSnapshot: null, submittedAt: null, answers: [] },
+      ),
+      application(
+        "00000000-0000-4000-8000-000000000607",
+        "00000000-0000-4000-8000-000000000402",
+        "00000000-0000-4000-8000-000000000201",
+        "submitted",
+        {
+          profileSnapshot: {
+            fullName: "Dilnoza Karimova",
+            bio: "I volunteer at the reading room on Saturdays.",
+            region: "tashkent-city",
+            school: "School No. 110",
+            languages: ["uz", "ru"],
+            phone: "",
+            telegram: "dilnoza_k",
+          },
+          answers: [],
+        },
+      ),
     ],
     audit: [
       {

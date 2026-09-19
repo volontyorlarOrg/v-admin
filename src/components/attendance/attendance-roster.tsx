@@ -66,11 +66,13 @@ export function AttendanceRoster({
   vacancyId,
   rows,
   outcomes,
+  defaultHours,
   labels,
 }: {
   vacancyId: string;
   rows: readonly RosterRow[];
   outcomes: readonly string[];
+  defaultHours?: string;
   labels: RosterLabels;
 }) {
   const formId = useId();
@@ -235,6 +237,7 @@ export function AttendanceRoster({
               max={999}
               step="0.25"
               inputMode="decimal"
+              defaultValue={defaultHours}
               aria-describedby={`${formId}-hours-help`}
             />
             <FieldDescription id={`${formId}-hours-help`}>

@@ -9,6 +9,7 @@ import {
   REGIONS,
   VACANCY_FORMATS,
   VACANCY_STATUSES,
+  isSent,
 } from "@/lib/domain/vocabulary";
 
 export const apiRegion = z
@@ -199,9 +200,13 @@ export const applicationSchema = z.object({
 
 export type Application = z.infer<typeof applicationSchema>;
 
+function sentOnly(applications: Application[]): Application[] {
+  return applications.filter((application) => isSent(application.status));
+}
+
 export const applicationListSchema = z
   .union([z.array(applicationSchema), z.object({ items: z.array(applicationSchema) })])
-  .transform((value) => (Array.isArray(value) ? value : value.items));
+  .transform((value) => sentOnly(Array.isArray(value) ? value : value.items));
 
 export const passwordStateSchema = z.object({
   passwordChangedAt: optional(isoDate),
@@ -236,7 +241,7 @@ export const userDetailSchema = z.object({
   createdAt: isoDate,
   profile: optional(profileSnapshotSchema.loose()),
   passwordCredential: optional(passwordStateSchema),
-  applications: z.array(applicationSchema).default([]),
+  applications: z.array(applicationSchema).default([]).transform(sentOnly),
 });
 
 export type UserDetail = z.infer<typeof userDetailSchema>;

@@ -26,7 +26,7 @@ import {
   sortApplications,
   volunteerNameOf,
 } from "@/lib/applications/filters";
-import { APPLICATION_STATUSES } from "@/lib/domain/vocabulary";
+import { SENT_APPLICATION_STATUSES } from "@/lib/domain/vocabulary";
 import { applicationHref, navHref } from "@/lib/routing/routes";
 import {
   DEFAULT_PAGE_SIZE,
@@ -60,7 +60,7 @@ export default async function ApplicationsPage({
 
   const query = await searchParams;
   const q = readParam(query, "q");
-  const status = readOption(query, "status", APPLICATION_STATUSES);
+  const status = readOption(query, "status", SENT_APPLICATION_STATUSES);
   const page = readPage(query);
 
   const loaded = await loadApplications(status ? { status } : {});
@@ -93,7 +93,7 @@ export default async function ApplicationsPage({
                 defaultValue={status ?? ""}
               >
                 <NativeSelectOption value="">{t("status.all")}</NativeSelectOption>
-                {APPLICATION_STATUSES.map((value) => (
+                {SENT_APPLICATION_STATUSES.map((value) => (
                   <NativeSelectOption key={value} value={value}>
                     {t(`status.${value}`)}
                   </NativeSelectOption>
