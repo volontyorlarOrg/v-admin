@@ -22,7 +22,7 @@ export function filterVacancies(
   return sortByCreated(vacancies).filter((vacancy) => {
     if (state && vacancyStateOf(vacancy) !== state) return false;
     if (!term) return true;
-    return `${vacancy.title} ${vacancy.summary} ${vacancy.slug}`
+    return `${vacancy.title} ${vacancy.description} ${vacancy.slug}`
       .toLowerCase()
       .includes(term);
   });

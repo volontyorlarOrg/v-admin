@@ -7,7 +7,6 @@ function vacancy(overrides: Partial<Vacancy> & { id: string }): Vacancy {
   return {
     slug: overrides.id,
     title: "A vacancy",
-    summary: "",
     description: "",
     requirements: [],
     region: "tashkent-city",
@@ -74,7 +73,7 @@ describe("filterVacancies", () => {
     ).toEqual(["d"]);
   });
 
-  it("searches the title, summary and slug case-insensitively", () => {
+  it("searches the title, description and slug case-insensitively", () => {
     expect(filterVacancies(all, { q: "  READING " }).map((item) => item.id)).toEqual([
       "b",
     ]);

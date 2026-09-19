@@ -11,7 +11,6 @@ import {
 const valid = {
   title: "Winter book drive",
   slug: "winter-book-drive",
-  summary: "Collect and sort books.",
   description: "A longer description of the work.",
   organizationId: "org-1",
   region: "tashkent-city",
@@ -23,6 +22,7 @@ const valid = {
   applicationDeadline: "2026-09-20T18:00",
   capacity: "20",
   estimatedTotalHours: "6",
+  acceptanceMode: "manual",
 };
 
 describe("vacancyFormSchema", () => {
@@ -121,6 +121,21 @@ describe("vacancyFormSchema", () => {
     ).toEqual(["capacity"]);
   });
 
+  it("needs no short description, which the portal no longer collects", () => {
+    expect(vacancyFormSchema.safeParse({ ...valid, summary: "" }).success).toBe(true);
+  });
+
+  it("only accepts the two ways a vacancy can accept applications", () => {
+    expect(
+      vacancyFormSchema.safeParse({ ...valid, acceptanceMode: "automatic" }).success,
+    ).toBe(true);
+    expect(
+      fieldErrorsOf(
+        vacancyFormSchema.safeParse({ ...valid, acceptanceMode: "instantly" }).error!,
+      ).acceptanceMode,
+    ).toEqual(["required"]);
+  });
+
   it("names an unparseable date rather than sending it on", () => {
     expect(
       fieldErrorsOf(vacancyFormSchema.safeParse({ ...valid, startsAt: "soon" }).error!)
@@ -146,6 +161,14 @@ describe("toVacancyPayload", () => {
       "Be 15 or older",
       "Free on the day",
     ]);
+  });
+
+  it("sends how applications are accepted and no summary", () => {
+    const payload = toVacancyPayload(
+      vacancyFormSchema.parse({ ...valid, acceptanceMode: "automatic" }),
+    );
+    expect(payload.acceptanceMode).toBe("automatic");
+    expect(payload).not.toHaveProperty("summary");
   });
 
   it("sends the hours and places as numbers, not the form's strings", () => {
