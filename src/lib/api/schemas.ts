@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import {
+  ACCEPTANCE_MODES,
   APPLICATION_STATUSES,
   ATTENDANCE_OUTCOMES,
   COORDINATOR_STATUSES,
@@ -81,7 +82,6 @@ export const vacancySchema = z.object({
   id,
   slug: z.string(),
   title: z.string(),
-  summary: z.string().default(""),
   description: z.string().default(""),
   requirements: z.array(z.string()).default([]),
   region: apiRegion,
@@ -95,6 +95,7 @@ export const vacancySchema = z.object({
   imageUrl: optional(z.string()),
   capacity: optional(z.number().int()),
   estimatedTotalHours: decimal,
+  acceptanceMode: z.enum(ACCEPTANCE_MODES).default("manual"),
   approvalStatus: optional(z.enum(OPPORTUNITY_APPROVAL_STATUSES)),
   approvalSubmittedAt: optional(isoDate),
   approvalReviewedAt: optional(isoDate),
@@ -143,6 +144,7 @@ export const applicationOpportunitySchema = z.object({
   applicationDeadline: optional(isoDate),
   capacity: optional(z.number().int()),
   estimatedTotalHours: decimal,
+  acceptanceMode: optional(z.enum(ACCEPTANCE_MODES)),
 });
 
 export type ApplicationOpportunity = z.infer<typeof applicationOpportunitySchema>;
@@ -181,6 +183,7 @@ export const applicationSchema = z.object({
   profileSnapshot: optional(profileSnapshotSchema),
   submittedAt: optional(isoDate),
   reviewedAt: optional(isoDate),
+  reviewedById: optional(id),
   withdrawnAt: optional(isoDate),
   createdAt: isoDate,
   updatedAt: isoDate,
