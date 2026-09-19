@@ -140,10 +140,21 @@ vacancy is already in a final state.
 `{ records: [{ applicationId, outcome, confirmedHours? }] }`, applied in one
 transaction. The roster on the vacancy sends one outcome and one number of
 hours for everyone selected, then lets a single row be corrected afterwards.
+The hours start at the vacancy's `estimatedTotalHours`, so confirming a full
+turnout is one click and a shorter or longer day is one edit.
 
 Both refuse before `endsAt` — or `startsAt` for a legacy record with no end —
 with `attendanceNotOpen`. `isAttendanceOpen` in `src/lib/vacancies/approval.ts`
 is the same rule, so the portal explains the wait instead of failing at it.
+
+## A draft is the volunteer's, not the organiser's
+
+An application in `draft` has not been sent, so there is nothing to decide.
+`applicationListSchema` and `userDetailSchema` drop drafts when they parse a
+response, the status filter offers only sent statuses, and a draft opened by
+its address says "Not sent yet" instead of offering a decision. The backend
+stops returning drafts to the portals as well; the parse-time filter keeps a
+backend that still sends them from showing them.
 
 ## Where the portal fills a gap, and how
 
