@@ -532,6 +532,51 @@ test.describe("the vacancy lifecycle", () => {
 });
 
 test.describe("review and attendance", () => {
+  test("leaves out applications a volunteer has not sent", async ({ page }) => {
+    await signedIn(page);
+    await page.goto("/en/applications");
+
+    const rows = page.getByRole("row");
+    await expect(rows.filter({ hasText: "Dilnoza Karimova" })).toHaveCount(1);
+    await expect(rows.filter({ hasText: "Jasur Qodirov" })).toHaveCount(0);
+    await expect(page.getByRole("option", { name: "Draft" })).toHaveCount(0);
+  });
+
+  test("shows a profile-only application without an empty answers panel", async ({
+    page,
+  }) => {
+    await signedIn(page);
+    await page.goto("/en/applications/00000000-0000-4000-8000-000000000607");
+
+    await expect(
+      page.getByRole("heading", { level: 2, name: "Profile as submitted" }),
+    ).toBeVisible();
+    await expect(page.getByRole("heading", { level: 2, name: "Answers" })).toHaveCount(
+      0,
+    );
+    await expect(page.getByText("Tashkent city")).toBeVisible();
+    await expect(page.getByText("Uzbek, Russian")).toBeVisible();
+    await expect(page.getByText("@dilnoza_k")).toBeVisible();
+    await expect(page.getByText("Phone", { exact: true })).toHaveCount(0);
+    await expect(
+      page.getByRole("heading", { level: 2, name: "Record a decision" }),
+    ).toBeVisible();
+  });
+
+  test("explains that an unsent draft has nothing to decide", async ({ page }) => {
+    await signedIn(page);
+    await page.goto("/en/applications/00000000-0000-4000-8000-000000000606");
+
+    await expect(statePanel(page).first()).toContainText("Not sent yet");
+    await expect(page.getByText("can no longer be reviewed")).toHaveCount(0);
+    await expect(
+      page.getByRole("heading", { level: 2, name: "Record a decision" }),
+    ).toHaveCount(0);
+    await expect(
+      page.getByRole("heading", { level: 2, name: "Profile as submitted" }),
+    ).toHaveCount(0);
+  });
+
   test("records a decision on an application", async ({ page }) => {
     await signedIn(page);
     await page.goto("/en/applications?status=submitted");
@@ -576,6 +621,9 @@ test.describe("review and attendance", () => {
     ).toBeVisible();
 
     await roster.getByLabel("Outcome for everyone selected").selectOption("attended");
+    const hours = roster.getByLabel("Hours for everyone selected");
+    await expect(hours).toHaveValue("6");
+    await hours.fill("");
     await roster.getByRole("button", { name: "Confirm selected" }).click();
     await expect(roster.locator('[data-slot="field-error"]').first()).toContainText(
       "Enter the hours",

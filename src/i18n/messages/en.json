@@ -478,9 +478,7 @@
       "eyebrow": "Application",
       "snapshot": "Profile as submitted",
       "snapshotNote": "This is the profile the volunteer submitted with the application, not their profile today.",
-      "noSnapshot": "This application carries no profile snapshot.",
       "answers": "Answers",
-      "noAnswers": "This application has no answers.",
       "history": "History",
       "reviewerNote": "Note to the volunteer",
       "volunteer": "Volunteer record"
@@ -500,7 +498,24 @@
       "submit": "Record the decision",
       "pending": "Recording…",
       "success": "The decision was recorded.",
-      "closed": "This application can no longer be reviewed."
+      "final": {
+        "draft": {
+          "title": "Not sent yet",
+          "description": "The volunteer started this application but hasn't sent it, so there is nothing to decide yet."
+        },
+        "withdrawn": {
+          "title": "Withdrawn by the volunteer",
+          "description": "The volunteer took this application back, so no decision is needed."
+        },
+        "rejected": {
+          "title": "Rejected",
+          "description": "This decision is final. The volunteer sees it as “Not selected”."
+        },
+        "closed": {
+          "title": "Closed",
+          "description": "This decision is final. The volunteer sees it as “Closed”."
+        }
+      }
     },
     "snapshotFields": {
       "fullName": "Full name",
@@ -625,7 +640,8 @@
       "pending": "Confirming…",
       "success": "Attendance was confirmed.",
       "outcome": "Outcome for everyone selected",
-      "hours": "Hours for everyone selected"
+      "hours": "Hours for everyone selected",
+      "hoursHelp": "Starts at the vacancy's estimated hours. Change it if the event ran shorter or longer."
     }
   },
   "activity": {

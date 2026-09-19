@@ -480,6 +480,9 @@ export default async function VacancyPage({
             vacancyId={vacancy.id}
             rows={rosterRows}
             outcomes={RESOLVABLE_ATTENDANCE_OUTCOMES}
+            {...(vacancy.estimatedTotalHours === undefined
+              ? {}
+              : { defaultHours: String(vacancy.estimatedTotalHours) })}
             labels={{
               caption: attendanceCopy("roster.caption"),
               volunteer: attendanceCopy("table.volunteer"),
@@ -495,7 +498,10 @@ export default async function VacancyPage({
               outcome: attendanceCopy("roster.outcome"),
               outcomes: outcomeLabels,
               hours: attendanceCopy("roster.hours"),
-              hoursHelp: attendanceCopy("resolve.hoursHelp"),
+              hoursHelp:
+                vacancy.estimatedTotalHours === undefined
+                  ? attendanceCopy("resolve.hoursHelp")
+                  : attendanceCopy("roster.hoursHelp"),
               submit: attendanceCopy("roster.submit"),
               pending: attendanceCopy("roster.pending"),
               success: attendanceCopy("roster.success"),

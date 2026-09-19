@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   apiRegion,
+  applicationListSchema,
   applicationSchema,
   attendanceSchema,
   auditEventSchema,
@@ -10,6 +11,7 @@ import {
   organizationListSchema,
   pageSchema,
   statisticsSchema,
+  userDetailSchema,
   vacancyListSchema,
   vacancySchema,
 } from "@/lib/api/schemas";
@@ -149,6 +151,36 @@ describe("applicationSchema", () => {
     expect(
       applicationSchema.safeParse({ ...application, status: "escalated" }).success,
     ).toBe(false);
+  });
+});
+
+describe("applications a volunteer has not sent", () => {
+  const sent = {
+    id: "app-1",
+    status: "submitted",
+    createdAt: "2026-09-01T09:00:00.000Z",
+    updatedAt: "2026-09-01T09:00:00.000Z",
+    volunteerId: "vol-1",
+    opportunityId: "vac-1",
+  };
+  const draft = { ...sent, id: "app-2", status: "draft" };
+
+  it("never reach an application list, whichever shape the list arrives in", () => {
+    expect(applicationListSchema.parse([sent, draft]).map((item) => item.id)).toEqual([
+      "app-1",
+    ]);
+    expect(
+      applicationListSchema.parse({ items: [draft, sent] }).map((item) => item.id),
+    ).toEqual(["app-1"]);
+  });
+
+  it("never reach a volunteer's record", () => {
+    const user = userDetailSchema.parse({
+      id: "vol-1",
+      createdAt: "2026-09-01T09:00:00.000Z",
+      applications: [sent, draft],
+    });
+    expect(user.applications.map((item) => item.id)).toEqual(["app-1"]);
   });
 });
 

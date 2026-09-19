@@ -14,7 +14,7 @@ import { Link } from "@/i18n/navigation";
 import { failureOf, isReady } from "@/lib/api/load";
 import { loadApplication } from "@/lib/applications/data.server";
 import { volunteerNameOf } from "@/lib/applications/filters";
-import { REVIEW_DECISIONS, isReviewable } from "@/lib/domain/vocabulary";
+import { REVIEW_DECISIONS, isRegion, isReviewable } from "@/lib/domain/vocabulary";
 import { errorCatalog } from "@/lib/vacancies/labels.server";
 import { userHref, vacancyHref } from "@/lib/routing/routes";
 
@@ -37,7 +37,9 @@ export default async function ApplicationPage({
   const t = await getTranslations("applications");
   const common = await getTranslations("common");
   const errors = await getTranslations("errors");
+  const vocabulary = await getTranslations("vocabulary");
   const format = await getFormatter();
+  const languages = new Intl.DisplayNames([locale], { type: "language" });
 
   const loaded = await loadApplication(id);
   const failure = failureOf(loaded);
@@ -57,6 +59,15 @@ export default async function ApplicationPage({
 
   const name = volunteerNameOf(application);
   const snapshot = application.profileSnapshot;
+  const regionName = (region: string) =>
+    isRegion(region) ? vocabulary(`regions.${region}`) : region;
+  const languageName = (code: string) => {
+    try {
+      return languages.of(code) ?? code;
+    } catch {
+      return code;
+    }
+  };
 
   const timeline: Array<[string, string | undefined]> = [
     ["createdAt", application.createdAt],
@@ -65,6 +76,26 @@ export default async function ApplicationPage({
     ["withdrawnAt", application.withdrawnAt],
     ["updatedAt", application.updatedAt],
   ];
+
+  const snapshotItems: Definition[] = (
+    snapshot
+      ? [
+          [t("snapshotFields.fullName"), snapshot.fullName],
+          [t("snapshotFields.bio"), snapshot.bio],
+          [t("snapshotFields.region"), snapshot.region && regionName(snapshot.region)],
+          [t("snapshotFields.school"), snapshot.school],
+          [
+            t("snapshotFields.languages"),
+            snapshot.languages?.map(languageName).join(", "),
+          ],
+          [t("snapshotFields.phone"), snapshot.phone],
+          [
+            t("snapshotFields.telegram"),
+            snapshot.telegram && `@${snapshot.telegram.replace(/^@/, "")}`,
+          ],
+        ]
+      : []
+  ).flatMap(([term, value]) => (term && value ? [{ term, value }] : []));
 
   const history: Definition[] = timeline.flatMap(([key, value]) =>
     value
@@ -110,49 +141,14 @@ export default async function ApplicationPage({
         />
       </div>
 
-      <Panel title={t("detail.snapshot")} description={t("detail.snapshotNote")}>
-        {snapshot ? (
-          <DefinitionList
-            items={[
-              {
-                term: t("snapshotFields.fullName"),
-                value: snapshot.fullName ?? common("notSet"),
-              },
-              {
-                term: t("snapshotFields.bio"),
-                value: snapshot.bio ?? common("notSet"),
-              },
-              {
-                term: t("snapshotFields.region"),
-                value: snapshot.region ?? common("notSet"),
-              },
-              {
-                term: t("snapshotFields.school"),
-                value: snapshot.school ?? common("notSet"),
-              },
-              {
-                term: t("snapshotFields.languages"),
-                value: snapshot.languages?.join(", ") || common("notSet"),
-              },
-              {
-                term: t("snapshotFields.phone"),
-                value: snapshot.phone ?? common("notSet"),
-              },
-              {
-                term: t("snapshotFields.telegram"),
-                value: snapshot.telegram ?? common("notSet"),
-              },
-            ]}
-          />
-        ) : (
-          <p className="text-sm text-ink-muted">{t("detail.noSnapshot")}</p>
-        )}
-      </Panel>
+      {snapshotItems.length > 0 ? (
+        <Panel title={t("detail.snapshot")} description={t("detail.snapshotNote")}>
+          <DefinitionList items={snapshotItems} />
+        </Panel>
+      ) : null}
 
-      <Panel title={t("detail.answers")}>
-        {application.answers.length === 0 ? (
-          <p className="text-sm text-ink-muted">{t("detail.noAnswers")}</p>
-        ) : (
+      {application.answers.length > 0 ? (
+        <Panel title={t("detail.answers")}>
           <dl className="flex flex-col gap-4">
             {application.answers.map((answer, index) => (
               <div key={answer.id ?? index}>
@@ -165,20 +161,8 @@ export default async function ApplicationPage({
               </div>
             ))}
           </dl>
-        )}
-      </Panel>
-
-      <Panel title={t("detail.history")}>
-        <DefinitionList items={history} />
-        {application.reviewerNote ? (
-          <div className="mt-5">
-            <h3 className="eyebrow text-ink-muted">{t("detail.reviewerNote")}</h3>
-            <p className="mt-1 text-sm leading-relaxed text-ink">
-              {application.reviewerNote}
-            </p>
-          </div>
-        ) : null}
-      </Panel>
+        </Panel>
+      ) : null}
 
       {isReviewable(application.status) ? (
         <Panel title={t("review.title")}>
@@ -219,8 +203,24 @@ export default async function ApplicationPage({
           />
         </Panel>
       ) : (
-        <StatePanel role="status" title={t("review.closed")} />
+        <StatePanel
+          role="status"
+          title={t(`review.final.${application.status}.title`)}
+          description={t(`review.final.${application.status}.description`)}
+        />
       )}
+
+      <Panel title={t("detail.history")}>
+        <DefinitionList items={history} />
+        {application.reviewerNote ? (
+          <div className="mt-5">
+            <h3 className="eyebrow text-ink-muted">{t("detail.reviewerNote")}</h3>
+            <p className="mt-1 text-sm leading-relaxed text-ink">
+              {application.reviewerNote}
+            </p>
+          </div>
+        ) : null}
+      </Panel>
     </>
   );
 }
