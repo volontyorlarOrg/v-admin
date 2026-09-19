@@ -38,7 +38,6 @@ async function fillVacancyDraft(
 ) {
   await page.getByLabel("Title").fill(values.title);
   await page.getByLabel("Address").fill(values.slug);
-  await page.getByLabel("Summary", { exact: true }).fill("A useful volunteer day.");
   await page
     .getByLabel("Description")
     .fill("Volunteers work together with a coordinator throughout the event.");

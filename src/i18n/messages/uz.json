@@ -289,7 +289,6 @@
     },
     "detail": {
       "eyebrow": "Vakansiya",
-      "summary": "Qisqacha",
       "description": "Tavsif",
       "requirements": "Talablar",
       "questions": "Ariza savollari",
@@ -302,8 +301,6 @@
       "title": "Nomi",
       "slug": "Manzil",
       "slugHelp": "Kichik lotin harflari, raqamlar va bitta chiziqcha. U ochiq havolaning bir qismi boʻladi.",
-      "summary": "Qisqacha tavsif",
-      "summaryHelp": "Roʻyxatlarda koʻrinadigan bir-ikki gap.",
       "description": "Tavsif",
       "organization": "Tashkilot",
       "organizationHelp": "Faqat tasdiqlangan tashkilotning vakansiyalari eʼlon qilinadi.",
@@ -320,6 +317,12 @@
       "requirementsHelp": "Har bir talab alohida qatorda.",
       "estimatedTotalHours": "Taxminiy soatlar",
       "estimatedTotalHoursHelp": "Koʻngilli butun tadbir uchun oladigan soatlar.",
+      "acceptanceMode": "Arizalarni tasdiqlash",
+      "acceptanceModeHelp": "Har qanday holatda qabul qilingan koʻngillini uning arizasi sahifasida rad etish mumkin.",
+      "acceptanceModes": {
+        "manual": "Har bir arizani siz koʻrib chiqasiz va qabul qilasiz yoki rad etasiz.",
+        "automatic": "Ariza bergan har bir kishi darhol qabul qilinadi — boʻsh joylar tugaguncha."
+      },
       "locationNameHelp": "Joyning nomi yoki ish onlayn qayerda boʻlishining ochiq tavsifi. Uchrashuv paroli hech qachon emas.",
       "cityHelp": "Koʻngillilar shaxsan kelsa, majburiy."
     },
@@ -372,13 +375,9 @@
     "approval": {
       "title": "Tasdiqlash",
       "description": "Bu vakansiya koʻngillilarga yetib borishini administrator hal qiladi.",
-      "status": "Holat",
       "submitted": "Tasdiqlashga yuborilgan",
       "decided": "Qaror qabul qilingan",
       "reviewer": "Qaror qabul qilgan",
-      "note": "Administrator izohi",
-      "noNote": "Izoh yoʻq",
-      "notSubmitted": "Hali yuborilmagan",
       "pendingTitle": "Qaror talab qilinadi",
       "pendingDescription": "Vakansiyani tasdiqlab eʼlon qiling, oʻzgartirish soʻrang yoki butunlay rad eting.",
       "changesTitle": "Oʻzgartirish soʻraldi",
@@ -390,7 +389,6 @@
       "requirements": {
         "organization": "tasdiqlangan tashkilot",
         "title": "nomi",
-        "summary": "qisqacha tavsif",
         "description": "tavsif",
         "format": "format",
         "region": "viloyat",
@@ -487,6 +485,7 @@
       "createdAt": "Boshlangan",
       "submittedAt": "Yuborilgan",
       "reviewedAt": "Koʻrib chiqilgan",
+      "acceptedAutomatically": "Avtomatik qabul qilindi",
       "withdrawnAt": "Qaytarib olingan",
       "updatedAt": "Oxirgi oʻzgarish"
     },
@@ -626,7 +625,6 @@
       "title": "Ishtirok",
       "description": "Tadbir tugagach, kim kelganini tasdiqlang.",
       "caption": "Qabul qilingan koʻngillilar va ularning ishtiroki",
-      "noAccepted": "Hali hech kim qabul qilinmagan.",
       "closedTitle": "Tasdiqlash hali ochilmagan",
       "closedDescription": "U tadbir tugagach, {when} da ochiladi.",
       "closedUnknown": "U tadbir tugagach ochiladi.",
@@ -880,6 +878,10 @@
       "onsite": "Joyida",
       "remote": "Masofadan",
       "hybrid": "Aralash"
+    },
+    "acceptanceModes": {
+      "manual": "Qoʻlda",
+      "automatic": "Avtomatik"
     }
   }
 }

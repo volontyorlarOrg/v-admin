@@ -289,7 +289,6 @@
     },
     "detail": {
       "eyebrow": "Vacancy",
-      "summary": "Summary",
       "description": "Description",
       "requirements": "Requirements",
       "questions": "Application questions",
@@ -302,8 +301,6 @@
       "title": "Title",
       "slug": "Address",
       "slugHelp": "Lowercase letters, numbers and single hyphens. It becomes part of the public link.",
-      "summary": "Summary",
-      "summaryHelp": "One or two sentences, shown in listings.",
       "description": "Description",
       "organization": "Organization",
       "organizationHelp": "Only a verified organization can have its vacancies published.",
@@ -320,6 +317,12 @@
       "requirementsHelp": "One requirement per line.",
       "estimatedTotalHours": "Estimated hours",
       "estimatedTotalHoursHelp": "Hours a volunteer earns for the whole event.",
+      "acceptanceMode": "Approving applications",
+      "acceptanceModeHelp": "Either way, you can still reject an accepted volunteer from their application.",
+      "acceptanceModes": {
+        "manual": "You review each application and accept or reject it.",
+        "automatic": "Everyone who applies is accepted at once, until the places run out."
+      },
       "locationNameHelp": "The venue on site, or a public description of where the work happens online. Never a meeting password.",
       "cityHelp": "Required when volunteers turn up in person."
     },
@@ -372,13 +375,9 @@
     "approval": {
       "title": "Approval",
       "description": "An administrator decides whether this vacancy reaches volunteers.",
-      "status": "State",
       "submitted": "Sent for approval",
       "decided": "Decided",
       "reviewer": "Decided by",
-      "note": "Note from the administrator",
-      "noNote": "No note",
-      "notSubmitted": "Not sent yet",
       "pendingTitle": "Review required",
       "pendingDescription": "Approve and publish this vacancy, request changes, or reject it permanently.",
       "changesTitle": "Changes were requested",
@@ -390,7 +389,6 @@
       "requirements": {
         "organization": "a verified organization",
         "title": "a title",
-        "summary": "a summary",
         "description": "a description",
         "format": "a format",
         "region": "a region",
@@ -487,6 +485,7 @@
       "createdAt": "Started",
       "submittedAt": "Submitted",
       "reviewedAt": "Reviewed",
+      "acceptedAutomatically": "Accepted automatically",
       "withdrawnAt": "Withdrawn",
       "updatedAt": "Last change"
     },
@@ -626,7 +625,6 @@
       "title": "Attendance",
       "description": "Confirm who turned up once the event has ended.",
       "caption": "Accepted volunteers and their attendance",
-      "noAccepted": "No volunteer has been accepted yet.",
       "closedTitle": "Attendance is not open yet",
       "closedDescription": "It opens when the event ends, on {when}.",
       "closedUnknown": "It opens when the event ends.",
@@ -880,6 +878,10 @@
       "onsite": "On site",
       "remote": "Remote",
       "hybrid": "Hybrid"
+    },
+    "acceptanceModes": {
+      "manual": "Manually",
+      "automatic": "Automatically"
     }
   }
 }

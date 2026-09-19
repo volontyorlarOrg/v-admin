@@ -42,6 +42,14 @@ describe("vacancySchema", () => {
     expect(parsed.city).toBeUndefined();
   });
 
+  it("reads a vacancy without an acceptance mode as reviewed by hand", () => {
+    expect(vacancySchema.parse(vacancy).acceptanceMode).toBe("manual");
+    expect(
+      vacancySchema.parse({ ...vacancy, acceptanceMode: "automatic" }).acceptanceMode,
+    ).toBe("automatic");
+    expect(vacancySchema.parse(vacancy)).not.toHaveProperty("summary");
+  });
+
   it("turns every null the database sends into an absent value", () => {
     const parsed = vacancySchema.parse({
       ...vacancy,
@@ -126,6 +134,23 @@ describe("applicationSchema", () => {
 
   it("defaults the answer list rather than leaving it undefined", () => {
     expect(applicationSchema.parse(application).answers).toEqual([]);
+  });
+
+  it("keeps who decided and how the vacancy accepts, so an automatic acceptance can be told apart", () => {
+    const parsed = applicationSchema.parse({
+      ...application,
+      status: "accepted",
+      reviewedById: null,
+      opportunity: {
+        id: "vac-1",
+        slug: "winter-book-drive",
+        title: "Winter book drive",
+        acceptanceMode: "automatic",
+      },
+    });
+
+    expect(parsed.reviewedById).toBeUndefined();
+    expect(parsed.opportunity?.acceptanceMode).toBe("automatic");
   });
 
   it("normalises an answer value to a string or a list of strings", () => {

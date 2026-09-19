@@ -23,6 +23,9 @@ export function isRegion(value: string): value is Region {
 export const VACANCY_FORMATS = ["onsite", "remote", "hybrid"] as const;
 export type VacancyFormat = (typeof VACANCY_FORMATS)[number];
 
+export const ACCEPTANCE_MODES = ["manual", "automatic"] as const;
+export type AcceptanceMode = (typeof ACCEPTANCE_MODES)[number];
+
 export const VACANCY_STATUSES = ["open", "closed", "full"] as const;
 export type VacancyStatus = (typeof VACANCY_STATUSES)[number];
 
