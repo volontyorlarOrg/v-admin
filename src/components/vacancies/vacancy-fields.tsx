@@ -8,7 +8,11 @@ import { Input } from "@/components/ui/input";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
 import { requiresVenue } from "@/lib/vacancies/approval";
-import type { VacancyFormat } from "@/lib/domain/vocabulary";
+import {
+  ACCEPTANCE_MODES,
+  type AcceptanceMode,
+  type VacancyFormat,
+} from "@/lib/domain/vocabulary";
 import type { MessageCatalog } from "@/lib/forms/messages";
 
 export type VacancyFieldLabels = {
@@ -16,6 +20,7 @@ export type VacancyFieldLabels = {
   help: Record<string, string>;
   regions: Record<string, string>;
   formats: Record<string, string>;
+  acceptanceModes: Record<AcceptanceMode, { label: string; description: string }>;
   sections: {
     about: string;
     organization: string;
@@ -141,7 +146,6 @@ export function VacancyFields({
       <Section title={labels.sections.about}>
         {text("title", { required: true })}
         {text("slug", { required: true })}
-        {area("summary", true)}
         {area("description", true)}
       </Section>
 
@@ -249,6 +253,46 @@ export function VacancyFields({
             step: 0.01,
           })}
         </div>
+        <fieldset
+          className="flex flex-col gap-2"
+          aria-describedby={describedBy("acceptanceMode", error("acceptanceMode"))}
+        >
+          <legend className="mb-2 text-sm font-semibold text-foreground">
+            {labels.fields.acceptanceMode}
+          </legend>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {ACCEPTANCE_MODES.map((mode) => (
+              <label
+                key={mode}
+                className="flex cursor-pointer items-start gap-3 rounded-lg border border-border bg-surface px-4 py-3 transition-colors hover:border-primary-ink has-checked:border-primary-ink has-checked:bg-surface-soft"
+              >
+                <input
+                  type="radio"
+                  name="acceptanceMode"
+                  value={mode}
+                  defaultChecked={(defaults.acceptanceMode || "manual") === mode}
+                  className="mt-0.5 size-4 shrink-0 accent-primary-ink"
+                />
+                <span className="min-w-0">
+                  <span className="block text-sm font-semibold text-ink">
+                    {labels.acceptanceModes[mode].label}
+                  </span>
+                  <span className="mt-0.5 block text-xs leading-5 text-ink-muted">
+                    {labels.acceptanceModes[mode].description}
+                  </span>
+                </span>
+              </label>
+            ))}
+          </div>
+          {labels.help.acceptanceMode ? (
+            <FieldDescription id={`${idOf("acceptanceMode")}-help`}>
+              {labels.help.acceptanceMode}
+            </FieldDescription>
+          ) : null}
+          <FieldError id={`${idOf("acceptanceMode")}-error`}>
+            {error("acceptanceMode")}
+          </FieldError>
+        </fieldset>
         {area("requirements")}
       </Section>
     </div>

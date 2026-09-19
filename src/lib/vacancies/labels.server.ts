@@ -67,7 +67,6 @@ async function vacancyFieldLabels(): Promise<VacancyFieldLabels> {
     fields: {
       title: t("fields.title"),
       slug: t("fields.slug"),
-      summary: t("fields.summary"),
       description: t("fields.description"),
       organizationId: t("fields.organization"),
       region: t("fields.region"),
@@ -79,17 +78,18 @@ async function vacancyFieldLabels(): Promise<VacancyFieldLabels> {
       applicationDeadline: t("fields.applicationDeadline"),
       capacity: t("fields.capacity"),
       estimatedTotalHours: t("fields.estimatedTotalHours"),
+      acceptanceMode: t("fields.acceptanceMode"),
       requirements: t("fields.requirements"),
     },
     help: {
       slug: t("fields.slugHelp"),
-      summary: t("fields.summaryHelp"),
       organizationId: t("fields.organizationHelp"),
       capacity: t("fields.capacityHelp"),
       estimatedTotalHours: t("fields.estimatedTotalHoursHelp"),
       locationName: t("fields.locationNameHelp"),
       city: t("fields.cityHelp"),
       requirements: t("fields.requirementsHelp"),
+      acceptanceMode: t("fields.acceptanceModeHelp"),
     },
     sections: {
       about: t("form.sections.about"),
@@ -106,6 +106,16 @@ async function vacancyFieldLabels(): Promise<VacancyFieldLabels> {
     formats: Object.fromEntries(
       VACANCY_FORMATS.map((format) => [format, vocabulary(`formats.${format}`)]),
     ),
+    acceptanceModes: {
+      manual: {
+        label: vocabulary("acceptanceModes.manual"),
+        description: t("fields.acceptanceModes.manual"),
+      },
+      automatic: {
+        label: vocabulary("acceptanceModes.automatic"),
+        description: t("fields.acceptanceModes.automatic"),
+      },
+    },
     errors: await errorCatalog(),
   };
 }

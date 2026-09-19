@@ -349,7 +349,6 @@ function vacancy(id, slug, title, createdById, overrides) {
     id,
     slug,
     title,
-    summary: `${title} summary`,
     description: `${title} description`,
     requirements: [],
     region: "tashkent-city",
@@ -363,6 +362,7 @@ function vacancy(id, slug, title, createdById, overrides) {
     imageUrl: null,
     capacity: 20,
     estimatedTotalHours: "6.00",
+    acceptanceMode: "manual",
     approvalStatus: "draft",
     approvalSubmittedAt: null,
     approvalReviewedAt: null,
@@ -788,7 +788,6 @@ const server = createServer(async (request, response) => {
         return send(response, 409, { code: "slugUnavailable" });
       }
       const created = vacancy(randomUUID(), body.slug, body.title, actor.id, {
-        summary: body.summary,
         description: body.description,
         region: body.region,
         format: body.format,
@@ -803,6 +802,7 @@ const server = createServer(async (request, response) => {
         requirements: body.requirements ?? [],
         capacity: body.capacity ?? null,
         estimatedTotalHours: body.estimatedTotalHours ?? null,
+        acceptanceMode: body.acceptanceMode ?? "manual",
         approvalStatus: "draft",
       });
       state.vacancies.unshift(created);

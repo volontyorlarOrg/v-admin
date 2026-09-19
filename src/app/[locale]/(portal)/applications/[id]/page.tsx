@@ -97,11 +97,19 @@ export default async function ApplicationPage({
       : []
   ).flatMap(([term, value]) => (term && value ? [{ term, value }] : []));
 
+  const acceptedAutomatically =
+    application.status === "accepted" &&
+    application.reviewedById === undefined &&
+    application.opportunity?.acceptanceMode === "automatic";
+
   const history: Definition[] = timeline.flatMap(([key, value]) =>
     value
       ? [
           {
-            term: t(`history.${key}`),
+            term:
+              key === "reviewedAt" && acceptedAutomatically
+                ? t("history.acceptedAutomatically")
+                : t(`history.${key}`),
             value: format.dateTime(new Date(value), "stamp"),
           },
         ]

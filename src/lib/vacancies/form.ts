@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { REGIONS, VACANCY_FORMATS } from "@/lib/domain/vocabulary";
+import { ACCEPTANCE_MODES, REGIONS, VACANCY_FORMATS } from "@/lib/domain/vocabulary";
 import { hasMeetingCredentials, requiresVenue } from "@/lib/vacancies/approval";
 
 export const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -9,7 +9,6 @@ export const MAX_ESTIMATED_TOTAL_HOURS = 100_000;
 export const VACANCY_FIELDS = [
   "title",
   "slug",
-  "summary",
   "description",
   "organizationId",
   "region",
@@ -21,6 +20,7 @@ export const VACANCY_FIELDS = [
   "applicationDeadline",
   "capacity",
   "estimatedTotalHours",
+  "acceptanceMode",
   "requirements",
 ] as const;
 
@@ -40,7 +40,6 @@ const vacancyShape = z
   .object({
     title: trimmed.min(2, "required").max(180, "tooLong"),
     slug: trimmed.min(2, "required").max(160, "tooLong").regex(SLUG_PATTERN, "slug"),
-    summary: trimmed.min(2, "required").max(400, "tooLong"),
     description: trimmed.min(2, "required").max(10_000, "tooLong"),
     organizationId: trimmed.min(1, "required"),
     region: z.enum(REGIONS, { message: "required" }),
@@ -52,6 +51,7 @@ const vacancyShape = z
     applicationDeadline: trimmed.min(1, "required"),
     capacity: trimmed.min(1, "required"),
     estimatedTotalHours: trimmed.min(1, "required"),
+    acceptanceMode: z.enum(ACCEPTANCE_MODES, { message: "required" }),
     requirements: trimmed.optional(),
   })
   .superRefine((values, context) => {
@@ -154,7 +154,6 @@ export function toVacancyPayload(values: VacancyFormValues) {
   return {
     title: values.title,
     slug: values.slug,
-    summary: values.summary,
     description: values.description,
     organizationId: values.organizationId,
     region: values.region,
@@ -164,6 +163,7 @@ export function toVacancyPayload(values: VacancyFormValues) {
     applicationDeadline: new Date(values.applicationDeadline).toISOString(),
     capacity: Number(values.capacity),
     estimatedTotalHours: Number(values.estimatedTotalHours),
+    acceptanceMode: values.acceptanceMode,
     ...(values.city ? { city: values.city } : {}),
     ...(values.locationName ? { locationName: values.locationName } : {}),
     ...(values.requirements
