@@ -1,11 +1,15 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  APPLICATION_STATUSES,
   ATTENDANCE_OUTCOMES,
   RESOLVABLE_ATTENDANCE_OUTCOMES,
+  SENT_APPLICATION_STATUSES,
   canArchive,
   isAwaitingReview,
+  isRegion,
   isReviewable,
+  isSent,
   stageOf,
 } from "@/lib/domain/vocabulary";
 
@@ -50,6 +54,22 @@ describe("application status vocabulary", () => {
   it("counts only the undecided ones as awaiting review", () => {
     expect(isAwaitingReview("submitted")).toBe(true);
     expect(isAwaitingReview("accepted")).toBe(false);
+  });
+
+  it("treats every status but a draft as sent, because a draft is still the volunteer's own", () => {
+    expect(isSent("draft")).toBe(false);
+    expect(SENT_APPLICATION_STATUSES).toEqual(
+      APPLICATION_STATUSES.filter((status) => status !== "draft"),
+    );
+    for (const status of SENT_APPLICATION_STATUSES) expect(isSent(status)).toBe(true);
+  });
+});
+
+describe("regions", () => {
+  it("recognises a region the product defines and nothing else", () => {
+    expect(isRegion("tashkent-city")).toBe(true);
+    expect(isRegion("tashkent_city")).toBe(false);
+    expect(isRegion("atlantis")).toBe(false);
   });
 });
 

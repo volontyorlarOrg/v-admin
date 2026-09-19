@@ -478,9 +478,7 @@
       "eyebrow": "Ariza",
       "snapshot": "Ariza yuborilgandagi profil",
       "snapshotNote": "Bu volontyor ariza bilan yuborgan profil, uning bugungi profili emas.",
-      "noSnapshot": "Bu arizada profil nusxasi yoʻq.",
       "answers": "Javoblar",
-      "noAnswers": "Bu arizada javoblar yoʻq.",
       "history": "Tarix",
       "reviewerNote": "Volontyorga izoh",
       "volunteer": "Volontyor yozuvi"
@@ -500,7 +498,24 @@
       "submit": "Qarorni saqlash",
       "pending": "Saqlanmoqda…",
       "success": "Qaror qayd etildi.",
-      "closed": "Bu arizani endi koʻrib chiqib boʻlmaydi."
+      "final": {
+        "draft": {
+          "title": "Hali yuborilmagan",
+          "description": "Volontyor arizani boshlagan, lekin yubormagan, shuning uchun hozircha qaror kerak emas."
+        },
+        "withdrawn": {
+          "title": "Volontyor qaytarib olgan",
+          "description": "Volontyor arizani qaytarib oldi, qaror talab qilinmaydi."
+        },
+        "rejected": {
+          "title": "Rad etilgan",
+          "description": "Bu qaror yakuniy. Volontyor uni «Tanlanmadi» deb koʻradi."
+        },
+        "closed": {
+          "title": "Yopilgan",
+          "description": "Bu qaror yakuniy. Volontyor uni «Yopilgan» deb koʻradi."
+        }
+      }
     },
     "snapshotFields": {
       "fullName": "Toʻliq ism",
@@ -625,7 +640,8 @@
       "pending": "Tasdiqlanmoqda…",
       "success": "Ishtirok tasdiqlandi.",
       "outcome": "Tanlanganlarning barchasi uchun natija",
-      "hours": "Tanlanganlarning barchasi uchun soatlar"
+      "hours": "Tanlanganlarning barchasi uchun soatlar",
+      "hoursHelp": "Vakansiyadagi taxminiy soatlar oldindan yozilgan. Tadbir qisqaroq yoki uzoqroq boʻlsa, oʻzgartiring."
     }
   },
   "activity": {

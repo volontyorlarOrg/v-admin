@@ -16,6 +16,10 @@ export const REGIONS = [
 ] as const;
 export type Region = (typeof REGIONS)[number];
 
+export function isRegion(value: string): value is Region {
+  return (REGIONS as readonly string[]).includes(value);
+}
+
 export const VACANCY_FORMATS = ["onsite", "remote", "hybrid"] as const;
 export type VacancyFormat = (typeof VACANCY_FORMATS)[number];
 
@@ -58,6 +62,20 @@ export const APPLICATION_STATUSES = [
   "closed",
 ] as const;
 export type ApplicationStatus = (typeof APPLICATION_STATUSES)[number];
+
+export const SENT_APPLICATION_STATUSES = [
+  "submitted",
+  "under_review",
+  "accepted",
+  "rejected",
+  "withdrawn",
+  "closed",
+] as const;
+export type SentApplicationStatus = (typeof SENT_APPLICATION_STATUSES)[number];
+
+export function isSent(status: ApplicationStatus): status is SentApplicationStatus {
+  return status !== "draft";
+}
 
 export const REVIEW_DECISIONS = [
   "under_review",
