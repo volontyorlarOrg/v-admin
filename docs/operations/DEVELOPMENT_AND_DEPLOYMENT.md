@@ -68,11 +68,19 @@ unavailable and every protected route returns to it. Nothing is guessed.
 
 ## CI
 
-`.github/workflows/ci.yml` runs on every push and pull request:
+`.github/workflows/ci.yml` runs on Ubuntu 24.04 for every push and pull request
+targeting `main`, and can also be started manually:
 
-1. `npm ci`, `npm run lint`, `npm run typecheck`, `npm run test`, `npm run build`,
-   `npm audit --audit-level=high`;
-2. the Playwright suite against the stub backend, uploading the report on failure.
+1. `npm ci`, lint, typecheck, tests, a high-severity dependency audit, and the
+   production build;
+2. the Playwright suite against the stub backend, uploading its report and test
+   results on failure;
+3. dependency-diff review for pull requests.
+
+CodeQL scans JavaScript/TypeScript and GitHub Actions workflows on `main`, pull
+requests, and a weekly schedule. Dependabot checks npm and GitHub Actions
+weekly. Third-party actions are pinned to immutable commits and checkout does
+not persist Git credentials.
 
 ## Deploying
 
