@@ -522,13 +522,19 @@
       }
     },
     "snapshotFields": {
+      "username": "Имя пользователя",
       "fullName": "Полное имя",
       "bio": "О себе",
       "region": "Регион",
-      "languages": "Языки",
+      "city": "Город или район",
       "school": "Учебное заведение",
+      "gradeYear": "Класс или курс",
+      "languages": "Языки",
       "phone": "Телефон",
-      "telegram": "Telegram"
+      "telegram": "Telegram",
+      "instagram": "Instagram",
+      "linkedin": "LinkedIn",
+      "links": "Портфолио"
     }
   },
   "users": {
@@ -563,7 +569,13 @@
       "account": "Учётная запись",
       "applications": "Заявки",
       "noApplications": "У этого волонтёра нет заявок на ваши вакансии.",
-      "profile": "Профиль на момент подачи"
+      "profile": "Профиль на момент подачи",
+      "currentProfile": "Профиль",
+      "currentProfileNote": "Профиль на сегодня. Каждая заявка хранит профиль таким, каким он был при отправке.",
+      "profileComplete": "Профиль заполнен",
+      "profileIncomplete": "Профиль не заполнен",
+      "missing": "Чтобы подать заявку, ещё не хватает: {fields}.",
+      "noProfile": "Этот волонтёр ещё не заполнил профиль."
     },
     "passwordState": {
       "none": "Вход по паролю не настроен",

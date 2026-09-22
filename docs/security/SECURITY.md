@@ -64,7 +64,9 @@ three days.
 a `Permissions-Policy` that denies camera, microphone, geolocation and topics ·
 `Strict-Transport-Security` when the configured origin is https · and a CSP with
 `default-src 'self'`, `frame-ancestors 'none'`, `form-action 'self'` and no
-third-party origin at all.
+third-party origin for scripts, styles, fonts or connections. Images are the
+one exception: `img-src` allows `https:` so a volunteer's profile photo loads
+from the backend's public object storage, as it does in `v-app`.
 
 The proxy repeats `Cache-Control` and `X-Robots-Tag` on navigations, the root
 layout sets `robots: { index: false, follow: false }`, and `robots.txt`

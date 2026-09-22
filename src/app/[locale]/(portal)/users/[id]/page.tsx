@@ -8,8 +8,15 @@ import { TemporaryPasswordForm } from "@/components/portal/temporary-password-fo
 import { LoadFailure } from "@/components/states/load-failure";
 import { PageHeader } from "@/components/states/page-header";
 import { buttonClass } from "@/components/ui/button";
+import {
+  PROFILE_FIELD_KEYS,
+  VolunteerProfile,
+  type ProfileFieldKey,
+  type VolunteerProfileLabels,
+} from "@/components/users/volunteer-profile";
 import { Link } from "@/i18n/navigation";
 import { failureOf, isReady } from "@/lib/api/load";
+import { isRegion } from "@/lib/domain/vocabulary";
 import { applicationHref } from "@/lib/routing/routes";
 import { replaceUserPasswordAction } from "@/lib/users/actions";
 import { loadUser } from "@/lib/users/data.server";
@@ -35,7 +42,9 @@ export default async function UserPage({ params }: PageProps<"/[locale]/users/[i
   const auth = await getTranslations("auth");
   const common = await getTranslations("common");
   const errors = await getTranslations("errors");
+  const vocabulary = await getTranslations("vocabulary");
   const format = await getFormatter();
+  const languages = new Intl.DisplayNames([locale], { type: "language" });
 
   const loaded = await loadUser(id);
   const failure = failureOf(loaded);
@@ -53,6 +62,25 @@ export default async function UserPage({ params }: PageProps<"/[locale]/users/[i
 
   const user = loaded.data;
   const password = passwordLoginState(user);
+  const profileLabels: VolunteerProfileLabels = {
+    fields: Object.fromEntries(
+      PROFILE_FIELD_KEYS.map((key) => [key, applications(`snapshotFields.${key}`)]),
+    ) as VolunteerProfileLabels["fields"],
+  };
+  const fieldName = (key: string) =>
+    (PROFILE_FIELD_KEYS as readonly string[]).includes(key)
+      ? profileLabels.fields[key as ProfileFieldKey]
+      : key;
+  const completion = user.profileCompletion;
+  const regionName = (region: string) =>
+    isRegion(region) ? vocabulary(`regions.${region}`) : region;
+  const languageName = (code: string) => {
+    try {
+      return languages.of(code) ?? code;
+    } catch {
+      return code;
+    }
+  };
 
   return (
     <>
@@ -93,6 +121,41 @@ export default async function UserPage({ params }: PageProps<"/[locale]/users/[i
             },
           ]}
         />
+      </Panel>
+
+      <Panel
+        title={t("detail.currentProfile")}
+        description={t("detail.currentProfileNote")}
+      >
+        <VolunteerProfile
+          identity={{
+            name: user.displayName ?? common("notSet"),
+            username: user.username,
+            avatarUrl: user.avatarUrl,
+          }}
+          profile={user.profile ?? {}}
+          labels={profileLabels}
+          status={
+            completion
+              ? {
+                  label: completion.complete
+                    ? t("detail.profileComplete")
+                    : t("detail.profileIncomplete"),
+                  tone: completion.complete ? "person" : "neutral",
+                  note: completion.complete
+                    ? undefined
+                    : t("detail.missing", {
+                        fields: completion.missing.map(fieldName).join(", "),
+                      }),
+                }
+              : undefined
+          }
+          regionName={regionName}
+          languageName={languageName}
+        />
+        {user.profile ? null : (
+          <p className="mt-4 text-sm text-ink-muted">{t("detail.noProfile")}</p>
+        )}
       </Panel>
 
       <Panel title={t("detail.applications")}>

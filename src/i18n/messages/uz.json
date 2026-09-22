@@ -522,13 +522,19 @@
       }
     },
     "snapshotFields": {
+      "username": "Foydalanuvchi nomi",
       "fullName": "Toʻliq ism",
       "bio": "Oʻzi haqida",
       "region": "Viloyat",
-      "languages": "Tillar",
+      "city": "Shahar yoki tuman",
       "school": "Oʻquv muassasasi",
+      "gradeYear": "Sinf yoki kurs",
+      "languages": "Tillar",
       "phone": "Telefon",
-      "telegram": "Telegram"
+      "telegram": "Telegram",
+      "instagram": "Instagram",
+      "linkedin": "LinkedIn",
+      "links": "Portfolio"
     }
   },
   "users": {
@@ -563,7 +569,13 @@
       "account": "Hisob",
       "applications": "Arizalar",
       "noApplications": "Bu volontyorning vakansiyalaringizga arizasi yoʻq.",
-      "profile": "Ariza yuborilgandagi profil"
+      "profile": "Ariza yuborilgandagi profil",
+      "currentProfile": "Profil",
+      "currentProfileNote": "Uning bugungi profili. Har bir ariza yuborilgan paytdagi profilni saqlaydi.",
+      "profileComplete": "Profil toʻliq",
+      "profileIncomplete": "Profil toʻliq emas",
+      "missing": "Ariza berishi uchun hali yetishmayapti: {fields}.",
+      "noProfile": "Bu volontyor hali profilini toʻldirmagan."
     },
     "passwordState": {
       "none": "Parol bilan kirish sozlanmagan",

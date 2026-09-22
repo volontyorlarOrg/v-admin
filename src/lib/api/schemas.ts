@@ -167,16 +167,29 @@ export const applicationAnswerSchema = z.object({
 });
 
 export const profileSnapshotSchema = z.object({
+  username: optional(z.string()),
   fullName: optional(z.string()),
   bio: optional(z.string()),
   region: optional(z.string()),
+  city: optional(z.string()),
   school: optional(z.string()),
+  gradeYear: optional(z.string()),
   languages: optional(z.array(z.string())),
   phone: optional(z.string()),
   telegram: optional(z.string()),
+  instagram: optional(z.string()),
+  linkedin: optional(z.string()),
+  links: optional(z.array(z.string())),
 });
 
 export type ProfileSnapshot = z.infer<typeof profileSnapshotSchema>;
+
+export const profileCompletionSchema = z.object({
+  complete: z.boolean(),
+  missing: z.array(z.string()).default([]),
+});
+
+export type ProfileCompletion = z.infer<typeof profileCompletionSchema>;
 
 export const applicationSchema = z.object({
   id,
@@ -196,7 +209,10 @@ export const applicationSchema = z.object({
     z.object({
       id,
       displayName: optional(z.string()),
+      username: optional(z.string()),
+      avatarUrl: optional(z.string()),
       profile: optional(profileSnapshotSchema.loose()),
+      profileCompletion: optional(profileCompletionSchema),
     }),
   ),
   opportunity: optional(applicationOpportunitySchema),
@@ -241,11 +257,14 @@ export type DirectoryUser = z.infer<typeof directoryUserSchema>;
 export const userDetailSchema = z.object({
   id,
   displayName: optional(z.string()),
+  username: optional(z.string()),
+  avatarUrl: optional(z.string()),
   email: optional(z.string()),
   emailVerifiedAt: optional(isoDate),
   isActive: z.boolean().default(true),
   createdAt: isoDate,
   profile: optional(profileSnapshotSchema.loose()),
+  profileCompletion: optional(profileCompletionSchema),
   passwordCredential: optional(passwordStateSchema),
   applications: z.array(applicationSchema).default([]).transform(sentOnly),
 });
