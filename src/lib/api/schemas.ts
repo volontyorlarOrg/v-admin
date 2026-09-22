@@ -96,6 +96,7 @@ export const vacancySchema = z.object({
   capacity: optional(z.number().int()),
   estimatedTotalHours: decimal,
   acceptanceMode: z.enum(ACCEPTANCE_MODES).default("manual"),
+  essayRequired: z.boolean().default(false),
   approvalStatus: optional(z.enum(OPPORTUNITY_APPROVAL_STATUSES)),
   approvalSubmittedAt: optional(isoDate),
   approvalReviewedAt: optional(isoDate),
@@ -145,6 +146,7 @@ export const applicationOpportunitySchema = z.object({
   capacity: optional(z.number().int()),
   estimatedTotalHours: decimal,
   acceptanceMode: optional(z.enum(ACCEPTANCE_MODES)),
+  essayRequired: z.boolean().default(false),
 });
 
 export type ApplicationOpportunity = z.infer<typeof applicationOpportunitySchema>;
@@ -179,6 +181,7 @@ export type ProfileSnapshot = z.infer<typeof profileSnapshotSchema>;
 export const applicationSchema = z.object({
   id,
   status: z.enum(APPLICATION_STATUSES),
+  essay: optional(z.string()),
   reviewerNote: optional(z.string()),
   profileSnapshot: optional(profileSnapshotSchema),
   submittedAt: optional(isoDate),

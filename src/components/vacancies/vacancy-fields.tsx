@@ -7,12 +7,7 @@ import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui
 import { Input } from "@/components/ui/input";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
-import { requiresVenue } from "@/lib/vacancies/approval";
-import {
-  ACCEPTANCE_MODES,
-  type AcceptanceMode,
-  type VacancyFormat,
-} from "@/lib/domain/vocabulary";
+import { ACCEPTANCE_MODES, type AcceptanceMode } from "@/lib/domain/vocabulary";
 import type { MessageCatalog } from "@/lib/forms/messages";
 
 export type VacancyFieldLabels = {
@@ -68,11 +63,9 @@ export function VacancyFields({
   idPrefix?: string;
 }) {
   const [organizationId, setOrganizationId] = useState(defaults.organizationId ?? "");
-  const [format, setFormat] = useState(defaults.format ?? "");
 
   const idOf = (name: string) => `${idPrefix}-${name}`;
   const selected = organizations.find((item) => item.id === organizationId);
-  const venue = requiresVenue(format as VacancyFormat);
 
   const describedBy = (name: string, invalid: string | undefined) =>
     [
@@ -145,7 +138,6 @@ export function VacancyFields({
     <div className="flex flex-col gap-7">
       <Section title={labels.sections.about}>
         {text("title", { required: true })}
-        {text("slug", { required: true })}
         {area("description", true)}
       </Section>
 
@@ -215,8 +207,7 @@ export function VacancyFields({
               id={idOf("format")}
               name="format"
               required
-              value={format}
-              onChange={(event) => setFormat(event.target.value)}
+              defaultValue={defaults.format ?? ""}
               aria-invalid={Boolean(error("format")) || undefined}
               aria-describedby={describedBy("format", error("format"))}
             >
@@ -229,25 +220,23 @@ export function VacancyFields({
             <FieldError id={`${idOf("format")}-error`}>{error("format")}</FieldError>
           </Field>
 
-          {text("city", { required: venue })}
-          {text("locationName", { required: true })}
+          {text("locationName")}
         </div>
       </Section>
 
       <Section title={labels.sections.when}>
         <div className="grid gap-4 sm:grid-cols-2">
           {text("startsAt", { type: "datetime-local", required: true })}
-          {text("endsAt", { type: "datetime-local", required: true })}
+          {text("endsAt", { type: "datetime-local" })}
           {text("applicationDeadline", { type: "datetime-local", required: true })}
         </div>
       </Section>
 
       <Section title={labels.sections.volunteers}>
         <div className="grid gap-4 sm:grid-cols-2">
-          {text("capacity", { type: "number", required: true, min: 1, step: 1 })}
+          {text("capacity", { type: "number", min: 1, step: 1 })}
           {text("estimatedTotalHours", {
             type: "number",
-            required: true,
             min: 0.25,
             max: 100_000,
             step: 0.01,
@@ -293,6 +282,22 @@ export function VacancyFields({
             {error("acceptanceMode")}
           </FieldError>
         </fieldset>
+        <label className="flex min-h-11 items-start gap-3 rounded-lg border border-border bg-surface px-4 py-3">
+          <input
+            type="checkbox"
+            name="essayRequired"
+            defaultChecked={defaults.essayRequired === "on"}
+            className="mt-0.5 size-5 shrink-0 accent-action"
+          />
+          <span className="min-w-0">
+            <span className="block text-sm font-semibold text-ink">
+              {labels.fields.essayRequired}
+            </span>
+            <span className="mt-0.5 block text-xs leading-5 text-ink-muted">
+              {labels.help.essayRequired}
+            </span>
+          </span>
+        </label>
         {area("requirements")}
       </Section>
     </div>

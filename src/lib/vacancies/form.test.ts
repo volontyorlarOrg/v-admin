@@ -10,12 +10,10 @@ import {
 
 const valid = {
   title: "Winter book drive",
-  slug: "winter-book-drive",
   description: "A longer description of the work.",
   organizationId: "org-1",
   region: "tashkent-city",
   format: "onsite",
-  city: "Tashkent",
   locationName: "Chilonzor library",
   startsAt: "2026-10-01T09:00",
   endsAt: "2026-10-01T15:00",
@@ -23,6 +21,7 @@ const valid = {
   capacity: "20",
   estimatedTotalHours: "6",
   acceptanceMode: "manual",
+  essayRequired: "",
 };
 
 describe("vacancyFormSchema", () => {
@@ -30,11 +29,16 @@ describe("vacancyFormSchema", () => {
     expect(vacancyFormSchema.safeParse(valid).success).toBe(true);
   });
 
-  it("requires an end, because attendance opens when the event ends", () => {
+  it("allows optional logistics to stay empty", () => {
     expect(
-      fieldErrorsOf(vacancyFormSchema.safeParse({ ...valid, endsAt: "" }).error!)
-        .endsAt,
-    ).toEqual(["required"]);
+      vacancyFormSchema.safeParse({
+        ...valid,
+        endsAt: "",
+        locationName: "",
+        capacity: "",
+        estimatedTotalHours: "",
+      }).success,
+    ).toBe(true);
   });
 
   it("requires a positive whole-event estimate of hours", () => {
@@ -43,32 +47,6 @@ describe("vacancyFormSchema", () => {
         vacancyFormSchema.safeParse({ ...valid, estimatedTotalHours: "0" }).error!,
       ).estimatedTotalHours,
     ).toEqual(["estimatedHours"]);
-    expect(
-      fieldErrorsOf(
-        vacancyFormSchema.safeParse({ ...valid, estimatedTotalHours: "" }).error!,
-      ).estimatedTotalHours,
-    ).toEqual(["required"]);
-  });
-
-  it("requires a city and a venue when volunteers turn up somewhere", () => {
-    const errors = fieldErrorsOf(
-      vacancyFormSchema.safeParse({ ...valid, city: "", locationName: "" }).error!,
-    );
-    expect(errors.city).toEqual(["cityRequired"]);
-    expect(errors.locationName).toEqual(["venueRequired"]);
-  });
-
-  it("requires a public online location when the work is remote", () => {
-    expect(
-      fieldErrorsOf(
-        vacancyFormSchema.safeParse({
-          ...valid,
-          format: "remote",
-          city: "",
-          locationName: "",
-        }).error!,
-      ).locationName,
-    ).toEqual(["onlineLocationRequired"]);
   });
 
   it("refuses meeting credentials in a field every volunteer can read", () => {
@@ -77,16 +55,10 @@ describe("vacancyFormSchema", () => {
         vacancyFormSchema.safeParse({
           ...valid,
           format: "remote",
-          city: "",
           locationName: "Zoom, passcode 4821",
         }).error!,
       ).locationName,
     ).toEqual(["onlineLocationCredentials"]);
-  });
-
-  it("requires a slug the backend will accept", () => {
-    const result = vacancyFormSchema.safeParse({ ...valid, slug: "Winter Books!" });
-    expect(fieldErrorsOf(result.error!).slug).toEqual(["slug"]);
   });
 
   it.each(["2026-10-01T09:00", "2026-10-02T18:00"])(
@@ -171,17 +143,33 @@ describe("toVacancyPayload", () => {
     expect(payload).not.toHaveProperty("summary");
   });
 
+  it("sends whether an essay is required", () => {
+    expect(
+      toVacancyPayload(vacancyFormSchema.parse({ ...valid, essayRequired: "on" }))
+        .essayRequired,
+    ).toBe(true);
+  });
+
   it("sends the hours and places as numbers, not the form's strings", () => {
     const payload = toVacancyPayload(parsed);
     expect(payload.capacity).toBe(20);
     expect(payload.estimatedTotalHours).toBe(6);
   });
 
-  it("omits an optional field left empty rather than sending a null", () => {
+  it("omits optional fields left empty rather than sending nulls", () => {
     const payload = toVacancyPayload(
-      vacancyFormSchema.parse({ ...valid, format: "remote", city: "" }),
+      vacancyFormSchema.parse({
+        ...valid,
+        endsAt: "",
+        locationName: "",
+        capacity: "",
+        estimatedTotalHours: "",
+      }),
     );
-    expect(payload).not.toHaveProperty("city");
+    expect(payload).not.toHaveProperty("endsAt");
+    expect(payload).not.toHaveProperty("locationName");
+    expect(payload).not.toHaveProperty("capacity");
+    expect(payload).not.toHaveProperty("estimatedTotalHours");
     expect(payload).not.toHaveProperty("requirements");
   });
 });
