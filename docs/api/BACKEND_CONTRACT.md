@@ -174,6 +174,33 @@ its address says "Not sent yet" instead of offering a decision. The backend
 stops returning drafts to the portals as well; the parse-time filter keeps a
 backend that still sends them from showing them.
 
+## The volunteer behind an application
+
+Applying needs a chosen username and a full profile — every field except the
+photo, Instagram, LinkedIn and portfolio links — and the backend refuses
+anything less (`profileIncomplete` with the missing `fields`). What an
+administrator sees follows from that:
+
+- **The application page shows the full profile as submitted.** Since
+  2026-09-22 `profileSnapshot` holds the whole profile at the moment of sending
+  (`username`, `fullName`, `bio`, `region`, `city`, `school`, `gradeYear`,
+  `languages`, `phone`, `telegram`, `instagram`, `linkedin`, `links`); older
+  applications hold the first seven fields the backend kept then, and only
+  what a snapshot holds is shown. The photo and, for an older snapshot, the
+  username come from the application's `volunteer`, which on the
+  administrator's routes also carries `username`, `avatarUrl`, the current
+  `profile` and its `profileCompletion`. The essay and the answers sit on the
+  same page. `VolunteerProfile` (`src/components/users/`) draws it.
+- **The user page shows the profile today.** `GET /admin/users/:id` adds
+  `username`, `avatarUrl`, `profile` (the `GET /profile` shape) and
+  `profileCompletion` (`{ complete, missing }`); the page names what is still
+  missing before the volunteer can apply.
+- **Links a volunteer typed open only as web addresses.** Telegram and
+  Instagram usernames become their profile addresses, a LinkedIn value must be
+  a `linkedin.com` address or slug, and a portfolio link must be `http` or
+  `https` (`src/lib/users/profile-links.ts`). Photos load from the backend's
+  public object storage, which is why the CSP's `img-src` allows `https:`.
+
 ## Where the portal fills a gap, and how
 
 - **The applications list carries `answers`, `volunteer`, `opportunity` and

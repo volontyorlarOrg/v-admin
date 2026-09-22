@@ -10,6 +10,11 @@ import { LoadFailure } from "@/components/states/load-failure";
 import { PageHeader } from "@/components/states/page-header";
 import { StatePanel } from "@/components/states/state-panel";
 import { buttonClass } from "@/components/ui/button";
+import {
+  PROFILE_FIELD_KEYS,
+  VolunteerProfile,
+  type VolunteerProfileLabels,
+} from "@/components/users/volunteer-profile";
 import { Link } from "@/i18n/navigation";
 import { failureOf, isReady } from "@/lib/api/load";
 import { loadApplication } from "@/lib/applications/data.server";
@@ -77,25 +82,11 @@ export default async function ApplicationPage({
     ["updatedAt", application.updatedAt],
   ];
 
-  const snapshotItems: Definition[] = (
-    snapshot
-      ? [
-          [t("snapshotFields.fullName"), snapshot.fullName],
-          [t("snapshotFields.bio"), snapshot.bio],
-          [t("snapshotFields.region"), snapshot.region && regionName(snapshot.region)],
-          [t("snapshotFields.school"), snapshot.school],
-          [
-            t("snapshotFields.languages"),
-            snapshot.languages?.map(languageName).join(", "),
-          ],
-          [t("snapshotFields.phone"), snapshot.phone],
-          [
-            t("snapshotFields.telegram"),
-            snapshot.telegram && `@${snapshot.telegram.replace(/^@/, "")}`,
-          ],
-        ]
-      : []
-  ).flatMap(([term, value]) => (term && value ? [{ term, value }] : []));
+  const profileLabels: VolunteerProfileLabels = {
+    fields: Object.fromEntries(
+      PROFILE_FIELD_KEYS.map((key) => [key, t(`snapshotFields.${key}`)]),
+    ) as VolunteerProfileLabels["fields"],
+  };
 
   const acceptedAutomatically =
     application.status === "accepted" &&
@@ -149,9 +140,19 @@ export default async function ApplicationPage({
         />
       </div>
 
-      {snapshotItems.length > 0 ? (
+      {snapshot ? (
         <Panel title={t("detail.snapshot")} description={t("detail.snapshotNote")}>
-          <DefinitionList items={snapshotItems} />
+          <VolunteerProfile
+            identity={{
+              name: name || common("notSet"),
+              username: snapshot.username ?? application.volunteer?.username,
+              avatarUrl: application.volunteer?.avatarUrl,
+            }}
+            profile={snapshot}
+            labels={profileLabels}
+            regionName={regionName}
+            languageName={languageName}
+          />
         </Panel>
       ) : null}
 
