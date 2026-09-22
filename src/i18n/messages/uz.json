@@ -312,18 +312,22 @@
       "endsAt": "Tugashi",
       "applicationDeadline": "Arizalar yopiladi",
       "capacity": "Joylar",
-      "capacityHelp": "Bu vakansiyaga nechta koʻngilli kerak. Kamida bitta.",
+      "capacityHelp": "Ixtiyoriy. Aniq chegara boʻlmasa, boʻsh qoldiring.",
       "requirements": "Talablar",
       "requirementsHelp": "Har bir talab alohida qatorda.",
       "estimatedTotalHours": "Taxminiy soatlar",
-      "estimatedTotalHoursHelp": "Koʻngilli butun tadbir uchun oladigan soatlar.",
+      "estimatedTotalHoursHelp": "Ixtiyoriy. Koʻngilli butun tadbir uchun olishi kutilayotgan soatlar.",
       "acceptanceMode": "Arizalarni tasdiqlash",
       "acceptanceModeHelp": "Har qanday holatda qabul qilingan koʻngillini uning arizasi sahifasida rad etish mumkin.",
+      "essayRequired": "Arizada esse talab qilish",
+      "essayRequiredHelp": "Koʻngilli arizani yuborishdan oldin esse yozishi kerak.",
+      "essayRequiredYes": "Majburiy",
+      "essayRequiredNo": "Talab qilinmaydi",
       "acceptanceModes": {
         "manual": "Har bir arizani siz koʻrib chiqasiz va qabul qilasiz yoki rad etasiz.",
         "automatic": "Ariza bergan har bir kishi darhol qabul qilinadi — boʻsh joylar tugaguncha."
       },
-      "locationNameHelp": "Joyning nomi yoki ish onlayn qayerda boʻlishining ochiq tavsifi. Uchrashuv paroli hech qachon emas.",
+      "locationNameHelp": "Ixtiyoriy. Joy nomi yoki onlayn ishning ochiq tavsifi. Uchrashuv parolini yozmang.",
       "cityHelp": "Koʻngillilar shaxsan kelsa, majburiy."
     },
     "form": {
@@ -474,6 +478,7 @@
     },
     "detail": {
       "eyebrow": "Ariza",
+      "essay": "Ariza essesi",
       "snapshot": "Ariza yuborilgandagi profil",
       "snapshotNote": "Bu volontyor ariza bilan yuborgan profil, uning bugungi profili emas.",
       "answers": "Javoblar",

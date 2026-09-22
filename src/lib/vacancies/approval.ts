@@ -63,11 +63,7 @@ export const APPROVAL_REQUIREMENTS = [
   "format",
   "region",
   "startsAt",
-  "endsAt",
   "applicationDeadline",
-  "capacity",
-  "estimatedTotalHours",
-  "location",
 ] as const;
 
 export type ApprovalRequirement = (typeof APPROVAL_REQUIREMENTS)[number];
@@ -95,10 +91,6 @@ function isMoment(value: string | undefined): boolean {
   return isFilled(value) && !Number.isNaN(Date.parse(value as string));
 }
 
-export function requiresVenue(format: VacancyFormat): boolean {
-  return format === "onsite" || format === "hybrid";
-}
-
 export function missingForApproval(
   vacancy: ApprovalCandidate,
   now?: Date,
@@ -111,7 +103,6 @@ export function missingForApproval(
   if (!vacancy.format) missing.push("format");
   if (!isFilled(vacancy.region)) missing.push("region");
   if (!isMoment(vacancy.startsAt)) missing.push("startsAt");
-  if (!isMoment(vacancy.endsAt)) missing.push("endsAt");
 
   if (!isMoment(vacancy.applicationDeadline)) {
     missing.push("applicationDeadline");
@@ -122,30 +113,6 @@ export function missingForApproval(
     missing.push("applicationDeadline");
   } else if (now && Date.parse(vacancy.applicationDeadline) <= now.getTime()) {
     missing.push("applicationDeadline");
-  }
-
-  if (
-    vacancy.capacity === undefined ||
-    !Number.isInteger(vacancy.capacity) ||
-    vacancy.capacity < 1
-  ) {
-    missing.push("capacity");
-  }
-
-  if (
-    vacancy.estimatedTotalHours === undefined ||
-    !Number.isFinite(vacancy.estimatedTotalHours) ||
-    vacancy.estimatedTotalHours <= 0
-  ) {
-    missing.push("estimatedTotalHours");
-  }
-
-  if (requiresVenue(vacancy.format)) {
-    if (!isFilled(vacancy.city) || !isFilled(vacancy.locationName)) {
-      missing.push("location");
-    }
-  } else if (!isFilled(vacancy.locationName)) {
-    missing.push("location");
   }
 
   return missing;

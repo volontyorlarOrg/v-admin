@@ -78,7 +78,6 @@ export default async function VacancyPage({
   const attendanceCopy = await getTranslations("attendance");
   const applicationsCopy = await getTranslations("applications");
   const vocabulary = await getTranslations("vocabulary");
-  const common = await getTranslations("common");
   const errors = await getTranslations("errors");
   const format = await getFormatter();
 
@@ -117,13 +116,8 @@ export default async function VacancyPage({
       description: vacancy.description,
       format: vacancy.format,
       region: vacancy.region,
-      city: vacancy.city,
-      locationName: vacancy.locationName,
       startsAt: vacancy.startsAt,
-      endsAt: vacancy.endsAt,
       applicationDeadline: vacancy.applicationDeadline,
-      capacity: vacancy.capacity,
-      estimatedTotalHours: vacancy.estimatedTotalHours,
       ...(organization ? { organization: { verified: organization.verified } } : {}),
     },
     now,
@@ -173,6 +167,14 @@ export default async function VacancyPage({
   const accepted = rows.filter((application) => application.status === "accepted");
   const attendanceOpen = isAttendanceOpen(vacancy, now);
   const opensAt = attendanceOpensAt(vacancy);
+  const location =
+    vacancy.locationName && vacancy.city
+      ? vacancy.locationName.localeCompare(vacancy.city, locale, {
+          sensitivity: "base",
+        }) === 0
+        ? vacancy.locationName
+        : `${vacancy.locationName} · ${vacancy.city}`
+      : (vacancy.locationName ?? vacancy.city);
 
   const outcomeLabels = Object.fromEntries(
     RESOLVABLE_ATTENDANCE_OUTCOMES.map((outcome) => [
@@ -273,12 +275,10 @@ export default async function VacancyPage({
                 labels={editLabels}
                 defaults={{
                   title: vacancy.title,
-                  slug: vacancy.slug,
                   description: vacancy.description,
                   organizationId: vacancy.organizationId,
                   region: vacancy.region,
                   format: vacancy.format,
-                  city: vacancy.city ?? "",
                   locationName: vacancy.locationName ?? "",
                   startsAt: toDateTimeLocal(vacancy.startsAt),
                   endsAt: toDateTimeLocal(vacancy.endsAt),
@@ -290,6 +290,7 @@ export default async function VacancyPage({
                       ? ""
                       : String(vacancy.estimatedTotalHours),
                   acceptanceMode: vacancy.acceptanceMode,
+                  essayRequired: vacancy.essayRequired ? "on" : "",
                   requirements: vacancy.requirements.join("\n"),
                 }}
                 organizations={
@@ -375,7 +376,6 @@ export default async function VacancyPage({
       <Panel title={t("detail.details")}>
         <DefinitionList
           items={[
-            { term: t("fields.slug"), value: vacancy.slug },
             {
               term: t("fields.region"),
               value: vocabulary(`regions.${vacancy.region}`),
@@ -384,10 +384,7 @@ export default async function VacancyPage({
               term: t("fields.format"),
               value: vocabulary(`formats.${vacancy.format}`),
             },
-            ...(vacancy.city ? [{ term: t("fields.city"), value: vacancy.city }] : []),
-            ...(vacancy.locationName
-              ? [{ term: t("fields.locationName"), value: vacancy.locationName }]
-              : []),
+            ...(location ? [{ term: t("fields.locationName"), value: location }] : []),
             {
               term: t("fields.startsAt"),
               value: format.dateTime(new Date(vacancy.startsAt), "stamp"),
@@ -404,13 +401,14 @@ export default async function VacancyPage({
               term: t("fields.applicationDeadline"),
               value: format.dateTime(new Date(vacancy.applicationDeadline), "stamp"),
             },
-            {
-              term: t("fields.capacity"),
-              value:
-                vacancy.capacity === undefined
-                  ? common("none")
-                  : format.number(vacancy.capacity),
-            },
+            ...(vacancy.capacity === undefined
+              ? []
+              : [
+                  {
+                    term: t("fields.capacity"),
+                    value: format.number(vacancy.capacity),
+                  },
+                ]),
             ...(vacancy.estimatedTotalHours === undefined
               ? []
               : [
@@ -422,6 +420,12 @@ export default async function VacancyPage({
             {
               term: t("fields.acceptanceMode"),
               value: vocabulary(`acceptanceModes.${vacancy.acceptanceMode}`),
+            },
+            {
+              term: t("fields.essayRequired"),
+              value: vacancy.essayRequired
+                ? t("fields.essayRequiredYes")
+                : t("fields.essayRequiredNo"),
             },
           ]}
         />
