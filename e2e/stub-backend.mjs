@@ -114,7 +114,17 @@ function reset() {
         passwordCredential: { passwordChangedAt: at(-1), requiresPasswordChange: true },
         coordinatorAccount: null,
       },
-      volunteer("00000000-0000-4000-8000-000000000201", "Dilnoza Karimova"),
+      volunteer("00000000-0000-4000-8000-000000000201", "Dilnoza Karimova", {
+        bio: "I volunteer at the reading room on Saturdays.",
+        city: "Chilonzor",
+        gradeYear: "10",
+        languages: ["uz", "ru"],
+        phone: "+998901234567",
+        telegram: "dilnoza_k",
+        instagram: "dilnoza.reads",
+        linkedin: "https://www.linkedin.com/in/dilnoza-k",
+        links: ["https://portfolio.example/dilnoza"],
+      }),
       volunteer("00000000-0000-4000-8000-000000000202", "Sardor Toshmatov"),
       volunteer("00000000-0000-4000-8000-000000000203", "Aziza Nazarova"),
       volunteer("00000000-0000-4000-8000-000000000204", "Jasur Qodirov"),
@@ -291,13 +301,19 @@ function reset() {
         "submitted",
         {
           profileSnapshot: {
+            username: "dilnoza_reads",
             fullName: "Dilnoza Karimova",
             bio: "I volunteer at the reading room on Saturdays.",
             region: "tashkent-city",
+            city: "Chilonzor",
             school: "School No. 110",
+            gradeYear: "10",
             languages: ["uz", "ru"],
             phone: "",
             telegram: "dilnoza_k",
+            instagram: "dilnoza.reads",
+            linkedin: "",
+            links: ["https://portfolio.example/dilnoza"],
           },
           answers: [],
         },
@@ -328,20 +344,65 @@ function reset() {
   };
 }
 
-function volunteer(id, displayName) {
+function volunteer(id, displayName, profile = {}) {
   return {
     id,
     displayName,
+    username: displayName.toLowerCase().replace(/\s+/g, "_"),
+    usernameSource: "custom",
+    avatarUrl: null,
     email: `${displayName.split(" ")[0].toLowerCase()}@example.org`,
     password: PASSWORD,
     roles: ["volunteer"],
     isActive: true,
     createdAt: at(-80),
     emailVerifiedAt: at(-70),
-    profile: { fullName: displayName, region: "tashkent-city", school: "School 143" },
+    profile: {
+      fullName: displayName,
+      bio: "",
+      region: "tashkent-city",
+      city: "",
+      school: "School 143",
+      gradeYear: "",
+      languages: [],
+      phone: "",
+      telegram: "",
+      instagram: "",
+      linkedin: "",
+      links: [],
+      ...profile,
+    },
     passwordCredential: { passwordChangedAt: at(-60), requiresPasswordChange: false },
     coordinatorAccount: null,
   };
+}
+
+const REQUIRED_PROFILE_FIELDS = [
+  "fullName",
+  "bio",
+  "region",
+  "city",
+  "school",
+  "gradeYear",
+  "languages",
+  "phone",
+  "telegram",
+];
+
+function completionOf(user) {
+  const profile = user.profile;
+  const filled = (field) => {
+    if (!profile) return false;
+    if (field === "fullName") return (profile.fullName ?? "").trim().length >= 2;
+    if (field === "region") return Boolean(profile.region);
+    if (field === "languages") return (profile.languages ?? []).length > 0;
+    return String(profile[field] ?? "").trim().length > 0;
+  };
+  const missing = [
+    ...(user.usernameSource === "generated" ? ["username"] : []),
+    ...REQUIRED_PROFILE_FIELDS.filter((field) => !filled(field)),
+  ];
+  return { complete: missing.length === 0, missing };
 }
 
 function vacancy(id, slug, title, createdById, overrides) {
@@ -505,7 +566,15 @@ function withRelations(item) {
       ? { id: opportunity.id, slug: opportunity.slug, title: opportunity.title }
       : null,
     volunteer: person
-      ? { id: person.id, displayName: person.displayName, profile: person.profile }
+      ? {
+          id: person.id,
+          displayName: person.displayName,
+          username: person.username,
+          usernameSource: person.usernameSource,
+          avatarUrl: person.avatarUrl,
+          profile: person.profile,
+          profileCompletion: completionOf(person),
+        }
       : null,
   };
 }
@@ -536,7 +605,10 @@ function directory(items, url) {
 function publicUser(user) {
   const rest = { ...user };
   delete rest.password;
-  return rest;
+  delete rest.usernameSource;
+  return user.roles.includes("volunteer")
+    ? { ...rest, profileCompletion: completionOf(user) }
+    : rest;
 }
 
 function record(action, entityType, entityId, actorUserId) {
