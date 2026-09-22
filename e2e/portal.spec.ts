@@ -294,6 +294,34 @@ test.describe("an administrator sees everything", () => {
 
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Aziza");
   });
+
+  test("shows a volunteer's whole profile today and whether it lets them apply", async ({
+    page,
+  }) => {
+    await signedIn(page);
+    await page.goto("/en/users/00000000-0000-4000-8000-000000000201");
+
+    const profile = page.locator("section").filter({
+      has: page.getByRole("heading", { level: 2, name: "Profile", exact: true }),
+    });
+    await expect(profile.getByText("Profile complete")).toBeVisible();
+    await expect(profile.getByText("@dilnoza_karimova")).toBeVisible();
+    await expect(
+      profile.getByText("I volunteer at the reading room on Saturdays."),
+    ).toBeVisible();
+    await expect(profile.getByText("+998901234567")).toBeVisible();
+    await expect(
+      profile.getByRole("link", { name: "https://www.linkedin.com/in/dilnoza-k" }),
+    ).toHaveAttribute("rel", "noopener noreferrer");
+
+    await page.goto("/en/users/00000000-0000-4000-8000-000000000203");
+    await expect(page.getByText("Profile incomplete")).toBeVisible();
+    await expect(
+      page.getByText(
+        "Still missing before they can apply: Bio, City or district, Year or grade, Languages, Phone, Telegram.",
+      ),
+    ).toBeVisible();
+  });
 });
 
 test.describe("the vacancy lifecycle", () => {
@@ -555,7 +583,20 @@ test.describe("review and attendance", () => {
     );
     await expect(page.getByText("Tashkent city")).toBeVisible();
     await expect(page.getByText("Uzbek, Russian")).toBeVisible();
-    await expect(page.getByText("@dilnoza_k")).toBeVisible();
+    await expect(page.getByText("@dilnoza_reads")).toBeVisible();
+    await expect(page.getByText("Chilonzor")).toBeVisible();
+    await expect(page.getByText("Year or grade", { exact: true })).toBeVisible();
+    await expect(page.getByRole("link", { name: "@dilnoza_k" })).toHaveAttribute(
+      "href",
+      "https://t.me/dilnoza_k",
+    );
+    await expect(page.getByRole("link", { name: "@dilnoza.reads" })).toHaveAttribute(
+      "href",
+      "https://www.instagram.com/dilnoza.reads/",
+    );
+    await expect(
+      page.getByRole("link", { name: "https://portfolio.example/dilnoza" }),
+    ).toHaveAttribute("target", "_blank");
     await expect(page.getByText("Phone", { exact: true })).toHaveCount(0);
     await expect(
       page.getByRole("heading", { level: 2, name: "Record a decision" }),
