@@ -119,7 +119,7 @@ function reset() {
         city: "Chilonzor",
         gradeYear: "10",
         languages: ["uz", "ru"],
-        phone: "+998 90 123 45 67",
+        phone: "+998901234567",
         telegram: "dilnoza_k",
         instagram: "dilnoza.reads",
         linkedin: "https://www.linkedin.com/in/dilnoza-k",
