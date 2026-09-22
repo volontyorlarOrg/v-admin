@@ -312,18 +312,22 @@
       "endsAt": "Ends",
       "applicationDeadline": "Applications close",
       "capacity": "Places",
-      "capacityHelp": "How many volunteers this vacancy needs. At least one.",
+      "capacityHelp": "Optional. Leave blank when there is no fixed limit.",
       "requirements": "Requirements",
       "requirementsHelp": "One requirement per line.",
       "estimatedTotalHours": "Estimated hours",
-      "estimatedTotalHoursHelp": "Hours a volunteer earns for the whole event.",
+      "estimatedTotalHoursHelp": "Optional. Hours a volunteer is expected to earn for the whole event.",
       "acceptanceMode": "Approving applications",
       "acceptanceModeHelp": "Either way, you can still reject an accepted volunteer from their application.",
+      "essayRequired": "Require an application essay",
+      "essayRequiredHelp": "Volunteers must write an essay before they can submit this application.",
+      "essayRequiredYes": "Required",
+      "essayRequiredNo": "Not required",
       "acceptanceModes": {
         "manual": "You review each application and accept or reject it.",
         "automatic": "Everyone who applies is accepted at once, until the places run out."
       },
-      "locationNameHelp": "The venue on site, or a public description of where the work happens online. Never a meeting password.",
+      "locationNameHelp": "Optional. The venue or a public description of where the work happens online. Never a meeting password.",
       "cityHelp": "Required when volunteers turn up in person."
     },
     "form": {
@@ -474,6 +478,7 @@
     },
     "detail": {
       "eyebrow": "Application",
+      "essay": "Application essay",
       "snapshot": "Profile as submitted",
       "snapshotNote": "This is the profile the volunteer submitted with the application, not their profile today.",
       "answers": "Answers",

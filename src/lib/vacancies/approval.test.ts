@@ -127,10 +127,6 @@ describe("missingForApproval", () => {
     ).toContain("organization");
   });
 
-  it("requires an end, so attendance has a moment it can open", () => {
-    expect(missingForApproval({ ...ready, endsAt: undefined })).toContain("endsAt");
-  });
-
   it("refuses a deadline that has already passed, as the API does", () => {
     expect(missingForApproval(ready, new Date("2026-09-21T00:00:00.000Z"))).toContain(
       "applicationDeadline",
@@ -149,39 +145,15 @@ describe("missingForApproval", () => {
     }
   });
 
-  it("requires a positive whole number of places", () => {
-    expect(missingForApproval({ ...ready, capacity: 0 })).toContain("capacity");
-    expect(missingForApproval({ ...ready, capacity: undefined })).toContain("capacity");
-  });
-
-  it("requires positive estimated hours for the whole event", () => {
-    expect(missingForApproval({ ...ready, estimatedTotalHours: 0 })).toContain(
-      "estimatedTotalHours",
-    );
-  });
-
-  it("requires a city and a venue on site and in a hybrid", () => {
-    expect(missingForApproval({ ...ready, city: undefined })).toContain("location");
-    expect(
-      missingForApproval({ ...ready, format: "hybrid", locationName: undefined }),
-    ).toContain("location");
-  });
-
-  it("requires a named online location when the work is remote", () => {
+  it("does not block approval on optional logistics", () => {
     expect(
       missingForApproval({
         ...ready,
-        format: "remote",
+        endsAt: undefined,
+        capacity: undefined,
+        estimatedTotalHours: undefined,
         city: undefined,
         locationName: undefined,
-      }),
-    ).toContain("location");
-    expect(
-      missingForApproval({
-        ...ready,
-        format: "remote",
-        city: undefined,
-        locationName: "Public briefing stream, link sent on the day",
       }),
     ).toEqual([]);
   });

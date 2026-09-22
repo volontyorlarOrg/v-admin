@@ -62,12 +62,22 @@ describe("searchApplications", () => {
     application({
       id: "a",
       profileSnapshot: { fullName: "Dilnoza Karimova" },
-      opportunity: { id: "vac-1", slug: "book-drive", title: "Winter book drive" },
+      opportunity: {
+        id: "vac-1",
+        slug: "book-drive",
+        title: "Winter book drive",
+        essayRequired: false,
+      },
     }),
     application({
       id: "b",
       profileSnapshot: { fullName: "Sardor Toshmatov" },
-      opportunity: { id: "vac-2", slug: "sports", title: "City sports day" },
+      opportunity: {
+        id: "vac-2",
+        slug: "sports",
+        title: "City sports day",
+        essayRequired: false,
+      },
     }),
   ];
 
