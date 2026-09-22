@@ -309,7 +309,7 @@ test.describe("an administrator sees everything", () => {
     await expect(
       profile.getByText("I volunteer at the reading room on Saturdays."),
     ).toBeVisible();
-    await expect(profile.getByText("+998 90 123 45 67")).toBeVisible();
+    await expect(profile.getByText("+998901234567")).toBeVisible();
     await expect(
       profile.getByRole("link", { name: "https://www.linkedin.com/in/dilnoza-k" }),
     ).toHaveAttribute("rel", "noopener noreferrer");

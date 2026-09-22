@@ -181,8 +181,8 @@ photo, Instagram, LinkedIn and portfolio links — and the backend refuses
 anything less (`profileIncomplete` with the missing `fields`). What an
 administrator sees follows from that:
 
-- **The application page shows the full profile as submitted.** Since
-  2026-09-22 `profileSnapshot` holds the whole profile at the moment of sending
+- **The application page shows the full profile as submitted.** Since the
+  full-profile rule, `profileSnapshot` holds the whole profile at the moment of sending
   (`username`, `fullName`, `bio`, `region`, `city`, `school`, `gradeYear`,
   `languages`, `phone`, `telegram`, `instagram`, `linkedin`, `links`); older
   applications hold the first seven fields the backend kept then, and only
