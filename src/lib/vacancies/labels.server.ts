@@ -66,12 +66,10 @@ async function vacancyFieldLabels(): Promise<VacancyFieldLabels> {
   return {
     fields: {
       title: t("fields.title"),
-      slug: t("fields.slug"),
       description: t("fields.description"),
       organizationId: t("fields.organization"),
       region: t("fields.region"),
       format: t("fields.format"),
-      city: t("fields.city"),
       locationName: t("fields.locationName"),
       startsAt: t("fields.startsAt"),
       endsAt: t("fields.endsAt"),
@@ -79,17 +77,17 @@ async function vacancyFieldLabels(): Promise<VacancyFieldLabels> {
       capacity: t("fields.capacity"),
       estimatedTotalHours: t("fields.estimatedTotalHours"),
       acceptanceMode: t("fields.acceptanceMode"),
+      essayRequired: t("fields.essayRequired"),
       requirements: t("fields.requirements"),
     },
     help: {
-      slug: t("fields.slugHelp"),
       organizationId: t("fields.organizationHelp"),
       capacity: t("fields.capacityHelp"),
       estimatedTotalHours: t("fields.estimatedTotalHoursHelp"),
       locationName: t("fields.locationNameHelp"),
-      city: t("fields.cityHelp"),
       requirements: t("fields.requirementsHelp"),
       acceptanceMode: t("fields.acceptanceModeHelp"),
+      essayRequired: t("fields.essayRequiredHelp"),
     },
     sections: {
       about: t("form.sections.about"),

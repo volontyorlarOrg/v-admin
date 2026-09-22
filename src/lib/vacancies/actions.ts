@@ -1,5 +1,6 @@
 "use server";
 
+import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 
 import { failedResult, type ActionResult } from "@/lib/api/action-result";
@@ -16,6 +17,18 @@ function revalidateVacancies() {
   revalidatePath("/", "layout");
 }
 
+function vacancySlug(title: string): string {
+  const readable = title
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 120)
+    .replace(/-+$/g, "");
+  return `${readable || "vacancy"}-${randomUUID().slice(0, 8)}`;
+}
+
 export async function createVacancyAction(
   _previous: ActionResult,
   formData: FormData,
@@ -25,7 +38,12 @@ export async function createVacancyAction(
     return failedResult("validationFailed", fieldErrorsOf(parsed.error));
   }
 
-  const result = await write("createVacancy", { body: toVacancyPayload(parsed.data) });
+  const result = await write("createVacancy", {
+    body: {
+      ...toVacancyPayload(parsed.data),
+      slug: vacancySlug(parsed.data.title),
+    },
+  });
   if (result.status === "ok") revalidateVacancies();
   return result;
 }

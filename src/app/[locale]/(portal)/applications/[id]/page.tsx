@@ -149,6 +149,14 @@ export default async function ApplicationPage({
         />
       </div>
 
+      {application.essay ? (
+        <Panel title={t("detail.essay")}>
+          <p className="max-w-prose text-sm leading-relaxed whitespace-pre-line text-ink">
+            {application.essay}
+          </p>
+        </Panel>
+      ) : null}
+
       {snapshotItems.length > 0 ? (
         <Panel title={t("detail.snapshot")} description={t("detail.snapshotNote")}>
           <DefinitionList items={snapshotItems} />
