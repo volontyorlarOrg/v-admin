@@ -207,6 +207,45 @@ describe("applications a volunteer has not sent", () => {
     });
     expect(user.applications.map((item) => item.id)).toEqual(["app-1"]);
   });
+
+  it("reads the XP and hours an administrator sees, adjustments included", () => {
+    const user = userDetailSchema.parse({
+      id: "vol-1",
+      createdAt: "2026-09-01T09:00:00.000Z",
+      progress: {
+        xp: 215,
+        hours: 6.5,
+        attendedHours: 8,
+        xpAdjustment: 25,
+        hoursAdjustment: -1.5,
+        adjustments: [
+          {
+            id: "adj-1",
+            xpDelta: 25,
+            hoursDelta: -1.5,
+            reason: "Counted twice",
+            createdAt: "2026-09-25T09:00:00.000Z",
+            createdBy: null,
+          },
+        ],
+      },
+    });
+
+    expect(user.progress?.hours).toBe(6.5);
+    expect(user.progress?.adjustments[0]).toMatchObject({
+      hoursDelta: -1.5,
+      createdBy: undefined,
+    });
+  });
+
+  it("leaves progress out for a coordinator's view of a volunteer", () => {
+    const user = userDetailSchema.parse({
+      id: "vol-1",
+      createdAt: "2026-09-01T09:00:00.000Z",
+    });
+
+    expect(user.progress).toBeUndefined();
+  });
 });
 
 describe("directoryUserSchema", () => {
