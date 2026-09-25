@@ -195,7 +195,12 @@
     "opportunityAlreadyArchived": "Bu vakansiya allaqachon arxivda.",
     "opportunityAtCapacity": "Barcha oʻrinlar band. Boshqa kishini qabul qilishdan oldin oʻrin boʻshating.",
     "invalidOpportunityDates": "Sanalar mos kelmaydi: arizalar boshlanishdan oldin yopilishi, tugash esa boshlanishdan keyin boʻlishi kerak.",
-    "duplicateAttendanceApplication": "Bitta volontyor ikki marta tanlangan. Har bir volontyorni bir marta tanlang."
+    "duplicateAttendanceApplication": "Bitta volontyor ikki marta tanlangan. Har bir volontyorni bir marta tanlang.",
+    "adjustmentEmpty": "XP, soat yoki ikkalasini kiriting.",
+    "progressBelowZero": "Bunda volontyorning XP yoki soatlari noldan kam boʻlib qoladi. Kamroq ayiring.",
+    "ownProgressNotAdjustable": "Oʻz hisobingizning XP va soatlarini oʻzgartira olmaysiz.",
+    "xpAmount": "0 dan 100 000 gacha butun sondagi XP kiriting.",
+    "hoursAmount": "Soatlarni 0 dan 999 gacha, koʻpi bilan ikki kasr xonasi bilan kiriting."
   },
   "dashboard": {
     "title": "Tahlil",
@@ -600,8 +605,36 @@
       "sent": "Arizalar",
       "accepted": "Qabul qilingan",
       "attended": "Qatnashgan tadbirlar",
-      "hours": "Tasdiqlangan soatlar",
-      "awaiting": "Davomat kutilmoqda"
+      "hours": "Soatlar",
+      "awaiting": "Davomat kutilmoqda",
+      "xp": "XP"
+    },
+    "progress": {
+      "title": "XP va soatlarni oʻzgartirish",
+      "description": "Qayd etilgan tadbirdan tashqari ish uchun yoki xatoni tuzatish uchun. Volontyor yozuvi, reytingdagi oʻrni va ochiq profili darhol oʻzgaradi.",
+      "direction": "Oʻzgarish",
+      "add": "Qoʻshish",
+      "remove": "Ayirish",
+      "xp": "XP",
+      "hours": "Soatlar",
+      "amountHelp": "Faqat bittasini oʻzgartirish uchun ikkinchisini boʻsh qoldiring. Bu yerda qoʻshilgan soatlar oʻz-oʻzidan XP qoʻshmaydi.",
+      "reason": "Sabab",
+      "reasonHelp": "Oʻzgarish bilan birga shu yozuvda va audit tarixida saqlanadi.",
+      "submit": "Oʻzgarishni saqlash",
+      "pending": "Saqlanmoqda…",
+      "success": "Saqlandi. Yuqoridagi raqamlar uni hisobga oldi.",
+      "history": "XP va soatlar oʻzgarishlari",
+      "countLabel": "oʻzgarish",
+      "table": {
+        "caption": "Administrator oʻzgartirgan XP va soatlar",
+        "change": "Oʻzgarish",
+        "reason": "Sabab",
+        "by": "Kim",
+        "when": "Qachon"
+      },
+      "unknownAuthor": "Qayd etilmagan",
+      "xpChange": "{value} XP",
+      "hoursChange": "{value} soat"
     }
   },
   "attendance": {
@@ -984,7 +1017,8 @@
       "user_password_replaced": "Vaqtinchalik parol berildi",
       "user_username_changed": "Foydalanuvchi nomi oʻzgartirildi",
       "user_avatar_updated": "Rasm yangilandi",
-      "user_avatar_removed": "Rasm olib tashlandi"
+      "user_avatar_removed": "Rasm olib tashlandi",
+      "user_progress_adjusted": "XP va soatlar oʻzgartirildi"
     }
   },
   "vocabulary": {

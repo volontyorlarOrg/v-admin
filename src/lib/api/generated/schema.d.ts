@@ -1734,6 +1734,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/users/{id}/progress-adjustments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add or take away XP and hours outside attendance */
+        post: operations["AdminManagementController_adjustProgress"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/statistics": {
         parameters: {
             query?: never;
@@ -2233,6 +2250,11 @@ export interface components {
         };
         RemoveCoordinatorDto: {
             reassignToCoordinatorId?: string;
+        };
+        AdjustProgressDto: {
+            xpDelta: number;
+            hoursDelta: number;
+            reason: string;
         };
         SaveEssayDto: {
             title?: string;
@@ -4888,6 +4910,29 @@ export interface operations {
         };
         responses: {
             200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminManagementController_adjustProgress: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdjustProgressDto"];
+            };
+        };
+        responses: {
+            201: {
                 headers: {
                     [name: string]: unknown;
                 };
