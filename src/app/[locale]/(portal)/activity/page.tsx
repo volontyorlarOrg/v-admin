@@ -1,25 +1,20 @@
-import { getFormatter, getTranslations, setRequestLocale } from "next-intl/server";
+import { ArrowRight } from "lucide-react";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
 
-import { FilterForm, FilterSelect } from "@/components/forms/filter-form";
-import { EmptyState } from "@/components/states/empty-state";
+import { AuditTable } from "@/components/audit/audit-table";
+import { Register, RegisterNote } from "@/components/register/register";
 import { LoadFailure } from "@/components/states/load-failure";
 import { PageHeader } from "@/components/states/page-header";
 import { Pagination } from "@/components/states/pagination";
+import { Button, buttonClass } from "@/components/ui/button";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Link } from "@/i18n/navigation";
 import { failureOf, isReady } from "@/lib/api/load";
 import { loadAudit } from "@/lib/audit/data.server";
 import { actionNames, filterAudit } from "@/lib/audit/filters";
 import { getSession } from "@/lib/auth/session.server";
+import { auditActionKey } from "@/lib/domain/audit-actions";
 import { navHref } from "@/lib/routing/routes";
 import {
   DEFAULT_PAGE_SIZE,
@@ -47,16 +42,17 @@ export default async function ActivityPage({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const t = await getTranslations("activity");
-  const common = await getTranslations("common");
-  const format = await getFormatter();
+  const [t, audit, common, session] = await Promise.all([
+    getTranslations("activity"),
+    getTranslations("audit"),
+    getTranslations("common"),
+    getSession(),
+  ]);
 
   const query = await searchParams;
-  const q = readParam(query, "q");
   const action = readParam(query, "action");
   const page = readPage(query);
 
-  const session = await getSession();
   const loaded = await loadAudit({
     ...(session ? { actorUserId: session.userId } : {}),
     page: 1,
@@ -66,39 +62,77 @@ export default async function ActivityPage({
   const all = isReady(loaded)
     ? loaded.data.items.filter((event) => event.actorUserId === session?.userId)
     : [];
-  const filtered = filterAudit(all, { q, action });
+  const filtered = filterAudit(all, { action });
   const pageState = paginate(filtered, page, DEFAULT_PAGE_SIZE);
   const listPath = navHref("activity");
 
+  const label = (name: string) => {
+    const key = `actions.${auditActionKey(name)}`;
+    return audit.has(key) ? audit(key) : name;
+  };
+
   return (
     <>
-      <PageHeader title={t("title")} description={t("description")} />
+      <PageHeader
+        title={t("title")}
+        description={t("description")}
+        actions={
+          <Link
+            href={`${navHref("audit")}?actor=me`}
+            className={buttonClass({ variant: "outline", size: "sm" })}
+          >
+            {t("everything")}
+            <ArrowRight aria-hidden="true" />
+          </Link>
+        }
+      />
 
       {failure ? <LoadFailure failure={failure} /> : null}
 
       {isReady(loaded) ? (
-        <>
-          <FilterForm
-            action={`/${locale}${listPath}`}
-            legend={t("filters.legend")}
-            searchLabel={t("filters.search")}
-            searchValue={q}
-            resetHref={listPath}
-          >
-            <FilterSelect id="filter-action" label={t("filters.action")}>
-              <NativeSelect id="filter-action" name="action" defaultValue={action}>
-                <NativeSelectOption value="">{common("all")}</NativeSelectOption>
-                {actionNames(all).map((name) => (
-                  <NativeSelectOption key={name} value={name}>
-                    {name}
-                  </NativeSelectOption>
-                ))}
-              </NativeSelect>
-            </FilterSelect>
-          </FilterForm>
-
+        <Register
+          title={t("listTitle")}
+          count={filtered.length}
+          countLabel={audit("countLabel")}
+          toolbar={
+            <form
+              method="get"
+              action={`/${locale}${listPath}`}
+              className="flex w-full flex-wrap items-end gap-3"
+            >
+              <label className="flex min-w-[14rem] flex-col gap-1.5">
+                <span className="text-xs font-semibold text-ink-muted">
+                  {t("filters.action")}
+                </span>
+                <NativeSelect
+                  name="action"
+                  defaultValue={action}
+                  className="min-h-10 rounded-full text-sm"
+                >
+                  <NativeSelectOption value="">{common("all")}</NativeSelectOption>
+                  {actionNames(all).map((name) => (
+                    <NativeSelectOption key={name} value={name}>
+                      {label(name)}
+                    </NativeSelectOption>
+                  ))}
+                </NativeSelect>
+              </label>
+              <Button type="submit" size="sm">
+                {common("apply")}
+              </Button>
+              {action ? (
+                <Link
+                  href={listPath}
+                  className={buttonClass({ variant: "ghost", size: "sm" })}
+                >
+                  {common("reset")}
+                </Link>
+              ) : null}
+            </form>
+          }
+        >
           {pageState.items.length === 0 ? (
-            <EmptyState
+            <RegisterNote
               title={all.length === 0 ? t("empty.title") : t("noMatches.title")}
               description={
                 all.length === 0 ? t("empty.description") : t("noMatches.description")
@@ -106,41 +140,19 @@ export default async function ActivityPage({
             />
           ) : (
             <>
-              <div className="rounded-xl border border-border/70 panel-surface">
-                <Table>
-                  <TableCaption className="sr-only">{t("table.caption")}</TableCaption>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead scope="col">{t("table.action")}</TableHead>
-                      <TableHead scope="col">{t("table.entity")}</TableHead>
-                      <TableHead scope="col">{t("table.when")}</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {pageState.items.map((event) => (
-                      <TableRow key={event.id}>
-                        <TableCell className="font-medium text-ink">
-                          {event.action}
-                        </TableCell>
-                        <TableCell className="break-all text-ink-muted">
-                          {event.entityType} · {event.entityId}
-                        </TableCell>
-                        <TableCell className="tabular whitespace-nowrap">
-                          {format.dateTime(new Date(event.createdAt), "stamp")}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-
+              <AuditTable
+                events={pageState.items}
+                caption={t("table.caption")}
+                showActor={false}
+              />
               <Pagination
+                framed
                 state={pageState}
-                hrefFor={(next) => hrefWith(listPath, { q, action, page: next })}
+                hrefFor={(next) => hrefWith(listPath, { action, page: next })}
               />
             </>
           )}
-        </>
+        </Register>
       ) : null}
     </>
   );

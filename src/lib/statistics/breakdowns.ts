@@ -3,13 +3,13 @@ import {
   APPLICATION_STATUSES,
   REGIONS,
   VACANCY_FORMATS,
-  VACANCY_STAGES,
-  stageOf,
+  VACANCY_STATES,
   type ApplicationStatus,
   type Region,
   type VacancyFormat,
-  type VacancyStage,
+  type VacancyState,
 } from "@/lib/domain/vocabulary";
+import { vacancyStateOf, type ApprovalSubject } from "@/lib/vacancies/approval";
 
 const DAY = 86_400_000;
 const TARGET_BUCKETS = 30;
@@ -53,7 +53,7 @@ function tally<Item, Key extends string>({ items, order, keyOf }: Counted<Item, 
   return order.map((key) => ({ key, value: counts.get(key) ?? 0 }));
 }
 
-function ofWhole<Key extends string>(
+export function ofWhole<Key extends string>(
   counted: Array<{ key: Key; value: number }>,
 ): Slice<Key>[] {
   const total = counted.reduce((sum, entry) => sum + entry.value, 0);
@@ -75,16 +75,16 @@ function ranked<Key extends string>(
   return ordered.map((entry) => ({ ...entry, share: entry.value / peak }));
 }
 
-type StageSource = {
-  publishedAt?: string | undefined;
-  archivedAt?: string | undefined;
-};
-
-export function vacancyStages(
-  vacancies: readonly StageSource[],
-): Slice<VacancyStage>[] {
-  return ofWhole(
-    tally({ items: vacancies, order: VACANCY_STAGES, keyOf: (item) => stageOf(item) }),
+export function vacancyStates(
+  vacancies: readonly ApprovalSubject[],
+): Slice<VacancyState>[] {
+  return ranked(
+    tally({
+      items: vacancies,
+      order: VACANCY_STATES,
+      keyOf: (item) => vacancyStateOf(item),
+    }),
+    false,
   );
 }
 

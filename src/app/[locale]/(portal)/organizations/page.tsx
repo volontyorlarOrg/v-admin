@@ -1,17 +1,22 @@
-import { getTranslations, setRequestLocale } from "next-intl/server";
+import { Plus } from "lucide-react";
+import { getFormatter, getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
 
-import { FilterForm, FilterSelect } from "@/components/forms/filter-form";
 import {
   OrganizationDialog,
   type OrganizationDialogLabels,
 } from "@/components/organizations/organization-dialog";
-import { StatusBadge } from "@/components/portal/status-badge";
-import { EmptyState } from "@/components/states/empty-state";
+import { StatusBadge, organizationStatus } from "@/components/portal/status-badge";
+import { InlineDecision } from "@/components/register/inline-decision";
+import {
+  Register,
+  RegisterNote,
+  RegisterSearch,
+  RegisterTabs,
+} from "@/components/register/register";
 import { LoadFailure } from "@/components/states/load-failure";
 import { PageHeader } from "@/components/states/page-header";
 import { Button } from "@/components/ui/button";
-import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import {
   Table,
   TableBody,
@@ -25,11 +30,16 @@ import { failureOf, isReady } from "@/lib/api/load";
 import {
   createOrganizationAction,
   updateOrganizationAction,
+  verifyOrganizationAction,
 } from "@/lib/organizations/actions";
 import { loadOrganizations } from "@/lib/organizations/data.server";
 import { filterOrganizations } from "@/lib/organizations/filters";
+import { organizationDecisions } from "@/lib/queue/approval-decisions.server";
+import { decisionLabels } from "@/lib/queue/decisions.server";
+import { blockingOrganizations } from "@/lib/queue/today";
 import { navHref } from "@/lib/routing/routes";
-import { readOption, readParam } from "@/lib/routing/search-params";
+import { hrefWith, readOption, readParam } from "@/lib/routing/search-params";
+import { loadVacancies } from "@/lib/vacancies/data.server";
 import { errorCatalog } from "@/lib/vacancies/labels.server";
 
 export const dynamic = "force-dynamic";
@@ -51,18 +61,39 @@ export default async function OrganizationsPage({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const t = await getTranslations("organizations");
-  const common = await getTranslations("common");
-  const errors = await getTranslations("errors");
+  const [t, common, errors, format] = await Promise.all([
+    getTranslations("organizations"),
+    getTranslations("common"),
+    getTranslations("errors"),
+    getFormatter(),
+  ]);
 
   const query = await searchParams;
   const q = readParam(query, "q");
   const verified = readOption(query, "verified", VERIFICATION);
 
-  const loaded = await loadOrganizations();
+  const [loaded, vacancies] = await Promise.all([loadOrganizations(), loadVacancies()]);
   const failure = failureOf(loaded);
-  const rows = isReady(loaded) ? filterOrganizations(loaded.data, { q, verified }) : [];
+  const all = isReady(loaded) ? loaded.data : [];
+  const rows = filterOrganizations(all, { q, ...(verified ? { verified } : {}) });
   const listPath = navHref("organizations");
+
+  const vacancyRows = isReady(vacancies) ? vacancies.data : [];
+  const held = new Map(
+    blockingOrganizations(vacancyRows, all).map((entry) => [
+      entry.organization.id,
+      entry.vacancies.length,
+    ]),
+  );
+  const totals = new Map<string, number>();
+  for (const vacancy of vacancyRows) {
+    totals.set(vacancy.organizationId, (totals.get(vacancy.organizationId) ?? 0) + 1);
+  }
+
+  const [labels, verifyOptions] = await Promise.all([
+    decisionLabels(),
+    organizationDecisions(),
+  ]);
 
   const catalog = await errorCatalog([
     "server",
@@ -119,6 +150,31 @@ export default async function OrganizationsPage({
     success: t("update.success"),
   };
 
+  const verifiedCount = all.filter((organization) => organization.verified).length;
+  const tabs = [
+    {
+      key: "all",
+      label: t("verified.all"),
+      href: hrefWith(listPath, { q }),
+      count: all.length,
+      active: verified === undefined,
+    },
+    {
+      key: "no",
+      label: t("verified.no"),
+      href: hrefWith(listPath, { q, verified: "no" }),
+      count: all.length - verifiedCount,
+      active: verified === "no",
+    },
+    {
+      key: "yes",
+      label: t("verified.yes"),
+      href: hrefWith(listPath, { q, verified: "yes" }),
+      count: verifiedCount,
+      active: verified === "yes",
+    },
+  ];
+
   return (
     <>
       <PageHeader
@@ -130,6 +186,7 @@ export default async function OrganizationsPage({
             labels={createLabels}
             trigger={
               <Button type="button" size="sm">
+                <Plus aria-hidden="true" />
                 {t("new")}
               </Button>
             }
@@ -140,93 +197,112 @@ export default async function OrganizationsPage({
       {failure ? <LoadFailure failure={failure} /> : null}
 
       {isReady(loaded) ? (
-        <>
-          <FilterForm
-            action={`/${locale}${listPath}`}
-            legend={t("filters.legend")}
-            searchLabel={t("filters.search")}
-            searchValue={q}
-            resetHref={listPath}
-          >
-            <FilterSelect id="filter-verified" label={t("filters.verified")}>
-              <NativeSelect
-                id="filter-verified"
-                name="verified"
-                defaultValue={verified ?? ""}
-              >
-                <NativeSelectOption value="">{t("verified.all")}</NativeSelectOption>
-                <NativeSelectOption value="yes">{t("verified.yes")}</NativeSelectOption>
-                <NativeSelectOption value="no">{t("verified.no")}</NativeSelectOption>
-              </NativeSelect>
-            </FilterSelect>
-          </FilterForm>
-
+        <Register
+          title={t("listTitle")}
+          count={rows.length}
+          countLabel={t("countLabel")}
+          toolbar={
+            <div className="flex w-full flex-col gap-3">
+              <RegisterTabs label={t("filters.verified")} items={tabs} />
+              <RegisterSearch
+                action={`/${locale}${listPath}`}
+                label={t("filters.search")}
+                submitLabel={common("search")}
+                value={q}
+                keep={{ verified }}
+              />
+            </div>
+          }
+        >
           {rows.length === 0 ? (
-            <EmptyState
-              title={loaded.data.length === 0 ? t("empty.title") : t("noMatches.title")}
+            <RegisterNote
+              title={all.length === 0 ? t("empty.title") : t("noMatches.title")}
               description={
-                loaded.data.length === 0
-                  ? t("empty.description")
-                  : t("noMatches.description")
+                all.length === 0 ? t("empty.description") : t("noMatches.description")
               }
             />
           ) : (
-            <div className="rounded-xl border border-border/70 panel-surface">
-              <Table>
-                <TableCaption className="sr-only">{t("table.caption")}</TableCaption>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead scope="col">{t("table.name")}</TableHead>
-                    <TableHead scope="col">{t("table.slug")}</TableHead>
-                    <TableHead scope="col">{t("table.verified")}</TableHead>
-                    <TableHead scope="col">
-                      <span className="sr-only">{common("actions")}</span>
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {rows.map((organization) => (
+            <Table>
+              <TableCaption className="sr-only">{t("table.caption")}</TableCaption>
+              <TableHeader>
+                <TableRow className="hover:bg-transparent">
+                  <TableHead scope="col">{t("table.name")}</TableHead>
+                  <TableHead scope="col">{t("table.verified")}</TableHead>
+                  <TableHead scope="col">{t("table.vacancies")}</TableHead>
+                  <TableHead scope="col">
+                    <span className="sr-only">{common("actions")}</span>
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {rows.map((organization) => {
+                  const chip = organizationStatus(organization.verified);
+                  const holding = held.get(organization.id) ?? 0;
+                  return (
                     <TableRow key={organization.id}>
-                      <TableCell className="font-medium text-ink">
-                        {organization.name}
-                      </TableCell>
-                      <TableCell className="text-ink-muted">
-                        {organization.slug}
+                      <TableCell>
+                        <span className="block font-semibold text-ink">
+                          {organization.name}
+                        </span>
+                        <span className="block text-xs text-ink-muted">
+                          {organization.slug}
+                        </span>
                       </TableCell>
                       <TableCell>
                         <StatusBadge
                           label={
                             organization.verified ? t("verified.yes") : t("verified.no")
                           }
-                          tone={organization.verified ? "structure" : "neutral"}
+                          tone={chip.tone}
+                          icon={chip.icon}
                         />
                       </TableCell>
-                      <TableCell className="text-right">
-                        <OrganizationDialog
-                          action={updateOrganizationAction}
-                          labels={updateLabels}
-                          id={organization.id}
-                          defaults={{
-                            name: organization.name,
-                            slug: organization.slug,
-                            logoUrl: organization.logoUrl ?? "",
-                            verified: organization.verified,
-                          }}
-                          trigger={
-                            <Button type="button" variant="ghost" size="sm">
-                              {t("table.edit")}
-                              <span className="sr-only"> — {organization.name}</span>
-                            </Button>
-                          }
-                        />
+                      <TableCell className="tabular">
+                        {format.number(totals.get(organization.id) ?? 0)}
+                        {holding > 0 ? (
+                          <span className="ml-2 font-semibold text-danger-ink">
+                            {t("table.held", { count: holding })}
+                          </span>
+                        ) : null}
+                      </TableCell>
+                      <TableCell>
+                        <span className="flex flex-wrap items-center justify-end gap-2">
+                          {organization.verified ? null : (
+                            <InlineDecision
+                              action={verifyOrganizationAction}
+                              hidden={{ id: organization.id }}
+                              subject={organization.name}
+                              labels={labels}
+                              options={verifyOptions({ name: organization.name })}
+                              className="justify-end"
+                            />
+                          )}
+                          <OrganizationDialog
+                            action={updateOrganizationAction}
+                            labels={updateLabels}
+                            id={organization.id}
+                            defaults={{
+                              name: organization.name,
+                              slug: organization.slug,
+                              logoUrl: organization.logoUrl ?? "",
+                              verified: organization.verified,
+                            }}
+                            trigger={
+                              <Button type="button" variant="ghost" size="row">
+                                {t("table.edit")}
+                                <span className="sr-only"> — {organization.name}</span>
+                              </Button>
+                            }
+                          />
+                        </span>
                       </TableCell>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+                  );
+                })}
+              </TableBody>
+            </Table>
           )}
-        </>
+        </Register>
       ) : null}
     </>
   );

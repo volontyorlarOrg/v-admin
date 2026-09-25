@@ -72,7 +72,7 @@ export function OrganizationDialog({
               <Input
                 id={idOf("slug")}
                 name="slug"
-                required
+                autoComplete="off"
                 aria-invalid={Boolean(error("slug")) || undefined}
                 aria-describedby={`${idOf("slug")}-help${
                   error("slug") ? ` ${idOf("slug")}-error` : ""
