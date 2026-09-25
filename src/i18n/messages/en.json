@@ -160,6 +160,8 @@
     "coordinatorHasActiveOpportunities": "This coordinator still owns active vacancies. Choose who takes them over first.",
     "invalidCoordinatorReassignment": "Choose a different coordinator to take the vacancies over.",
     "organizationNotFound": "That organization no longer exists.",
+    "organizationAccountExists": "This organization already has a portal account.",
+    "organizationAccountNotFound": "This organization has no portal account.",
     "rateLimitExceeded": "Too many attempts. Wait a moment and try again.",
     "estimatedHours": "Enter the hours as a number above 0 and at most 999.",
     "cityRequired": "Enter the city volunteers travel to.",
@@ -842,6 +844,44 @@
     "blockedNotice": "This coordinator is blocked and cannot sign in. Their vacancies stay as they are."
   },
   "organizations": {
+    "account": {
+      "column": "Portal account",
+      "status": { "none": "Not issued", "active": "Active", "blocked": "Blocked" },
+      "passwordLabel": "Permanent password",
+      "passwordHelp": "The organization cannot change this password. Share it securely; it will not be shown again.",
+      "issue": {
+        "trigger": "Issue account",
+        "title": "Issue account",
+        "description": "Create portal access using this organization's slug as its sign-in handle.",
+        "submit": "Issue account",
+        "pending": "Issuing…",
+        "success": "Organization access was issued."
+      },
+      "replace": {
+        "trigger": "Replace password",
+        "title": "Replace password",
+        "description": "The old password and all existing sessions will stop working.",
+        "submit": "Replace password",
+        "pending": "Replacing…",
+        "success": "The password was replaced and sessions ended."
+      },
+      "block": {
+        "trigger": "Block account",
+        "title": "Block account",
+        "description": "This immediately ends current sessions and prevents sign-in.",
+        "submit": "Block account",
+        "pending": "Blocking…",
+        "success": "The account was blocked."
+      },
+      "unblock": {
+        "trigger": "Unblock account",
+        "title": "Unblock account",
+        "description": "The existing password will work again.",
+        "submit": "Unblock account",
+        "pending": "Unblocking…",
+        "success": "The account was unblocked."
+      }
+    },
     "title": "Organizations",
     "description": "A vacancy can only be published under a verified organization.",
     "new": "New organization",
