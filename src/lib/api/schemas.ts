@@ -48,6 +48,19 @@ export const organizationSchema = z.object({
 
 export type Organization = z.infer<typeof organizationSchema>;
 
+export const organizationAccountSchema = z.object({
+  organizationId: id,
+  userId: id,
+  status: z.enum(["active", "blocked"]),
+  createdAt: isoDate,
+  blockedAt: optional(isoDate),
+  passwordChangedAt: optional(isoDate),
+});
+
+export type OrganizationAccount = z.infer<typeof organizationAccountSchema>;
+
+export const organizationAccountListSchema = z.array(organizationAccountSchema);
+
 export const organizationListSchema = z
   .union([
     z.array(organizationSchema),

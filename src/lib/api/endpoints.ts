@@ -154,6 +154,31 @@ export const endpoints = {
     path: "/organizations/{id}",
     contract: "published",
   },
+  organizationAccounts: {
+    method: "GET",
+    path: "/admin/organizations/accounts",
+    contract: "published",
+  },
+  createOrganizationAccount: {
+    method: "POST",
+    path: "/admin/organizations/{id}/account",
+    contract: "published",
+  },
+  replaceOrganizationAccountPassword: {
+    method: "PUT",
+    path: "/admin/organizations/{id}/account/password",
+    contract: "published",
+  },
+  blockOrganizationAccount: {
+    method: "POST",
+    path: "/admin/organizations/{id}/account/block",
+    contract: "published",
+  },
+  unblockOrganizationAccount: {
+    method: "POST",
+    path: "/admin/organizations/{id}/account/unblock",
+    contract: "published",
+  },
 } as const satisfies Record<string, Endpoint>;
 
 export type EndpointName = keyof typeof endpoints;
