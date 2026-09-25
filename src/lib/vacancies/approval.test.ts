@@ -60,7 +60,7 @@ describe("vacancyStateOf", () => {
   });
 });
 
-describe("what a coordinator may do", () => {
+describe("vacancy review and administrator editing", () => {
   it("submits a draft and a vacancy that came back for changes", () => {
     expect(canSubmitForApproval({ approvalStatus: "draft" })).toBe(true);
     expect(canSubmitForApproval({ approvalStatus: "changes_requested" })).toBe(true);
@@ -69,8 +69,9 @@ describe("what a coordinator may do", () => {
     expect(canSubmitForApproval({ approvalStatus: "approved" })).toBe(false);
   });
 
-  it("locks a vacancy while an administrator is looking at it", () => {
-    expect(canEditVacancy({ approvalStatus: "pending_review" })).toBe(false);
+  it("lets an administrator correct a pending or published vacancy", () => {
+    expect(canEditVacancy({ approvalStatus: "pending_review" })).toBe(true);
+    expect(canEditVacancy({ approvalStatus: "approved" })).toBe(true);
   });
 
   it("keeps a rejected vacancy read-only for good", () => {

@@ -166,6 +166,11 @@
     "opportunityCannotBePublished": "This vacancy cannot be published in its current state.",
     "opportunityNotPendingApproval": "This vacancy is not waiting for an approval decision.",
     "opportunityNotEditable": "This vacancy is locked in its current approval state.",
+    "opportunityImageInvalid": "Choose a valid image file.",
+    "opportunityImageTooLarge": "Choose an image under 2 MB.",
+    "opportunityImageFormatUnsupported": "Choose a JPEG, PNG or WebP image.",
+    "opportunityImageTooSmall": "Choose an image at least 640 × 360 pixels.",
+    "opportunityImageStorageUnavailable": "Image storage is unavailable. Try again later.",
     "approvalNoteRequired": "Write a note explaining the decision.",
     "deadlinePassed": "The application deadline has already passed.",
     "noVolunteersSelected": "Choose at least one volunteer.",
@@ -325,14 +330,14 @@
       "essayRequiredNo": "Not required",
       "acceptanceModes": {
         "manual": "You review each application and accept or reject it.",
-        "automatic": "Everyone who applies is accepted at once, until the places run out."
+        "automatic": "Everyone who applies is accepted at once. A place limit applies only if you set one."
       },
       "locationNameHelp": "Optional. The venue or a public description of where the work happens online. Never a meeting password.",
-      "cityHelp": "Required when volunteers turn up in person."
+      "cityHelp": "Optional. Add the city for in-person work."
     },
     "form": {
       "createTitle": "New vacancy",
-      "createDescription": "A new vacancy starts as a draft. An administrator approves it before any volunteer sees it.",
+      "createDescription": "A new vacancy starts as a draft. Open it after creation to add a photo before sending it for approval.",
       "editTitle": "Edit vacancy",
       "submitCreate": "Create the draft",
       "submitUpdate": "Save changes",
@@ -349,7 +354,20 @@
       },
       "unverified": "not verified",
       "unverifiedNotice": "This organization is not verified yet. A vacancy under it cannot be approved until an administrator verifies it.",
-      "editDescription": "Changes stay a draft until the vacancy is sent for approval again."
+      "editDescription": "Save changes to this vacancy. Changes to a published vacancy appear to volunteers immediately."
+    },
+    "image": {
+      "title": "Vacancy photo",
+      "description": "The photo appears on the volunteer vacancy card and detail page. JPEG, PNG or WebP, up to 2 MB.",
+      "choose": "Choose a photo",
+      "upload": "Upload photo",
+      "replace": "Replace photo",
+      "remove": "Remove photo",
+      "pending": "Saving…",
+      "saved": "The photo was saved.",
+      "removed": "The photo was removed.",
+      "noImage": "No photo yet",
+      "reviewNotice": "Changing a published vacancy hides it from volunteers until an administrator approves it again."
     },
     "archive": {
       "trigger": "Archive",

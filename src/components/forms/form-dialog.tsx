@@ -40,6 +40,7 @@ export type FormDialogLabels = {
 export type FormDialogState = {
   fields: FieldErrors;
   error: (name: string) => string | undefined;
+  result: ActionResult;
 };
 
 export function FormDialog({
@@ -151,6 +152,7 @@ export function FormDialog({
               ? children({
                   fields: failedFields,
                   error: (name) => fieldMessage(failedFields, name, labels.errors),
+                  result,
                 })
               : children}
           </DialogBody>

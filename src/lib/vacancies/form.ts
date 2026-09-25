@@ -119,7 +119,7 @@ export function vacancyFromFormData(formData: FormData): Record<string, string> 
 
   for (const field of VACANCY_FIELDS) {
     const value = formData.get(field);
-    if (typeof value === "string" && value.trim() !== "") output[field] = value;
+    output[field] = typeof value === "string" ? value : "";
   }
 
   return output;
@@ -150,6 +150,24 @@ export function toVacancyPayload(values: VacancyFormValues) {
             .filter(Boolean),
         }
       : {}),
+  };
+}
+
+export function toVacancyUpdatePayload(values: VacancyFormValues) {
+  return {
+    ...toVacancyPayload(values),
+    endsAt: values.endsAt ? new Date(values.endsAt).toISOString() : null,
+    locationName: values.locationName || null,
+    capacity: values.capacity ? Number(values.capacity) : null,
+    estimatedTotalHours: values.estimatedTotalHours
+      ? Number(values.estimatedTotalHours)
+      : null,
+    requirements: values.requirements
+      ? values.requirements
+          .split("\n")
+          .map((line) => line.trim())
+          .filter(Boolean)
+      : [],
   };
 }
 

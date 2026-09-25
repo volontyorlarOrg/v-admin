@@ -30,14 +30,12 @@ async function fillVacancyDraft(
   page: Page | Locator,
   values: {
     title: string;
-    slug: string;
     organization?: string;
     deadline?: string;
     format?: string;
   },
 ) {
   await page.getByLabel("Title").fill(values.title);
-  await page.getByLabel("Address").fill(values.slug);
   await page
     .getByLabel("Description")
     .fill("Volunteers work together with a coordinator throughout the event.");
@@ -45,7 +43,6 @@ async function fillVacancyDraft(
     .getByLabel("Organization")
     .selectOption({ label: values.organization ?? "Chilonzor Reading Corners" });
   await page.getByLabel("Format").selectOption(values.format ?? "onsite");
-  await page.getByLabel("City").fill("Tashkent");
   await page.getByLabel("Place", { exact: true }).fill("Central library");
   await page.getByLabel("Places", { exact: true }).fill("12");
   await page.getByLabel("Estimated hours").fill("4");
@@ -371,7 +368,6 @@ test.describe("the vacancy lifecycle", () => {
     await openDialog(page, "New vacancy");
     await fillVacancyDraft(dialog(page), {
       title: "Riverbank clean-up",
-      slug: "riverbank-clean-up",
       organization: "Green Corridor Group — not verified",
     });
     await dialog(page).getByRole("button", { name: "Create the draft" }).click();
@@ -413,7 +409,7 @@ test.describe("the vacancy lifecycle", () => {
     await expect(dialog(page)).toBeVisible();
     await expect(errorSummary(page)).toBeVisible();
     await expect(errorSummary(page)).toContainText("Title");
-    await expect(errorSummary(page)).toContainText("Estimated hours");
+    await expect(errorSummary(page)).toContainText("Description");
     await expect(dialog(page).getByLabel("Title")).toHaveAttribute(
       "aria-invalid",
       "true",
@@ -447,6 +443,36 @@ test.describe("the vacancy lifecycle", () => {
     await expect(page.getByRole("button", { name: "Reject" })).toHaveCount(0);
   });
 
+  test("keeps an administrator edit intact when saving finds an invalid deadline", async ({
+    page,
+  }) => {
+    await signedIn(page);
+    await page.goto(`/en/vacancies/${APPROVED}`);
+
+    await openDialog(page, "Edit vacancy");
+    await dialog(page).getByLabel("Title").fill("Revised winter book drive");
+    await dialog(page).getByLabel("Applications close").fill("2099-11-05T18:00");
+    await dialog(page).getByRole("button", { name: "Save changes" }).click();
+
+    await expect(dialog(page).getByLabel("Title")).toHaveValue(
+      "Revised winter book drive",
+    );
+    await expect(dialog(page).getByLabel("Applications close")).toHaveValue(
+      "2099-11-05T18:00",
+    );
+    await expect(dialog(page).locator('[data-slot="field-error"]')).toContainText(
+      "deadline must fall before the vacancy starts",
+    );
+
+    await dialog(page).getByRole("button", { name: "Save changes" }).click();
+    await expect(dialog(page).getByLabel("Title")).toHaveValue(
+      "Revised winter book drive",
+    );
+    await expect(dialog(page).getByLabel("Applications close")).toHaveValue(
+      "2099-11-05T18:00",
+    );
+  });
+
   test("creates a draft, publishes it directly, then archives it", async ({ page }) => {
     await signedIn(page);
     await page.goto("/en/vacancies");
@@ -454,7 +480,6 @@ test.describe("the vacancy lifecycle", () => {
     await openDialog(page, "New vacancy");
     await fillVacancyDraft(dialog(page), {
       title: "Library shelving day",
-      slug: "library-shelving-day",
     });
     await dialog(page).getByRole("button", { name: "Create the draft" }).click();
     await expect(dialog(page)).toHaveCount(0);
@@ -517,7 +542,6 @@ test.describe("the vacancy lifecycle", () => {
 
     await fillVacancyDraft(page, {
       title: "Late deadline",
-      slug: "late-deadline",
       deadline: "2026-11-05T18:00",
     });
     await page.getByRole("button", { name: "Create the draft" }).click();
@@ -535,7 +559,6 @@ test.describe("the vacancy lifecycle", () => {
 
     await fillVacancyDraft(page, {
       title: "Remote help",
-      slug: "remote-help",
       format: "remote",
     });
     await page.getByLabel("Place", { exact: true }).fill("Zoom, passcode 4821");

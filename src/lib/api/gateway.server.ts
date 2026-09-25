@@ -2,7 +2,7 @@ import "server-only";
 
 import type { z } from "zod";
 
-import { authedApi, type QueryParams } from "@/lib/api/client.server";
+import { authedApi, authedMultipart, type QueryParams } from "@/lib/api/client.server";
 import { endpoints, pathFor, type EndpointName } from "@/lib/api/endpoints";
 import { isApiError, isSessionOver } from "@/lib/api/errors";
 import { loadedFromError, ready, type Loaded } from "@/lib/api/load";
@@ -78,6 +78,22 @@ export async function write(
       return failedResult("awaitingContract");
     }
 
+    return resultFromError(error);
+  }
+}
+
+export async function writeMultipart(
+  name: EndpointName,
+  params: Params,
+  body: FormData,
+): Promise<ActionResult> {
+  const session = await getSession();
+  if (!session) return failedResult("sessionExpired");
+  try {
+    await authedMultipart(pathFor(name, params), session.accessToken, body);
+    return okResult;
+  } catch (error) {
+    if (isSessionOver(error)) return failedResult("sessionExpired");
     return resultFromError(error);
   }
 }

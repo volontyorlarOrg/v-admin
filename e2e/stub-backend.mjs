@@ -460,19 +460,9 @@ function approvalRefusal(item) {
 }
 
 function missingForApproval(item) {
-  const organization = state.organizations.find((o) => o.id === item.organizationId);
   const missing = [];
-  if (!organization?.verified) missing.push("organization");
-  if (!item.endsAt) missing.push("endsAt");
-  if (!item.capacity || item.capacity < 1) missing.push("capacity");
-  if (!item.estimatedTotalHours || Number(item.estimatedTotalHours) <= 0) {
-    missing.push("estimatedTotalHours");
-  }
-  if (item.format === "remote") {
-    if (!item.locationName) missing.push("location");
-  } else if (!item.city || !item.locationName) {
-    missing.push("location");
-  }
+  if (!item.title?.trim()) missing.push("title");
+  if (!item.description?.trim()) missing.push("description");
   return missing;
 }
 
@@ -904,6 +894,14 @@ const server = createServer(async (request, response) => {
       const approval = approvalOf(item);
       if (item.archivedAt || approval === "pending_review" || approval === "rejected") {
         return send(response, 409, { code: "opportunityNotEditable" });
+      }
+      if (scope === "staff" && approval === "approved") {
+        item.approvalStatus = "draft";
+        item.approvalNote = null;
+        item.approvalSubmittedAt = null;
+        item.approvalReviewedAt = null;
+        item.approvalReviewedById = null;
+        item.approvalReviewedBy = null;
       }
       Object.assign(item, body, { updatedAt: new Date().toISOString() });
       record("opportunity.updated", "Opportunity", item.id, actor.id);

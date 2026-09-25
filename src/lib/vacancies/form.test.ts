@@ -4,6 +4,7 @@ import { fieldErrorsOf } from "@/lib/auth/credentials";
 import {
   toDateTimeLocal,
   toVacancyPayload,
+  toVacancyUpdatePayload,
   vacancyFormSchema,
   vacancyFromFormData,
 } from "@/lib/vacancies/form";
@@ -174,14 +175,40 @@ describe("toVacancyPayload", () => {
   });
 });
 
+describe("toVacancyUpdatePayload", () => {
+  it("clears optional details intentionally without clearing the vacancy", () => {
+    const values = vacancyFormSchema.parse({
+      ...valid,
+      endsAt: "",
+      locationName: "",
+      capacity: "",
+      estimatedTotalHours: "",
+      requirements: "",
+    });
+
+    expect(toVacancyUpdatePayload(values)).toMatchObject({
+      title: valid.title,
+      endsAt: null,
+      locationName: null,
+      capacity: null,
+      estimatedTotalHours: null,
+      requirements: [],
+    });
+  });
+});
+
 describe("vacancyFromFormData", () => {
-  it("reads only known fields and skips the empty ones", () => {
+  it("keeps entered and cleared fields for a failed submission", () => {
     const formData = new FormData();
     formData.append("title", "Winter book drive");
     formData.append("city", "   ");
     formData.append("createdById", "someone-else");
 
-    expect(vacancyFromFormData(formData)).toEqual({ title: "Winter book drive" });
+    expect(vacancyFromFormData(formData)).toMatchObject({
+      title: "Winter book drive",
+      description: "",
+    });
+    expect(vacancyFromFormData(formData)).not.toHaveProperty("createdById");
   });
 });
 

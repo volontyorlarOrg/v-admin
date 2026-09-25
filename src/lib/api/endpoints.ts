@@ -40,6 +40,16 @@ export const endpoints = {
     path: "/admin/opportunities/{id}",
     contract: "published",
   },
+  uploadVacancyImage: {
+    method: "PUT",
+    path: "/admin/opportunities/{id}/image",
+    contract: "published",
+  },
+  removeVacancyImage: {
+    method: "DELETE",
+    path: "/admin/opportunities/{id}/image",
+    contract: "published",
+  },
   submitVacancyForApproval: {
     method: "POST",
     path: "/admin/opportunities/{id}/submit-for-approval",
