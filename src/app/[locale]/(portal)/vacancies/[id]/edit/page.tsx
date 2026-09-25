@@ -8,6 +8,7 @@ import { StatePanel } from "@/components/states/state-panel";
 import { VacancyForm } from "@/components/vacancies/vacancy-form";
 import { failureOf, isReady } from "@/lib/api/load";
 import { REGIONS, VACANCY_FORMATS } from "@/lib/domain/vocabulary";
+import { readOption, type SearchParams } from "@/lib/routing/search-params";
 import { vacancyHref } from "@/lib/routing/routes";
 import { canEditVacancy } from "@/lib/vacancies/approval";
 import { updateVacancyAction } from "@/lib/vacancies/actions";
@@ -27,8 +28,13 @@ export async function generateMetadata({
 
 export default async function EditVacancyPage({
   params,
-}: PageProps<"/[locale]/vacancies/[id]/edit">) {
+  searchParams,
+}: {
+  params: PageProps<"/[locale]/vacancies/[id]/edit">["params"];
+  searchParams: Promise<SearchParams>;
+}) {
   const { locale, id } = await params;
+  const photoFailed = readOption(await searchParams, "photo", ["failed"]) === "failed";
   setRequestLocale(locale);
 
   const t = await getTranslations("vacancies");
@@ -88,6 +94,10 @@ export default async function EditVacancyPage({
             essayRequired: vacancy.essayRequired ? "on" : "",
             requirements: vacancy.requirements.join("\n"),
           }}
+          imageUrl={vacancy.imageUrl}
+          initialNotice={
+            photoFailed ? t("form.photoUploadAfterCreateFailed") : undefined
+          }
           organizations={organizations.data.map((item) => ({
             id: item.id,
             name: item.name,

@@ -12,11 +12,16 @@ import {
   type VacancyFieldLabels,
   type VacancyOrganization,
 } from "@/components/vacancies/vacancy-fields";
+import {
+  VacancyImageField,
+  type VacancyImageFieldLabels,
+} from "@/components/vacancies/vacancy-image-field";
 import { Link } from "@/i18n/navigation";
 import { idleResult, type ActionResult } from "@/lib/api/action-result";
 import { fieldMessage, fieldsOf, formError } from "@/lib/forms/messages";
 
 export type VacancyFormLabels = VacancyFieldLabels & {
+  image: VacancyImageFieldLabels;
   submit: string;
   pending: string;
   success: string;
@@ -34,6 +39,8 @@ export function VacancyForm({
   cancelHref,
   labels,
   defaults,
+  imageUrl,
+  initialNotice,
   organizations,
   regions,
   formats,
@@ -44,6 +51,8 @@ export function VacancyForm({
   cancelHref: string;
   labels: VacancyFormLabels;
   defaults: VacancyFormDefaults;
+  imageUrl?: string;
+  initialNotice?: string;
   organizations: readonly VacancyOrganization[];
   regions: readonly string[];
   formats: readonly string[];
@@ -73,8 +82,14 @@ export function VacancyForm({
       {id ? <input type="hidden" name="id" value={id} /> : null}
       <input type="hidden" name="locale" value={locale} />
 
-      {result.status === "ok" || summaryItems.length > 1 || message ? (
+      {result.status === "ok" ||
+      summaryItems.length > 1 ||
+      message ||
+      (initialNotice && result.status === "idle") ? (
         <div className="flex flex-col gap-3 border-b border-border px-5 py-4">
+          {initialNotice && result.status === "idle" ? (
+            <FormMessage tone="error">{initialNotice}</FormMessage>
+          ) : null}
           {result.status === "ok" ? (
             <FormMessage tone="success">{labels.success}</FormMessage>
           ) : null}
@@ -97,6 +112,13 @@ export function VacancyForm({
         regions={regions}
         formats={formats}
         error={(name) => fieldMessage(fields, name, labels.errors)}
+        idPrefix={idPrefix}
+      />
+
+      <VacancyImageField
+        imageUrl={imageUrl}
+        labels={labels.image}
+        error={fieldMessage(fields, "image", labels.errors)}
         idPrefix={idPrefix}
       />
 

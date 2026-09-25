@@ -133,12 +133,17 @@ still submit their vacancies for review. The direct action records the
 administrator as reviewer and returns `opportunityCannotBePublished` when the
 vacancy is already in a final state.
 
-The vacancy detail screen can upload, replace, or remove a photo after the
-draft exists. Its multipart `image` field uses `PUT /admin/opportunities/{id}/image`;
-`DELETE` on the same route removes it. The existing `imageUrl` read field is the
-display URL. Administrators can save edits to approved vacancies immediately,
-or correct a pending vacancy before approving it. Rejected and archived
-vacancies remain read-only.
+The administrator create and edit forms accept an optional photo alongside the
+vacancy fields. Creation first saves the draft to obtain its ID, then uploads
+the photo with multipart `image` on `PUT /admin/opportunities/{id}/image`.
+If that upload fails, the draft still exists and the administrator is sent to
+its edit form to retry without creating a duplicate. Editing can replace the
+photo through `PUT` or remove it through `DELETE` on the same route. The form
+checks type, size and the 640 × 360 minimum before submitting, and keeps a
+chosen photo when a save fails. The existing `imageUrl` read field is the
+display URL. Administrators can save
+edits to approved vacancies immediately, or correct a pending vacancy before
+approving it. Rejected and archived vacancies remain read-only.
 
 The create form generates a stable URL slug from the title. Both create and
 edit retain entered fields after validation or API errors. Optional logistics

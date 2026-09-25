@@ -727,7 +727,8 @@ const server = createServer(async (request, response) => {
   const url = new URL(request.url ?? "/", `http://127.0.0.1:${PORT}`);
   const path = url.pathname;
   const method = request.method ?? "GET";
-  const isMultipart = request.headers["content-type"]?.startsWith("multipart/form-data");
+  const isMultipart =
+    request.headers["content-type"]?.startsWith("multipart/form-data");
   const body = method === "GET" ? {} : await readJson(request, isMultipart);
 
   if (path === "/health/live") return send(response, 200, { status: "ok" });
@@ -784,7 +785,14 @@ const server = createServer(async (request, response) => {
     return send(response, 200, issueSession(user));
   }
 
-  if (state.broken && path === state.broken.path) {
+  const brokenParts = state.broken?.path.split("*");
+  if (
+    state.broken &&
+    (path === state.broken.path ||
+      (brokenParts?.length === 2 &&
+        path.startsWith(brokenParts[0]) &&
+        path.endsWith(brokenParts[1])))
+  ) {
     return send(response, state.broken.status, { code: state.broken.code });
   }
 
@@ -917,8 +925,11 @@ const server = createServer(async (request, response) => {
     }
     if (verb === "image" && (method === "PUT" || method === "DELETE")) {
       const approval = approvalOf(item);
-      if (item.archivedAt || approval === "rejected" ||
-          (scope === "staff" && approval === "pending_review")) {
+      if (
+        item.archivedAt ||
+        approval === "rejected" ||
+        (scope === "staff" && approval === "pending_review")
+      ) {
         return send(response, 409, { code: "opportunityNotEditable" });
       }
       if (scope === "staff" && approval === "approved") {
@@ -929,17 +940,21 @@ const server = createServer(async (request, response) => {
         item.approvalReviewedById = null;
         item.approvalReviewedBy = null;
       }
-      item.imageUrl = method === "PUT"
-        ? `https://media.example.org/opportunities/${id}/image.png`
-        : null;
+      item.imageUrl =
+        method === "PUT"
+          ? `https://media.example.org/opportunities/${id}/image.png`
+          : null;
       item.updatedAt = new Date().toISOString();
       record("opportunity.updated", "Opportunity", item.id, actor.id);
       return send(response, 200, method === "PUT" ? { imageUrl: item.imageUrl } : item);
     }
     if (!verb && method === "PATCH") {
       const approval = approvalOf(item);
-      if (item.archivedAt || approval === "rejected" ||
-          (scope === "staff" && approval === "pending_review")) {
+      if (
+        item.archivedAt ||
+        approval === "rejected" ||
+        (scope === "staff" && approval === "pending_review")
+      ) {
         return send(response, 409, { code: "opportunityNotEditable" });
       }
       if (scope === "staff" && approval === "approved") {
@@ -1135,7 +1150,11 @@ const server = createServer(async (request, response) => {
       return send(response, 409, { code: "attendanceAlreadyResolved" });
     }
     const target = state.vacancies.find((v) => v.id === item.opportunityId);
-    if (body.status === "accepted" && item.status !== "accepted" && target?.archivedAt) {
+    if (
+      body.status === "accepted" &&
+      item.status !== "accepted" &&
+      target?.archivedAt
+    ) {
       return send(response, 409, { code: "opportunityArchived" });
     }
     if (item.status === "accepted" && body.status !== "accepted") {

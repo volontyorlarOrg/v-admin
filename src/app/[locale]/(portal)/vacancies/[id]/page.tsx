@@ -70,8 +70,6 @@ import {
   archiveVacancyAction,
   decideVacancyAction,
   publishVacancyAction,
-  uploadVacancyImageAction,
-  removeVacancyImageAction,
 } from "@/lib/vacancies/actions";
 import { loadOrganizations, loadVacancy } from "@/lib/vacancies/data.server";
 import { errorCatalog } from "@/lib/vacancies/labels.server";
@@ -532,27 +530,8 @@ export default async function VacancyPage({
         </section>
       ) : null}
 
-      {canEditVacancy(vacancy) || vacancy.imageUrl ? (
-        <VacancyImage
-          id={vacancy.id}
-          imageUrl={vacancy.imageUrl}
-          editable={canEditVacancy(vacancy)}
-          uploadAction={uploadVacancyImageAction}
-          removeAction={removeVacancyImageAction}
-          labels={{
-            title: t("image.title"),
-            description: t("image.description"),
-            choose: t("image.choose"),
-            upload: t("image.upload"),
-            replace: t("image.replace"),
-            remove: t("image.remove"),
-            pending: t("image.pending"),
-            saved: t("image.saved"),
-            removed: t("image.removed"),
-            noImage: t("image.noImage"),
-            errors: await errorCatalog(),
-          }}
-        />
+      {vacancy.imageUrl ? (
+        <VacancyImage imageUrl={vacancy.imageUrl} title={t("image.title")} />
       ) : null}
 
       {state === "rejected" ? (
