@@ -180,6 +180,7 @@
     "opportunityImageFormatUnsupported": "Choose a JPEG, PNG or WebP image.",
     "opportunityImageTooSmall": "Choose an image at least 640 × 360 pixels.",
     "opportunityImageStorageUnavailable": "Image storage is unavailable. Try again later.",
+    "vacancyImageAfterSaveFailed": "The vacancy details were saved, but the photo was not. Check the photo and save again.",
     "approvalNoteRequired": "Write a note explaining the decision.",
     "deadlinePassed": "The application deadline has already passed.",
     "noVolunteersSelected": "Choose at least one volunteer.",
@@ -343,7 +344,8 @@
     },
     "form": {
       "createTitle": "New vacancy",
-      "createDescription": "A new vacancy starts as a draft. Open it after creation to add a photo before sending it for approval.",
+      "createDescription": "Add the vacancy details and an optional photo. The vacancy starts as a draft until you publish it.",
+      "photoUploadAfterCreateFailed": "The draft was created, but its photo was not saved. Choose a photo and save again here.",
       "editTitle": "Edit vacancy",
       "submitCreate": "Create the draft",
       "submitUpdate": "Save changes",
@@ -375,16 +377,11 @@
     },
     "image": {
       "title": "Vacancy photo",
-      "description": "The photo appears on the volunteer vacancy card and detail page. JPEG, PNG or WebP, up to 2 MB.",
+      "description": "Optional. Shown on the volunteer card and detail page. JPEG, PNG or WebP, up to 2 MB and at least 640 × 360 pixels.",
       "choose": "Choose a photo",
-      "upload": "Upload photo",
-      "replace": "Replace photo",
       "remove": "Remove photo",
-      "pending": "Saving…",
-      "saved": "The photo was saved.",
-      "removed": "The photo was removed.",
-      "noImage": "No photo yet",
-      "reviewNotice": "Changing a published vacancy hides it from volunteers until an administrator approves it again."
+      "undoRemove": "Keep photo",
+      "noImage": "No photo yet"
     },
     "archive": {
       "trigger": "Archive",

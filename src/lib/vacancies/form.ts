@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import { ACCEPTANCE_MODES, REGIONS, VACANCY_FORMATS } from "@/lib/domain/vocabulary";
 import { hasMeetingCredentials } from "@/lib/vacancies/approval";
+import { vacancyImageFileProblem } from "@/lib/vacancies/image";
 
 export const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 export const MAX_ESTIMATED_TOTAL_HOURS = 100_000;
@@ -125,6 +126,21 @@ export function vacancyFromFormData(formData: FormData): Record<string, string> 
   }
 
   return output;
+}
+
+export function vacancyImageFromFormData(formData: FormData): {
+  file?: File;
+  remove: boolean;
+  error?: string;
+} {
+  const value = formData.get("image");
+  const remove = formData.get("removeImage") === "on";
+  if (value === null) return { remove };
+  if (!(value instanceof File)) return { remove, error: "opportunityImageInvalid" };
+  if (value.size === 0) return { remove };
+  const error = vacancyImageFileProblem(value);
+  if (error) return { remove, error };
+  return { file: value, remove: false };
 }
 
 function lines(value: string | undefined): string[] {
