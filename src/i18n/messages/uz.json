@@ -160,6 +160,8 @@
     "coordinatorHasActiveOpportunities": "Bu koordinatorda faol vakansiyalar qolgan. Avval ularni kim olishini tanlang.",
     "invalidCoordinatorReassignment": "Vakansiyalarni qabul qilish uchun boshqa koordinatorni tanlang.",
     "organizationNotFound": "Bunday tashkilot endi mavjud emas.",
+    "organizationAccountExists": "Bu tashkilot uchun portal hisobi mavjud.",
+    "organizationAccountNotFound": "Bu tashkilotning portal hisobi yoʻq.",
     "rateLimitExceeded": "Urinishlar juda koʻp. Biroz kutib, qayta urinib koʻring.",
     "estimatedHours": "Soatlarni 0 dan katta va 999 dan oshmaydigan son bilan kiriting.",
     "cityRequired": "Koʻngillilar keladigan shaharni kiriting.",
@@ -809,6 +811,44 @@
     "blockedNotice": "Bu koordinator bloklangan va tizimga kira olmaydi. Uning vakansiyalari oʻz holicha qoladi."
   },
   "organizations": {
+    "account": {
+      "column": "Portal hisobi",
+      "status": { "none": "Berilmagan", "active": "Faol", "blocked": "Bloklangan" },
+      "passwordLabel": "Doimiy parol",
+      "passwordHelp": "Tashkilot bu parolni oʻzgartira olmaydi. Uni xavfsiz yetkazing; keyin qayta koʻrsatilmaydi.",
+      "issue": {
+        "trigger": "Hisob berish",
+        "title": "Hisob berish",
+        "description": "Tashkilot identifikatori orqali portalga kirish huquqini yarating.",
+        "submit": "Hisob berish",
+        "pending": "Yaratilmoqda…",
+        "success": "Tashkilotga kirish huquqi berildi."
+      },
+      "replace": {
+        "trigger": "Parolni almashtirish",
+        "title": "Parolni almashtirish",
+        "description": "Eski parol va barcha mavjud seanslar ishlamay qoladi.",
+        "submit": "Parolni almashtirish",
+        "pending": "Almashtirilmoqda…",
+        "success": "Parol almashtirildi va seanslar tugatildi."
+      },
+      "block": {
+        "trigger": "Hisobni bloklash",
+        "title": "Hisobni bloklash",
+        "description": "Mavjud seanslar darhol tugaydi va kirish toʻxtatiladi.",
+        "submit": "Bloklash",
+        "pending": "Bloklanmoqda…",
+        "success": "Hisob bloklandi."
+      },
+      "unblock": {
+        "trigger": "Hisobni faollashtirish",
+        "title": "Hisobni faollashtirish",
+        "description": "Mavjud parol yana ishlaydi.",
+        "submit": "Faollashtirish",
+        "pending": "Faollashtirilmoqda…",
+        "success": "Hisob faollashtirildi."
+      }
+    },
     "title": "Tashkilotlar",
     "description": "Vakansiyani faqat tasdiqlangan tashkilot ostida eʼlon qilish mumkin.",
     "new": "Yangi tashkilot",
