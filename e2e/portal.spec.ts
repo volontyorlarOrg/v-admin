@@ -1,3 +1,5 @@
+import { crc32, deflateSync } from "node:zlib";
+
 import { expect, test, type Page } from "@playwright/test";
 
 const LOCALES = ["uz", "ru", "en"] as const;
@@ -7,6 +9,32 @@ const PROVISIONED_ADMINISTRATOR = "provisioned@example.org";
 const ADMINISTRATOR = "administrator@example.org";
 const VOLUNTEER = "dilnoza@example.org";
 const PASSWORD = "stub-password";
+
+function png(width: number, height: number): Buffer {
+  const chunk = (type: string, data: Buffer) => {
+    const length = Buffer.alloc(4);
+    length.writeUInt32BE(data.length);
+    const body = Buffer.concat([Buffer.from(type, "latin1"), data]);
+    const checksum = Buffer.alloc(4);
+    checksum.writeUInt32BE(crc32(body));
+    return Buffer.concat([length, body, checksum]);
+  };
+  const header = Buffer.alloc(13);
+  header.writeUInt32BE(width, 0);
+  header.writeUInt32BE(height, 4);
+  header.writeUInt8(8, 8);
+  const rows = Buffer.alloc((width + 1) * height, 0x9c);
+  for (let row = 0; row < height; row += 1) rows[row * (width + 1)] = 0;
+  return Buffer.concat([
+    Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+    chunk("IHDR", header),
+    chunk("IDAT", deflateSync(rows)),
+    chunk("IEND", Buffer.alloc(0)),
+  ]);
+}
+
+const PHOTO = { name: "vacancy.png", mimeType: "image/png", buffer: png(640, 360) };
+const TINY_PHOTO = { name: "tiny.png", mimeType: "image/png", buffer: png(1, 1) };
 
 const STUB = `http://127.0.0.1:${process.env.E2E_STUB_PORT ?? 3703}`;
 
@@ -381,26 +409,125 @@ test.describe("the vacancy lifecycle", () => {
     await expect(decision(page, "Winter clothing drive")).toHaveCount(0);
   });
 
-  test("uploads and removes a published vacancy photo", async ({ page }) => {
+  test("adds and removes a published vacancy photo from the edit form", async ({
+    page,
+  }) => {
     await signedIn(page);
-    await page.goto(`/en/vacancies/${APPROVED}`);
+    await page.goto(`/en/vacancies/${APPROVED}/edit`);
 
-    await page.getByLabel("Choose a photo").setInputFiles({
-      name: "vacancy.png",
-      mimeType: "image/png",
-      buffer: Buffer.from(
-        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/fscAAAAASUVORK5CYII=",
-        "base64",
-      ),
-    });
-    await page.getByRole("button", { name: "Upload photo" }).click();
-    await expect(page.getByText("The photo was saved.")).toBeVisible();
+    await page.getByLabel("Choose a photo").setInputFiles(PHOTO);
+    await page.getByRole("button", { name: "Save changes" }).click();
+    await expect(page).toHaveURL(`/en/vacancies/${APPROVED}`);
+    await expect(page.getByRole("heading", { name: "Vacancy photo" })).toBeVisible();
+
+    await page.getByRole("link", { name: "Edit vacancy" }).click();
     await expect(page.getByRole("button", { name: "Remove photo" })).toBeVisible();
-    await expect(page.getByText("Approved and published").first()).toBeVisible();
-
     await page.getByRole("button", { name: "Remove photo" }).click();
-    await expect(page.getByText("The photo was removed.")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Keep photo" })).toBeVisible();
+    await page.getByRole("button", { name: "Save changes" }).click();
+    await expect(page).toHaveURL(`/en/vacancies/${APPROVED}`);
+    await expect(page.getByRole("heading", { name: "Vacancy photo" })).toHaveCount(0);
+    await expect(page.getByText("Approved and published").first()).toBeVisible();
+  });
+
+  test("creates a draft with its photo in one form", async ({ page }) => {
+    await signedIn(page);
+    await page.goto("/en/vacancies/new");
+    await fillVacancyDraft(page, { title: "Photo-ready community garden" });
+    await page.getByLabel("Choose a photo").setInputFiles(PHOTO);
+    await page.getByRole("button", { name: "Create the draft" }).click();
+    await expect(page).toHaveURL(/\/en\/vacancies\/[^/]+$/);
+    await expect(page.getByRole("heading", { name: "Vacancy photo" })).toBeVisible();
+    await page.getByRole("link", { name: "Edit vacancy" }).click();
+    await expect(page.getByRole("button", { name: "Remove photo" })).toBeVisible();
+  });
+
+  test("keeps the chosen photo when a failed save has to be corrected", async ({
+    page,
+  }) => {
+    await signedIn(page);
+    await page.goto("/en/vacancies/new");
+    await fillVacancyDraft(page, { title: "Photo kept through a correction" });
+    await page.getByLabel("Title").fill("");
+    await page.getByLabel("Choose a photo").setInputFiles(PHOTO);
+    await page.getByRole("button", { name: "Create the draft" }).click();
+    await expect(page.getByLabel("Title")).toHaveAttribute("aria-invalid", "true");
+    await expect(page.getByLabel("Choose a photo")).toHaveJSProperty("files.length", 1);
+
+    await page.getByLabel("Title").fill("Photo kept through a correction");
+    await page.getByRole("button", { name: "Create the draft" }).click();
+    await expect(page).toHaveURL(/\/en\/vacancies\/[^/]+$/);
+    await expect(page.getByRole("heading", { name: "Vacancy photo" })).toBeVisible();
+  });
+
+  test("refuses a photo below 640 × 360 before anything is saved", async ({ page }) => {
+    await signedIn(page);
+    await page.goto("/en/vacancies/new");
+    await page.getByLabel("Choose a photo").setInputFiles(TINY_PHOTO);
+    await expect(fieldError(page)).toContainText("at least 640 × 360 pixels");
+    await expect(page.getByLabel("Choose a photo")).toHaveJSProperty("files.length", 0);
     await expect(page.getByText("No photo yet")).toBeVisible();
+  });
+
+  test("keeps a created draft editable if its photo upload fails", async ({ page }) => {
+    await signedIn(page);
+    await page.request.post(`${STUB}/__stub/break`, {
+      data: {
+        path: "/admin/opportunities/*/image",
+        status: 503,
+        code: "opportunityImageStorageUnavailable",
+      },
+    });
+    await page.goto("/en/vacancies/new");
+    await fillVacancyDraft(page, { title: "Garden photo retry" });
+    await page.getByLabel("Choose a photo").setInputFiles(PHOTO);
+    await page.getByRole("button", { name: "Create the draft" }).click();
+    await expect(page).toHaveURL(/\/en\/vacancies\/[^/]+\/edit\?photo=failed$/);
+    await expect(formMessage(page)).toContainText(
+      "The draft was created, but its photo was not saved",
+    );
+    await expect(page.getByLabel("Title")).toHaveValue("Garden photo retry");
+    await expect(page.getByText("No photo yet")).toBeVisible();
+
+    await page.request.post(`${STUB}/__stub/break`, { data: {} });
+    await page.getByLabel("Choose a photo").setInputFiles(PHOTO);
+    await page.getByRole("button", { name: "Save changes" }).click();
+    await expect(page).toHaveURL(/\/en\/vacancies\/[^/]+$/);
+    await expect(page.getByRole("heading", { name: "Vacancy photo" })).toBeVisible();
+    await page.goto("/en/vacancies");
+    await expect(page.getByRole("row", { name: /Garden photo retry/ })).toHaveCount(1);
+  });
+
+  test("keeps edited fields when photo storage fails after saving them", async ({
+    page,
+  }) => {
+    await signedIn(page);
+    await page.request.post(`${STUB}/__stub/break`, {
+      data: {
+        path: "/admin/opportunities/*/image",
+        status: 503,
+        code: "opportunityImageStorageUnavailable",
+      },
+    });
+    await page.goto(`/en/vacancies/${APPROVED}/edit`);
+    await page.getByLabel("Title").fill("Winter book drive with photo retry");
+    await page.getByLabel("Choose a photo").setInputFiles(PHOTO);
+    await page.getByRole("button", { name: "Save changes" }).click();
+    await expect(formMessage(page)).toContainText(
+      "The vacancy details were saved, but the photo was not",
+    );
+    await expect(page.getByLabel("Title")).toHaveValue(
+      "Winter book drive with photo retry",
+    );
+    await expect(page.getByLabel("Description")).not.toHaveValue("");
+    await expect(page.getByRole("combobox", { name: "Organization" })).not.toHaveValue(
+      "",
+    );
+
+    await page.request.post(`${STUB}/__stub/break`, { data: {} });
+    await page.getByRole("button", { name: "Save changes" }).click();
+    await expect(page).toHaveURL(`/en/vacancies/${APPROVED}`);
+    await expect(page.getByRole("heading", { name: "Vacancy photo" })).toBeVisible();
   });
 
   test("approves a vacancy from Today without opening it", async ({ page }) => {
@@ -521,23 +648,15 @@ test.describe("the vacancy lifecycle", () => {
     await page.getByLabel("Applications close").fill("2099-11-05T18:00");
     await page.getByRole("button", { name: "Save changes" }).click();
 
-    await expect(page.getByLabel("Title")).toHaveValue(
-      "Revised winter book drive",
-    );
-    await expect(page.getByLabel("Applications close")).toHaveValue(
-      "2099-11-05T18:00",
-    );
+    await expect(page.getByLabel("Title")).toHaveValue("Revised winter book drive");
+    await expect(page.getByLabel("Applications close")).toHaveValue("2099-11-05T18:00");
     await expect(page.locator('[data-slot="field-error"]')).toContainText(
       "deadline must fall before the vacancy starts",
     );
 
     await page.getByRole("button", { name: "Save changes" }).click();
-    await expect(page.getByLabel("Title")).toHaveValue(
-      "Revised winter book drive",
-    );
-    await expect(page.getByLabel("Applications close")).toHaveValue(
-      "2099-11-05T18:00",
-    );
+    await expect(page.getByLabel("Title")).toHaveValue("Revised winter book drive");
+    await expect(page.getByLabel("Applications close")).toHaveValue("2099-11-05T18:00");
   });
 
   test("creates a draft, publishes it directly, then archives it", async ({ page }) => {

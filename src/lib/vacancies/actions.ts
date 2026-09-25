@@ -9,13 +9,14 @@ import { write, writeMultipart, writeReturning } from "@/lib/api/gateway.server"
 import { vacancySchema } from "@/lib/api/schemas";
 import { fieldErrorsOf, stringField } from "@/lib/auth/credentials";
 import { isLocale } from "@/i18n/routing";
-import { vacancyHref } from "@/lib/routing/routes";
+import { vacancyEditHref, vacancyHref } from "@/lib/routing/routes";
 import { DECISION_ENDPOINTS, vacancyDecisionSchema } from "@/lib/vacancies/decision";
 import {
   toVacancyPayload,
   toVacancyUpdate,
   vacancyFormSchema,
   vacancyFromFormData,
+  vacancyImageFromFormData,
 } from "@/lib/vacancies/form";
 
 function revalidateVacancies() {
@@ -43,11 +44,31 @@ function vacancySlug(title: string): string {
   return `${readable || "vacancy"}-${randomUUID().slice(0, 8)}`;
 }
 
+async function applyVacancyImage(
+  id: string,
+  image: ReturnType<typeof vacancyImageFromFormData>,
+): Promise<ActionResult> {
+  if (image.file) {
+    const body = new FormData();
+    body.set("image", image.file);
+    return writeMultipart("uploadVacancyImage", { id }, body);
+  }
+  if (image.remove) return write("removeVacancyImage", { params: { id } });
+  return { status: "ok" };
+}
+
 export async function createVacancyAction(
   _previous: ActionResult,
   formData: FormData,
 ): Promise<ActionResult> {
   const values = vacancyFromFormData(formData);
+  const image = vacancyImageFromFormData(formData);
+  if (image.error) {
+    return preserveSubmittedValues(
+      failedResult("validationFailed", { image: [image.error] }),
+      values,
+    );
+  }
   const parsed = vacancyFormSchema.safeParse(values);
   if (!parsed.success) {
     return preserveSubmittedValues(
@@ -65,9 +86,19 @@ export async function createVacancyAction(
   });
   if (result.status !== "ok") return preserveSubmittedValues(result, values);
 
+  if (data) {
+    const imageResult = await applyVacancyImage(data.id, image);
+    if (imageResult.status !== "ok") {
+      revalidateVacancies();
+      const locale = stringField(formData, "locale");
+      redirect(
+        `/${isLocale(locale) ? locale : "uz"}${vacancyEditHref(data.id)}?photo=failed`,
+      );
+    }
+  }
   revalidateVacancies();
   const locale = stringField(formData, "locale");
-  if (data && isLocale(locale)) redirect(`/${locale}${vacancyHref(data.id)}`);
+  if (data) redirect(`/${isLocale(locale) ? locale : "uz"}${vacancyHref(data.id)}`);
   return result;
 }
 
@@ -79,6 +110,13 @@ export async function updateVacancyAction(
   if (!id) return failedResult("opportunityNotFound");
 
   const values = vacancyFromFormData(formData);
+  const image = vacancyImageFromFormData(formData);
+  if (image.error) {
+    return preserveSubmittedValues(
+      failedResult("validationFailed", { image: [image.error] }),
+      values,
+    );
+  }
   const parsed = vacancyFormSchema.safeParse(values);
   if (!parsed.success) {
     return preserveSubmittedValues(
@@ -94,34 +132,18 @@ export async function updateVacancyAction(
   if (result.status !== "ok") return preserveSubmittedValues(result, values);
 
   revalidateVacancies();
+  const imageResult = await applyVacancyImage(id, image);
+  if (imageResult.status !== "ok") {
+    return preserveSubmittedValues(
+      failedResult("vacancyImageAfterSaveFailed", {
+        image: [imageResult.status === "error" ? imageResult.code : "server"],
+      }),
+      values,
+    );
+  }
+  if (image.file || image.remove) revalidateVacancies();
   const locale = stringField(formData, "locale");
   if (isLocale(locale)) redirect(`/${locale}${vacancyHref(id)}`);
-  return result;
-}
-
-export async function uploadVacancyImageAction(
-  formData: FormData,
-): Promise<ActionResult> {
-  const id = stringField(formData, "id");
-  const image = formData.get("image");
-  if (!id) return failedResult("opportunityNotFound");
-  if (!(image instanceof File) || image.size === 0)
-    return failedResult("opportunityImageInvalid");
-  if (image.size > 2_097_152) return failedResult("opportunityImageTooLarge");
-  const body = new FormData();
-  body.set("image", image);
-  const result = await writeMultipart("uploadVacancyImage", { id }, body);
-  if (result.status === "ok") revalidateVacancies();
-  return result;
-}
-
-export async function removeVacancyImageAction(
-  formData: FormData,
-): Promise<ActionResult> {
-  const id = stringField(formData, "id");
-  if (!id) return failedResult("opportunityNotFound");
-  const result = await write("removeVacancyImage", { params: { id } });
-  if (result.status === "ok") revalidateVacancies();
   return result;
 }
 

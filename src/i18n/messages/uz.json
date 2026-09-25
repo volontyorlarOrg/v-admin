@@ -180,6 +180,7 @@
     "opportunityImageFormatUnsupported": "JPEG, PNG yoki WebP formatidagi rasmni tanlang.",
     "opportunityImageTooSmall": "Kamida 640 × 360 pikselli rasm tanlang.",
     "opportunityImageStorageUnavailable": "Rasmlar xotirasi hozircha mavjud emas. Keyinroq urinib koʻring.",
+    "vacancyImageAfterSaveFailed": "Vakansiya maʻlumotlari saqlandi, ammo rasm saqlanmadi. Rasmni tekshirib, qayta saqlang.",
     "approvalNoteRequired": "Qarorni tushuntiruvchi izoh yozing.",
     "deadlinePassed": "Ariza topshirish muddati allaqachon tugagan.",
     "noVolunteersSelected": "Kamida bitta koʻngillini tanlang.",
@@ -343,7 +344,8 @@
     },
     "form": {
       "createTitle": "Yangi vakansiya",
-      "createDescription": "Yangi vakansiya qoralama sifatida yaratiladi. Yaratgach, uni ochib rasm qoʻshing va tasdiqlashga yuboring.",
+      "createDescription": "Vakansiya maʻlumotlarini va xohlasangiz rasmini qoʻshing. Eʼlon qilinmaguncha u qoralama boʻlib qoladi.",
+      "photoUploadAfterCreateFailed": "Qoralama yaratildi, ammo rasmi saqlanmadi. Rasmni tanlab, shu yerda qayta saqlang.",
       "editTitle": "Vakansiyani tahrirlash",
       "submitCreate": "Qoralamani yaratish",
       "submitUpdate": "Oʻzgarishlarni saqlash",
@@ -375,16 +377,11 @@
     },
     "image": {
       "title": "Vakansiya rasmi",
-      "description": "Rasm koʻngillilar uchun vakansiya kartasi va tafsilotlarida koʻrinadi. JPEG, PNG yoki WebP, 2 MB gacha.",
+      "description": "Ixtiyoriy. Rasm koʻngillilar uchun vakansiya kartasi va tafsilotlarida koʻrinadi. JPEG, PNG yoki WebP, 2 MB gacha va kamida 640 × 360 piksel.",
       "choose": "Rasm tanlash",
-      "upload": "Rasm yuklash",
-      "replace": "Rasmni almashtirish",
       "remove": "Rasmni olib tashlash",
-      "pending": "Saqlanmoqda…",
-      "saved": "Rasm saqlandi.",
-      "removed": "Rasm olib tashlandi.",
-      "noImage": "Hozircha rasm yoʻq",
-      "reviewNotice": "Eʼlon qilingan vakansiya oʻzgartirilsa, administrator qayta tasdiqlamaguncha u koʻngillilarga koʻrinmaydi."
+      "undoRemove": "Rasmni saqlab qolish",
+      "noImage": "Hozircha rasm yoʻq"
     },
     "archive": {
       "trigger": "Arxivga",
