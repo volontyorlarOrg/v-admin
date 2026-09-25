@@ -381,6 +381,28 @@ test.describe("the vacancy lifecycle", () => {
     await expect(decision(page, "Winter clothing drive")).toHaveCount(0);
   });
 
+  test("uploads and removes a published vacancy photo", async ({ page }) => {
+    await signedIn(page);
+    await page.goto(`/en/vacancies/${APPROVED}`);
+
+    await page.getByLabel("Choose a photo").setInputFiles({
+      name: "vacancy.png",
+      mimeType: "image/png",
+      buffer: Buffer.from(
+        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/fscAAAAASUVORK5CYII=",
+        "base64",
+      ),
+    });
+    await page.getByRole("button", { name: "Upload photo" }).click();
+    await expect(page.getByText("The photo was saved.")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Remove photo" })).toBeVisible();
+    await expect(page.getByText("Approved and published").first()).toBeVisible();
+
+    await page.getByRole("button", { name: "Remove photo" }).click();
+    await expect(page.getByText("The photo was removed.")).toBeVisible();
+    await expect(page.getByText("No photo yet")).toBeVisible();
+  });
+
   test("approves a vacancy from Today without opening it", async ({ page }) => {
     await signedIn(page);
 
@@ -484,6 +506,37 @@ test.describe("the vacancy lifecycle", () => {
     ).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Return", exact: true })).toHaveCount(
       0,
+    );
+  });
+
+  test("keeps an administrator edit intact when saving finds an invalid deadline", async ({
+    page,
+  }) => {
+    await signedIn(page);
+    await page.goto(`/en/vacancies/${APPROVED}`);
+
+    await page.getByRole("link", { name: "Edit vacancy" }).click();
+    await expect(page).toHaveURL(new RegExp(`/en/vacancies/${APPROVED}/edit$`));
+    await page.getByLabel("Title").fill("Revised winter book drive");
+    await page.getByLabel("Applications close").fill("2099-11-05T18:00");
+    await page.getByRole("button", { name: "Save changes" }).click();
+
+    await expect(page.getByLabel("Title")).toHaveValue(
+      "Revised winter book drive",
+    );
+    await expect(page.getByLabel("Applications close")).toHaveValue(
+      "2099-11-05T18:00",
+    );
+    await expect(page.locator('[data-slot="field-error"]')).toContainText(
+      "deadline must fall before the vacancy starts",
+    );
+
+    await page.getByRole("button", { name: "Save changes" }).click();
+    await expect(page.getByLabel("Title")).toHaveValue(
+      "Revised winter book drive",
+    );
+    await expect(page.getByLabel("Applications close")).toHaveValue(
+      "2099-11-05T18:00",
     );
   });
 
