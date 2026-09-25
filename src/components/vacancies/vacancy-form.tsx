@@ -74,8 +74,13 @@ export function VacancyForm({
       {message ? <FormMessage tone="error">{message}</FormMessage> : null}
 
       <VacancyFields
+        key={result.status === "error" ? result.submissionId : idPrefix}
         labels={labels}
-        defaults={defaults}
+        defaults={
+          result.status === "error" && result.values
+            ? { ...defaults, ...result.values }
+            : defaults
+        }
         organizations={organizations}
         regions={regions}
         formats={formats}

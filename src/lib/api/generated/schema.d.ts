@@ -639,6 +639,24 @@ export interface paths {
         patch: operations["AdminOpportunitiesController_update"];
         trace?: never;
     };
+    "/admin/opportunities/{id}/image": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Upload or replace a vacancy image */
+        put: operations["AdminOpportunitiesController_image"];
+        post?: never;
+        /** Remove a vacancy image */
+        delete: operations["AdminOpportunitiesController_removeImage"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/opportunities/{id}/publish": {
         parameters: {
             query?: never;
@@ -771,6 +789,24 @@ export interface paths {
         options?: never;
         head?: never;
         patch: operations["StaffOpportunitiesController_update"];
+        trace?: never;
+    };
+    "/staff/opportunities/{id}/image": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Upload or replace an owned vacancy image */
+        put: operations["StaffOpportunitiesController_image"];
+        post?: never;
+        /** Remove an owned vacancy image */
+        delete: operations["StaffOpportunitiesController_removeImage"];
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/staff/opportunities/{id}/publish": {
@@ -1646,7 +1682,7 @@ export interface components {
             requirements?: string[];
             /** @enum {string} */
             region: "andijan" | "bukhara" | "fergana" | "jizzakh" | "kashkadarya" | "khorezm" | "namangan" | "navoiy" | "samarkand" | "sirdaryo" | "surkhandarya" | "tashkent-region" | "tashkent-city" | "karakalpakstan";
-            city?: string;
+            city?: Record<string, never> | null;
             /** @enum {string} */
             format: "onsite" | "remote" | "hybrid";
             /**
@@ -1655,12 +1691,12 @@ export interface components {
              */
             status: "open" | "closed" | "full";
             startsAt: string;
-            endsAt?: string;
+            endsAt?: Record<string, never> | null;
             applicationDeadline: string;
-            locationName?: string;
+            locationName?: Record<string, never> | null;
             imageUrl?: string;
-            capacity?: number;
-            estimatedTotalHours?: number;
+            capacity?: Record<string, never> | null;
+            estimatedTotalHours?: Record<string, never> | null;
             /**
              * @description manual: a coordinator reviews each application. automatic: a submitted application is accepted at once while places remain.
              * @default manual
@@ -1685,7 +1721,7 @@ export interface components {
             requirements?: string[];
             /** @enum {string} */
             region?: "andijan" | "bukhara" | "fergana" | "jizzakh" | "kashkadarya" | "khorezm" | "namangan" | "navoiy" | "samarkand" | "sirdaryo" | "surkhandarya" | "tashkent-region" | "tashkent-city" | "karakalpakstan";
-            city?: string;
+            city?: Record<string, never> | null;
             /** @enum {string} */
             format?: "onsite" | "remote" | "hybrid";
             /**
@@ -1694,12 +1730,12 @@ export interface components {
              */
             status: "open" | "closed" | "full";
             startsAt?: string;
-            endsAt?: string;
+            endsAt?: Record<string, never> | null;
             applicationDeadline?: string;
-            locationName?: string;
+            locationName?: Record<string, never> | null;
             imageUrl?: string;
-            capacity?: number;
-            estimatedTotalHours?: number;
+            capacity?: Record<string, never> | null;
+            estimatedTotalHours?: Record<string, never> | null;
             /**
              * @description manual: a coordinator reviews each application. automatic: a submitted application is accepted at once while places remain.
              * @default manual
@@ -2866,6 +2902,60 @@ export interface operations {
             };
         };
     };
+    AdminOpportunitiesController_image: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    image: string;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** Format: uri */
+                        imageUrl?: string;
+                    };
+                };
+            };
+        };
+    };
+    AdminOpportunitiesController_removeImage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        imageUrl?: string | null;
+                    };
+                };
+            };
+        };
+    };
     AdminOpportunitiesController_publish: {
         parameters: {
             query?: never;
@@ -3065,6 +3155,60 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    StaffOpportunitiesController_image: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    image: string;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** Format: uri */
+                        imageUrl?: string;
+                    };
+                };
+            };
+        };
+    };
+    StaffOpportunitiesController_removeImage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        imageUrl?: string | null;
+                    };
+                };
             };
         };
     };

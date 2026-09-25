@@ -48,6 +48,11 @@ const ERROR_CODES = [
   "opportunityCannotBePublished",
   "opportunityNotPendingApproval",
   "opportunityNotEditable",
+  "opportunityImageInvalid",
+  "opportunityImageTooLarge",
+  "opportunityImageFormatUnsupported",
+  "opportunityImageTooSmall",
+  "opportunityImageStorageUnavailable",
   "approvalNoteRequired",
   "deadlinePassed",
 ] as const;

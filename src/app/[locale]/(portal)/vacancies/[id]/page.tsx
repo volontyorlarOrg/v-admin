@@ -18,6 +18,7 @@ import { PageHeader } from "@/components/states/page-header";
 import { StatePanel } from "@/components/states/state-panel";
 import { ReadinessList } from "@/components/vacancies/readiness-list";
 import { VacancyDialog } from "@/components/vacancies/vacancy-dialog";
+import { VacancyImage } from "@/components/vacancies/vacancy-image";
 import { VacancyWorkflow } from "@/components/vacancies/vacancy-workflow";
 import { Button, buttonClass } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
@@ -47,6 +48,8 @@ import {
   decideVacancyAction,
   publishVacancyAction,
   updateVacancyAction,
+  uploadVacancyImageAction,
+  removeVacancyImageAction,
 } from "@/lib/vacancies/actions";
 import { loadOrganizations, loadVacancy } from "@/lib/vacancies/data.server";
 import {
@@ -160,7 +163,8 @@ export default async function VacancyPage({
   const workflowLabels = await vacancyWorkflowLabels();
   const decisionLabels = await vacancyDecisionLabels();
   const editLabels = await vacancyDialogLabels("edit");
-  const editable = canEditVacancy(vacancy) && isReady(organizations);
+  const imageEditable = canEditVacancy(vacancy);
+  const editable = imageEditable && isReady(organizations);
 
   const rows = isReady(applications) ? applications.data : [];
   const applicationsFailure = failureOf(applications);
@@ -332,6 +336,29 @@ export default async function VacancyPage({
           <span className="text-sm text-ink-muted">{organization.name}</span>
         ) : null}
       </div>
+
+      {imageEditable || vacancy.imageUrl ? (
+        <VacancyImage
+          id={vacancy.id}
+          imageUrl={vacancy.imageUrl}
+          editable={imageEditable}
+          uploadAction={uploadVacancyImageAction}
+          removeAction={removeVacancyImageAction}
+          labels={{
+            title: t("image.title"),
+            description: t("image.description"),
+            choose: t("image.choose"),
+            upload: t("image.upload"),
+            replace: t("image.replace"),
+            remove: t("image.remove"),
+            pending: t("image.pending"),
+            saved: t("image.saved"),
+            removed: t("image.removed"),
+            noImage: t("image.noImage"),
+            errors: await errorCatalog(),
+          }}
+        />
+      ) : null}
 
       {stateNotice ? (
         <StatePanel

@@ -124,14 +124,26 @@ vacancy; approval clears the note and publishes. The backend answers
 `opportunityNotPendingApproval` when the vacancy is not waiting,
 `approvalNoteRequired` when a refusal has no note, and `opportunityIncomplete`,
 `organizationNotVerified` or `deadlinePassed` when approval would publish
-something unfinished. Editing is refused outside `draft` and
-`changes_requested` (`opportunityNotEditable`).
+something unfinished. Rejected and archived vacancies are read-only
+(`opportunityNotEditable`).
 
 An administrator can also publish a complete `draft` or `changes_requested`
 vacancy directly through `POST /admin/opportunities/{id}/publish`; coordinators
 still submit their vacancies for review. The direct action records the
 administrator as reviewer and returns `opportunityCannotBePublished` when the
 vacancy is already in a final state.
+
+The vacancy detail screen can upload, replace, or remove a photo after the
+draft exists. Its multipart `image` field uses `PUT /admin/opportunities/{id}/image`;
+`DELETE` on the same route removes it. The existing `imageUrl` read field is the
+display URL. Administrators can save edits to approved vacancies immediately,
+or correct a pending vacancy before approving it. Rejected and archived
+vacancies remain read-only.
+
+The create form generates a stable URL slug from the title. Both create and
+edit retain entered fields after validation or API errors. Optional logistics
+can be added after a draft is saved; clearing one during an edit sends an
+explicit empty value, while unrelated fields stay unchanged.
 
 ## How a vacancy accepts applications
 

@@ -79,10 +79,15 @@ export function VacancyDialog({
         {...(trigger ? { trigger } : {})}
         {...(controlled ? { open: isOpen, onOpenChange: setOpen } : {})}
       >
-        {({ error }) => (
+        {({ error, result }) => (
           <VacancyFields
+            key={result.status === "error" ? result.submissionId : idPrefix}
             labels={labels}
-            defaults={defaults}
+            defaults={
+              result.status === "error" && result.values
+                ? { ...defaults, ...result.values }
+                : defaults
+            }
             organizations={organizations}
             regions={regions}
             formats={formats}
