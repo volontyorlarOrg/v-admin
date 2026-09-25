@@ -24,6 +24,7 @@ export const AUDIT_ACTIONS = [
   "user.username.changed",
   "user.avatar.updated",
   "user.avatar.removed",
+  "user.progress.adjusted",
 ] as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];

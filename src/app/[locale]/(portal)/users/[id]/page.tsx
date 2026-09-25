@@ -9,6 +9,7 @@ import {
   attendanceStatus,
 } from "@/components/portal/status-badge";
 import { TemporaryPasswordForm } from "@/components/portal/temporary-password-form";
+import { ProgressAdjustmentForm } from "@/components/users/progress-adjustment-form";
 import { Facts, FigureRow } from "@/components/register/facts";
 import { Register, RegisterNote } from "@/components/register/register";
 import { LoadFailure } from "@/components/states/load-failure";
@@ -36,6 +37,8 @@ import { replaceUserPasswordAction } from "@/lib/users/actions";
 import { loadUser } from "@/lib/users/data.server";
 import { completionShare, participationOf } from "@/lib/users/participation";
 import { passwordLoginState } from "@/lib/users/password-state";
+import { signedChange } from "@/lib/users/progress";
+import { adjustUserProgressAction } from "@/lib/users/progress-actions";
 import { errorCatalog } from "@/lib/vacancies/labels.server";
 
 export const dynamic = "force-dynamic";
@@ -84,6 +87,8 @@ export default async function UserPage({ params }: PageProps<"/[locale]/users/[i
   const name = user.displayName ?? common("notSet");
   const password = passwordLoginState(user);
   const participation = participationOf(user.applications);
+  const progress = user.progress;
+  const adjustments = progress?.adjustments ?? [];
   const profileLabels: VolunteerProfileLabels = {
     fields: Object.fromEntries(
       PROFILE_FIELD_KEYS.map((key) => [key, applications(`snapshotFields.${key}`)]),
@@ -123,6 +128,7 @@ export default async function UserPage({ params }: PageProps<"/[locale]/users/[i
       />
 
       <FigureRow
+        className="xl:grid-cols-6"
         items={[
           { label: t("figures.sent"), value: format.number(participation.sent) },
           {
@@ -136,9 +142,18 @@ export default async function UserPage({ params }: PageProps<"/[locale]/users/[i
           },
           {
             label: t("figures.hours"),
-            value: format.number(participation.hours),
+            value: format.number(progress?.hours ?? participation.hours),
             tone: "person",
           },
+          ...(progress
+            ? [
+                {
+                  label: t("figures.xp"),
+                  value: format.number(progress.xp),
+                  tone: "person" as const,
+                },
+              ]
+            : []),
           {
             label: t("figures.awaiting"),
             value: format.number(participation.awaiting),
@@ -264,6 +279,72 @@ export default async function UserPage({ params }: PageProps<"/[locale]/users/[i
               </Table>
             )}
           </Register>
+
+          {adjustments.length > 0 ? (
+            <Register
+              title={t("progress.history")}
+              count={adjustments.length}
+              countLabel={t("progress.countLabel")}
+            >
+              <Table>
+                <TableCaption className="sr-only">
+                  {t("progress.table.caption")}
+                </TableCaption>
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead scope="col">{t("progress.table.change")}</TableHead>
+                    <TableHead scope="col">{t("progress.table.reason")}</TableHead>
+                    <TableHead scope="col">{t("progress.table.by")}</TableHead>
+                    <TableHead scope="col">{t("progress.table.when")}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {adjustments.map((adjustment) => (
+                    <TableRow key={adjustment.id}>
+                      <TableCell className="tabular align-top font-semibold whitespace-nowrap">
+                        {adjustment.xpDelta !== 0 ? (
+                          <span className="block">
+                            {t("progress.xpChange", {
+                              value: signedChange(adjustment.xpDelta, (value) =>
+                                format.number(value),
+                              ),
+                            })}
+                          </span>
+                        ) : null}
+                        {adjustment.hoursDelta !== 0 ? (
+                          <span className="block">
+                            {t("progress.hoursChange", {
+                              value: signedChange(adjustment.hoursDelta, (value) =>
+                                format.number(value),
+                              ),
+                            })}
+                          </span>
+                        ) : null}
+                      </TableCell>
+                      <TableCell className="min-w-[12rem] align-top break-words whitespace-normal">
+                        {adjustment.reason}
+                      </TableCell>
+                      <TableCell className="align-top text-ink-muted">
+                        {adjustment.createdBy?.displayName ??
+                          t("progress.unknownAuthor")}
+                      </TableCell>
+                      <TableCell className="tabular align-top whitespace-nowrap text-ink-muted">
+                        <time
+                          dateTime={adjustment.createdAt}
+                          title={format.dateTime(
+                            new Date(adjustment.createdAt),
+                            "stamp",
+                          )}
+                        >
+                          {format.dateTime(new Date(adjustment.createdAt), "day")}
+                        </time>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Register>
+          ) : null}
         </div>
 
         <aside className="flex min-w-0 flex-col gap-6">
@@ -293,6 +374,50 @@ export default async function UserPage({ params }: PageProps<"/[locale]/users/[i
               ]}
             />
           </Panel>
+
+          {progress ? (
+            <Panel title={t("progress.title")} description={t("progress.description")}>
+              <ProgressAdjustmentForm
+                action={adjustUserProgressAction}
+                targetId={user.id}
+                labels={{
+                  direction: t("progress.direction"),
+                  add: t("progress.add"),
+                  remove: t("progress.remove"),
+                  xp: t("progress.xp"),
+                  hours: t("progress.hours"),
+                  amountHelp: t("progress.amountHelp"),
+                  reason: t("progress.reason"),
+                  reasonHelp: t("progress.reasonHelp"),
+                  submit: t("progress.submit"),
+                  pending: t("progress.pending"),
+                  success: t("progress.success"),
+                  fallbackError: errors("server"),
+                  errors: await errorCatalog([
+                    "server",
+                    "network",
+                    "timeout",
+                    "rateLimited",
+                    "unavailable",
+                    "forbidden",
+                    "notFound",
+                    "conflict",
+                    "validationFailed",
+                    "awaitingContract",
+                    "sessionExpired",
+                    "required",
+                    "tooLong",
+                    "xpAmount",
+                    "hoursAmount",
+                    "adjustmentEmpty",
+                    "progressBelowZero",
+                    "ownProgressNotAdjustable",
+                    "userNotFound",
+                  ]),
+                }}
+              />
+            </Panel>
+          ) : null}
 
           <Panel title={t("password.title")} description={t("password.description")}>
             <TemporaryPasswordForm

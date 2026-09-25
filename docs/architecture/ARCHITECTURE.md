@@ -43,7 +43,10 @@ and record (approving against sending for approval), the volunteer record (a
 coordinator never sees a volunteer's current profile), the activity page (the
 audit history against `/staff/activity`), the vacancy actions, the audit
 subject links, and the catalogs. Screens only an administrator has — Insights,
-Coordinators, Organizations, Audit — exist only in `v-admin`.
+Coordinators, Organizations, Audit — exist only in `v-admin`, and so does the
+XP and hours adjustment on the volunteer record
+(`src/components/users/progress-adjustment-form.tsx`,
+`src/lib/users/progress*.ts`).
 
 Keeping them apart means a coordinator's deployment cannot be one misconfigured
 environment variable away from administrator access.

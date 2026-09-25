@@ -339,6 +339,7 @@ function reset() {
         createdAt: at(-100),
       },
     ],
+    progressAdjustments: [],
     sessions: new Map(),
     broken: null,
   };
@@ -619,6 +620,40 @@ function record(action, entityType, entityId, actorUserId) {
     actorUserId,
     createdAt: new Date().toISOString(),
   });
+}
+
+function progressOf(volunteerId) {
+  const attended = state.applications.filter(
+    (item) =>
+      item.volunteerId === volunteerId && item.attendance?.outcome === "attended",
+  );
+  const attendedHours = attended.reduce(
+    (total, item) => total + Number(item.attendance.confirmedHours ?? 0),
+    0,
+  );
+  const adjustments = state.progressAdjustments.filter(
+    (item) => item.volunteerId === volunteerId,
+  );
+  const xpAdjustment = adjustments.reduce((total, item) => total + item.xpDelta, 0);
+  const hoursAdjustment = adjustments.reduce(
+    (total, item) => total + item.hoursDelta,
+    0,
+  );
+  return {
+    xp: attended.length * 50 + Math.round(attendedHours * 10) + xpAdjustment,
+    hours: Math.round((attendedHours + hoursAdjustment) * 100) / 100,
+    attendedHours,
+    xpAdjustment,
+    hoursAdjustment,
+    adjustments: adjustments.map((item) => ({
+      id: item.id,
+      xpDelta: item.xpDelta,
+      hoursDelta: item.hoursDelta,
+      reason: item.reason,
+      createdAt: item.createdAt,
+      createdBy: item.createdBy,
+    })),
+  };
 }
 
 function statisticsFor(user) {
@@ -1213,7 +1248,10 @@ const server = createServer(async (request, response) => {
     return send(response, 200, directory(reachable.map(publicUser), url));
   }
 
-  const userMatch = /^\/(staff|admin)\/users\/([^/]+)(?:\/(password))?$/.exec(path);
+  const userMatch =
+    /^\/(staff|admin)\/users\/([^/]+)(?:\/(password|progress-adjustments))?$/.exec(
+      path,
+    );
   if (userMatch) {
     const [, , id, verb] = userMatch;
     const scope = isAdmin(actor) ? undefined : actor;
@@ -1221,6 +1259,45 @@ const server = createServer(async (request, response) => {
     if (verb === "password" && method === "PUT") {
       const outcome = replacePassword(actor, id, body.temporaryPassword, scope);
       return send(response, outcome.status, outcome.body);
+    }
+
+    if (verb === "progress-adjustments" && method === "POST") {
+      if (!isAdmin(actor)) return send(response, 403, { code: "forbidden" });
+      const target = userById(id);
+      if (!target || !target.roles.includes("volunteer")) {
+        return send(response, 404, { code: "userNotFound" });
+      }
+      const xpDelta = Number(body.xpDelta);
+      const hoursDelta = Number(body.hoursDelta);
+      const reason = String(body.reason ?? "").trim();
+      if (!Number.isInteger(xpDelta) || !Number.isFinite(hoursDelta) || !reason) {
+        return send(response, 422, { code: "validationFailed", errors: {} });
+      }
+      if (xpDelta === 0 && hoursDelta === 0) {
+        return send(response, 422, { code: "adjustmentEmpty" });
+      }
+      const before = progressOf(id);
+      if (before.xp + xpDelta < 0 || before.hours + hoursDelta < 0) {
+        return send(response, 409, { code: "progressBelowZero" });
+      }
+      const adjustment = {
+        id: randomUUID(),
+        volunteerId: id,
+        xpDelta,
+        hoursDelta,
+        reason,
+        createdAt: new Date().toISOString(),
+        createdBy: { id: actor.id, displayName: actor.displayName },
+      };
+      state.progressAdjustments.unshift(adjustment);
+      record("user.progress.adjusted", "User", id, actor.id);
+      const after = progressOf(id);
+      return send(response, 201, {
+        id: adjustment.id,
+        createdAt: adjustment.createdAt,
+        xp: after.xp,
+        hours: after.hours,
+      });
     }
 
     if (!verb && method === "GET") {
@@ -1236,7 +1313,11 @@ const server = createServer(async (request, response) => {
       if (!isAdmin(actor) && applications.length === 0) {
         return send(response, 404, { code: "userNotFound" });
       }
-      return send(response, 200, { ...publicUser(target), applications });
+      return send(response, 200, {
+        ...publicUser(target),
+        applications,
+        ...(isAdmin(actor) ? { progress: progressOf(id) } : {}),
+      });
     }
   }
 
