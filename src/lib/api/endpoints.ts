@@ -110,6 +110,11 @@ export const endpoints = {
     path: "/admin/users/{id}/password",
     contract: "published",
   },
+  adjustUserProgress: {
+    method: "POST",
+    path: "/admin/users/{id}/progress-adjustments",
+    contract: "published",
+  },
 
   coordinators: { method: "GET", path: "/admin/coordinators", contract: "published" },
   createCoordinator: {

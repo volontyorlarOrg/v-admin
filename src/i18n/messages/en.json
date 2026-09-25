@@ -193,7 +193,12 @@
     "opportunityAlreadyArchived": "This vacancy is already archived.",
     "opportunityAtCapacity": "Every place is taken. Free a place before accepting someone else.",
     "invalidOpportunityDates": "Those dates do not fit: applications must close before the start, and the end must come after it.",
-    "duplicateAttendanceApplication": "The same volunteer was chosen twice. Choose each volunteer once."
+    "duplicateAttendanceApplication": "The same volunteer was chosen twice. Choose each volunteer once.",
+    "adjustmentEmpty": "Enter XP, hours or both.",
+    "progressBelowZero": "That would take the volunteer below zero XP or hours. Take away less.",
+    "ownProgressNotAdjustable": "You cannot change the XP or hours of your own account.",
+    "xpAmount": "Enter a whole number of XP from 0 to 100,000.",
+    "hoursAmount": "Enter hours from 0 to 999, with at most two decimals."
   },
   "dashboard": {
     "title": "Insights",
@@ -598,8 +603,36 @@
       "sent": "Applications",
       "accepted": "Accepted",
       "attended": "Events attended",
-      "hours": "Confirmed hours",
-      "awaiting": "Awaiting roll call"
+      "hours": "Hours",
+      "awaiting": "Awaiting roll call",
+      "xp": "XP"
+    },
+    "progress": {
+      "title": "Adjust XP and hours",
+      "description": "For work outside a recorded event, or to correct a mistake. Their record, leaderboard place and public profile change at once.",
+      "direction": "Change",
+      "add": "Add",
+      "remove": "Take away",
+      "xp": "XP",
+      "hours": "Hours",
+      "amountHelp": "Leave one empty to change only the other. Hours added here do not add XP by themselves.",
+      "reason": "Reason",
+      "reasonHelp": "Kept with the change on this record and in the audit history.",
+      "submit": "Save the change",
+      "pending": "Saving…",
+      "success": "Saved. The figures above now include it.",
+      "history": "XP and hours adjustments",
+      "countLabel": "adjustments",
+      "table": {
+        "caption": "XP and hours changed by an administrator",
+        "change": "Change",
+        "reason": "Reason",
+        "by": "By",
+        "when": "When"
+      },
+      "unknownAuthor": "Not recorded",
+      "xpChange": "{value} XP",
+      "hoursChange": "{value} h"
     }
   },
   "attendance": {
@@ -944,7 +977,8 @@
       "user_password_replaced": "Temporary password assigned",
       "user_username_changed": "Username changed",
       "user_avatar_updated": "Photo updated",
-      "user_avatar_removed": "Photo removed"
+      "user_avatar_removed": "Photo removed",
+      "user_progress_adjusted": "XP and hours adjusted"
     }
   },
   "vocabulary": {
