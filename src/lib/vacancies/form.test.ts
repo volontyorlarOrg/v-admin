@@ -7,6 +7,7 @@ import {
   toVacancyUpdate,
   vacancyFormSchema,
   vacancyFromFormData,
+  vacancyImageFromFormData,
 } from "@/lib/vacancies/form";
 
 const valid = {
@@ -209,6 +210,43 @@ describe("vacancyFromFormData", () => {
       description: "",
     });
     expect(vacancyFromFormData(formData)).not.toHaveProperty("createdById");
+  });
+});
+
+describe("vacancyImageFromFormData", () => {
+  it("keeps the current photo when no new photo was selected", () => {
+    const body = new FormData();
+    body.set("image", new File([], ""));
+    expect(vacancyImageFromFormData(body)).toEqual({ remove: false });
+  });
+
+  it("accepts a supported photo and lets replacement override removal", () => {
+    const body = new FormData();
+    const file = new File(["image"], "vacancy.png", { type: "image/png" });
+    body.set("image", file);
+    body.set("removeImage", "on");
+    expect(vacancyImageFromFormData(body)).toEqual({ file, remove: false });
+  });
+
+  it("removes the current photo only when requested", () => {
+    const body = new FormData();
+    body.set("removeImage", "on");
+    expect(vacancyImageFromFormData(body)).toEqual({ remove: true });
+  });
+
+  it.each([
+    [
+      new File(["image"], "vacancy.gif", { type: "image/gif" }),
+      "opportunityImageFormatUnsupported",
+    ],
+    [
+      new File([new Uint8Array(2_097_153)], "large.png", { type: "image/png" }),
+      "opportunityImageTooLarge",
+    ],
+  ])("refuses an invalid photo before saving vacancy details", (file, code) => {
+    const body = new FormData();
+    body.set("image", file);
+    expect(vacancyImageFromFormData(body).error).toBe(code);
   });
 });
 

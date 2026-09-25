@@ -47,6 +47,7 @@ const ERROR_CODES = [
   "opportunityImageFormatUnsupported",
   "opportunityImageTooSmall",
   "opportunityImageStorageUnavailable",
+  "vacancyImageAfterSaveFailed",
   "approvalNoteRequired",
   "deadlinePassed",
   "invalidOpportunityDates",
@@ -80,6 +81,7 @@ async function vacancyFieldLabels(): Promise<VacancyFieldLabels> {
       acceptanceMode: t("fields.acceptanceMode"),
       essayRequired: t("fields.essayRequired"),
       requirements: t("fields.requirements"),
+      image: t("image.choose"),
     },
     help: {
       organizationId: t("fields.organizationHelp"),
@@ -135,9 +137,20 @@ export async function vacancyFormLabels(
 ): Promise<VacancyFormLabels> {
   const common = await getTranslations("common");
   const errors = await getTranslations("errors");
+  const vacancies = await getTranslations("vacancies");
+  const fieldLabels = await vacancyFieldLabels();
 
   return {
-    ...(await vacancyFieldLabels()),
+    ...fieldLabels,
+    image: {
+      title: vacancies("image.title"),
+      description: vacancies("image.description"),
+      choose: vacancies("image.choose"),
+      remove: vacancies("image.remove"),
+      undoRemove: vacancies("image.undoRemove"),
+      noImage: vacancies("image.noImage"),
+      errors: fieldLabels.errors,
+    },
     submit,
     pending,
     success,
