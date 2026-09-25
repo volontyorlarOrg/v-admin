@@ -12,6 +12,7 @@ import {
   locales,
   type Locale,
 } from "@/i18n/routing";
+import { cn } from "@/lib/utils";
 
 function withLocale(pathname: string, locale: Locale): string {
   const segments = pathname.split("/");
@@ -22,20 +23,32 @@ function withLocale(pathname: string, locale: Locale): string {
   return `/${locale}${pathname === "/" ? "" : pathname}`;
 }
 
-export function LocaleSwitcher({ label }: { label: string }) {
+export function LocaleSwitcher({
+  label,
+  tone = "default",
+  className,
+}: {
+  label: string;
+  tone?: "default" | "shell";
+  className?: string;
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const search = useSearchParams().toString();
   const [pending, startTransition] = useTransition();
   const segment = pathname.split("/")[1];
   const current = isLocale(segment) ? segment : defaultLocale;
+  const shell = tone === "shell";
 
   return (
-    <label className="relative flex items-center">
+    <label className={cn("relative flex min-w-0 items-center", className)}>
       <span className="sr-only">{label}</span>
       <Languages
         aria-hidden="true"
-        className="pointer-events-none absolute left-3 z-10 size-4 text-ink-muted"
+        className={cn(
+          "pointer-events-none absolute left-3 z-10 size-4",
+          shell ? "text-shell-muted" : "text-ink-muted",
+        )}
       />
       <NativeSelect
         value={current}
@@ -46,7 +59,12 @@ export function LocaleSwitcher({ label }: { label: string }) {
             router.replace(search ? `${next}?${search}` : next);
           });
         }}
-        className="min-h-11 w-auto min-w-[8.5rem] pl-9 text-sm"
+        iconClassName={shell ? "text-shell-muted" : undefined}
+        className={cn(
+          "min-h-10 w-full rounded-lg pl-9 text-sm",
+          shell &&
+            "border-shell-line bg-shell-raised text-shell-ink hover:border-shell-muted [&_option]:bg-shell [&_option]:text-shell-ink",
+        )}
       >
         {locales.map((locale) => (
           <NativeSelectOption key={locale} value={locale}>

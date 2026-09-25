@@ -81,3 +81,26 @@ export async function write(
     return resultFromError(error);
   }
 }
+
+export async function writeReturning<TSchema extends z.ZodType>(
+  name: EndpointName,
+  { schema, params, body, query }: WriteOptions & { schema: TSchema },
+): Promise<{ result: ActionResult; data?: z.infer<TSchema> }> {
+  const session = await getSession();
+  if (!session) return { result: failedResult("sessionExpired") };
+
+  const endpoint = endpoints[name];
+
+  try {
+    const data = await authedApi(pathFor(name, params), session.accessToken, {
+      method: endpoint.method,
+      query,
+      body,
+      schema,
+    });
+    return { result: okResult, data: data as z.infer<TSchema> };
+  } catch (error) {
+    if (isSessionOver(error)) return { result: failedResult("sessionExpired") };
+    return { result: resultFromError(error) };
+  }
+}

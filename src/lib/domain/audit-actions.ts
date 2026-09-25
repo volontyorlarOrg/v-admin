@@ -1,19 +1,41 @@
 export const AUDIT_ACTIONS = [
-  "application.reviewed",
+  "application.submitted",
+  "application.under_review",
+  "application.accepted",
+  "application.rejected",
+  "application.closed",
+  "application.withdrawn",
   "attendance.resolved",
-  "coordinator.active",
-  "coordinator.blocked",
   "coordinator.created",
+  "coordinator.blocked",
+  "coordinator.active",
   "coordinator.removed",
-  "opportunity.archived",
   "opportunity.created",
-  "opportunity.published",
   "opportunity.updated",
+  "opportunity.submitted_for_approval",
+  "opportunity.approved",
+  "opportunity.published",
+  "opportunity.changes_requested",
+  "opportunity.rejected",
+  "opportunity.archived",
+  "organization.created",
+  "organization.updated",
   "user.password.replaced",
+  "user.username.changed",
+  "user.avatar.updated",
+  "user.avatar.removed",
 ] as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];
 
+export function isKnownAuditAction(action: string): action is AuditAction {
+  return (AUDIT_ACTIONS as readonly string[]).includes(action);
+}
+
 export function auditActionOptions(seen: readonly string[]): string[] {
-  return [...new Set([...AUDIT_ACTIONS, ...seen])].sort();
+  return [...new Set([...AUDIT_ACTIONS, ...seen])];
+}
+
+export function auditActionKey(action: string): string {
+  return action.replace(/\./g, "_");
 }

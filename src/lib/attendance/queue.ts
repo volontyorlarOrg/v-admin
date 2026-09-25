@@ -1,4 +1,4 @@
-import type { Application } from "@/lib/api/schemas";
+import type { Application, Vacancy } from "@/lib/api/schemas";
 import { isAttendanceResolved, volunteerNameOf } from "@/lib/applications/filters";
 import { attendanceOpensAt, isAttendanceOpen } from "@/lib/vacancies/approval";
 
@@ -13,27 +13,31 @@ export type AttendanceGroup = {
 
 function timing(
   application: Application,
+  vacancy: Vacancy | undefined,
 ): { startsAt: string; endsAt?: string } | null {
-  const startsAt = application.opportunity?.startsAt;
+  const startsAt = vacancy?.startsAt ?? application.opportunity?.startsAt;
   if (!startsAt) return null;
-  const endsAt = application.opportunity?.endsAt;
+  const endsAt = vacancy?.endsAt ?? application.opportunity?.endsAt;
   return endsAt ? { startsAt, endsAt } : { startsAt };
 }
 
 export function groupAttendance(
-  applications: Application[],
+  applications: readonly Application[],
   now: Date,
+  vacancies: readonly Vacancy[] = [],
 ): AttendanceGroup[] {
+  const byId = new Map(vacancies.map((vacancy) => [vacancy.id, vacancy]));
   const groups = new Map<string, AttendanceGroup>();
 
   for (const application of applications) {
     const vacancyId = application.opportunityId;
-    const when = timing(application);
+    const vacancy = byId.get(vacancyId);
+    const when = timing(application, vacancy);
     const group = groups.get(vacancyId) ?? {
       vacancyId,
-      title: application.opportunity?.title ?? vacancyId,
+      title: vacancy?.title ?? application.opportunity?.title ?? vacancyId,
       opensAt: when ? attendanceOpensAt(when) : null,
-      open: when ? isAttendanceOpen(when, now) : true,
+      open: when ? isAttendanceOpen(when, now) : false,
       unresolved: [],
       resolved: [],
     };

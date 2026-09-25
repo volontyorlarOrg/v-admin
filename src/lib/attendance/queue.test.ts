@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { vacancySchema, type Application } from "@/lib/api/schemas";
 import { groupAttendance, unresolvedCount } from "@/lib/attendance/queue";
-import type { Application } from "@/lib/api/schemas";
 
 const NOW = new Date("2026-10-05T12:00:00.000Z");
 
@@ -90,6 +90,42 @@ describe("groupAttendance", () => {
     const group = groupAttendance([legacy], NOW)[0];
     expect(group?.opensAt?.toISOString()).toBe("2026-10-01T09:00:00.000Z");
     expect(group?.open).toBe(true);
+  });
+
+  it("reads the event's timing from the vacancy, because the application list carries only its title", () => {
+    const listed = application("a", "v1", {
+      opportunity: { id: "v1", slug: "v1", title: "Listed" },
+    } as Partial<Application>);
+    const vacancy = vacancySchema.parse({
+      id: "v1",
+      slug: "v1",
+      title: "Library day",
+      description: "Help at the library.",
+      region: "tashkent-city",
+      format: "onsite",
+      status: "open",
+      startsAt: "2026-11-01T09:00:00.000Z",
+      endsAt: "2026-11-01T15:00:00.000Z",
+      applicationDeadline: "2026-10-20T09:00:00.000Z",
+      createdAt: "2026-09-01T00:00:00.000Z",
+      updatedAt: "2026-09-01T00:00:00.000Z",
+      organizationId: "org-1",
+    });
+
+    const [group] = groupAttendance([listed], NOW, [vacancy]);
+    expect(group?.open).toBe(false);
+    expect(group?.title).toBe("Library day");
+    expect(group?.opensAt?.toISOString()).toBe("2026-11-01T15:00:00.000Z");
+  });
+
+  it("never calls a roll call due when the event's timing is unknown", () => {
+    const unknown = application("a", "v1", {
+      opportunity: { id: "v1", slug: "v1", title: "Unknown" },
+    } as Partial<Application>);
+
+    const [group] = groupAttendance([unknown], NOW);
+    expect(group?.open).toBe(false);
+    expect(group?.opensAt).toBeNull();
   });
 
   it("puts the work a coordinator can do now first", () => {
