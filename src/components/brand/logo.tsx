@@ -40,13 +40,47 @@ export function BrandLockup({
   name,
   portal,
   condensed = false,
+  stacked = false,
+  tone = "default",
   className,
 }: {
   name: string;
   portal: string;
   condensed?: boolean;
+  stacked?: boolean;
+  tone?: "default" | "inverse";
   className?: string;
 }) {
+  const inverse = tone === "inverse";
+
+  if (stacked) {
+    return (
+      <span className={cn("inline-flex min-w-0 flex-col items-start gap-2", className)}>
+        <span
+          role="img"
+          aria-label={name}
+          className="inline-flex shrink-0 items-start [--logo:2.65rem]"
+        >
+          <BrandIcon className="size-(--logo)" />
+          <BrandWordmark
+            className={cn(
+              "mt-[calc(var(--logo)*0.24)] ml-[calc(var(--logo)*0.3025)] h-[calc(var(--logo)*0.6006)] w-auto",
+              inverse ? "text-shell-ink" : "text-logo-word",
+            )}
+          />
+        </span>
+        <span
+          className={cn(
+            "label-caps truncate",
+            inverse ? "text-shell-muted" : "text-ink-muted",
+          )}
+        >
+          {portal}
+        </span>
+      </span>
+    );
+  }
+
   return (
     <span className={cn("inline-flex min-w-0 items-center gap-3", className)}>
       <span
@@ -57,7 +91,8 @@ export function BrandLockup({
         <BrandIcon className="size-(--logo)" />
         <BrandWordmark
           className={cn(
-            "mt-[calc(var(--logo)*0.24)] ml-[calc(var(--logo)*0.3025)] h-[calc(var(--logo)*0.6006)] w-auto text-logo-word",
+            "mt-[calc(var(--logo)*0.24)] ml-[calc(var(--logo)*0.3025)] h-[calc(var(--logo)*0.6006)] w-auto",
+            inverse ? "text-shell-ink" : "text-logo-word",
             condensed ? "hidden lg:block" : "hidden sm:block",
           )}
         />
@@ -65,13 +100,15 @@ export function BrandLockup({
       <span
         aria-hidden="true"
         className={cn(
-          "hidden h-6 w-px shrink-0 bg-border",
+          "hidden h-6 w-px shrink-0",
+          inverse ? "bg-shell-line" : "bg-border",
           condensed ? "lg:block" : "sm:block",
         )}
       />
       <span
         className={cn(
-          "hidden truncate text-sm font-medium text-ink-muted",
+          "hidden truncate text-sm font-medium",
+          inverse ? "text-shell-muted" : "text-ink-muted",
           condensed ? "lg:block" : "sm:block",
         )}
       >

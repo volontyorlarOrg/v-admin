@@ -12,6 +12,7 @@ export const VACANCY_FIELDS = [
   "organizationId",
   "region",
   "format",
+  "city",
   "locationName",
   "startsAt",
   "endsAt",
@@ -42,6 +43,7 @@ const vacancyShape = z
     organizationId: trimmed.min(1, "required"),
     region: z.enum(REGIONS, { message: "required" }),
     format: z.enum(VACANCY_FORMATS, { message: "required" }),
+    city: trimmed.max(100, "tooLong").optional(),
     locationName: trimmed.max(200, "tooLong").optional(),
     startsAt: trimmed.min(1, "required"),
     endsAt: trimmed.optional(),
@@ -119,10 +121,17 @@ export function vacancyFromFormData(formData: FormData): Record<string, string> 
 
   for (const field of VACANCY_FIELDS) {
     const value = formData.get(field);
-    if (typeof value === "string" && value.trim() !== "") output[field] = value;
+    output[field] = typeof value === "string" ? value : "";
   }
 
   return output;
+}
+
+function lines(value: string | undefined): string[] {
+  return (value ?? "")
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
 }
 
 export function toVacancyPayload(values: VacancyFormValues) {
@@ -141,15 +150,23 @@ export function toVacancyPayload(values: VacancyFormValues) {
     ...(values.estimatedTotalHours
       ? { estimatedTotalHours: Number(values.estimatedTotalHours) }
       : {}),
+    ...(values.city ? { city: values.city } : {}),
     ...(values.locationName ? { locationName: values.locationName } : {}),
-    ...(values.requirements
-      ? {
-          requirements: values.requirements
-            .split("\n")
-            .map((line) => line.trim())
-            .filter(Boolean),
-        }
-      : {}),
+    ...(values.requirements ? { requirements: lines(values.requirements) } : {}),
+  };
+}
+
+export function toVacancyUpdate(values: VacancyFormValues) {
+  return {
+    ...toVacancyPayload(values),
+    endsAt: values.endsAt ? new Date(values.endsAt).toISOString() : null,
+    capacity: values.capacity ? Number(values.capacity) : null,
+    estimatedTotalHours: values.estimatedTotalHours
+      ? Number(values.estimatedTotalHours)
+      : null,
+    city: values.city || null,
+    locationName: values.locationName || null,
+    requirements: lines(values.requirements),
   };
 }
 

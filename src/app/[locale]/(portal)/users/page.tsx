@@ -1,13 +1,11 @@
 import { getFormatter, getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
 
-import { FilterForm } from "@/components/forms/filter-form";
 import { Avatar } from "@/components/portal/avatar";
-import { EmptyState } from "@/components/states/empty-state";
+import { Register, RegisterNote, RegisterSearch } from "@/components/register/register";
 import { LoadFailure } from "@/components/states/load-failure";
 import { PageHeader } from "@/components/states/page-header";
 import { Pagination } from "@/components/states/pagination";
-import { buttonClass } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -46,9 +44,11 @@ export default async function UsersPage({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const t = await getTranslations("users");
-  const common = await getTranslations("common");
-  const format = await getFormatter();
+  const [t, common, format] = await Promise.all([
+    getTranslations("users"),
+    getTranslations("common"),
+    getFormatter(),
+  ]);
 
   const query = await searchParams;
   const q = readParam(query, "q");
@@ -65,91 +65,87 @@ export default async function UsersPage({
       {failure ? <LoadFailure failure={failure} /> : null}
 
       {isReady(loaded) ? (
-        <>
-          <FilterForm
-            action={`/${locale}${listPath}`}
-            legend={t("filters.legend")}
-            searchLabel={t("filters.search")}
-            searchValue={q}
-            resetHref={listPath}
-          />
-
+        <Register
+          title={q ? t("found") : t("listTitle")}
+          count={loaded.data.total}
+          countLabel={t("countLabel")}
+          toolbar={
+            <RegisterSearch
+              action={`/${locale}${listPath}`}
+              label={t("filters.search")}
+              submitLabel={common("search")}
+              value={q}
+            />
+          }
+        >
           {loaded.data.items.length === 0 ? (
-            <EmptyState
+            <RegisterNote
               title={q ? t("noMatches.title") : t("empty.title")}
               description={q ? t("noMatches.description") : t("empty.description")}
             />
           ) : (
             <>
-              <div className="rounded-xl border border-border/70 panel-surface">
-                <Table>
-                  <TableCaption className="sr-only">{t("table.caption")}</TableCaption>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead scope="col">{t("table.name")}</TableHead>
-                      <TableHead scope="col">{t("table.applications")}</TableHead>
-                      <TableHead scope="col">{t("table.passwordLogin")}</TableHead>
-                      <TableHead scope="col">{t("table.joined")}</TableHead>
-                      <TableHead scope="col">
-                        <span className="sr-only">{common("actions")}</span>
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {loaded.data.items.map((user) => {
-                      const password = passwordLoginState(user);
-
-                      return (
-                        <TableRow key={user.id}>
-                          <TableCell>
-                            <div className="flex items-center gap-3">
-                              <Avatar name={user.displayName} />
-                              <div className="min-w-0">
-                                <p className="font-medium text-ink">
-                                  {user.displayName ?? common("notSet")}
-                                </p>
-                                <p className="text-xs text-ink-muted">
-                                  {user.email ?? common("notSet")}
-                                </p>
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell className="tabular">
-                            {format.number(user._count?.applications ?? 0)}
-                          </TableCell>
-                          <TableCell>
-                            {password.kind === "none"
-                              ? t("passwordState.none")
-                              : password.changeRequired
-                                ? t("passwordState.required")
-                                : t("passwordState.set")}
-                          </TableCell>
-                          <TableCell className="tabular whitespace-nowrap">
-                            {format.dateTime(new Date(user.createdAt), "day")}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <Link
-                              href={userHref(user.id)}
-                              className={buttonClass({ variant: "ghost", size: "sm" })}
-                            >
-                              {t("table.open")}
-                              <span className="sr-only"> — {user.displayName}</span>
-                            </Link>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </div>
-
+              <Table>
+                <TableCaption className="sr-only">{t("table.caption")}</TableCaption>
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead scope="col">{t("table.name")}</TableHead>
+                    <TableHead scope="col">{t("table.applications")}</TableHead>
+                    <TableHead scope="col">{t("table.accepted")}</TableHead>
+                    <TableHead scope="col">{t("table.passwordLogin")}</TableHead>
+                    <TableHead scope="col">{t("table.joined")}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {loaded.data.items.map((user) => {
+                    const password = passwordLoginState(user);
+                    return (
+                      <TableRow key={user.id}>
+                        <TableCell>
+                          <span className="flex min-w-[14rem] items-center gap-3">
+                            <Avatar name={user.displayName} size="sm" person />
+                            <span className="min-w-0">
+                              <Link
+                                href={userHref(user.id)}
+                                className="block font-semibold text-ink hover:text-primary-ink hover:underline"
+                              >
+                                {user.displayName ?? common("notSet")}
+                              </Link>
+                              <span className="block truncate text-xs text-ink-muted">
+                                {user.email ?? t("noEmail")}
+                              </span>
+                            </span>
+                          </span>
+                        </TableCell>
+                        <TableCell className="tabular">
+                          {format.number(user._count?.applications ?? 0)}
+                        </TableCell>
+                        <TableCell className="tabular">
+                          {format.number(user._count?.attendanceRecords ?? 0)}
+                        </TableCell>
+                        <TableCell className="text-ink-muted">
+                          {password.kind === "none"
+                            ? t("passwordState.none")
+                            : password.changeRequired
+                              ? t("passwordState.required")
+                              : t("passwordState.set")}
+                        </TableCell>
+                        <TableCell className="tabular whitespace-nowrap text-ink-muted">
+                          {format.dateTime(new Date(user.createdAt), "day")}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
               <Pagination
+                framed
                 state={loaded.data}
                 hrefFor={(next) => hrefWith(listPath, { q, page: next })}
               />
             </>
           )}
-        </>
+        </Register>
       ) : null}
     </>
   );

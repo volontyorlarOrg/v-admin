@@ -1,20 +1,33 @@
+import { Ban, CircleCheck } from "lucide-react";
 import { getFormatter, getTranslations, setRequestLocale } from "next-intl/server";
+import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
-import { FormDialog } from "@/components/forms/form-dialog";
+import { AuditTable } from "@/components/audit/audit-table";
 import { RemoveCoordinator } from "@/components/coordinators/remove-coordinator";
-import { DefinitionList } from "@/components/portal/definition-list";
+import { FormDialog } from "@/components/forms/form-dialog";
 import { Panel } from "@/components/portal/panel";
 import {
   StatusBadge,
-  coordinatorStatusTone,
-  vacancyStateTone,
+  coordinatorStatus,
+  vacancyStatus,
 } from "@/components/portal/status-badge";
 import { TemporaryPasswordForm } from "@/components/portal/temporary-password-form";
+import { Facts } from "@/components/register/facts";
+import { Register, RegisterNote } from "@/components/register/register";
 import { LoadFailure } from "@/components/states/load-failure";
 import { PageHeader } from "@/components/states/page-header";
 import { StatePanel } from "@/components/states/state-panel";
-import { Button, buttonClass } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Link } from "@/i18n/navigation";
 import { failureOf, isReady } from "@/lib/api/load";
 import {
@@ -29,10 +42,10 @@ import {
   reassignmentCandidates,
   statusOf,
 } from "@/lib/coordinators/status";
-import { vacancyStateOf } from "@/lib/vacancies/approval";
 import { MAX_PAGE_SIZE } from "@/lib/routing/search-params";
-import { vacancyHref } from "@/lib/routing/routes";
+import { navHref, vacancyHref } from "@/lib/routing/routes";
 import { passwordLoginState } from "@/lib/users/password-state";
+import { vacancyStateOf } from "@/lib/vacancies/approval";
 import { errorCatalog } from "@/lib/vacancies/labels.server";
 
 export const dynamic = "force-dynamic";
@@ -42,7 +55,7 @@ export async function generateMetadata({
 }: PageProps<"/[locale]/coordinators/[id]">): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "coordinators" });
-  return { title: t("detail.eyebrow") };
+  return { title: t("record") };
 }
 
 export default async function CoordinatorPage({
@@ -51,14 +64,16 @@ export default async function CoordinatorPage({
   const { locale, id } = await params;
   setRequestLocale(locale);
 
-  const t = await getTranslations("coordinators");
-  const vacancies = await getTranslations("vacancies");
-  const users = await getTranslations("users");
-  const activity = await getTranslations("activity");
-  const auth = await getTranslations("auth");
-  const common = await getTranslations("common");
-  const errors = await getTranslations("errors");
-  const format = await getFormatter();
+  const [t, vacancies, users, auth, common, errors, format] = await Promise.all([
+    getTranslations("coordinators"),
+    getTranslations("vacancies"),
+    getTranslations("users"),
+    getTranslations("auth"),
+    getTranslations("common"),
+    getTranslations("errors"),
+    getFormatter(),
+  ]);
+  const back = { href: navHref("coordinators"), label: t("title") };
 
   const loaded = await loadCoordinator(id);
   const failure = failureOf(loaded);
@@ -66,18 +81,20 @@ export default async function CoordinatorPage({
   if (failure) {
     return (
       <>
-        <PageHeader eyebrow={t("detail.eyebrow")} title={t("title")} />
+        <PageHeader back={back} title={t("record")} />
         <LoadFailure failure={failure} />
       </>
     );
   }
 
-  if (!isReady(loaded)) return null;
+  if (!isReady(loaded)) notFound();
 
   const coordinator = loaded.data;
   const status = statusOf(coordinator);
+  const chip = coordinatorStatus(status);
   const password = passwordLoginState(coordinator);
   const mustReassign = needsReassignment(coordinator);
+  const open = activeVacanciesOf(coordinator);
 
   const directory = await loadCoordinators({ page: 1, pageSize: MAX_PAGE_SIZE });
   const candidates = isReady(directory)
@@ -100,13 +117,34 @@ export default async function CoordinatorPage({
     "coordinatorHasActiveOpportunities",
     "invalidCoordinatorReassignment",
   ]);
+  const shared = {
+    cancel: common("cancel"),
+    close: common("close"),
+    summary: common("fixFields"),
+    fallbackError: errors("server"),
+    errors: confirmErrors,
+  };
 
   return (
     <>
       <PageHeader
-        eyebrow={t("detail.eyebrow")}
+        back={back}
         title={coordinator.displayName ?? common("notSet")}
-        description={coordinator.email ?? undefined}
+        meta={
+          <>
+            <StatusBadge
+              label={t(`status.${status}`)}
+              tone={chip.tone}
+              icon={chip.icon}
+            />
+            <span>{coordinator.email ?? common("notSet")}</span>
+            <span>
+              {t("createdOn", {
+                when: format.dateTime(new Date(coordinator.createdAt), "date"),
+              })}
+            </span>
+          </>
+        }
         actions={
           status === "removed" ? undefined : (
             <>
@@ -114,21 +152,19 @@ export default async function CoordinatorPage({
                 <FormDialog
                   action={blockCoordinatorAction}
                   size="sm"
+                  tone="danger"
                   fields={{ id: coordinator.id }}
                   labels={{
+                    ...shared,
                     title: t("block.title"),
                     description: t("block.description"),
                     submit: t("block.confirm"),
                     pending: t("block.pending"),
                     success: t("block.success"),
-                    cancel: common("cancel"),
-                    close: common("close"),
-                    summary: common("fixFields"),
-                    fallbackError: errors("server"),
-                    errors: confirmErrors,
                   }}
                   trigger={
                     <Button type="button" size="sm" variant="outline">
+                      <Ban aria-hidden="true" />
                       {t("block.trigger")}
                     </Button>
                   }
@@ -139,19 +175,16 @@ export default async function CoordinatorPage({
                   size="sm"
                   fields={{ id: coordinator.id }}
                   labels={{
+                    ...shared,
                     title: t("unblock.title"),
                     description: t("unblock.description"),
                     submit: t("unblock.confirm"),
                     pending: t("unblock.pending"),
                     success: t("unblock.success"),
-                    cancel: common("cancel"),
-                    close: common("close"),
-                    summary: common("fixFields"),
-                    fallbackError: errors("server"),
-                    errors: confirmErrors,
                   }}
                   trigger={
                     <Button type="button" size="sm" variant="outline">
+                      <CircleCheck aria-hidden="true" />
                       {t("unblock.trigger")}
                     </Button>
                   }
@@ -170,16 +203,12 @@ export default async function CoordinatorPage({
                 reassignHelp={t("remove.reassignHelp")}
                 reassignPlaceholder={t("remove.reassignPlaceholder")}
                 labels={{
+                  ...shared,
                   title: t("remove.title"),
                   description: t("remove.description"),
                   submit: t("remove.confirm"),
                   pending: t("remove.pending"),
                   success: t("remove.success"),
-                  cancel: common("cancel"),
-                  close: common("close"),
-                  summary: common("fixFields"),
-                  fallbackError: errors("server"),
-                  errors: confirmErrors,
                 }}
               />
             </>
@@ -187,148 +216,157 @@ export default async function CoordinatorPage({
         }
       />
 
-      <div>
-        <StatusBadge
-          label={t(`status.${status}`)}
-          tone={coordinatorStatusTone(status)}
-        />
-      </div>
+      {status === "blocked" ? (
+        <StatePanel role="status" tone="danger" title={t("blockedNotice")} />
+      ) : null}
 
-      {mustReassign && candidates.length === 0 ? (
+      {mustReassign && candidates.length === 0 && status !== "removed" ? (
         <StatePanel role="status" tone="notice" title={t("remove.noCandidates")} />
       ) : null}
 
-      <Panel title={t("detail.account")}>
-        <DefinitionList
-          items={[
-            { term: t("table.email"), value: coordinator.email ?? common("notSet") },
-            {
-              term: t("table.created"),
-              value: format.dateTime(new Date(coordinator.createdAt), "date"),
-            },
-            {
-              term: t("table.passwordLogin"),
-              value:
-                password.kind === "none"
-                  ? users("passwordState.none")
-                  : users("passwordState.set"),
-            },
-            {
-              term: users("table.passwordChangedAt"),
-              value:
-                password.kind === "set" && password.changedAt
-                  ? format.dateTime(new Date(password.changedAt), "stamp")
-                  : users("passwordState.neverChanged"),
-            },
-            {
-              term: users("table.passwordChangeRequired"),
-              value:
-                password.kind === "set" && password.changeRequired
-                  ? common("yes")
-                  : common("no"),
-            },
-          ]}
-        />
-      </Panel>
+      <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
+        <div className="flex min-w-0 flex-col gap-6">
+          <Register
+            title={t("detail.vacancies")}
+            count={coordinator.createdOpportunities.length}
+            countLabel={vacancies("countLabel")}
+            description={
+              open.length > 0 && status !== "removed"
+                ? t("detail.openVacancies", { count: open.length })
+                : undefined
+            }
+          >
+            {coordinator.createdOpportunities.length === 0 ? (
+              <RegisterNote title={t("detail.noVacancies")} />
+            ) : (
+              <Table>
+                <TableCaption className="sr-only">{t("detail.vacancies")}</TableCaption>
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead scope="col">{vacancies("table.title")}</TableHead>
+                    <TableHead scope="col">{vacancies("table.state")}</TableHead>
+                    <TableHead scope="col">{t("table.created")}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {coordinator.createdOpportunities.map((vacancy) => {
+                    const state = vacancyStateOf(vacancy);
+                    const stateChip = vacancyStatus(state);
+                    return (
+                      <TableRow key={vacancy.id}>
+                        <TableCell className="max-w-[24rem]">
+                          <Link
+                            href={vacancyHref(vacancy.id)}
+                            className="font-semibold text-ink hover:text-primary-ink hover:underline"
+                          >
+                            {vacancy.title}
+                          </Link>
+                        </TableCell>
+                        <TableCell>
+                          <StatusBadge
+                            label={vacancies(`state.${state}`)}
+                            tone={stateChip.tone}
+                            icon={stateChip.icon}
+                          />
+                        </TableCell>
+                        <TableCell className="tabular whitespace-nowrap text-ink-muted">
+                          {format.dateTime(new Date(vacancy.createdAt), "day")}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            )}
+          </Register>
 
-      <Panel
-        title={t("detail.vacancies")}
-        description={mustReassign ? t("remove.reassignHelp") : undefined}
-      >
-        {coordinator.createdOpportunities.length === 0 ? (
-          <p className="text-sm text-ink-muted">{t("detail.noVacancies")}</p>
-        ) : (
-          <ul className="flex flex-col divide-y divide-border">
-            {coordinator.createdOpportunities.map((vacancy) => (
-              <li
-                key={vacancy.id}
-                className="flex items-center justify-between gap-4 py-3"
-              >
-                <span className="min-w-0">
-                  <span className="block truncate text-sm font-medium text-ink">
-                    {vacancy.title}
-                  </span>
-                  <StatusBadge
-                    label={vacancies(`state.${vacancyStateOf(vacancy)}`)}
-                    tone={vacancyStateTone(vacancyStateOf(vacancy))}
-                  />
-                </span>
-                <Link
-                  href={vacancyHref(vacancy.id)}
-                  className={buttonClass({ variant: "ghost", size: "sm" })}
-                >
-                  {vacancies("table.open")}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
-        <p className="mt-4 text-sm text-ink-muted">
-          {format.number(activeVacanciesOf(coordinator).length)} ·{" "}
-          {vacancies("stage.published")}
-        </p>
-      </Panel>
+          <Register
+            title={t("detail.activity")}
+            count={coordinator.auditLogs.length}
+            countLabel={t("detail.activityLabel")}
+          >
+            {coordinator.auditLogs.length === 0 ? (
+              <RegisterNote title={t("detail.noActivity")} />
+            ) : (
+              <AuditTable
+                events={coordinator.auditLogs}
+                caption={t("detail.activity")}
+                showActor={false}
+              />
+            )}
+          </Register>
+        </div>
 
-      <Panel title={t("detail.activity")}>
-        {coordinator.auditLogs.length === 0 ? (
-          <p className="text-sm text-ink-muted">{t("detail.noActivity")}</p>
-        ) : (
-          <ul className="flex flex-col divide-y divide-border">
-            {coordinator.auditLogs.map((event) => (
-              <li key={event.id} className="flex justify-between gap-4 py-3 text-sm">
-                <span className="min-w-0">
-                  <span className="block font-medium text-ink">{event.action}</span>
-                  <span className="block truncate text-xs text-ink-muted">
-                    {event.entityType} · {event.entityId}
-                  </span>
-                </span>
-                <span className="tabular shrink-0 text-ink-muted">
-                  {format.dateTime(new Date(event.createdAt), "stamp")}
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
-        <p className="sr-only">{activity("table.caption")}</p>
-      </Panel>
+        <aside className="flex min-w-0 flex-col gap-6">
+          <Panel title={t("detail.account")}>
+            <Facts
+              items={[
+                {
+                  term: t("table.email"),
+                  value: coordinator.email ?? common("notSet"),
+                },
+                {
+                  term: t("table.passwordLogin"),
+                  value:
+                    password.kind === "none"
+                      ? users("passwordState.none")
+                      : password.changeRequired
+                        ? users("passwordState.required")
+                        : users("passwordState.set"),
+                },
+                ...(password.kind === "set"
+                  ? [
+                      {
+                        term: users("table.passwordChangedAt"),
+                        value: password.changedAt
+                          ? format.dateTime(new Date(password.changedAt), "stamp")
+                          : users("passwordState.neverChanged"),
+                      },
+                    ]
+                  : []),
+              ]}
+            />
+          </Panel>
 
-      {status === "removed" ? null : (
-        <Panel title={t("password.title")} description={t("password.description")}>
-          <TemporaryPasswordForm
-            action={replaceCoordinatorPasswordAction}
-            targetId={coordinator.id}
-            labels={{
-              label: t("password.label"),
-              help: t("password.help"),
-              privacy: t("password.privacy"),
-              showPassword: auth("showPassword"),
-              hidePassword: auth("hidePassword"),
-              submit: t("password.confirm"),
-              pending: t("password.pending"),
-              success: t("password.success"),
-              fallbackError: errors("server"),
-              errors: await errorCatalog([
-                "server",
-                "network",
-                "timeout",
-                "rateLimited",
-                "unavailable",
-                "forbidden",
-                "notFound",
-                "validationFailed",
-                "awaitingContract",
-                "sessionExpired",
-                "required",
-                "passwordShort",
-                "passwordLong",
-                "weakPassword",
-                "userNotFound",
-                "coordinatorNotFound",
-              ]),
-            }}
-          />
-        </Panel>
-      )}
+          {status === "removed" ? null : (
+            <Panel title={t("password.title")} description={t("password.description")}>
+              <TemporaryPasswordForm
+                action={replaceCoordinatorPasswordAction}
+                targetId={coordinator.id}
+                labels={{
+                  label: t("password.label"),
+                  help: t("password.help"),
+                  privacy: t("password.privacy"),
+                  showPassword: auth("showPassword"),
+                  hidePassword: auth("hidePassword"),
+                  submit: t("password.confirm"),
+                  pending: t("password.pending"),
+                  success: t("password.success"),
+                  fallbackError: errors("server"),
+                  errors: await errorCatalog([
+                    "server",
+                    "network",
+                    "timeout",
+                    "rateLimited",
+                    "unavailable",
+                    "forbidden",
+                    "notFound",
+                    "validationFailed",
+                    "awaitingContract",
+                    "sessionExpired",
+                    "required",
+                    "passwordShort",
+                    "passwordLong",
+                    "weakPassword",
+                    "userNotFound",
+                    "coordinatorNotFound",
+                  ]),
+                }}
+              />
+            </Panel>
+          )}
+        </aside>
+      </div>
     </>
   );
 }

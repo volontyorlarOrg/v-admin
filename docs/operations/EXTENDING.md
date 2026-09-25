@@ -38,11 +38,14 @@ Client components receive their labels as props: the root layout gives
    file, which may export only async functions.
 2. Write the Server Action in `actions.ts`, returning `ActionResult` and
    revalidating on success.
-3. Build it with `FormDialog`, which owns `useActionState`, the pending state,
-   the red error summary, focus on the first bad field, closing on success and
-   the toast that follows. Give it a render-prop child so the fields can read
-   their own errors. A form that must also work without JavaScript keeps a
-   route of its own and renders the same fields through `VacancyForm`.
+3. Choose its shape by what it is. A form with more than a couple of fields is
+   a page of its own, built like `VacancyForm`: labelled field groups, a sticky
+   footer with Cancel and the submit, and a redirect to the record on success.
+   A decision about one record is an `InlineDecision` in its row (see below).
+   `FormDialog` is only for what needs protected focus — archiving, blocking,
+   removing — and it owns `useActionState`, the pending state, the red error
+   summary, focus on the first bad field, closing on success and the toast that
+   follows.
 4. Pass the labels and the error catalog as props: the root layout gives
    `NextIntlClientProvider` `messages={null}`, so a client component cannot call
    `useTranslations`.
@@ -51,13 +54,43 @@ Client components receive their labels as props: the root layout gives
    required field must carry its own code — a schema that lets a missing value
    fall through prints the parser's English, not the portal's.
 
+## A decision
+
+A decision about one record — approve, return, reject, accept, send for
+approval, verify — is an `InlineDecision` in the row that shows the record, and
+the same component on the record's own page. Each option is a pill; an option
+with `confirm` swaps the pills for the question and one confirm, and an option
+with `note` opens a textarea under the row, with its help text and a red error
+beside it when a required note is missing. Success is a toast that survives the
+revalidation, and the row leaves its queue; a failure stays inline. Build the
+options in `src/lib/queue/decisions.server.ts` so every screen words them the
+same way, and add any code the action can return to `DECISION_ERROR_CODES`. A decision on a vacancy or an organization belongs in `src/lib/queue/approval-decisions.server.ts`, which only this portal has.
+
 ## A destructive action
 
 Give it a `FormDialog` with `tone="danger"`. It states what will happen and what
-cannot be undone, keeps the confirmation inside the dialog, and shows the
-failure there rather than closing on an error. A decision the API refuses
-without a reason (requesting changes, rejecting) asks for that reason in the
-same dialog and marks it red when it is missing.
+cannot be undone — archiving says how many undecided applications it will
+close — keeps the confirmation inside the dialog, and shows the failure there
+rather than closing on an error. A refusal that needs a reason (returning or
+rejecting a vacancy) is an `InlineDecision` note, not a dialog.
+
+## A queue section
+
+Today is one register sheet. A new kind of work that waits on someone is a
+`QueueSection` in it, fed by a pure function in `src/lib/queue/today.ts` with its
+test beside it: say what counts as waiting, in which order, and when it leaves.
+Rows are `QueueRow`s with an entry number, a `QueueMain`, a `QueueSide` for the
+facts that justify the decision, and the decision itself. A section's link to
+the full list sits in its header on the desk and at its foot on a phone. Add the
+count to the waiting total in the page's dateline.
+
+## The ground
+
+`PageHeader` already carries the ground window, the empty band where the
+country terrain is drawn. A screen without a page header — the sign-in page is
+the only one — renders a `GroundWindow` where the country should sit and sets
+`--ground-align-x` / `--ground-align-y` (0 to 1) on it. Never put text inside a
+ground window, and never make the terrain respond to anything but the pointer.
 
 ## A state
 

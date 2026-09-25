@@ -42,10 +42,11 @@ export default async function ChangePasswordPage({
           tone="notice"
           title={t("required.title")}
           description={t("required.description")}
+          className="max-w-2xl"
         />
       ) : null}
 
-      <Panel>
+      <Panel className="max-w-2xl">
         <ChangePasswordForm
           labels={{
             currentPassword: t("currentPassword"),

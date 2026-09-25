@@ -2,7 +2,7 @@ import "server-only";
 
 import type { z } from "zod";
 
-import { authedApi, type QueryParams } from "@/lib/api/client.server";
+import { authedApi, authedMultipart, type QueryParams } from "@/lib/api/client.server";
 import { endpoints, pathFor, type EndpointName } from "@/lib/api/endpoints";
 import { isApiError, isSessionOver } from "@/lib/api/errors";
 import { loadedFromError, ready, type Loaded } from "@/lib/api/load";
@@ -78,6 +78,45 @@ export async function write(
       return failedResult("awaitingContract");
     }
 
+    return resultFromError(error);
+  }
+}
+
+export async function writeReturning<TSchema extends z.ZodType>(
+  name: EndpointName,
+  { schema, params, body, query }: WriteOptions & { schema: TSchema },
+): Promise<{ result: ActionResult; data?: z.infer<TSchema> }> {
+  const session = await getSession();
+  if (!session) return { result: failedResult("sessionExpired") };
+
+  const endpoint = endpoints[name];
+
+  try {
+    const data = await authedApi(pathFor(name, params), session.accessToken, {
+      method: endpoint.method,
+      query,
+      body,
+      schema,
+    });
+    return { result: okResult, data: data as z.infer<TSchema> };
+  } catch (error) {
+    if (isSessionOver(error)) return { result: failedResult("sessionExpired") };
+    return { result: resultFromError(error) };
+  }
+}
+
+export async function writeMultipart(
+  name: EndpointName,
+  params: Params,
+  body: FormData,
+): Promise<ActionResult> {
+  const session = await getSession();
+  if (!session) return failedResult("sessionExpired");
+  try {
+    await authedMultipart(pathFor(name, params), session.accessToken, body);
+    return okResult;
+  } catch (error) {
+    if (isSessionOver(error)) return failedResult("sessionExpired");
     return resultFromError(error);
   }
 }

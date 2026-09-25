@@ -32,9 +32,9 @@ export default async function LoginPage({
   const configured = isAuthConfigured();
 
   return (
-    <>
+    <div className="sheet rounded-[1.75rem] p-6 shadow-raised sm:p-8">
       <div className="mb-6">
-        <h1 className="text-page-title text-ink">{t("title")}</h1>
+        <h1 className="text-page-compact text-ink sm:text-page">{t("title")}</h1>
         <p className="mt-2 text-sm leading-relaxed text-ink-muted">{t("subtitle")}</p>
       </div>
 
@@ -50,7 +50,7 @@ export default async function LoginPage({
         </FormMessage>
       )}
 
-      <div className="rounded-xl border border-border bg-card p-6">
+      <div>
         <LoginForm
           locale={locale}
           next={returnTo}
@@ -84,9 +84,9 @@ export default async function LoginPage({
         />
       </div>
 
-      <p className="mt-6 text-center text-sm leading-relaxed text-ink-muted">
+      <p className="mt-6 border-t border-border pt-5 text-sm leading-relaxed text-ink-muted">
         {t("accessNotice")}
       </p>
-    </>
+    </div>
   );
 }
