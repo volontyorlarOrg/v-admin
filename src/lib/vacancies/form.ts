@@ -121,7 +121,7 @@ export function vacancyFromFormData(formData: FormData): Record<string, string> 
 
   for (const field of VACANCY_FIELDS) {
     const value = formData.get(field);
-    if (typeof value === "string" && value.trim() !== "") output[field] = value;
+    output[field] = typeof value === "string" ? value : "";
   }
 
   return output;

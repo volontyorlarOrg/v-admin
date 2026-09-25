@@ -31,7 +31,12 @@ export function isPermanentlyRejected(vacancy: ApprovalSubject): boolean {
 
 export function canEditVacancy(vacancy: ApprovalSubject): boolean {
   const state = vacancyStateOf(vacancy);
-  return state === "draft" || state === "changes_requested";
+  return (
+    state === "draft" ||
+    state === "changes_requested" ||
+    state === "pending_review" ||
+    state === "approved"
+  );
 }
 
 export function canSubmitForApproval(vacancy: ApprovalSubject): boolean {

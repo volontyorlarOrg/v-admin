@@ -467,9 +467,7 @@ function approvalRefusal(item) {
 }
 
 function missingForApproval(item) {
-  const organization = state.organizations.find((o) => o.id === item.organizationId);
   const missing = [];
-  if (!organization?.verified) missing.push("organization");
   if (!item.title?.trim()) missing.push("title");
   if (!item.description?.trim()) missing.push("description");
   return missing;
@@ -536,9 +534,10 @@ function send(response, status, body) {
   response.end(body === undefined ? "" : JSON.stringify(body));
 }
 
-async function readJson(request) {
+async function readJson(request, discardMultipart = false) {
   const chunks = [];
   for await (const chunk of request) chunks.push(chunk);
+  if (discardMultipart) return {};
   const text = Buffer.concat(chunks).toString("utf8");
   return text ? JSON.parse(text) : {};
 }
@@ -728,7 +727,8 @@ const server = createServer(async (request, response) => {
   const url = new URL(request.url ?? "/", `http://127.0.0.1:${PORT}`);
   const path = url.pathname;
   const method = request.method ?? "GET";
-  const body = method === "GET" ? {} : await readJson(request);
+  const isMultipart = request.headers["content-type"]?.startsWith("multipart/form-data");
+  const body = method === "GET" ? {} : await readJson(request, isMultipart);
 
   if (path === "/health/live") return send(response, 200, { status: "ok" });
 
@@ -899,7 +899,7 @@ const server = createServer(async (request, response) => {
   }
 
   const vacancyMatch =
-    /^\/(staff|admin)\/opportunities\/([^/]+)(?:\/(submit-for-approval|publish|approve|request-changes|reject|archive|attendance))?$/.exec(
+    /^\/(staff|admin)\/opportunities\/([^/]+)(?:\/(submit-for-approval|publish|approve|request-changes|reject|archive|attendance|image))?$/.exec(
       path,
     );
   if (vacancyMatch) {
@@ -915,10 +915,40 @@ const server = createServer(async (request, response) => {
     if (!verb && method === "GET") {
       return send(response, 200, withOrganization(item));
     }
+    if (verb === "image" && (method === "PUT" || method === "DELETE")) {
+      const approval = approvalOf(item);
+      if (item.archivedAt || approval === "rejected" ||
+          (scope === "staff" && approval === "pending_review")) {
+        return send(response, 409, { code: "opportunityNotEditable" });
+      }
+      if (scope === "staff" && approval === "approved") {
+        item.approvalStatus = "draft";
+        item.approvalNote = null;
+        item.approvalSubmittedAt = null;
+        item.approvalReviewedAt = null;
+        item.approvalReviewedById = null;
+        item.approvalReviewedBy = null;
+      }
+      item.imageUrl = method === "PUT"
+        ? `https://media.example.org/opportunities/${id}/image.png`
+        : null;
+      item.updatedAt = new Date().toISOString();
+      record("opportunity.updated", "Opportunity", item.id, actor.id);
+      return send(response, 200, method === "PUT" ? { imageUrl: item.imageUrl } : item);
+    }
     if (!verb && method === "PATCH") {
       const approval = approvalOf(item);
-      if (item.archivedAt || approval === "pending_review" || approval === "rejected") {
+      if (item.archivedAt || approval === "rejected" ||
+          (scope === "staff" && approval === "pending_review")) {
         return send(response, 409, { code: "opportunityNotEditable" });
+      }
+      if (scope === "staff" && approval === "approved") {
+        item.approvalStatus = "draft";
+        item.approvalNote = null;
+        item.approvalSubmittedAt = null;
+        item.approvalReviewedAt = null;
+        item.approvalReviewedById = null;
+        item.approvalReviewedBy = null;
       }
       Object.assign(item, body, { updatedAt: new Date().toISOString() });
       record("opportunity.updated", "Opportunity", item.id, actor.id);

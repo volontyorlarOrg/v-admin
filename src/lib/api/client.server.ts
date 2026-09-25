@@ -3,7 +3,7 @@ import "server-only";
 import { headers } from "next/headers";
 import { unstable_rethrow } from "next/navigation";
 import createClient, { type Client, type Middleware } from "openapi-fetch";
-import type { z } from "zod";
+import { z } from "zod";
 
 import { ApiError, classifyApiError, codeForStatus } from "@/lib/api/errors";
 import type { paths } from "@/lib/api/generated/schema";
@@ -205,4 +205,45 @@ export function authedApi<TSchema extends z.ZodType | undefined = undefined>(
   init?: Omit<ApiRequest<TSchema>, "accessToken">,
 ): Promise<ApiResult<TSchema>> {
   return api(path, { ...init, accessToken });
+}
+
+export async function authedMultipart(
+  path: ApiPath,
+  accessToken: string,
+  body: FormData,
+): Promise<void> {
+  const baseUrl = apiBaseUrl();
+  if (!baseUrl) throw new ApiError("notConfigured");
+  const requestId = crypto.randomUUID();
+  let response: Response;
+  try {
+    response = await fetch(new URL(path, `${baseUrl}/`), {
+      method: "PUT",
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${accessToken}`,
+        [REQUEST_ID_HEADER]: requestId,
+        ...(await forwardedVisitor()),
+      },
+      body,
+      cache: "no-store",
+      signal: AbortSignal.timeout(DEFAULT_TIMEOUT_MS),
+    });
+  } catch (error) {
+    const classified = classifyApiError(error);
+    logFailure("PUT", path, classified);
+    throw classified;
+  }
+  const responseText = await response.text();
+  if (!response.ok) {
+    const error = new ApiError(codeForStatus(response.status), {
+      status: response.status,
+      requestId,
+      details: responseText ? parseJson(responseText) : null,
+    });
+    logFailure("PUT", path, error);
+    throw error;
+  }
+  const parsed = z.object({ imageUrl: z.url() }).safeParse(parseJson(responseText));
+  if (!parsed.success) throw new ApiError("invalidResponse", { requestId });
 }

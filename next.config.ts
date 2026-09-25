@@ -16,6 +16,7 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     globalNotFound: true,
+    serverActions: { bodySizeLimit: "3mb" },
   },
   async headers() {
     return [
