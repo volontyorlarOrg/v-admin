@@ -1016,6 +1016,112 @@ test.describe("volunteers and passwords", () => {
   });
 });
 
+test.describe("XP and hours adjustments", () => {
+  const DILNOZA = "/en/users/00000000-0000-4000-8000-000000000201";
+
+  function figure(page: Page, label: string) {
+    return page
+      .locator("dl > div")
+      .filter({ has: page.locator("dt", { hasText: new RegExp(`^${label}$`) }) })
+      .locator("dd");
+  }
+
+  function adjustmentPanel(page: Page) {
+    return page.locator("section").filter({
+      has: page.getByRole("heading", { level: 2, name: "Adjust XP and hours" }),
+    });
+  }
+
+  test("adds XP and hours with a reason, and lists who changed them", async ({
+    page,
+  }) => {
+    await signedIn(page);
+    await page.goto(DILNOZA);
+    await expect(figure(page, "XP")).toHaveText("0");
+    await expect(
+      page.getByRole("heading", { name: "XP and hours adjustments" }),
+    ).toHaveCount(0);
+
+    const panel = adjustmentPanel(page);
+    await panel.getByLabel("XP", { exact: true }).fill("150");
+    await panel.getByLabel("Hours", { exact: true }).fill("2.5");
+    await panel.getByLabel("Reason").fill("Ran the book fair's front desk");
+    await panel.getByRole("button", { name: "Save the change" }).click();
+
+    await expect(formMessage(page)).toContainText("The figures above now include it");
+    await expect(figure(page, "XP")).toHaveText("150");
+    await expect(figure(page, "Hours")).toHaveText("2.5");
+    const history = page.locator("section").filter({
+      has: page.getByRole("heading", { name: "XP and hours adjustments" }),
+    });
+    const row = history.getByRole("row").filter({ hasText: "book fair" });
+    await expect(row).toContainText("+150");
+    await expect(row).toContainText("+2.5");
+    await expect(row).toContainText("Stub Administrator");
+    await expect(panel.getByLabel("Reason")).toHaveValue("");
+  });
+
+  test("takes XP away after it was added", async ({ page }) => {
+    await signedIn(page);
+    await page.goto(DILNOZA);
+
+    const panel = adjustmentPanel(page);
+    await panel.getByLabel("XP", { exact: true }).fill("40");
+    await panel.getByLabel("Reason").fill("Bonus for the sports day");
+    await panel.getByRole("button", { name: "Save the change" }).click();
+    await expect(figure(page, "XP")).toHaveText("40");
+
+    await panel.getByText("Take away").click();
+    await panel.getByLabel("XP", { exact: true }).fill("15");
+    await panel.getByLabel("Reason").fill("Counted one shift twice");
+    await panel.getByRole("button", { name: "Save the change" }).click();
+
+    await expect(figure(page, "XP")).toHaveText("25");
+    await expect(
+      page.getByRole("row").filter({ hasText: "Counted one shift twice" }),
+    ).toContainText("−15");
+  });
+
+  test("refuses to go below zero and keeps what was typed", async ({ page }) => {
+    await signedIn(page);
+    await page.goto(DILNOZA);
+
+    const panel = adjustmentPanel(page);
+    await panel.getByText("Take away").click();
+    await panel.getByLabel("Hours", { exact: true }).fill("3");
+    await panel.getByLabel("Reason").fill("Wrong event");
+    await panel.getByRole("button", { name: "Save the change" }).click();
+
+    await expect(formMessage(page)).toContainText("below zero XP or hours");
+    await expect(panel.getByLabel("Hours", { exact: true })).toHaveValue("3");
+    await expect(panel.getByLabel("Reason")).toHaveValue("Wrong event");
+    await expect(panel.getByRole("radio", { name: "Take away" })).toBeChecked();
+  });
+
+  test("asks for a reason and an amount on their own fields", async ({ page }) => {
+    await signedIn(page);
+    await page.goto(DILNOZA);
+
+    const panel = adjustmentPanel(page);
+    await panel.getByLabel("XP", { exact: true }).fill("2.5");
+    await panel.getByRole("button", { name: "Save the change" }).click();
+
+    await expect(panel.locator('[data-slot="field-error"]')).toContainText([
+      "Enter a whole number of XP",
+      "Fill this in.",
+    ]);
+    await expect(panel.getByLabel("XP", { exact: true })).toHaveAttribute(
+      "aria-invalid",
+      "true",
+    );
+
+    await panel.getByLabel("XP", { exact: true }).fill("");
+    await panel.getByLabel("Reason").fill("Nothing yet");
+    await panel.getByRole("button", { name: "Save the change" }).click();
+    await expect(formMessage(page)).toContainText("Enter XP, hours or both.");
+  });
+});
+
 test.describe("the first password change", () => {
   test("blocks the portal until the temporary password is replaced", async ({
     page,

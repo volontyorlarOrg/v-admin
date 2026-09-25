@@ -217,6 +217,18 @@ administrator sees follows from that:
   a `linkedin.com` address or slug, and a portfolio link must be `http` or
   `https` (`src/lib/users/profile-links.ts`). Photos load from the backend's
   public object storage, which is why the CSP's `img-src` allows `https:`.
+- **XP and hours can be adjusted by hand, with a reason.** `GET /admin/users/:id`
+  also carries `progress` (`xp`, `hours` — adjustments included —,
+  `attendedHours`, `xpAdjustment`, `hoursAdjustment` and the latest 50
+  `adjustments`), which the figure row and the adjustments register read; the
+  staff detail never carries it. `POST /admin/users/{id}/progress-adjustments`
+  takes `{ xpDelta, hoursDelta, reason }`. The form asks for a direction (add
+  or take away) and two non-negative amounts, and `src/lib/users/progress.ts`
+  signs them; an empty amount is no change, both empty is `adjustmentEmpty`.
+  The backend refuses a change that would leave the volunteer below zero
+  (`progressBelowZero`) or that touches the administrator's own account
+  (`ownProgressNotAdjustable`). XP and hours are independent: added hours do
+  not add hour XP. Each change is audited as `user.progress.adjusted`.
 
 ## Archiving, reversals and the navigation counts
 
