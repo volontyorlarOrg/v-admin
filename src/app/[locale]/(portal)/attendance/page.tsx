@@ -1,24 +1,24 @@
 import { getFormatter, getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
 
-import { Panel } from "@/components/portal/panel";
-import { StatusBadge, attendanceTone } from "@/components/portal/status-badge";
-import { EmptyState } from "@/components/states/empty-state";
+import {
+  QUEUE_ACTIONS,
+  QueueMain,
+  QueueRow,
+  QueueSide,
+} from "@/components/queue/queue";
+import { Register, RegisterNote } from "@/components/register/register";
 import { LoadFailure } from "@/components/states/load-failure";
 import { PageHeader } from "@/components/states/page-header";
-import { Pagination } from "@/components/states/pagination";
 import { buttonClass } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
 import { failureOf, isReady } from "@/lib/api/load";
 import { loadApplications } from "@/lib/applications/data.server";
-import { volunteerNameOf } from "@/lib/applications/filters";
-import { groupAttendance, unresolvedCount } from "@/lib/attendance/queue";
-import { applicationHref, navHref, vacancyHref } from "@/lib/routing/routes";
-import { hrefWith, paginate, readPage } from "@/lib/routing/search-params";
+import { groupAttendance, type AttendanceGroup } from "@/lib/attendance/queue";
+import { vacancyHref } from "@/lib/routing/routes";
+import { loadVacancies } from "@/lib/vacancies/data.server";
 
 export const dynamic = "force-dynamic";
-
-const PAGE_SIZE = 10;
 
 export async function generateMetadata({
   params,
@@ -30,24 +30,94 @@ export async function generateMetadata({
 
 export default async function AttendancePage({
   params,
-  searchParams,
 }: PageProps<"/[locale]/attendance">) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const t = await getTranslations("attendance");
-  const applicationsCopy = await getTranslations("applications");
-  const format = await getFormatter();
+  const [t, format] = await Promise.all([
+    getTranslations("attendance"),
+    getFormatter(),
+  ]);
 
-  const query = await searchParams;
-  const page = readPage(query);
   const now = new Date();
+  const [applications, vacancies] = await Promise.all([
+    loadApplications({ status: "accepted" }),
+    loadVacancies(),
+  ]);
+  const failure = failureOf(applications) ?? failureOf(vacancies);
+  const groups =
+    isReady(applications) && isReady(vacancies)
+      ? groupAttendance(applications.data, now, vacancies.data)
+      : [];
+  const due = groups.filter((group) => group.open && group.unresolved.length > 0);
+  const upcoming = groups.filter((group) => !group.open);
+  const recorded = groups.filter(
+    (group) => group.open && group.unresolved.length === 0,
+  );
 
-  const loaded = await loadApplications({ status: "accepted" });
-  const failure = failureOf(loaded);
-  const groups = isReady(loaded) ? groupAttendance(loaded.data, now) : [];
-  const waiting = groups.filter((group) => group.unresolved.length > 0);
-  const pageState = paginate(waiting, page, PAGE_SIZE);
+  const rows = (list: AttendanceGroup[], kind: "due" | "upcoming" | "recorded") => (
+    <ol className="divide-y divide-border">
+      {list.map((group, index) => (
+        <QueueRow
+          key={group.vacancyId}
+          number={index + 1}
+          numberLabel={t("queue.number")}
+        >
+          <QueueMain
+            title={
+              <Link
+                href={vacancyHref(group.vacancyId)}
+                className="hover:text-primary-ink hover:underline"
+              >
+                {group.title}
+              </Link>
+            }
+            meta={
+              kind === "upcoming"
+                ? group.opensAt
+                  ? t("queue.opensAt", {
+                      when: format.dateTime(group.opensAt, "stamp"),
+                    })
+                  : t("queue.opensUnknown")
+                : group.opensAt
+                  ? t("queue.ended", { when: format.relativeTime(group.opensAt, now) })
+                  : undefined
+            }
+          />
+          <QueueSide>
+            {kind === "upcoming" ? (
+              <span>{t("queue.accepted", { count: group.unresolved.length })}</span>
+            ) : (
+              <>
+                {group.unresolved.length > 0 ? (
+                  <span className="font-medium text-ink">
+                    {t("queue.waiting", { count: group.unresolved.length })}
+                  </span>
+                ) : null}
+                {group.resolved.length > 0 ? (
+                  <span>
+                    {t("queue.resolvedCount", { count: group.resolved.length })}
+                  </span>
+                ) : null}
+              </>
+            )}
+          </QueueSide>
+          <div className={`flex ${QUEUE_ACTIONS}`}>
+            <Link
+              href={`${vacancyHref(group.vacancyId)}#roll-call`}
+              className={buttonClass({
+                size: "row",
+                variant: kind === "due" ? "primary" : "outline",
+              })}
+            >
+              {kind === "due" ? t("queue.take") : t("queue.view")}
+              <span className="sr-only"> — {group.title}</span>
+            </Link>
+          </div>
+        </QueueRow>
+      ))}
+    </ol>
+  );
 
   return (
     <>
@@ -55,82 +125,49 @@ export default async function AttendancePage({
 
       {failure ? <LoadFailure failure={failure} /> : null}
 
-      {isReady(loaded) ? (
-        pageState.items.length === 0 ? (
-          <EmptyState title={t("empty.title")} description={t("empty.description")} />
-        ) : (
-          <>
-            <p role="status" className="text-sm text-ink-muted">
-              {t("queue.total", { count: unresolvedCount(waiting) })}
-            </p>
+      {isReady(applications) && isReady(vacancies) ? (
+        <>
+          <Register
+            id="due"
+            title={t("sections.due")}
+            count={due.length}
+            countLabel={t("sections.dueLabel")}
+            countTone="waiting"
+            description={t("sections.dueDescription")}
+          >
+            {due.length === 0 ? (
+              <RegisterNote
+                title={t("empty.title")}
+                description={t("empty.description")}
+              />
+            ) : (
+              rows(due, "due")
+            )}
+          </Register>
 
-            {pageState.items.map((group) => (
-              <Panel
-                key={group.vacancyId}
-                title={group.title}
-                description={
-                  group.open
-                    ? t("queue.waiting", { count: group.unresolved.length })
-                    : group.opensAt
-                      ? t("queue.opensAt", {
-                          when: format.dateTime(group.opensAt, "stamp"),
-                        })
-                      : t("queue.opensUnknown")
-                }
-                actions={
-                  <Link
-                    href={vacancyHref(group.vacancyId)}
-                    className={buttonClass({ size: "sm" })}
-                  >
-                    {t("queue.open")}
-                  </Link>
-                }
-              >
-                <ul className="flex flex-col divide-y divide-border">
-                  {group.unresolved.map((application) => (
-                    <li
-                      key={application.id}
-                      className="flex items-center justify-between gap-4 py-3"
-                    >
-                      <span className="min-w-0">
-                        <span className="block truncate text-sm font-medium text-ink">
-                          {volunteerNameOf(application) || application.volunteerId}
-                        </span>
-                        <StatusBadge
-                          label={
-                            application.attendance
-                              ? t(`outcome.${application.attendance.outcome}`)
-                              : t("outcome.unknown")
-                          }
-                          tone={attendanceTone(
-                            application.attendance?.outcome ?? "awaiting_confirmation",
-                          )}
-                        />
-                      </span>
-                      <Link
-                        href={applicationHref(application.id)}
-                        className={buttonClass({ variant: "ghost", size: "sm" })}
-                      >
-                        {applicationsCopy("table.open")}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
+          {upcoming.length > 0 ? (
+            <Register
+              id="upcoming"
+              title={t("sections.upcoming")}
+              count={upcoming.length}
+              countLabel={t("sections.upcomingLabel")}
+              description={t("sections.upcomingDescription")}
+            >
+              {rows(upcoming, "upcoming")}
+            </Register>
+          ) : null}
 
-                {group.resolved.length > 0 ? (
-                  <p className="mt-4 text-sm text-ink-muted">
-                    {t("queue.resolvedCount", { count: group.resolved.length })}
-                  </p>
-                ) : null}
-              </Panel>
-            ))}
-
-            <Pagination
-              state={pageState}
-              hrefFor={(next) => hrefWith(navHref("attendance"), { page: next })}
-            />
-          </>
-        )
+          {recorded.length > 0 ? (
+            <Register
+              id="recorded"
+              title={t("sections.recorded")}
+              count={recorded.length}
+              countLabel={t("sections.recordedLabel")}
+            >
+              {rows(recorded, "recorded")}
+            </Register>
+          ) : null}
+        </>
       ) : null}
     </>
   );

@@ -1,5 +1,7 @@
 "use client";
 
+import { UserX } from "lucide-react";
+
 import { FormDialog, type FormDialogLabels } from "@/components/forms/form-dialog";
 import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
@@ -33,12 +35,8 @@ export function RemoveCoordinator({
       size="sm"
       fields={{ id: coordinatorId }}
       trigger={
-        <Button
-          type="button"
-          size="sm"
-          variant="outline"
-          className="text-danger-ink hover:border-danger hover:text-danger-ink"
-        >
+        <Button type="button" size="sm" variant="danger-outline">
+          <UserX aria-hidden="true" />
           {trigger}
         </Button>
       }

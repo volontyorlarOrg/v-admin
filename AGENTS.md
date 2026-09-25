@@ -11,7 +11,9 @@ It follows the codebase patterns of the volunteer application in `../v-app` —
 the same tokens and typeface, the same route registry, the same server-only API
 client and Zod-parsed responses, the same `ActionResult` envelope, the same
 documentation layout and verification loop. It does not carry its history, its
-volunteer routes, or its whiteboard ground. See [`DESIGN.md`](DESIGN.md).
+volunteer routes, or its whiteboard ground; its own ground is the country
+terrain in [`docs/architecture/GROUND.md`](docs/architecture/GROUND.md). See
+[`DESIGN.md`](DESIGN.md).
 
 ## The one thing to know first
 
@@ -48,10 +50,15 @@ portal (`../v-staff`), or the API, database, authorisation and audit
 (`../v-backend`). A control hidden here is never authorisation.
 
 `v-staff` and `v-admin` are deliberately separate repositories with separate
-lockfiles, cookies and secrets. What differs between them is confined to three
-files: `src/lib/portal.ts`, `src/lib/api/endpoints.ts` and
-`src/lib/routing/routes.ts`. Keep it that way — a fix that belongs to both
-belongs in the shared shape, applied to both.
+lockfiles, cookies and secrets. What makes each one its portal is declared in
+three files: `src/lib/portal.ts`, `src/lib/api/endpoints.ts` and
+`src/lib/routing/routes.ts`. Beyond those, a file differs only where the work
+differs — Today, the vacancy list and record, the volunteer record, activity,
+the vacancy actions, the audit subject links and the catalogs — and
+[`docs/architecture/ARCHITECTURE.md`](docs/architecture/ARCHITECTURE.md) lists
+them. Everything else, `src/components/` and the stylesheet included, is
+byte-identical. Keep it that way — a fix that belongs to both belongs in the
+shared shape, applied to both.
 
 ## Technology stack
 
@@ -84,8 +91,11 @@ src/lib/api/                    server-only client, endpoint registry, schemas,
 src/lib/<domain>/               data.server.ts reads · actions.ts writes ·
                                 filters.ts / schema.ts / form.ts pure logic
 src/lib/routing/                the route registry and search-param helpers
+src/lib/queue/                  Today's queue rules and the decision builders
+src/lib/map/                    the country's geometry for the ground
 src/app/[locale]/(auth)/login/  the one public screen
-src/app/[locale]/(portal)/      dashboard, vacancies[/new|/id], applications[/id],
+src/app/[locale]/(portal)/      dashboard (Today), insights,
+                                vacancies[/new|/id|/id/edit], applications[/id],
                                 users[/id], attendance, activity,
                                 coordinators[/new|/id], organizations, audit,
                                 account/change-password
@@ -137,6 +147,10 @@ docs/                           stable documentation
   [`.agent-memory/use-server-exports.md`](.agent-memory/use-server-exports.md).
 - **Backend data is never re-shaped in JSX.** Parse once with a schema; render
   the schema's output or a state panel.
+- **Decide in the row.** A decision about one record is an `InlineDecision`,
+  on the queue row and on the record's page; a long form is a page of its own;
+  `FormDialog` is only for what needs protected focus, such as archiving. See
+  [`docs/operations/EXTENDING.md`](docs/operations/EXTENDING.md).
 - **Every list ships loading, empty, no-matches and failure; every write ships
   pending, error and success.** A success message must survive the revalidation
   that follows it — see

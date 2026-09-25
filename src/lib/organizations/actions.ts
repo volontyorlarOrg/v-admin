@@ -1,5 +1,6 @@
 "use server";
 
+import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 
 import { failedResult, type ActionResult } from "@/lib/api/action-result";
@@ -7,6 +8,7 @@ import { write } from "@/lib/api/gateway.server";
 import { fieldErrorsOf, stringField } from "@/lib/auth/credentials";
 import {
   createOrganizationSchema,
+  organizationSlug,
   updateOrganizationSchema,
 } from "@/lib/organizations/schema";
 
@@ -29,9 +31,13 @@ export async function createOrganizationAction(
     return failedResult("validationFailed", fieldErrorsOf(parsed.error));
   }
 
-  const { logoUrl, ...rest } = parsed.data;
+  const { logoUrl, slug, ...rest } = parsed.data;
   const result = await write("createOrganization", {
-    body: { ...rest, ...(logoUrl ? { logoUrl } : {}) },
+    body: {
+      ...rest,
+      slug: slug || organizationSlug(rest.name, randomUUID().slice(0, 6)),
+      ...(logoUrl ? { logoUrl } : {}),
+    },
   });
 
   if (result.status === "ok") revalidatePath("/", "layout");
@@ -59,6 +65,22 @@ export async function updateOrganizationAction(
   const result = await write("updateOrganization", {
     params: { id },
     body: { ...rest, ...(logoUrl ? { logoUrl } : {}) },
+  });
+
+  if (result.status === "ok") revalidatePath("/", "layout");
+  return result;
+}
+
+export async function verifyOrganizationAction(
+  _previous: ActionResult,
+  formData: FormData,
+): Promise<ActionResult> {
+  const id = stringField(formData, "id");
+  if (!id) return failedResult("organizationNotFound");
+
+  const result = await write("updateOrganization", {
+    params: { id },
+    body: { verified: true },
   });
 
   if (result.status === "ok") revalidatePath("/", "layout");

@@ -456,23 +456,20 @@ function approvalRefusal(item) {
   }
   const missing = missingForApproval(item);
   if (missing.length > 0) return { code: "opportunityIncomplete", fields: missing };
+  const starts = Date.parse(item.startsAt);
+  if (
+    Date.parse(item.applicationDeadline) >= starts ||
+    (item.endsAt && Date.parse(item.endsAt) <= starts)
+  ) {
+    return { code: "invalidOpportunityDates" };
+  }
   return null;
 }
 
 function missingForApproval(item) {
-  const organization = state.organizations.find((o) => o.id === item.organizationId);
   const missing = [];
-  if (!organization?.verified) missing.push("organization");
-  if (!item.endsAt) missing.push("endsAt");
-  if (!item.capacity || item.capacity < 1) missing.push("capacity");
-  if (!item.estimatedTotalHours || Number(item.estimatedTotalHours) <= 0) {
-    missing.push("estimatedTotalHours");
-  }
-  if (item.format === "remote") {
-    if (!item.locationName) missing.push("location");
-  } else if (!item.city || !item.locationName) {
-    missing.push("location");
-  }
+  if (!item.title?.trim()) missing.push("title");
+  if (!item.description?.trim()) missing.push("description");
   return missing;
 }
 
@@ -537,9 +534,10 @@ function send(response, status, body) {
   response.end(body === undefined ? "" : JSON.stringify(body));
 }
 
-async function readJson(request) {
+async function readJson(request, discardMultipart = false) {
   const chunks = [];
   for await (const chunk of request) chunks.push(chunk);
+  if (discardMultipart) return {};
   const text = Buffer.concat(chunks).toString("utf8");
   return text ? JSON.parse(text) : {};
 }
@@ -641,14 +639,30 @@ function statisticsFor(user) {
       vacancies: vacancies.length,
       publishedVacancies: vacancies.filter((v) => v.publishedAt && !v.archivedAt)
         .length,
+      pendingApproval: vacancies.filter(
+        (v) => approvalOf(v) === "pending_review" && !v.archivedAt,
+      ).length,
+      changesRequested: vacancies.filter(
+        (v) => approvalOf(v) === "changes_requested" && !v.archivedAt,
+      ).length,
       applications: applications.length,
-      pendingReview: applications.filter((a) =>
-        ["submitted", "under_review"].includes(a.status),
+      pendingReview: applications.filter(
+        (a) =>
+          ["submitted", "under_review"].includes(a.status) &&
+          !state.vacancies.find((v) => v.id === a.opportunityId)?.archivedAt,
       ).length,
       accepted: applications.filter((a) => a.status === "accepted").length,
       awaitingAttendance: attendance.filter(
         (a) => a.outcome === "awaiting_confirmation",
       ).length,
+      attendanceDue: applications.filter((a) => {
+        const opportunity = state.vacancies.find((v) => v.id === a.opportunityId);
+        return (
+          a.attendance?.outcome === "awaiting_confirmation" &&
+          opportunity !== undefined &&
+          Date.now() >= attendanceOpensAt(opportunity)
+        );
+      }).length,
       attended: attendance.filter((a) => a.outcome === "attended").length,
       confirmedHours: attendance.reduce(
         (sum, a) => sum + Number(a.confirmedHours ?? 0),
@@ -713,7 +727,8 @@ const server = createServer(async (request, response) => {
   const url = new URL(request.url ?? "/", `http://127.0.0.1:${PORT}`);
   const path = url.pathname;
   const method = request.method ?? "GET";
-  const body = method === "GET" ? {} : await readJson(request);
+  const isMultipart = request.headers["content-type"]?.startsWith("multipart/form-data");
+  const body = method === "GET" ? {} : await readJson(request, isMultipart);
 
   if (path === "/health/live") return send(response, 200, { status: "ok" });
 
@@ -884,7 +899,7 @@ const server = createServer(async (request, response) => {
   }
 
   const vacancyMatch =
-    /^\/(staff|admin)\/opportunities\/([^/]+)(?:\/(submit-for-approval|publish|approve|request-changes|reject|archive|attendance))?$/.exec(
+    /^\/(staff|admin)\/opportunities\/([^/]+)(?:\/(submit-for-approval|publish|approve|request-changes|reject|archive|attendance|image))?$/.exec(
       path,
     );
   if (vacancyMatch) {
@@ -900,10 +915,40 @@ const server = createServer(async (request, response) => {
     if (!verb && method === "GET") {
       return send(response, 200, withOrganization(item));
     }
+    if (verb === "image" && (method === "PUT" || method === "DELETE")) {
+      const approval = approvalOf(item);
+      if (item.archivedAt || approval === "rejected" ||
+          (scope === "staff" && approval === "pending_review")) {
+        return send(response, 409, { code: "opportunityNotEditable" });
+      }
+      if (scope === "staff" && approval === "approved") {
+        item.approvalStatus = "draft";
+        item.approvalNote = null;
+        item.approvalSubmittedAt = null;
+        item.approvalReviewedAt = null;
+        item.approvalReviewedById = null;
+        item.approvalReviewedBy = null;
+      }
+      item.imageUrl = method === "PUT"
+        ? `https://media.example.org/opportunities/${id}/image.png`
+        : null;
+      item.updatedAt = new Date().toISOString();
+      record("opportunity.updated", "Opportunity", item.id, actor.id);
+      return send(response, 200, method === "PUT" ? { imageUrl: item.imageUrl } : item);
+    }
     if (!verb && method === "PATCH") {
       const approval = approvalOf(item);
-      if (item.archivedAt || approval === "pending_review" || approval === "rejected") {
+      if (item.archivedAt || approval === "rejected" ||
+          (scope === "staff" && approval === "pending_review")) {
         return send(response, 409, { code: "opportunityNotEditable" });
+      }
+      if (scope === "staff" && approval === "approved") {
+        item.approvalStatus = "draft";
+        item.approvalNote = null;
+        item.approvalSubmittedAt = null;
+        item.approvalReviewedAt = null;
+        item.approvalReviewedById = null;
+        item.approvalReviewedBy = null;
       }
       Object.assign(item, body, { updatedAt: new Date().toISOString() });
       record("opportunity.updated", "Opportunity", item.id, actor.id);
@@ -1018,14 +1063,32 @@ const server = createServer(async (request, response) => {
         target.attendance.confirmedHours =
           resolution.outcome === "attended" ? String(resolution.confirmedHours) : null;
         target.attendance.resolvedAt = resolvedAt;
+        target.attendance.confirmedById = actor.id;
         record("attendance.resolved", "attendance", target.attendance.id, actor.id);
       }
       return send(response, 200, { items: targets, total: targets.length });
     }
     if (verb === "archive" && method === "POST") {
-      item.archivedAt = new Date().toISOString();
+      if (item.archivedAt) {
+        return send(response, 409, { code: "opportunityAlreadyArchived" });
+      }
+      const archivedAt = new Date().toISOString();
+      item.archivedAt = archivedAt;
+      item.updatedAt = archivedAt;
       record("opportunity.archived", "Opportunity", item.id, actor.id);
-      return send(response, 201, item);
+      const undecided = state.applications.filter(
+        (application) =>
+          application.opportunityId === item.id &&
+          ["submitted", "under_review"].includes(application.status),
+      );
+      for (const application of undecided) {
+        application.status = "closed";
+        application.reviewedAt = archivedAt;
+        application.reviewedById = actor.id;
+        application.updatedAt = archivedAt;
+        record("application.closed", "application", application.id, actor.id);
+      }
+      return send(response, 201, { ...item, closedApplications: undecided.length });
     }
   }
 
@@ -1063,9 +1126,25 @@ const server = createServer(async (request, response) => {
     if (!["submitted", "under_review", "accepted"].includes(item.status)) {
       return send(response, 409, { code: "applicationCannotBeReviewed" });
     }
+    if (
+      item.status === "accepted" &&
+      body.status !== "accepted" &&
+      item.attendance &&
+      item.attendance.outcome !== "awaiting_confirmation"
+    ) {
+      return send(response, 409, { code: "attendanceAlreadyResolved" });
+    }
+    const target = state.vacancies.find((v) => v.id === item.opportunityId);
+    if (body.status === "accepted" && item.status !== "accepted" && target?.archivedAt) {
+      return send(response, 409, { code: "opportunityArchived" });
+    }
+    if (item.status === "accepted" && body.status !== "accepted") {
+      item.attendance = null;
+    }
     item.status = body.status;
-    item.reviewerNote = body.reviewerNote ?? item.reviewerNote;
+    if ("reviewerNote" in body) item.reviewerNote = body.reviewerNote;
     item.reviewedAt = new Date().toISOString();
+    item.reviewedById = actor.id;
     item.updatedAt = item.reviewedAt;
     if (item.status === "accepted" && !item.attendance) {
       item.attendance = {
@@ -1079,7 +1158,7 @@ const server = createServer(async (request, response) => {
         opportunityId: item.opportunityId,
       };
     }
-    record("application.reviewed", "Application", item.id, actor.id);
+    record(`application.${item.status}`, "application", item.id, actor.id);
     return send(response, 200, item);
   }
 
@@ -1100,6 +1179,7 @@ const server = createServer(async (request, response) => {
     item.attendance.confirmedHours =
       body.outcome === "attended" ? String(body.confirmedHours) : null;
     item.attendance.resolvedAt = new Date().toISOString();
+    item.attendance.confirmedById = actor.id;
     record("attendance.resolved", "attendance", item.attendance.id, actor.id);
     return send(response, 200, item.attendance);
   }
@@ -1217,6 +1297,7 @@ const server = createServer(async (request, response) => {
               slug,
               title,
               status,
+              approvalStatus,
               publishedAt,
               archivedAt,
               createdAt,
@@ -1225,6 +1306,7 @@ const server = createServer(async (request, response) => {
               slug,
               title,
               status,
+              approvalStatus,
               publishedAt,
               archivedAt,
               createdAt,
@@ -1294,7 +1376,10 @@ const server = createServer(async (request, response) => {
   if (path === "/organizations" && method === "POST") {
     if (!isAdmin(actor)) return send(response, 403, { code: "forbidden" });
     if (state.organizations.some((item) => item.slug === body.slug)) {
-      return send(response, 409, { code: "slugUnavailable" });
+      return send(response, 409, {
+        code: "slugUnavailable",
+        errors: { slug: ["slugUnavailable"] },
+      });
     }
     const created = {
       id: randomUUID(),

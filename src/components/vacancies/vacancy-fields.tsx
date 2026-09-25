@@ -23,8 +23,16 @@ export type VacancyFieldLabels = {
     when: string;
     volunteers: string;
   };
+  sectionHelp: {
+    about: string;
+    organization: string;
+    place: string;
+    when: string;
+    volunteers: string;
+  };
   unverified: string;
   unverifiedNotice: string;
+  choose: string;
   errors: MessageCatalog;
 };
 
@@ -36,12 +44,31 @@ export type VacancyOrganization = {
 
 export type VacancyFieldDefaults = Record<string, string>;
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({
+  id,
+  title,
+  help,
+  children,
+}: {
+  id: string;
+  title: string;
+  help: string;
+  children: React.ReactNode;
+}) {
   return (
-    <fieldset className="flex flex-col gap-4">
-      <legend className="eyebrow mb-1 text-ink-muted">{title}</legend>
-      {children}
-    </fieldset>
+    <section
+      role="group"
+      aria-labelledby={id}
+      className="grid gap-4 border-t border-border px-5 py-6 first:border-t-0 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-10"
+    >
+      <div className="min-w-0">
+        <h2 id={id} className="text-section text-ink">
+          {title}
+        </h2>
+        <p className="mt-1 text-sm leading-relaxed text-ink-muted">{help}</p>
+      </div>
+      <div className="flex min-w-0 flex-col gap-4">{children}</div>
+    </section>
   );
 }
 
@@ -135,13 +162,21 @@ export function VacancyFields({
   };
 
   return (
-    <div className="flex flex-col gap-7">
-      <Section title={labels.sections.about}>
+    <div className="flex flex-col">
+      <Section
+        id={idOf("about")}
+        title={labels.sections.about}
+        help={labels.sectionHelp.about}
+      >
         {text("title", { required: true })}
         {area("description", true)}
       </Section>
 
-      <Section title={labels.sections.organization}>
+      <Section
+        id={idOf("organization-section")}
+        title={labels.sections.organization}
+        help={labels.sectionHelp.organization}
+      >
         <Field invalid={Boolean(error("organizationId"))}>
           <FieldLabel htmlFor={idOf("organizationId")}>
             {labels.fields.organizationId}
@@ -155,7 +190,9 @@ export function VacancyFields({
             aria-invalid={Boolean(error("organizationId")) || undefined}
             aria-describedby={describedBy("organizationId", error("organizationId"))}
           >
-            <option value="" disabled />
+            <option value="" disabled>
+              {labels.choose}
+            </option>
             {organizations.map((organization) => (
               <NativeSelectOption key={organization.id} value={organization.id}>
                 {organization.verified
@@ -180,7 +217,11 @@ export function VacancyFields({
         ) : null}
       </Section>
 
-      <Section title={labels.sections.place}>
+      <Section
+        id={idOf("place")}
+        title={labels.sections.place}
+        help={labels.sectionHelp.place}
+      >
         <div className="grid gap-4 sm:grid-cols-2">
           <Field invalid={Boolean(error("region"))}>
             <FieldLabel htmlFor={idOf("region")}>{labels.fields.region}</FieldLabel>
@@ -192,6 +233,9 @@ export function VacancyFields({
               aria-invalid={Boolean(error("region")) || undefined}
               aria-describedby={describedBy("region", error("region"))}
             >
+              <NativeSelectOption value="" disabled>
+                {labels.choose}
+              </NativeSelectOption>
               {regions.map((region) => (
                 <NativeSelectOption key={region} value={region}>
                   {labels.regions[region] ?? region}
@@ -220,11 +264,16 @@ export function VacancyFields({
             <FieldError id={`${idOf("format")}-error`}>{error("format")}</FieldError>
           </Field>
 
-          {text("locationName")}
+          {text("city")}
         </div>
+        {text("locationName")}
       </Section>
 
-      <Section title={labels.sections.when}>
+      <Section
+        id={idOf("when")}
+        title={labels.sections.when}
+        help={labels.sectionHelp.when}
+      >
         <div className="grid gap-4 sm:grid-cols-2">
           {text("startsAt", { type: "datetime-local", required: true })}
           {text("endsAt", { type: "datetime-local" })}
@@ -232,7 +281,11 @@ export function VacancyFields({
         </div>
       </Section>
 
-      <Section title={labels.sections.volunteers}>
+      <Section
+        id={idOf("volunteers")}
+        title={labels.sections.volunteers}
+        help={labels.sectionHelp.volunteers}
+      >
         <div className="grid gap-4 sm:grid-cols-2">
           {text("capacity", { type: "number", min: 1, step: 1 })}
           {text("estimatedTotalHours", {

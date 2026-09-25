@@ -33,11 +33,12 @@
     "no": "No",
     "loading": "Loading…",
     "close": "Close",
-    "fixFields": "Check these fields"
+    "fixFields": "Check these fields",
+    "roleName": "Administrator"
   },
   "nav": {
     "label": "Portal sections",
-    "dashboard": "Dashboard",
+    "dashboard": "Today",
     "vacancies": "Vacancies",
     "applications": "Applications",
     "users": "Volunteers",
@@ -46,7 +47,14 @@
     "changePassword": "Change password",
     "coordinators": "Coordinators",
     "organizations": "Organizations",
-    "audit": "Audit history"
+    "audit": "Audit history",
+    "insights": "Insights",
+    "waiting": {
+      "pendingApproval": "waiting for approval",
+      "changesRequested": "returned for changes",
+      "pendingReview": "applications to decide",
+      "attendanceDue": "volunteers to record"
+    }
   },
   "auth": {
     "metaTitle": "Sign in",
@@ -94,7 +102,8 @@
     "loading": {
       "list": "Loading the list…",
       "panel": "Loading…",
-      "figures": "Loading the figures…"
+      "figures": "Loading the figures…",
+      "queue": "Loading what waits on you…"
     },
     "passwordChangeRequired": {
       "title": "Change your password first",
@@ -166,18 +175,28 @@
     "opportunityCannotBePublished": "This vacancy cannot be published in its current state.",
     "opportunityNotPendingApproval": "This vacancy is not waiting for an approval decision.",
     "opportunityNotEditable": "This vacancy is locked in its current approval state.",
+    "opportunityImageInvalid": "Choose a valid image file.",
+    "opportunityImageTooLarge": "Choose an image under 2 MB.",
+    "opportunityImageFormatUnsupported": "Choose a JPEG, PNG or WebP image.",
+    "opportunityImageTooSmall": "Choose an image at least 640 × 360 pixels.",
+    "opportunityImageStorageUnavailable": "Image storage is unavailable. Try again later.",
     "approvalNoteRequired": "Write a note explaining the decision.",
     "deadlinePassed": "The application deadline has already passed.",
     "noVolunteersSelected": "Choose at least one volunteer.",
     "tooManyVolunteers": "Choose fewer volunteers and repeat.",
     "attendanceNotOpen": "Attendance opens once the event has ended.",
     "attendanceBatchFailed": "Nothing was saved. Check the volunteers you chose and try again.",
-    "applicationNotAccepted": "That volunteer was not accepted for this vacancy."
+    "applicationNotAccepted": "That volunteer was not accepted for this vacancy.",
+    "attendanceAlreadyResolved": "Attendance is already recorded for this volunteer, so the acceptance cannot be reversed. Correct the outcome in the roll call instead.",
+    "opportunityArchived": "This vacancy is archived, so nobody new can be accepted.",
+    "opportunityAlreadyArchived": "This vacancy is already archived.",
+    "opportunityAtCapacity": "Every place is taken. Free a place before accepting someone else.",
+    "invalidOpportunityDates": "Those dates do not fit: applications must close before the start, and the end must come after it.",
+    "duplicateAttendanceApplication": "The same volunteer was chosen twice. Choose each volunteer once."
   },
   "dashboard": {
-    "title": "Dashboard",
-    "description": "Every figure below covers the whole product, not one coordinator.",
-    "eyebrow": "Overview",
+    "title": "Insights",
+    "description": "Figures for the whole product, drawn from real counts and never estimated.",
     "range": "{from} to {to}",
     "figures": {
       "vacancies": "Vacancies",
@@ -215,8 +234,8 @@
         "description": "Only the regions that have a vacancy are listed."
       },
       "stages": {
-        "title": "Vacancies by stage",
-        "description": "Draft, published and archived, as shares of every vacancy."
+        "title": "Vacancies by state",
+        "description": "Every vacancy by where it stands in approval."
       },
       "formats": {
         "title": "Vacancies by format",
@@ -229,13 +248,11 @@
         "label": "Attendance confirmed"
       },
       "of": "{value} of {total}",
-      "empty": "Nothing has been recorded in this range yet."
-    },
-    "next": {
-      "title": "What needs you next",
-      "review": "Review {count, plural, =0 {no applications} one {one application} other {# applications}}",
-      "attendance": "Confirm {count, plural, =0 {no attendance} one {one attendance record} other {# attendance records}}",
-      "empty": "Nothing is waiting on you."
+      "empty": "Nothing has been recorded in this range yet.",
+      "shares": {
+        "title": "Shares",
+        "description": "How many vacancies went live, and how many accepted volunteers have their attendance confirmed."
+      }
     },
     "coordinators": {
       "title": "Coordinators",
@@ -258,15 +275,8 @@
       "description": "Clear the filters to see every vacancy again."
     },
     "filters": {
-      "legend": "Filter vacancies",
       "search": "Search by title or address",
       "state": "State"
-    },
-    "stage": {
-      "all": "Every stage",
-      "draft": "Draft",
-      "published": "Published",
-      "archived": "Archived"
     },
     "state": {
       "all": "Every state",
@@ -280,33 +290,34 @@
     "table": {
       "caption": "Every vacancy",
       "title": "Vacancy",
-      "organization": "Organization",
       "state": "State",
       "deadline": "Applications close",
       "starts": "Starts",
-      "open": "Open",
-      "coordinator": "Coordinator"
+      "coordinator": "Coordinator",
+      "applications": "Applications",
+      "waiting": "{count} to decide"
     },
     "detail": {
-      "eyebrow": "Vacancy",
       "description": "Description",
       "requirements": "Requirements",
       "questions": "Application questions",
       "details": "Details",
       "applications": "Applications to this vacancy",
       "noApplications": "No one has applied yet.",
-      "questionsLegacy": "Kept from an older vacancy. A new vacancy asks nothing beyond the reusable profile."
+      "questionsLegacy": "Kept from an older vacancy. A new vacancy asks nothing beyond the reusable profile.",
+      "span": "{from} – {to}",
+      "noLimit": "No fixed limit",
+      "places": "{taken} of {capacity} taken",
+      "applicationsList": "Applications"
     },
     "fields": {
       "title": "Title",
-      "slug": "Address",
-      "slugHelp": "Lowercase letters, numbers and single hyphens. It becomes part of the public link.",
       "description": "Description",
       "organization": "Organization",
       "organizationHelp": "Only a verified organization can have its vacancies published.",
       "region": "Region",
       "format": "Format",
-      "city": "City",
+      "city": "City or district",
       "locationName": "Place",
       "startsAt": "Starts",
       "endsAt": "Ends",
@@ -325,21 +336,21 @@
       "essayRequiredNo": "Not required",
       "acceptanceModes": {
         "manual": "You review each application and accept or reject it.",
-        "automatic": "Everyone who applies is accepted at once, until the places run out."
+        "automatic": "Everyone who applies is accepted at once. A place limit applies only if you set one."
       },
       "locationNameHelp": "Optional. The venue or a public description of where the work happens online. Never a meeting password.",
-      "cityHelp": "Required when volunteers turn up in person."
+      "cityHelp": "Optional. The city or district volunteers travel to."
     },
     "form": {
       "createTitle": "New vacancy",
-      "createDescription": "A new vacancy starts as a draft. An administrator approves it before any volunteer sees it.",
+      "createDescription": "A new vacancy starts as a draft. Open it after creation to add a photo before sending it for approval.",
       "editTitle": "Edit vacancy",
       "submitCreate": "Create the draft",
       "submitUpdate": "Save changes",
       "pending": "Saving…",
       "created": "The draft was created.",
       "updated": "The changes were saved.",
-      "noOrganizations": "No organization is available yet, so a vacancy cannot be created. Ask an administrator to add one.",
+      "noOrganizations": "No organization exists yet, so a vacancy cannot be created. Add one first.",
       "sections": {
         "about": "The vacancy",
         "organization": "Organization",
@@ -349,47 +360,58 @@
       },
       "unverified": "not verified",
       "unverifiedNotice": "This organization is not verified yet. A vacancy under it cannot be approved until an administrator verifies it.",
-      "editDescription": "Changes stay a draft until the vacancy is sent for approval again."
+      "addOrganization": "Add an organization",
+      "backToVacancy": "Back to the vacancy",
+      "locked": "This vacancy is locked in its current state and can no longer be edited.",
+      "choose": "Choose…",
+      "sectionHelp": {
+        "about": "What volunteers will do, in words a sixteen-year-old understands.",
+        "organization": "Only a verified organization can have its vacancies approved.",
+        "place": "Where volunteers go, or how they take part online.",
+        "when": "Applications close before the start. Attendance opens when it ends.",
+        "volunteers": "Places, hours and how applications are accepted."
+      },
+      "editDescription": "Save changes to this vacancy. Changes to a published vacancy appear to volunteers immediately."
+    },
+    "image": {
+      "title": "Vacancy photo",
+      "description": "The photo appears on the volunteer vacancy card and detail page. JPEG, PNG or WebP, up to 2 MB.",
+      "choose": "Choose a photo",
+      "upload": "Upload photo",
+      "replace": "Replace photo",
+      "remove": "Remove photo",
+      "pending": "Saving…",
+      "saved": "The photo was saved.",
+      "removed": "The photo was removed.",
+      "noImage": "No photo yet",
+      "reviewNotice": "Changing a published vacancy hides it from volunteers until an administrator approves it again."
     },
     "archive": {
       "trigger": "Archive",
       "title": "Archive this vacancy?",
-      "description": "It stops accepting applications and disappears from the public list. This cannot be undone from here.",
+      "description": "It leaves the public list and stops taking applications. Accepted volunteers stay, and their attendance can still be recorded. This cannot be undone.",
       "confirm": "Archive",
       "pending": "Archiving…",
-      "success": "The vacancy was archived."
+      "success": "The vacancy was archived.",
+      "closes": "{count, plural, one {# application nobody decided will be closed, and the volunteer is told.} other {# applications nobody decided will be closed, and each volunteer is told.}} Accepted volunteers stay, and their attendance can still be recorded. This cannot be undone."
     },
     "archivedNotice": "This vacancy is archived. It can no longer be edited.",
-    "submit": {
-      "trigger": "Send for approval",
-      "title": "Send this vacancy for approval?",
-      "description": "An administrator decides whether it is published. You cannot edit it while it is under review.",
-      "confirm": "Send for approval",
-      "pending": "Sending…",
-      "success": "The vacancy was sent for approval."
-    },
     "publish": {
       "trigger": "Publish now",
-      "title": "Publish this vacancy?",
-      "description": "Volunteers will see it immediately and can apply until the deadline.",
       "confirm": "Publish now",
-      "pending": "Publishing…",
-      "success": "The vacancy was published."
+      "success": "The vacancy was published.",
+      "prompt": "Publish to volunteers now?"
     },
     "approval": {
       "title": "Approval",
-      "description": "An administrator decides whether this vacancy reaches volunteers.",
       "submitted": "Sent for approval",
       "decided": "Decided",
       "reviewer": "Decided by",
       "pendingTitle": "Review required",
-      "pendingDescription": "Approve and publish this vacancy, request changes, or reject it permanently.",
       "changesTitle": "Changes were requested",
-      "changesDescription": "Edit the vacancy and send it for approval again.",
       "rejectedTitle": "This vacancy was rejected",
       "rejectedDescription": "It stays read-only. Create a new vacancy instead.",
-      "missingTitle": "Not ready for approval",
-      "missingDescription": "Fill these in before sending it:",
+      "missingDescription": "Approval needs these first:",
       "requirements": {
         "organization": "a verified organization",
         "title": "a title",
@@ -403,60 +425,30 @@
         "estimatedTotalHours": "the estimated hours",
         "location": "where it happens"
       },
-      "readyTitle": "Ready for volunteers",
-      "readyBlocked": "This vacancy is not ready yet",
       "met": "Done",
       "unmet": "Still needed",
-      "readyLine": "Everything approval needs is in place."
-    },
-    "decide": {
+      "readyLine": "Everything approval needs is in place.",
       "note": "Note to the coordinator",
-      "noteHelp": "Required when you request changes or reject. The coordinator reads it on the vacancy.",
-      "queue": "Waiting for approval",
-      "queueEmpty": "No vacancy is waiting for approval.",
-      "noteRequiredHelp": "Required. The coordinator reads it on the vacancy.",
-      "approve": {
-        "trigger": "Approve and publish",
-        "title": "Approve and publish this vacancy?",
-        "description": "Volunteers will see it straight away and can start applying.",
-        "confirm": "Approve and publish",
-        "pending": "Publishing…",
-        "success": "The vacancy was approved and published."
-      },
-      "requestChanges": {
-        "trigger": "Request changes",
-        "title": "Send this vacancy back for changes?",
-        "description": "The coordinator can edit it and send it for approval again. Say what has to change.",
-        "confirm": "Request changes",
-        "pending": "Sending…",
-        "success": "The vacancy was sent back for changes."
-      },
-      "reject": {
-        "trigger": "Reject",
-        "title": "Reject this vacancy permanently?",
-        "description": "It becomes read-only for good — the coordinator cannot edit it or send it again. Say why.",
-        "confirm": "Reject permanently",
-        "pending": "Rejecting…",
-        "success": "The vacancy was rejected."
-      }
-    }
+      "draftTitle": "Publish directly"
+    },
+    "listTitle": "Every vacancy",
+    "countLabel": "vacancies",
+    "record": "Vacancy"
   },
   "applications": {
     "title": "Applications",
-    "description": "Every application in the product.",
+    "description": "Every application volunteers have sent.",
     "empty": {
       "title": "No applications yet",
-      "description": "Applications appear here once volunteers apply to your published vacancies."
+      "description": "Applications appear here once volunteers apply to published vacancies."
     },
     "noMatches": {
       "title": "Nothing matches those filters",
       "description": "Clear the filters to see every application again."
     },
     "filters": {
-      "legend": "Filter applications",
       "search": "Search by volunteer or vacancy",
-      "status": "Status",
-      "vacancy": "Vacancy"
+      "status": "Status"
     },
     "status": {
       "all": "Every status",
@@ -469,15 +461,13 @@
       "closed": "Closed"
     },
     "table": {
-      "caption": "Applications awaiting a decision",
+      "caption": "Applications",
       "volunteer": "Volunteer",
       "vacancy": "Vacancy",
       "status": "Status",
-      "submitted": "Submitted",
-      "open": "Open"
+      "submitted": "Submitted"
     },
     "detail": {
-      "eyebrow": "Application",
       "essay": "Application essay",
       "snapshot": "Profile as submitted",
       "snapshotNote": "This is the profile the volunteer submitted with the application, not their profile today.",
@@ -495,13 +485,7 @@
       "updatedAt": "Last change"
     },
     "review": {
-      "title": "Record a decision",
-      "decision": "Decision",
-      "note": "Note to the volunteer",
-      "noteHelp": "Optional. The volunteer can read this.",
-      "submit": "Record the decision",
-      "pending": "Recording…",
-      "success": "The decision was recorded.",
+      "title": "Decide this application",
       "final": {
         "draft": {
           "title": "Not sent yet",
@@ -519,7 +503,12 @@
           "title": "Closed",
           "description": "This decision is final. The volunteer sees it as “Closed”."
         }
-      }
+      },
+      "description": "Read the essay and the profile below, then decide. The volunteer is told straight away.",
+      "acceptedTitle": "Accepted",
+      "acceptedDescription": "You can still reverse this until the volunteer's attendance is recorded.",
+      "recordedTitle": "Attendance is recorded",
+      "recordedDescription": "This acceptance can no longer be reversed. Correct the outcome in the vacancy's roll call instead."
     },
     "snapshotFields": {
       "username": "Username",
@@ -535,7 +524,19 @@
       "instagram": "Instagram",
       "linkedin": "LinkedIn",
       "links": "Portfolio"
-    }
+    },
+    "record": "Application",
+    "countLabel": "applications",
+    "views": {
+      "waiting": "To decide",
+      "accepted": "Accepted",
+      "rejected": "Not selected",
+      "withdrawn": "Withdrawn",
+      "closed": "Closed",
+      "all": "All"
+    },
+    "sentOn": "Sent {when}",
+    "listTitle": "Every application"
   },
   "users": {
     "title": "Volunteers",
@@ -549,7 +550,6 @@
       "description": "Clear the search to see everyone again."
     },
     "filters": {
-      "legend": "Search volunteers",
       "search": "Search by name or email"
     },
     "table": {
@@ -557,30 +557,27 @@
       "name": "Volunteer",
       "email": "Email",
       "applications": "Applications",
-      "attendance": "Attendance",
       "passwordLogin": "Password sign-in",
       "joined": "Joined",
-      "open": "Open",
       "passwordChangedAt": "Password last changed",
-      "passwordChangeRequired": "Must change at next sign-in"
+      "accepted": "Accepted"
     },
     "detail": {
-      "eyebrow": "Volunteer",
       "account": "Account",
       "applications": "Applications",
-      "noApplications": "This volunteer has no application to your vacancies.",
-      "profile": "Profile as submitted",
+      "noApplications": "This volunteer has not sent an application yet.",
       "currentProfile": "Profile",
       "currentProfileNote": "Their profile today. Each application keeps the profile as it was when it was sent.",
       "profileComplete": "Profile complete",
       "profileIncomplete": "Profile incomplete",
       "missing": "Still missing before they can apply: {fields}.",
-      "noProfile": "This volunteer has not filled in a profile yet."
+      "noProfile": "This volunteer has not filled in a profile yet.",
+      "completeness": "Profile completeness",
+      "openVacancy": "Open the vacancy"
     },
     "passwordState": {
       "none": "No password sign-in",
       "set": "Password set",
-      "changedAt": "Last changed {when}",
       "neverChanged": "Never changed",
       "required": "Must change at next sign-in"
     },
@@ -590,26 +587,36 @@
       "privacy": "An existing password can never be read, by anyone, here or in the API. Assigning a replacement is the only option.",
       "label": "Temporary password",
       "help": "At least 8 characters. Tell it to the volunteer over a channel you trust.",
-      "trigger": "Assign a temporary password",
       "confirm": "Assign it",
       "pending": "Assigning…",
       "success": "The temporary password was assigned."
+    },
+    "listTitle": "Every volunteer",
+    "found": "Matching volunteers",
+    "countLabel": "volunteers",
+    "record": "Volunteer",
+    "noEmail": "No email",
+    "joinedOn": "Joined {when}",
+    "figures": {
+      "sent": "Applications",
+      "accepted": "Accepted",
+      "attended": "Events attended",
+      "hours": "Confirmed hours",
+      "awaiting": "Awaiting roll call"
     }
   },
   "attendance": {
     "title": "Attendance",
-    "description": "Confirm attendance and hours for any accepted volunteer.",
+    "description": "Record who turned up once each event ends. Volunteers earn their hours and XP only from recorded attendance.",
     "empty": {
-      "title": "Nothing to confirm",
-      "description": "Accepted applications appear here when their attendance is still open."
+      "title": "No roll call is due",
+      "description": "When an event with accepted volunteers ends, its roll call appears here."
     },
     "table": {
-      "caption": "Accepted volunteers awaiting an attendance decision",
       "volunteer": "Volunteer",
-      "vacancy": "Vacancy",
       "outcome": "Outcome",
       "hours": "Hours",
-      "when": "Event"
+      "resolved": "Recorded"
     },
     "outcome": {
       "attended": "Attended",
@@ -619,9 +626,6 @@
       "unknown": "Not published by the API"
     },
     "resolve": {
-      "trigger": "Confirm",
-      "title": "Confirm attendance",
-      "description": "This decision counts towards the volunteer's record, so it cannot be undone from here.",
       "outcome": "Outcome",
       "hours": "Confirmed hours",
       "hoursHelp": "Required when the volunteer attended.",
@@ -631,12 +635,15 @@
     },
     "resolved": "Resolved {when}",
     "queue": {
-      "total": "{count, plural, =0 {Nothing is waiting} one {# volunteer is waiting} other {# volunteers are waiting}}",
       "waiting": "{count, plural, one {# volunteer to confirm} other {# volunteers to confirm}}",
       "opensAt": "Opens {when}, once the event has ended.",
       "opensUnknown": "Opens once the event has ended.",
-      "open": "Open the vacancy",
-      "resolvedCount": "{count, plural, one {# volunteer already confirmed} other {# volunteers already confirmed}}"
+      "resolvedCount": "{count, plural, one {# volunteer already confirmed} other {# volunteers already confirmed}}",
+      "take": "Take roll call",
+      "view": "Open",
+      "ended": "Ended {when}",
+      "accepted": "{count, plural, one {# volunteer accepted} other {# volunteers accepted}}",
+      "number": "Number"
     },
     "roster": {
       "title": "Attendance",
@@ -656,7 +663,20 @@
       "success": "Attendance was confirmed.",
       "outcome": "Outcome for everyone selected",
       "hours": "Hours for everyone selected",
-      "hoursHelp": "Starts at the vacancy's estimated hours. Change it if the event ran shorter or longer."
+      "hoursHelp": "Starts at the vacancy's estimated hours. Change it if the event ran shorter or longer.",
+      "countLabel": "accepted volunteers"
+    },
+    "record": "Attendance",
+    "hoursLine": "Hours: {hours}",
+    "sections": {
+      "due": "Roll calls due",
+      "dueLabel": "due",
+      "dueDescription": "Events that have ended with volunteers still unrecorded.",
+      "upcoming": "Coming up",
+      "upcomingLabel": "upcoming",
+      "upcomingDescription": "Each roll call opens when its event ends.",
+      "recorded": "Recorded",
+      "recordedLabel": "recorded"
     }
   },
   "activity": {
@@ -671,16 +691,13 @@
       "description": "Clear the filters to see the whole history again."
     },
     "filters": {
-      "legend": "Filter activity",
-      "search": "Search the history",
       "action": "Action"
     },
     "table": {
-      "caption": "Your recorded actions",
-      "action": "Action",
-      "entity": "Record",
-      "when": "When"
-    }
+      "caption": "Your recorded actions"
+    },
+    "everything": "See it in the audit log",
+    "listTitle": "My actions"
   },
   "account": {
     "title": "Change password",
@@ -703,7 +720,6 @@
     "description": "Create coordinators, and block, unblock or remove the ones that exist.",
     "new": "New coordinator",
     "summary": "Coordinator accounts",
-    "summaryDescription": "Every coordinator across the product, by state — not only this page.",
     "empty": {
       "title": "No coordinators yet",
       "description": "Create the first coordinator to start delegating vacancies."
@@ -713,7 +729,6 @@
       "description": "Clear the filters to see everyone again."
     },
     "filters": {
-      "legend": "Filter coordinators",
       "search": "Search by name or email",
       "status": "Status"
     },
@@ -730,16 +745,16 @@
       "status": "Status",
       "vacancies": "Vacancies",
       "passwordLogin": "Password sign-in",
-      "created": "Created",
-      "open": "Open"
+      "created": "Created"
     },
     "detail": {
-      "eyebrow": "Coordinator",
       "account": "Account",
       "vacancies": "Vacancies they own",
       "noVacancies": "This coordinator owns no vacancies.",
       "activity": "Their recorded actions",
-      "noActivity": "This coordinator has done nothing yet."
+      "noActivity": "This coordinator has done nothing yet.",
+      "activityLabel": "actions",
+      "openVacancies": "{count, plural, one {# open vacancy must be handed over before removal.} other {# open vacancies must be handed over before removal.}}"
     },
     "create": {
       "title": "New coordinator",
@@ -786,12 +801,15 @@
       "privacy": "An existing password can never be read, by anyone, here or in the API. Assigning a replacement is the only option.",
       "label": "Temporary password",
       "help": "At least 8 characters. Tell it to the coordinator over a channel you trust.",
-      "trigger": "Assign a temporary password",
       "confirm": "Assign it",
       "pending": "Assigning…",
       "success": "The temporary password was assigned."
     },
-    "adminNotice": "Administrators cannot be created, listed or reset here. That is deliberate: there is no web interface for it anywhere in this product."
+    "adminNotice": "Administrators cannot be created, listed or reset here. That is deliberate: there is no web interface for it anywhere in this product.",
+    "record": "Coordinator",
+    "countLabel": "coordinators",
+    "createdOn": "Created {when}",
+    "blockedNotice": "This coordinator is blocked and cannot sign in. Their vacancies stay as they are."
   },
   "organizations": {
     "title": "Organizations",
@@ -806,7 +824,6 @@
       "description": "Clear the filters to see every organization again."
     },
     "filters": {
-      "legend": "Filter organizations",
       "search": "Search by name or address",
       "verified": "Verification"
     },
@@ -818,18 +835,19 @@
     "table": {
       "caption": "Organizations",
       "name": "Organization",
-      "slug": "Address",
       "verified": "Verified",
-      "edit": "Edit"
+      "edit": "Edit",
+      "vacancies": "Vacancies",
+      "held": "{count} held back"
     },
     "fields": {
       "name": "Name",
       "slug": "Address",
-      "slugHelp": "Lowercase letters, numbers and single hyphens. It cannot be changed later.",
+      "slugHelp": "Optional. Leave it empty to derive it from the name. Lowercase letters, numbers and single hyphens; it cannot be changed later.",
       "logoUrl": "Logo URL",
       "logoUrlHelp": "Optional. A full https:// address.",
       "verified": "Verified",
-      "verifiedHelp": "Only a verified organization can have its vacancies published."
+      "verifiedHelp": "Only a verified organization can have its vacancies approved. Removing verification later does not unpublish vacancies that are already live."
     },
     "create": {
       "title": "New organization",
@@ -844,7 +862,9 @@
       "pending": "Saving…",
       "success": "The changes were saved.",
       "description": "The address cannot be changed. Verification decides whether vacancies under this organization can be approved."
-    }
+    },
+    "listTitle": "Every organization",
+    "countLabel": "organizations"
   },
   "audit": {
     "title": "Audit history",
@@ -861,9 +881,11 @@
       "legend": "Filter the audit history",
       "search": "Search the history",
       "action": "Action",
-      "actor": "Coordinator",
+      "actor": "Who",
       "from": "From",
-      "to": "To"
+      "to": "To",
+      "anyone": "Anyone",
+      "everything": "Every action"
     },
     "table": {
       "caption": "Recorded actions",
@@ -872,7 +894,61 @@
       "actor": "Who",
       "when": "When"
     },
-    "unknownActor": "Not recorded"
+    "unknownActor": "Not recorded",
+    "listTitle": "Every recorded action",
+    "filteredTitle": "Matching actions",
+    "countLabel": "actions",
+    "you": "You",
+    "someone": "Another account",
+    "families": {
+      "opportunity": "Vacancies",
+      "application": "Applications",
+      "attendance": "Attendance",
+      "coordinator": "Coordinators",
+      "organization": "Organizations",
+      "user": "Accounts"
+    },
+    "subjects": {
+      "vacancy": "Vacancy",
+      "application": "Application",
+      "coordinator": "Coordinator",
+      "volunteer": "Volunteer",
+      "organization": "Organization",
+      "attendance": "Attendance record",
+      "account": "Account"
+    },
+    "details": {
+      "closedByArchive": "Closed when the vacancy was archived",
+      "automatic": "Accepted automatically",
+      "reassigned": "Vacancies handed over"
+    },
+    "actions": {
+      "application_submitted": "Application sent",
+      "application_under_review": "Application marked under review",
+      "application_accepted": "Application accepted",
+      "application_rejected": "Application not selected",
+      "application_closed": "Application closed",
+      "application_withdrawn": "Application withdrawn",
+      "attendance_resolved": "Attendance recorded",
+      "coordinator_created": "Coordinator created",
+      "coordinator_blocked": "Coordinator blocked",
+      "coordinator_active": "Coordinator unblocked",
+      "coordinator_removed": "Coordinator removed",
+      "opportunity_created": "Vacancy created",
+      "opportunity_updated": "Vacancy edited",
+      "opportunity_submitted_for_approval": "Vacancy sent for approval",
+      "opportunity_approved": "Vacancy approved and published",
+      "opportunity_published": "Vacancy published directly",
+      "opportunity_changes_requested": "Vacancy returned for changes",
+      "opportunity_rejected": "Vacancy rejected",
+      "opportunity_archived": "Vacancy archived",
+      "organization_created": "Organization added",
+      "organization_updated": "Organization updated",
+      "user_password_replaced": "Temporary password assigned",
+      "user_username_changed": "Username changed",
+      "user_avatar_updated": "Photo updated",
+      "user_avatar_removed": "Photo removed"
+    }
   },
   "vocabulary": {
     "regions": {
@@ -899,6 +975,149 @@
     "acceptanceModes": {
       "manual": "Manually",
       "automatic": "Automatically"
+    }
+  },
+  "seal": {
+    "issuer": "Volontyorlar",
+    "approved": "Approved",
+    "accepted": "Accepted",
+    "returned": "Returned",
+    "rejected": "Rejected",
+    "closed": "Closed",
+    "recorded": "Recorded",
+    "clear": "All clear",
+    "label": "{word} on {date}"
+  },
+  "decisions": {
+    "group": "Decision",
+    "cancel": "Cancel",
+    "pending": "Saving…",
+    "vacancy": {
+      "approve": {
+        "trigger": "Approve",
+        "prompt": "Publish to volunteers now?",
+        "confirm": "Approve and publish",
+        "success": "“{title}” is approved and published."
+      },
+      "return": {
+        "trigger": "Return",
+        "note": "What has to change",
+        "help": "Required. The coordinator reads it on the vacancy and can send it again.",
+        "confirm": "Return for changes",
+        "success": "“{title}” was returned for changes."
+      },
+      "reject": {
+        "trigger": "Reject",
+        "note": "Why it is rejected",
+        "help": "Required. Rejection is permanent: the coordinator reads this and cannot send the vacancy again.",
+        "confirm": "Reject permanently",
+        "success": "“{title}” was rejected."
+      }
+    },
+    "application": {
+      "accept": {
+        "trigger": "Accept",
+        "prompt": "Accept {name}?",
+        "confirm": "Accept",
+        "success": "{name} was accepted."
+      },
+      "reject": {
+        "trigger": "Reject",
+        "confirm": "Reject",
+        "success": "{name} was not selected."
+      },
+      "look": {
+        "trigger": "Mark under review",
+        "success": "{name} is marked under review."
+      },
+      "note": "Note to the volunteer",
+      "noteHelp": "Optional. The volunteer reads it with the decision."
+    },
+    "organization": {
+      "verify": {
+        "trigger": "Verify",
+        "prompt": "Verify {name}?",
+        "confirm": "Verify",
+        "success": "{name} is verified. Its vacancies can now be approved."
+      }
+    }
+  },
+  "today": {
+    "title": "Today",
+    "dateline": "{date} · {count, plural, =0 {nothing waits on you} one {# thing waits on you} other {# things wait on you}}",
+    "listTitle": "Waiting on you",
+    "waitingLabel": "waiting",
+    "number": "Number",
+    "approve": {
+      "title": "Vacancies to approve",
+      "countLabel": "vacancies waiting for approval",
+      "sent": "Sent {when}",
+      "ready": "Ready to publish",
+      "needs": "Needs {items}"
+    },
+    "requirements": {
+      "organization": "a verified organization",
+      "title": "a title",
+      "description": "a description",
+      "format": "a format",
+      "region": "a region",
+      "startsAt": "a start",
+      "applicationDeadline": "a future deadline before the start"
+    },
+    "blocked": {
+      "title": "Organizations holding vacancies back",
+      "countLabel": "organizations to verify",
+      "meta": "{count, plural, one {Holds back # vacancy: {titles}} other {Holds back # vacancies: {titles}}}",
+      "state": "Not verified"
+    },
+    "decide": {
+      "title": "Applications to decide",
+      "countLabel": "applications waiting for a decision",
+      "all": "Every application",
+      "sent": "Sent {when}",
+      "essay": "Essay attached",
+      "looking": "Under review",
+      "incomplete": "Profile incomplete today",
+      "unnamed": "Unnamed volunteer"
+    },
+    "rollCalls": {
+      "title": "Roll calls due",
+      "countLabel": "roll calls due",
+      "ended": "Ended {when}",
+      "waiting": "{count, plural, one {# volunteer to record} other {# volunteers to record}}",
+      "resolved": "{count, plural, one {# already recorded} other {# already recorded}}",
+      "open": "Take roll call"
+    },
+    "clear": {
+      "title": "Nothing waits on you",
+      "description": "New vacancies, applications and roll calls appear here as they arrive."
+    },
+    "cleared": {
+      "title": "Cleared today",
+      "countLabel": "decisions today",
+      "vacancy": {
+        "approved": "Approved and published",
+        "changes_requested": "Returned for changes",
+        "rejected": "Rejected"
+      },
+      "application": "{decision} · {vacancy}",
+      "decision": {
+        "accepted": "Accepted",
+        "rejected": "Not selected",
+        "closed": "Closed"
+      },
+      "rollCall": "Roll call recorded: {attended} attended, {other} excused or cancelled"
+    },
+    "operation": {
+      "title": "The operation",
+      "insights": "Open insights",
+      "line": {
+        "volunteers": "{count, plural, one {<n>#</n> volunteer} other {<n>#</n> volunteers}}",
+        "live": "{count, plural, one {<n>#</n> live vacancy} other {<n>#</n> live vacancies}}",
+        "applications": "{count, plural, one {<n>#</n> application sent} other {<n>#</n> applications sent}}",
+        "attended": "{count, plural, one {<n>#</n> event attended} other {<n>#</n> events attended}}",
+        "hours": "{count, plural, one {<n>#</n> hour confirmed} other {<n>#</n> hours confirmed}}"
+      }
     }
   }
 }

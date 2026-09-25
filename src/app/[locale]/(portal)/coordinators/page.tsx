@@ -1,20 +1,19 @@
+import { ShieldCheck, UserPlus } from "lucide-react";
 import { getFormatter, getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
 
-import { ShieldCheck } from "lucide-react";
-
-import { StackedBar } from "@/components/charts/stacked-bar";
-import { FilterForm, FilterSelect } from "@/components/forms/filter-form";
 import { Avatar } from "@/components/portal/avatar";
-import { Panel } from "@/components/portal/panel";
-import { StatusBadge, coordinatorStatusTone } from "@/components/portal/status-badge";
-import { EmptyState } from "@/components/states/empty-state";
+import { StatusBadge, coordinatorStatus } from "@/components/portal/status-badge";
+import {
+  Register,
+  RegisterNote,
+  RegisterSearch,
+  RegisterTabs,
+} from "@/components/register/register";
 import { LoadFailure } from "@/components/states/load-failure";
 import { PageHeader } from "@/components/states/page-header";
 import { Pagination } from "@/components/states/pagination";
-import { StatePanel } from "@/components/states/state-panel";
 import { buttonClass } from "@/components/ui/button";
-import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import {
   Table,
   TableBody,
@@ -27,27 +26,21 @@ import {
 import { Link } from "@/i18n/navigation";
 import { failureOf, isReady } from "@/lib/api/load";
 import { loadCoordinators } from "@/lib/coordinators/data.server";
-import { byStatus, statusOf } from "@/lib/coordinators/status";
+import { byStatus, countByStatus, statusOf } from "@/lib/coordinators/status";
 import { COORDINATOR_STATUSES } from "@/lib/domain/vocabulary";
 import { coordinatorHref, navHref } from "@/lib/routing/routes";
 import {
   DEFAULT_PAGE_SIZE,
+  MAX_PAGE_SIZE,
   hrefWith,
+  paginate,
   readOption,
   readPage,
   readParam,
 } from "@/lib/routing/search-params";
-import { coordinatorSplit } from "@/lib/statistics/charts";
-import { loadStatistics } from "@/lib/statistics/data.server";
 import { passwordLoginState } from "@/lib/users/password-state";
 
 export const dynamic = "force-dynamic";
-
-const COORDINATOR_TONE = {
-  active: "strong",
-  blocked: "mid",
-  removed: "soft",
-} as const;
 
 export async function generateMetadata({
   params,
@@ -64,24 +57,42 @@ export default async function CoordinatorsPage({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const t = await getTranslations("coordinators");
-  const users = await getTranslations("users");
-  const common = await getTranslations("common");
-  const format = await getFormatter();
+  const [t, users, common, format] = await Promise.all([
+    getTranslations("coordinators"),
+    getTranslations("users"),
+    getTranslations("common"),
+    getFormatter(),
+  ]);
 
   const query = await searchParams;
   const q = readParam(query, "q");
   const status = readOption(query, "status", COORDINATOR_STATUSES);
   const page = readPage(query);
 
-  const [loaded, statistics] = await Promise.all([
-    loadCoordinators({ q, page, pageSize: DEFAULT_PAGE_SIZE }),
-    loadStatistics(),
-  ]);
+  const loaded = await loadCoordinators({ q, page: 1, pageSize: MAX_PAGE_SIZE });
   const failure = failureOf(loaded);
-  const rows = isReady(loaded) ? byStatus(loaded.data.items, status) : [];
-  const split = isReady(statistics) ? coordinatorSplit(statistics.data.totals) : null;
+  const all = isReady(loaded) ? loaded.data.items : [];
+  const counts = countByStatus(all);
+  const rows = byStatus(all, status);
+  const pageState = paginate(rows, page, DEFAULT_PAGE_SIZE);
   const listPath = navHref("coordinators");
+
+  const tabs = [
+    {
+      key: "all",
+      label: t("status.all"),
+      href: hrefWith(listPath, { q }),
+      count: all.length,
+      active: status === undefined,
+    },
+    ...COORDINATOR_STATUSES.map((value) => ({
+      key: value,
+      label: t(`status.${value}`),
+      href: hrefWith(listPath, { q, status: value }),
+      count: counts[value],
+      active: status === value,
+    })),
+  ];
 
   return (
     <>
@@ -93,149 +104,119 @@ export default async function CoordinatorsPage({
             href={navHref("newCoordinator")}
             className={buttonClass({ size: "sm" })}
           >
+            <UserPlus aria-hidden="true" />
             {t("new")}
           </Link>
         }
       />
 
-      <StatePanel
-        role="status"
-        icon={<ShieldCheck aria-hidden="true" className="size-5" />}
-        title={t("adminNotice")}
-      />
-
       {failure ? <LoadFailure failure={failure} /> : null}
 
-      {split ? (
-        <Panel title={t("summary")} description={t("summaryDescription")}>
-          <StackedBar
-            segments={split.map((segment) => ({
-              key: segment.key,
-              label: t(`status.${segment.key}`),
-              value: format.number(segment.value),
-              share: segment.share,
-              tone: COORDINATOR_TONE[segment.key],
-            }))}
-          />
-        </Panel>
-      ) : null}
-
       {isReady(loaded) ? (
-        <>
-          <FilterForm
-            action={`/${locale}${listPath}`}
-            legend={t("filters.legend")}
-            searchLabel={t("filters.search")}
-            searchValue={q}
-            resetHref={listPath}
-          >
-            <FilterSelect id="filter-status" label={t("filters.status")}>
-              <NativeSelect
-                id="filter-status"
-                name="status"
-                defaultValue={status ?? ""}
-              >
-                <NativeSelectOption value="">{t("status.all")}</NativeSelectOption>
-                {COORDINATOR_STATUSES.map((value) => (
-                  <NativeSelectOption key={value} value={value}>
-                    {t(`status.${value}`)}
-                  </NativeSelectOption>
-                ))}
-              </NativeSelect>
-            </FilterSelect>
-          </FilterForm>
-
-          {rows.length === 0 ? (
-            <EmptyState
-              title={
-                loaded.data.items.length === 0 ? t("empty.title") : t("noMatches.title")
-              }
+        <Register
+          title={t("summary")}
+          count={rows.length}
+          countLabel={t("countLabel")}
+          description={
+            <span className="flex items-start gap-2">
+              <ShieldCheck
+                aria-hidden="true"
+                className="mt-0.5 size-4 shrink-0 text-primary-ink"
+              />
+              {t("adminNotice")}
+            </span>
+          }
+          toolbar={
+            <div className="flex w-full flex-col gap-3">
+              <RegisterTabs label={t("filters.status")} items={tabs} />
+              <RegisterSearch
+                action={`/${locale}${listPath}`}
+                label={t("filters.search")}
+                submitLabel={common("search")}
+                value={q}
+                keep={{ status }}
+              />
+            </div>
+          }
+        >
+          {pageState.items.length === 0 ? (
+            <RegisterNote
+              title={all.length === 0 && !q ? t("empty.title") : t("noMatches.title")}
               description={
-                loaded.data.items.length === 0
+                all.length === 0 && !q
                   ? t("empty.description")
                   : t("noMatches.description")
               }
             />
           ) : (
             <>
-              <div className="rounded-xl border border-border/70 panel-surface">
-                <Table>
-                  <TableCaption className="sr-only">{t("table.caption")}</TableCaption>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead scope="col">{t("table.name")}</TableHead>
-                      <TableHead scope="col">{t("table.status")}</TableHead>
-                      <TableHead scope="col">{t("table.vacancies")}</TableHead>
-                      <TableHead scope="col">{t("table.passwordLogin")}</TableHead>
-                      <TableHead scope="col">
-                        <span className="sr-only">{common("actions")}</span>
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {rows.map((coordinator) => {
-                      const state = statusOf(coordinator);
-                      const password = passwordLoginState(coordinator);
-
-                      return (
-                        <TableRow key={coordinator.id}>
-                          <TableCell>
-                            <div className="flex items-center gap-3">
-                              <Avatar name={coordinator.displayName} />
-                              <div className="min-w-0">
-                                <p className="font-medium text-ink">
-                                  {coordinator.displayName ?? common("notSet")}
-                                </p>
-                                <p className="text-xs text-ink-muted">
-                                  {coordinator.email ?? common("notSet")}
-                                </p>
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <StatusBadge
-                              label={t(`status.${state}`)}
-                              tone={coordinatorStatusTone(state)}
-                            />
-                          </TableCell>
-                          <TableCell className="tabular">
-                            {format.number(
-                              coordinator._count?.createdOpportunities ?? 0,
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {password.kind === "none"
-                              ? users("passwordState.none")
-                              : password.changeRequired
-                                ? users("passwordState.required")
-                                : users("passwordState.set")}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <Link
-                              href={coordinatorHref(coordinator.id)}
-                              className={buttonClass({ variant: "ghost", size: "sm" })}
-                            >
-                              {t("table.open")}
-                              <span className="sr-only">
-                                {" "}
-                                — {coordinator.displayName}
+              <Table>
+                <TableCaption className="sr-only">{t("table.caption")}</TableCaption>
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead scope="col">{t("table.name")}</TableHead>
+                    <TableHead scope="col">{t("table.status")}</TableHead>
+                    <TableHead scope="col">{t("table.vacancies")}</TableHead>
+                    <TableHead scope="col">{t("table.passwordLogin")}</TableHead>
+                    <TableHead scope="col">{t("table.created")}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {pageState.items.map((coordinator) => {
+                    const state = statusOf(coordinator);
+                    const chip = coordinatorStatus(state);
+                    const password = passwordLoginState(coordinator);
+                    return (
+                      <TableRow key={coordinator.id}>
+                        <TableCell>
+                          <span className="flex min-w-[14rem] items-center gap-3">
+                            <Avatar name={coordinator.displayName} size="sm" />
+                            <span className="min-w-0">
+                              <Link
+                                href={coordinatorHref(coordinator.id)}
+                                className="block font-semibold text-ink hover:text-primary-ink hover:underline"
+                              >
+                                {coordinator.displayName ?? common("notSet")}
+                              </Link>
+                              <span className="block truncate text-xs text-ink-muted">
+                                {coordinator.email ?? common("notSet")}
                               </span>
-                            </Link>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </div>
-
+                            </span>
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <StatusBadge
+                            label={t(`status.${state}`)}
+                            tone={chip.tone}
+                            icon={chip.icon}
+                          />
+                        </TableCell>
+                        <TableCell className="tabular">
+                          {format.number(coordinator._count?.createdOpportunities ?? 0)}
+                        </TableCell>
+                        <TableCell className="text-ink-muted">
+                          {password.kind === "none"
+                            ? users("passwordState.none")
+                            : password.changeRequired
+                              ? users("passwordState.required")
+                              : users("passwordState.set")}
+                        </TableCell>
+                        <TableCell className="tabular whitespace-nowrap text-ink-muted">
+                          {format.dateTime(new Date(coordinator.createdAt), "day")}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
               <Pagination
-                state={loaded.data}
+                framed
+                state={pageState}
                 hrefFor={(next) => hrefWith(listPath, { q, status, page: next })}
               />
             </>
           )}
-        </>
+        </Register>
       ) : null}
     </>
   );

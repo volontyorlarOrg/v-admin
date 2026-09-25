@@ -17,7 +17,7 @@ export async function reviewApplicationAction(
   const note = stringField(formData, "reviewerNote").trim();
   const parsed = reviewSchema.safeParse({
     status: stringField(formData, "status"),
-    ...(note ? { reviewerNote: note } : {}),
+    ...(formData.has("reviewerNote") ? { reviewerNote: note } : {}),
   });
 
   if (!parsed.success) {
