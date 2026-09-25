@@ -50,7 +50,9 @@ ignored `.env.local` for a standalone setup or fixture work.
   unblock, soft-remove with reassignment of active vacancies; assign a
   replacement temporary password.
 - **Vacancies, applications, attendance, volunteers** — the same operational
-  screens as `v-staff`, without the ownership scope.
+  screens as `v-staff`, without the ownership scope. On a volunteer's record an
+  administrator can also add or take away XP and hours, with a reason that is
+  kept in the record's adjustment history and the audit.
 - **Organizations** — create and edit, and mark verified so vacancies under them
   can be published.
 - **Audit** — filtered by coordinator and by action, paginated.

@@ -255,6 +255,28 @@ export const directoryUserSchema = z.object({
 
 export type DirectoryUser = z.infer<typeof directoryUserSchema>;
 
+export const progressAdjustmentRecordSchema = z.object({
+  id,
+  xpDelta: z.number().int(),
+  hoursDelta: z.number(),
+  reason: z.string(),
+  createdAt: isoDate,
+  createdBy: optional(z.object({ id, displayName: optional(z.string()) })),
+});
+
+export type ProgressAdjustmentRecord = z.infer<typeof progressAdjustmentRecordSchema>;
+
+export const volunteerProgressSchema = z.object({
+  xp: z.number().int(),
+  hours: z.number(),
+  attendedHours: z.number().default(0),
+  xpAdjustment: z.number().int().default(0),
+  hoursAdjustment: z.number().default(0),
+  adjustments: z.array(progressAdjustmentRecordSchema).default([]),
+});
+
+export type VolunteerProgress = z.infer<typeof volunteerProgressSchema>;
+
 export const userDetailSchema = z.object({
   id,
   displayName: optional(z.string()),
@@ -268,6 +290,7 @@ export const userDetailSchema = z.object({
   profileCompletion: optional(profileCompletionSchema),
   passwordCredential: optional(passwordStateSchema),
   applications: z.array(applicationSchema).default([]).transform(sentOnly),
+  progress: optional(volunteerProgressSchema),
 });
 
 export type UserDetail = z.infer<typeof userDetailSchema>;
