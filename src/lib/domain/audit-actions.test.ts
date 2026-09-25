@@ -1,11 +1,30 @@
 import { describe, expect, it } from "vitest";
 
-import { AUDIT_ACTIONS, auditActionOptions } from "@/lib/domain/audit-actions";
+import {
+  AUDIT_ACTIONS,
+  auditActionKey,
+  auditActionOptions,
+  isKnownAuditAction,
+} from "@/lib/domain/audit-actions";
 
 describe("the audit action vocabulary", () => {
-  it("mirrors what the backend records, sorted and unique", () => {
-    expect([...AUDIT_ACTIONS].sort()).toEqual([...AUDIT_ACTIONS]);
+  it("names every action once", () => {
     expect(new Set(AUDIT_ACTIONS).size).toBe(AUDIT_ACTIONS.length);
+  });
+
+  it("uses the strings the backend records, including the decisions it writes per status", () => {
+    for (const action of [
+      "application.accepted",
+      "application.closed",
+      "opportunity.approved",
+      "opportunity.changes_requested",
+      "opportunity.submitted_for_approval",
+      "coordinator.active",
+      "organization.updated",
+    ]) {
+      expect(isKnownAuditAction(action), action).toBe(true);
+    }
+    expect(isKnownAuditAction("application.reviewed")).toBe(false);
   });
 
   it("covers every family of action the portals can cause", () => {
@@ -14,6 +33,7 @@ describe("the audit action vocabulary", () => {
       "application.",
       "attendance.",
       "coordinator.",
+      "organization.",
       "user.",
     ]) {
       expect(
@@ -21,6 +41,10 @@ describe("the audit action vocabulary", () => {
         prefix,
       ).toBe(true);
     }
+  });
+
+  it("turns an action into a catalog key without dots", () => {
+    expect(auditActionKey("user.password.replaced")).toBe("user_password_replaced");
   });
 });
 

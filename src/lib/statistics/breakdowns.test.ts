@@ -5,27 +5,40 @@ import {
   submissionTrend,
   vacancyFormats,
   vacancyRegions,
-  vacancyStages,
+  vacancyStates,
 } from "@/lib/statistics/breakdowns";
 
-describe("vacancyStages", () => {
-  it("splits draft, published and archived as shares of every vacancy", () => {
+describe("vacancyStates", () => {
+  it("counts every approval state, archived first, scaled against the commonest", () => {
     expect(
-      vacancyStages([
-        {},
-        { publishedAt: "2026-01-01T00:00:00Z" },
-        { publishedAt: "2026-01-01T00:00:00Z" },
-        { publishedAt: "2026-01-01T00:00:00Z", archivedAt: "2026-02-01T00:00:00Z" },
+      vacancyStates([
+        { approvalStatus: "draft" },
+        { approvalStatus: "pending_review" },
+        { approvalStatus: "pending_review" },
+        { approvalStatus: "approved", publishedAt: "2026-01-01T00:00:00Z" },
+        {
+          approvalStatus: "approved",
+          publishedAt: "2026-01-01T00:00:00Z",
+          archivedAt: "2026-02-01T00:00:00Z",
+        },
       ]),
     ).toEqual([
-      { key: "draft", value: 1, share: 0.25 },
-      { key: "published", value: 2, share: 0.5 },
-      { key: "archived", value: 1, share: 0.25 },
+      { key: "draft", value: 1, share: 0.5 },
+      { key: "pending_review", value: 2, share: 1 },
+      { key: "approved", value: 1, share: 0.5 },
+      { key: "archived", value: 1, share: 0.5 },
+    ]);
+  });
+
+  it("reads a record written before the workflow by its publication", () => {
+    expect(vacancyStates([{}, { publishedAt: "2026-01-01T00:00:00Z" }])).toEqual([
+      { key: "draft", value: 1, share: 1 },
+      { key: "approved", value: 1, share: 1 },
     ]);
   });
 
   it("charts nothing when there are no vacancies", () => {
-    expect(vacancyStages([])).toEqual([]);
+    expect(vacancyStates([])).toEqual([]);
   });
 });
 

@@ -5,6 +5,7 @@ import { CoordinatorForm } from "@/components/coordinators/coordinator-form";
 import { Panel } from "@/components/portal/panel";
 import { PageHeader } from "@/components/states/page-header";
 import { StatePanel } from "@/components/states/state-panel";
+import { navHref } from "@/lib/routing/routes";
 import { errorCatalog } from "@/lib/vacancies/labels.server";
 
 export const dynamic = "force-dynamic";
@@ -30,12 +31,12 @@ export default async function NewCoordinatorPage({
   return (
     <>
       <PageHeader
-        eyebrow={t("detail.eyebrow")}
+        back={{ href: navHref("coordinators"), label: t("title") }}
         title={t("create.title")}
         description={t("create.description")}
       />
 
-      <Panel>
+      <Panel className="max-w-2xl">
         <CoordinatorForm
           labels={{
             name: t("create.name"),
@@ -72,7 +73,7 @@ export default async function NewCoordinatorPage({
         />
       </Panel>
 
-      <StatePanel role="status" title={t("adminNotice")} />
+      <StatePanel role="status" title={t("adminNotice")} className="max-w-2xl" />
     </>
   );
 }

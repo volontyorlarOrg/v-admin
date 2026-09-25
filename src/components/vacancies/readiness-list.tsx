@@ -14,14 +14,20 @@ export function ReadinessList({
   missing,
   labels,
   className,
+  onlyMissing = false,
 }: {
   missing: readonly ApprovalRequirement[];
   labels: ReadinessLabels;
   className?: string;
+  onlyMissing?: boolean;
 }) {
+  const shown = onlyMissing
+    ? APPROVAL_REQUIREMENTS.filter((requirement) => missing.includes(requirement))
+    : APPROVAL_REQUIREMENTS;
+
   return (
     <ul data-slot="readiness-list" className={cn("flex flex-col gap-1.5", className)}>
-      {APPROVAL_REQUIREMENTS.map((requirement) => {
+      {shown.map((requirement) => {
         const unmet = missing.includes(requirement);
 
         return (

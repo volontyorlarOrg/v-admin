@@ -3,6 +3,7 @@ import type { Locale } from "@/i18n/routing";
 export const ROUTE_KEYS = [
   "login",
   "dashboard",
+  "insights",
   "vacancies",
   "newVacancy",
   "applications",
@@ -22,12 +23,27 @@ export type RouteArea = "auth" | "portal" | "account";
 
 export type RouteGuard = "guest" | "session";
 
+export const NAV_GROUPS = ["work", "office", "records"] as const;
+
+export const NAV_COUNTS = [
+  "pendingApproval",
+  "changesRequested",
+  "pendingReview",
+  "attendanceDue",
+] as const;
+
+export type NavCount = (typeof NAV_COUNTS)[number];
+
+export type NavGroup = (typeof NAV_GROUPS)[number];
+
 export type AppRoute = {
   key: RouteKey;
   path: string;
   area: RouteArea;
   guard: RouteGuard;
   inNav: boolean;
+  group?: NavGroup;
+  count?: NavCount;
   icon: string;
 };
 
@@ -46,7 +62,17 @@ export const appRoutes: readonly AppRoute[] = [
     area: "portal",
     guard: "session",
     inNav: true,
+    group: "work",
     icon: "layout-dashboard",
+  },
+  {
+    key: "insights",
+    path: "/insights",
+    area: "portal",
+    guard: "session",
+    inNav: true,
+    group: "records",
+    icon: "chart-column",
   },
   {
     key: "vacancies",
@@ -54,6 +80,8 @@ export const appRoutes: readonly AppRoute[] = [
     area: "portal",
     guard: "session",
     inNav: true,
+    group: "work",
+    count: "pendingApproval",
     icon: "clipboard-list",
   },
   {
@@ -70,15 +98,9 @@ export const appRoutes: readonly AppRoute[] = [
     area: "portal",
     guard: "session",
     inNav: true,
+    group: "work",
+    count: "pendingReview",
     icon: "inbox",
-  },
-  {
-    key: "users",
-    path: "/users",
-    area: "portal",
-    guard: "session",
-    inNav: true,
-    icon: "users",
   },
   {
     key: "attendance",
@@ -86,14 +108,25 @@ export const appRoutes: readonly AppRoute[] = [
     area: "portal",
     guard: "session",
     inNav: true,
+    group: "work",
+    count: "attendanceDue",
     icon: "calendar-check",
+  },
+  {
+    key: "users",
+    path: "/users",
+    area: "portal",
+    guard: "session",
+    inNav: true,
+    group: "work",
+    icon: "users",
   },
   {
     key: "activity",
     path: "/activity",
-    area: "portal",
+    area: "account",
     guard: "session",
-    inNav: true,
+    inNav: false,
     icon: "history",
   },
   {
@@ -102,6 +135,7 @@ export const appRoutes: readonly AppRoute[] = [
     area: "portal",
     guard: "session",
     inNav: true,
+    group: "office",
     icon: "user-cog",
   },
   {
@@ -118,6 +152,7 @@ export const appRoutes: readonly AppRoute[] = [
     area: "portal",
     guard: "session",
     inNav: true,
+    group: "office",
     icon: "building-2",
   },
   {
@@ -126,6 +161,7 @@ export const appRoutes: readonly AppRoute[] = [
     area: "portal",
     guard: "session",
     inNav: true,
+    group: "records",
     icon: "scroll-text",
   },
   {
@@ -144,6 +180,12 @@ export const PASSWORD_ROUTE: RouteKey = "changePassword";
 
 export const navRoutes = appRoutes.filter((route) => route.inNav);
 
+export const ACCOUNT_ROUTES: readonly RouteKey[] = ["activity", "changePassword"];
+
+export function navGroupRoutes(group: NavGroup): AppRoute[] {
+  return navRoutes.filter((route) => route.group === group);
+}
+
 export function getRoute(key: RouteKey): AppRoute {
   const route = appRoutes.find((candidate) => candidate.key === key);
   if (!route) throw new Error(`Unknown portal route: ${key}`);
@@ -156,6 +198,10 @@ export function navHref(key: RouteKey): string {
 
 export function vacancyHref(id: string): string {
   return `${navHref("vacancies")}/${encodeURIComponent(id)}`;
+}
+
+export function vacancyEditHref(id: string): string {
+  return `${vacancyHref(id)}/edit`;
 }
 
 export function applicationHref(id: string): string {

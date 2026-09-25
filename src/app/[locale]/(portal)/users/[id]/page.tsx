@@ -1,13 +1,27 @@
 import { getFormatter, getTranslations, setRequestLocale } from "next-intl/server";
+import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
-import { DefinitionList } from "@/components/portal/definition-list";
 import { Panel } from "@/components/portal/panel";
-import { StatusBadge, applicationStatusTone } from "@/components/portal/status-badge";
+import {
+  StatusBadge,
+  applicationStatus,
+  attendanceStatus,
+} from "@/components/portal/status-badge";
 import { TemporaryPasswordForm } from "@/components/portal/temporary-password-form";
+import { Facts, FigureRow } from "@/components/register/facts";
+import { Register, RegisterNote } from "@/components/register/register";
 import { LoadFailure } from "@/components/states/load-failure";
 import { PageHeader } from "@/components/states/page-header";
-import { buttonClass } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   PROFILE_FIELD_KEYS,
   VolunteerProfile,
@@ -17,9 +31,10 @@ import {
 import { Link } from "@/i18n/navigation";
 import { failureOf, isReady } from "@/lib/api/load";
 import { isRegion } from "@/lib/domain/vocabulary";
-import { applicationHref } from "@/lib/routing/routes";
+import { applicationHref, navHref, vacancyHref } from "@/lib/routing/routes";
 import { replaceUserPasswordAction } from "@/lib/users/actions";
 import { loadUser } from "@/lib/users/data.server";
+import { completionShare, participationOf } from "@/lib/users/participation";
 import { passwordLoginState } from "@/lib/users/password-state";
 import { errorCatalog } from "@/lib/vacancies/labels.server";
 
@@ -30,21 +45,26 @@ export async function generateMetadata({
 }: PageProps<"/[locale]/users/[id]">): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "users" });
-  return { title: t("detail.eyebrow") };
+  return { title: t("record") };
 }
 
 export default async function UserPage({ params }: PageProps<"/[locale]/users/[id]">) {
   const { locale, id } = await params;
   setRequestLocale(locale);
 
-  const t = await getTranslations("users");
-  const applications = await getTranslations("applications");
-  const auth = await getTranslations("auth");
-  const common = await getTranslations("common");
-  const errors = await getTranslations("errors");
-  const vocabulary = await getTranslations("vocabulary");
-  const format = await getFormatter();
+  const [t, applications, attendanceCopy, auth, common, errors, vocabulary, format] =
+    await Promise.all([
+      getTranslations("users"),
+      getTranslations("applications"),
+      getTranslations("attendance"),
+      getTranslations("auth"),
+      getTranslations("common"),
+      getTranslations("errors"),
+      getTranslations("vocabulary"),
+      getFormatter(),
+    ]);
   const languages = new Intl.DisplayNames([locale], { type: "language" });
+  const back = { href: navHref("users"), label: t("title") };
 
   const loaded = await loadUser(id);
   const failure = failureOf(loaded);
@@ -52,16 +72,18 @@ export default async function UserPage({ params }: PageProps<"/[locale]/users/[i
   if (failure) {
     return (
       <>
-        <PageHeader eyebrow={t("detail.eyebrow")} title={t("title")} />
+        <PageHeader back={back} title={t("record")} />
         <LoadFailure failure={failure} />
       </>
     );
   }
 
-  if (!isReady(loaded)) return null;
+  if (!isReady(loaded)) notFound();
 
   const user = loaded.data;
+  const name = user.displayName ?? common("notSet");
   const password = passwordLoginState(user);
+  const participation = participationOf(user.applications);
   const profileLabels: VolunteerProfileLabels = {
     fields: Object.fromEntries(
       PROFILE_FIELD_KEYS.map((key) => [key, applications(`snapshotFields.${key}`)]),
@@ -85,145 +107,230 @@ export default async function UserPage({ params }: PageProps<"/[locale]/users/[i
   return (
     <>
       <PageHeader
-        eyebrow={t("detail.eyebrow")}
-        title={user.displayName ?? common("notSet")}
-        description={user.email ?? undefined}
+        back={back}
+        title={name}
+        meta={
+          <>
+            {user.username ? <span>@{user.username}</span> : null}
+            <span>{user.email ?? t("noEmail")}</span>
+            <span>
+              {t("joinedOn", {
+                when: format.dateTime(new Date(user.createdAt), "date"),
+              })}
+            </span>
+          </>
+        }
       />
 
-      <Panel title={t("detail.account")}>
-        <DefinitionList
-          items={[
-            { term: t("table.email"), value: user.email ?? common("notSet") },
-            {
-              term: t("table.joined"),
-              value: format.dateTime(new Date(user.createdAt), "date"),
-            },
-            {
-              term: t("table.passwordLogin"),
-              value:
-                password.kind === "none"
-                  ? t("passwordState.none")
-                  : t("passwordState.set"),
-            },
-            {
-              term: t("table.passwordChangedAt"),
-              value:
-                password.kind === "set" && password.changedAt
-                  ? format.dateTime(new Date(password.changedAt), "stamp")
-                  : t("passwordState.neverChanged"),
-            },
-            {
-              term: t("table.passwordChangeRequired"),
-              value:
-                password.kind === "set" && password.changeRequired
-                  ? common("yes")
-                  : common("no"),
-            },
-          ]}
-        />
-      </Panel>
+      <FigureRow
+        items={[
+          { label: t("figures.sent"), value: format.number(participation.sent) },
+          {
+            label: t("figures.accepted"),
+            value: format.number(participation.accepted),
+          },
+          {
+            label: t("figures.attended"),
+            value: format.number(participation.attended),
+            tone: "person",
+          },
+          {
+            label: t("figures.hours"),
+            value: format.number(participation.hours),
+            tone: "person",
+          },
+          {
+            label: t("figures.awaiting"),
+            value: format.number(participation.awaiting),
+          },
+        ]}
+      />
 
-      <Panel
-        title={t("detail.currentProfile")}
-        description={t("detail.currentProfileNote")}
-      >
-        <VolunteerProfile
-          identity={{
-            name: user.displayName ?? common("notSet"),
-            username: user.username,
-            avatarUrl: user.avatarUrl,
-          }}
-          profile={user.profile ?? {}}
-          labels={profileLabels}
-          status={
-            completion
-              ? {
-                  label: completion.complete
-                    ? t("detail.profileComplete")
-                    : t("detail.profileIncomplete"),
-                  tone: completion.complete ? "person" : "neutral",
-                  note: completion.complete
-                    ? undefined
-                    : t("detail.missing", {
-                        fields: completion.missing.map(fieldName).join(", "),
-                      }),
-                }
-              : undefined
-          }
-          regionName={regionName}
-          languageName={languageName}
-        />
-        {user.profile ? null : (
-          <p className="mt-4 text-sm text-ink-muted">{t("detail.noProfile")}</p>
-        )}
-      </Panel>
+      <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
+        <div className="flex min-w-0 flex-col gap-6">
+          <Panel
+            title={t("detail.currentProfile")}
+            description={t("detail.currentProfileNote")}
+          >
+            <VolunteerProfile
+              identity={{ name, username: user.username, avatarUrl: user.avatarUrl }}
+              profile={user.profile ?? {}}
+              labels={profileLabels}
+              {...(completion
+                ? {
+                    completion: {
+                      share: completionShare(completion.missing),
+                      label: t("detail.completeness"),
+                    },
+                    status: {
+                      label: completion.complete
+                        ? t("detail.profileComplete")
+                        : t("detail.profileIncomplete"),
+                      tone: completion.complete
+                        ? ("person" as const)
+                        : ("draft" as const),
+                      ...(completion.complete
+                        ? {}
+                        : {
+                            note: t("detail.missing", {
+                              fields: completion.missing.map(fieldName).join(", "),
+                            }),
+                          }),
+                    },
+                  }
+                : {})}
+              regionName={regionName}
+              languageName={languageName}
+            />
+            {user.profile ? null : (
+              <p className="mt-4 text-sm text-ink-muted">{t("detail.noProfile")}</p>
+            )}
+          </Panel>
 
-      <Panel title={t("detail.applications")}>
-        {user.applications.length === 0 ? (
-          <p className="text-sm text-ink-muted">{t("detail.noApplications")}</p>
-        ) : (
-          <ul className="flex flex-col divide-y divide-border">
-            {user.applications.map((application) => (
-              <li
-                key={application.id}
-                className="flex items-center justify-between gap-4 py-3"
-              >
-                <span className="min-w-0">
-                  <span className="block truncate text-sm font-medium text-ink">
-                    {application.opportunity?.title ?? application.opportunityId}
-                  </span>
-                  <StatusBadge
-                    label={applications(`status.${application.status}`)}
-                    tone={applicationStatusTone(application.status)}
-                  />
-                </span>
-                <Link
-                  href={applicationHref(application.id)}
-                  className={buttonClass({ variant: "ghost", size: "sm" })}
-                >
-                  {applications("table.open")}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
-      </Panel>
+          <Register
+            title={t("detail.applications")}
+            count={user.applications.length}
+            countLabel={applications("countLabel")}
+          >
+            {user.applications.length === 0 ? (
+              <RegisterNote title={t("detail.noApplications")} />
+            ) : (
+              <Table>
+                <TableCaption className="sr-only">
+                  {t("detail.applications")}
+                </TableCaption>
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead scope="col">{applications("table.vacancy")}</TableHead>
+                    <TableHead scope="col">{applications("table.status")}</TableHead>
+                    <TableHead scope="col">{attendanceCopy("table.hours")}</TableHead>
+                    <TableHead scope="col">{applications("table.submitted")}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {user.applications.map((application) => {
+                    const chip = applicationStatus(application.status);
+                    const outcome = application.attendance?.outcome;
+                    const outcomeChip = outcome ? attendanceStatus(outcome) : null;
+                    return (
+                      <TableRow key={application.id}>
+                        <TableCell className="max-w-[20rem]">
+                          <Link
+                            href={applicationHref(application.id)}
+                            className="font-semibold text-ink hover:text-primary-ink hover:underline"
+                          >
+                            {application.opportunity?.title ??
+                              application.opportunityId}
+                          </Link>
+                          {application.opportunity ? (
+                            <Link
+                              href={vacancyHref(application.opportunity.id)}
+                              className="mt-0.5 block text-xs text-ink-muted hover:text-primary-ink hover:underline"
+                            >
+                              {t("detail.openVacancy")}
+                            </Link>
+                          ) : null}
+                        </TableCell>
+                        <TableCell>
+                          <span className="flex flex-wrap gap-1.5">
+                            <StatusBadge
+                              label={applications(`status.${application.status}`)}
+                              tone={chip.tone}
+                              icon={chip.icon}
+                            />
+                            {outcome && outcomeChip ? (
+                              <StatusBadge
+                                label={attendanceCopy(`outcome.${outcome}`)}
+                                tone={outcomeChip.tone}
+                                icon={outcomeChip.icon}
+                              />
+                            ) : null}
+                          </span>
+                        </TableCell>
+                        <TableCell className="tabular">
+                          {application.attendance?.confirmedHours === undefined
+                            ? "—"
+                            : format.number(application.attendance.confirmedHours)}
+                        </TableCell>
+                        <TableCell className="tabular whitespace-nowrap text-ink-muted">
+                          {application.submittedAt
+                            ? format.dateTime(new Date(application.submittedAt), "day")
+                            : "—"}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            )}
+          </Register>
+        </div>
 
-      <Panel title={t("password.title")} description={t("password.description")}>
-        <TemporaryPasswordForm
-          action={replaceUserPasswordAction}
-          targetId={user.id}
-          labels={{
-            label: t("password.label"),
-            help: t("password.help"),
-            privacy: t("password.privacy"),
-            showPassword: auth("showPassword"),
-            hidePassword: auth("hidePassword"),
-            submit: t("password.confirm"),
-            pending: t("password.pending"),
-            success: t("password.success"),
-            fallbackError: errors("server"),
-            errors: await errorCatalog([
-              "server",
-              "network",
-              "timeout",
-              "rateLimited",
-              "unavailable",
-              "forbidden",
-              "notFound",
-              "conflict",
-              "validationFailed",
-              "awaitingContract",
-              "sessionExpired",
-              "required",
-              "passwordShort",
-              "passwordLong",
-              "weakPassword",
-              "userNotFound",
-            ]),
-          }}
-        />
-      </Panel>
+        <aside className="flex min-w-0 flex-col gap-6">
+          <Panel title={t("detail.account")}>
+            <Facts
+              items={[
+                { term: t("table.email"), value: user.email ?? t("noEmail") },
+                {
+                  term: t("table.passwordLogin"),
+                  value:
+                    password.kind === "none"
+                      ? t("passwordState.none")
+                      : password.changeRequired
+                        ? t("passwordState.required")
+                        : t("passwordState.set"),
+                },
+                ...(password.kind === "set"
+                  ? [
+                      {
+                        term: t("table.passwordChangedAt"),
+                        value: password.changedAt
+                          ? format.dateTime(new Date(password.changedAt), "stamp")
+                          : t("passwordState.neverChanged"),
+                      },
+                    ]
+                  : []),
+              ]}
+            />
+          </Panel>
+
+          <Panel title={t("password.title")} description={t("password.description")}>
+            <TemporaryPasswordForm
+              action={replaceUserPasswordAction}
+              targetId={user.id}
+              labels={{
+                label: t("password.label"),
+                help: t("password.help"),
+                privacy: t("password.privacy"),
+                showPassword: auth("showPassword"),
+                hidePassword: auth("hidePassword"),
+                submit: t("password.confirm"),
+                pending: t("password.pending"),
+                success: t("password.success"),
+                fallbackError: errors("server"),
+                errors: await errorCatalog([
+                  "server",
+                  "network",
+                  "timeout",
+                  "rateLimited",
+                  "unavailable",
+                  "forbidden",
+                  "notFound",
+                  "conflict",
+                  "validationFailed",
+                  "awaitingContract",
+                  "sessionExpired",
+                  "required",
+                  "passwordShort",
+                  "passwordLong",
+                  "weakPassword",
+                  "userNotFound",
+                ]),
+              }}
+            />
+          </Panel>
+        </aside>
+      </div>
     </>
   );
 }

@@ -14,10 +14,13 @@ function totals(overrides: Partial<Totals> = {}): Totals {
   return {
     vacancies: 0,
     publishedVacancies: 0,
+    pendingApproval: 0,
+    changesRequested: 0,
     applications: 0,
     pendingReview: 0,
     accepted: 0,
     awaitingAttendance: 0,
+    attendanceDue: 0,
     attended: 0,
     confirmedHours: 0,
     ...overrides,

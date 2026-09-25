@@ -1,4 +1,4 @@
-import { expect, test, type Locator, type Page } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 const LOCALES = ["uz", "ru", "en"] as const;
 
@@ -27,25 +27,26 @@ async function signedIn(page: Page) {
 }
 
 async function fillVacancyDraft(
-  page: Page | Locator,
+  page: Page,
   values: {
     title: string;
-    slug: string;
     organization?: string;
     deadline?: string;
     format?: string;
   },
 ) {
   await page.getByLabel("Title").fill(values.title);
-  await page.getByLabel("Address").fill(values.slug);
   await page
     .getByLabel("Description")
     .fill("Volunteers work together with a coordinator throughout the event.");
   await page
-    .getByLabel("Organization")
+    .getByRole("combobox", { name: "Organization" })
     .selectOption({ label: values.organization ?? "Chilonzor Reading Corners" });
-  await page.getByLabel("Format").selectOption(values.format ?? "onsite");
-  await page.getByLabel("City").fill("Tashkent");
+  await page.getByRole("combobox", { name: "Region" }).selectOption("tashkent-city");
+  await page
+    .getByRole("combobox", { name: "Format" })
+    .selectOption(values.format ?? "onsite");
+  await page.getByLabel("City or district").fill("Tashkent");
   await page.getByLabel("Place", { exact: true }).fill("Central library");
   await page.getByLabel("Places", { exact: true }).fill("12");
   await page.getByLabel("Estimated hours").fill("4");
@@ -76,6 +77,14 @@ function errorSummary(page: Page) {
   return page.locator('[data-slot="error-summary"]');
 }
 
+function decision(page: Page, subject: string) {
+  return page.getByRole("group", { name: `Decision: ${subject}` });
+}
+
+function toast(page: Page) {
+  return page.locator("[data-sonner-toast]");
+}
+
 async function openDialog(page: Page, name: string | RegExp) {
   const control = page
     .getByRole("button", { name })
@@ -94,10 +103,13 @@ test.beforeEach(async ({ page }) => {
 });
 
 test.describe("sign-in", () => {
-  test("an administrator signs in and lands on the dashboard", async ({ page }) => {
+  test("an administrator signs in and lands on what waits for them today", async ({
+    page,
+  }) => {
     await signedIn(page);
+    await expect(page.getByRole("heading", { level: 1, name: "Today" })).toBeVisible();
     await expect(
-      page.getByRole("heading", { level: 1, name: "Dashboard" }),
+      page.getByRole("heading", { level: 2, name: "Waiting on you" }),
     ).toBeVisible();
   });
 
@@ -249,6 +261,9 @@ test.describe("the session", () => {
 
   test("signs out and clears the cookie", async ({ page }) => {
     await signedIn(page);
+    if ((page.viewportSize()?.width ?? 1280) < 1024) {
+      await page.getByRole("button", { name: "Open the menu" }).click();
+    }
     await page.getByRole("button", { name: "Sign out" }).click();
 
     await expect(page).toHaveURL(/\/en\/login\?session=signedOut/);
@@ -352,125 +367,143 @@ test.describe("the vacancy lifecycle", () => {
     );
   });
 
-  test("approves a pending vacancy and publishes it", async ({ page }) => {
+  test("approves a pending vacancy in its row and publishes it", async ({ page }) => {
     await signedIn(page);
     await page.goto(`/en/vacancies/${PENDING}`);
 
-    await openDialog(page, "Approve and publish");
-    await dialog(page).getByRole("button", { name: "Approve and publish" }).click();
+    const choice = decision(page, "Winter clothing drive");
+    await choice.getByRole("button", { name: "Approve", exact: true }).click();
+    await expect(choice).toContainText("Publish to volunteers now?");
+    await choice.getByRole("button", { name: "Approve and publish" }).click();
 
+    await expect(toast(page)).toContainText("is approved and published");
     await expect(page.getByText("Approved and published").first()).toBeVisible();
+    await expect(decision(page, "Winter clothing drive")).toHaveCount(0);
+  });
+
+  test("approves a vacancy from Today without opening it", async ({ page }) => {
+    await signedIn(page);
+
+    const choice = decision(page, "Winter clothing drive");
+    await choice.getByRole("button", { name: "Approve", exact: true }).click();
+    await choice.getByRole("button", { name: "Approve and publish" }).click();
+
+    await expect(toast(page)).toContainText("is approved and published");
+    const cleared = page.locator("section").filter({
+      has: page.getByRole("heading", { name: "Cleared today" }),
+    });
+    await expect(cleared).toContainText("Winter clothing drive");
   });
 
   test("shows what approval still needs before it lets the decision through", async ({
     page,
   }) => {
     await signedIn(page);
-    await page.goto("/en/vacancies");
+    await page.goto("/en/vacancies/new");
 
-    await openDialog(page, "New vacancy");
-    await fillVacancyDraft(dialog(page), {
+    await fillVacancyDraft(page, {
       title: "Riverbank clean-up",
-      slug: "riverbank-clean-up",
       organization: "Green Corridor Group — not verified",
     });
-    await dialog(page).getByRole("button", { name: "Create the draft" }).click();
-    await expect(dialog(page)).toHaveCount(0);
+    await page.getByRole("button", { name: "Create the draft" }).click();
 
-    await page.goto("/en/vacancies?q=riverbank");
-    await page.getByRole("link", { name: "Open" }).first().click();
-
-    await openDialog(page, "Publish now");
-    const blocked = dialog(page);
-    await expect(blocked).toContainText("This vacancy is not ready yet");
-    await expect(blocked).toContainText("a verified organization");
-    await expect(blocked.getByRole("button", { name: "Publish now" })).toBeDisabled();
+    await expect(page.getByRole("heading", { level: 1 })).toContainText(
+      "Riverbank clean-up",
+    );
+    const publish = page.locator("section").filter({
+      has: page.getByRole("heading", { name: "Publish directly" }),
+    });
+    await expect(publish).toContainText("Approval needs these first");
+    await expect(publish).toContainText("a verified organization");
+    await expect(publish.getByRole("button", { name: "Publish now" })).toBeDisabled();
   });
 
-  test("refuses to request changes without a note, in red, beside the field", async ({
+  test("refuses to return a vacancy without a note, in red, beside the field", async ({
     page,
   }) => {
     await signedIn(page);
     await page.goto(`/en/vacancies/${PENDING}`);
 
-    await openDialog(page, "Request changes");
-    await dialog(page).getByRole("button", { name: "Request changes" }).click();
+    await decision(page, "Winter clothing drive")
+      .getByRole("button", { name: "Return" })
+      .click();
+    await page.getByRole("button", { name: "Return for changes" }).click();
 
-    await expect(dialog(page)).toBeVisible();
     await expect(fieldError(page).first()).toContainText("Write a note");
-    await expect(errorSummary(page)).toHaveCount(0);
-  });
-
-  test("keeps the dialog open and lists every field that needs attention", async ({
-    page,
-  }) => {
-    await signedIn(page);
-    await page.goto("/en/vacancies");
-
-    await openDialog(page, "New vacancy");
-    await dialog(page).getByRole("button", { name: "Create the draft" }).click();
-
-    await expect(dialog(page)).toBeVisible();
-    await expect(errorSummary(page)).toBeVisible();
-    await expect(errorSummary(page)).toContainText("Title");
-    await expect(errorSummary(page)).toContainText("Estimated hours");
-    await expect(dialog(page).getByLabel("Title")).toHaveAttribute(
+    await expect(page.getByLabel("What has to change")).toHaveAttribute(
       "aria-invalid",
       "true",
     );
+    await expect(errorSummary(page)).toHaveCount(0);
   });
 
-  test("sends a vacancy back for changes with a note the coordinator reads", async ({
+  test("keeps the form and lists every field that needs attention", async ({
+    page,
+  }) => {
+    await signedIn(page);
+    await page.goto("/en/vacancies/new");
+
+    await page.getByRole("button", { name: "Create the draft" }).click();
+
+    await expect(page).toHaveURL(/\/en\/vacancies\/new$/);
+    await expect(errorSummary(page)).toBeVisible();
+    await expect(errorSummary(page)).toContainText("Title");
+    await expect(errorSummary(page)).toContainText("Region");
+    await expect(page.getByLabel("Title")).toHaveAttribute("aria-invalid", "true");
+  });
+
+  test("returns a vacancy for changes with a note the coordinator reads", async ({
     page,
   }) => {
     await signedIn(page);
     await page.goto(`/en/vacancies/${PENDING}`);
 
-    await openDialog(page, "Request changes");
-    await dialog(page)
-      .getByLabel("Note to the coordinator")
-      .fill("Name the venue, please.");
-    await dialog(page).getByRole("button", { name: "Request changes" }).click();
+    await decision(page, "Winter clothing drive")
+      .getByRole("button", { name: "Return" })
+      .click();
+    await page.getByLabel("What has to change").fill("Name the venue, please.");
+    await page.getByRole("button", { name: "Return for changes" }).click();
 
+    await expect(toast(page)).toContainText("was returned for changes");
     await expect(page.getByText("Changes requested").first()).toBeVisible();
-    await expect(statePanel(page).first()).toContainText("Name the venue");
+    await expect(
+      page.getByRole("region", { name: "Changes were requested" }),
+    ).toContainText("Name the venue, please.");
   });
 
   test("offers no decision on a vacancy that is already approved", async ({ page }) => {
     await signedIn(page);
     await page.goto(`/en/vacancies/${APPROVED}`);
 
-    await expect(page.getByRole("button", { name: "Approve and publish" })).toHaveCount(
+    await expect(page.getByRole("heading", { level: 1 })).toContainText(
+      "Winter book drive",
+    );
+    await expect(decision(page, "Winter book drive")).toHaveCount(0);
+    await expect(
+      page.getByRole("button", { name: "Approve", exact: true }),
+    ).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Return", exact: true })).toHaveCount(
       0,
     );
-    await expect(page.getByRole("button", { name: "Request changes" })).toHaveCount(0);
-    await expect(page.getByRole("button", { name: "Reject" })).toHaveCount(0);
   });
 
   test("creates a draft, publishes it directly, then archives it", async ({ page }) => {
     await signedIn(page);
     await page.goto("/en/vacancies");
 
-    await openDialog(page, "New vacancy");
-    await fillVacancyDraft(dialog(page), {
-      title: "Library shelving day",
-      slug: "library-shelving-day",
-    });
-    await dialog(page).getByRole("button", { name: "Create the draft" }).click();
-    await expect(dialog(page)).toHaveCount(0);
-
-    await page.goto("/en/vacancies?state=draft");
-    await page
-      .getByRole("row", { name: /Library shelving day/ })
-      .getByRole("link", { name: "Open" })
-      .click();
+    await page.getByRole("link", { name: "New vacancy" }).click();
+    await expect(page).toHaveURL(/\/en\/vacancies\/new$/);
+    await fillVacancyDraft(page, { title: "Library shelving day" });
+    await page.getByRole("button", { name: "Create the draft" }).click();
 
     await expect(page.getByRole("heading", { level: 1 })).toContainText(
       "Library shelving day",
     );
+    await expect(page.getByText("Draft", { exact: true }).first()).toBeVisible();
 
-    await openDialog(page, "Publish now");
-    await dialog(page).getByRole("button", { name: "Publish now" }).click();
+    const publish = decision(page, "Library shelving day");
+    await publish.getByRole("button", { name: "Publish now" }).click();
+    await publish.getByRole("button", { name: "Publish now" }).click();
     await expect(
       page.getByText("Approved and published", { exact: true }).first(),
     ).toBeVisible();
@@ -480,16 +513,53 @@ test.describe("the vacancy lifecycle", () => {
     await expect(page.getByText("This vacancy is archived")).toBeVisible();
   });
 
-  test("edits a draft in a dialog without leaving the vacancy", async ({ page }) => {
+  test("closes the applications nobody decided when a vacancy is archived", async ({
+    page,
+  }) => {
+    await signedIn(page);
+    await page.goto(`/en/vacancies/${APPROVED}`);
+
+    await openDialog(page, "Archive");
+    await expect(dialog(page)).toContainText("nobody decided will be closed");
+    await dialog(page).getByRole("button", { name: "Archive", exact: true }).click();
+    await expect(page.getByText("This vacancy is archived")).toBeVisible();
+
+    await page.goto("/en/applications?view=closed");
+    await expect(
+      page.getByRole("row").filter({ hasText: "Winter book drive" }),
+    ).not.toHaveCount(0);
+    await page.goto("/en/applications?view=waiting");
+    await expect(
+      page.getByRole("row").filter({ hasText: "Winter book drive" }),
+    ).toHaveCount(0);
+  });
+
+  test("edits a draft on its own page and returns to the record", async ({ page }) => {
     await signedIn(page);
     await page.goto("/en/vacancies/00000000-0000-4000-8000-000000000402");
 
-    await openDialog(page, "Edit vacancy");
-    await dialog(page).getByLabel("Title").fill("Reading room weekends, revised");
-    await dialog(page).getByRole("button", { name: "Save changes" }).click();
+    await page.getByRole("link", { name: "Edit vacancy" }).click();
+    await expect(page).toHaveURL(/\/edit$/);
+    await page.getByLabel("Title").fill("Reading room weekends, revised");
+    await page.getByRole("button", { name: "Save changes" }).click();
 
-    await expect(dialog(page)).toHaveCount(0);
+    await expect(page).toHaveURL(
+      /\/en\/vacancies\/00000000-0000-4000-8000-000000000402$/,
+    );
     await expect(page.getByRole("heading", { level: 1 })).toContainText("revised");
+  });
+
+  test("clears an optional field when the edit leaves it empty", async ({ page }) => {
+    await signedIn(page);
+    await page.goto("/en/vacancies/00000000-0000-4000-8000-000000000402/edit");
+
+    await page.getByLabel("Places", { exact: true }).fill("");
+    await page.getByRole("button", { name: "Save changes" }).click();
+
+    await expect(page).toHaveURL(
+      /\/en\/vacancies\/00000000-0000-4000-8000-000000000402$/,
+    );
+    await expect(page.getByText("No fixed limit")).toBeVisible();
   });
 
   test("says a rejection is permanent and refuses it without a reason", async ({
@@ -498,15 +568,17 @@ test.describe("the vacancy lifecycle", () => {
     await signedIn(page);
     await page.goto(`/en/vacancies/${PENDING}`);
 
-    await openDialog(page, "Reject");
-    await expect(dialog(page)).toContainText("permanently");
-    await dialog(page).getByRole("button", { name: "Reject permanently" }).click();
+    await decision(page, "Winter clothing drive")
+      .getByRole("button", { name: "Reject" })
+      .click();
+    await expect(page.getByText("Rejection is permanent")).toBeVisible();
+    await page.getByRole("button", { name: "Reject permanently" }).click();
     await expect(fieldError(page).first()).toContainText("Write a note");
 
-    await dialog(page)
-      .getByLabel("Note to the coordinator")
+    await page
+      .getByLabel("Why it is rejected")
       .fill("This vacancy cannot be safely published.");
-    await dialog(page).getByRole("button", { name: "Reject permanently" }).click();
+    await page.getByRole("button", { name: "Reject permanently" }).click();
 
     await expect(page.getByText("Rejected", { exact: true }).first()).toBeVisible();
   });
@@ -517,7 +589,6 @@ test.describe("the vacancy lifecycle", () => {
 
     await fillVacancyDraft(page, {
       title: "Late deadline",
-      slug: "late-deadline",
       deadline: "2026-11-05T18:00",
     });
     await page.getByRole("button", { name: "Create the draft" }).click();
@@ -535,7 +606,6 @@ test.describe("the vacancy lifecycle", () => {
 
     await fillVacancyDraft(page, {
       title: "Remote help",
-      slug: "remote-help",
       format: "remote",
     });
     await page.getByLabel("Place", { exact: true }).fill("Zoom, passcode 4821");
@@ -551,7 +621,7 @@ test.describe("the vacancy lifecycle", () => {
     await page.goto("/en/vacancies/new");
 
     await page
-      .getByLabel("Organization")
+      .getByRole("combobox", { name: "Organization" })
       .selectOption({ label: "Green Corridor Group — not verified" });
 
     await expect(page.getByText("not verified yet").first()).toBeVisible();
@@ -599,7 +669,7 @@ test.describe("review and attendance", () => {
     ).toHaveAttribute("target", "_blank");
     await expect(page.getByText("Phone", { exact: true })).toHaveCount(0);
     await expect(
-      page.getByRole("heading", { level: 2, name: "Record a decision" }),
+      page.getByRole("heading", { level: 2, name: "Decide this application" }),
     ).toBeVisible();
   });
 
@@ -610,40 +680,80 @@ test.describe("review and attendance", () => {
     await expect(statePanel(page).first()).toContainText("Not sent yet");
     await expect(page.getByText("can no longer be reviewed")).toHaveCount(0);
     await expect(
-      page.getByRole("heading", { level: 2, name: "Record a decision" }),
+      page.getByRole("heading", { level: 2, name: "Decide this application" }),
     ).toHaveCount(0);
     await expect(
       page.getByRole("heading", { level: 2, name: "Profile as submitted" }),
     ).toHaveCount(0);
   });
 
-  test("records a decision on an application", async ({ page }) => {
+  test("records a decision on an application with a note the volunteer reads", async ({
+    page,
+  }) => {
     await signedIn(page);
-    await page.goto("/en/applications?status=submitted");
-    await page.getByRole("link", { name: "Open" }).first().click();
+    await page.goto("/en/applications/00000000-0000-4000-8000-000000000601");
 
     await expect(
       page.getByRole("heading", { level: 2, name: "Answers" }),
     ).toBeVisible();
-    await page.getByLabel("Decision").selectOption("accepted");
+    const choice = page.getByRole("group", { name: /^Decision: / });
+    await choice.getByRole("button", { name: "Accept" }).click();
     await page.getByLabel("Note to the volunteer").fill("See you on the day.");
-    await page.getByRole("button", { name: "Record the decision" }).click();
+    await page.getByRole("button", { name: "Accept", exact: true }).last().click();
 
-    await expect(formMessage(page)).toContainText("decision was recorded");
+    await expect(toast(page)).toContainText("was accepted");
+    await expect(page.getByText("See you on the day.")).toBeVisible();
+    await expect(page.getByText("Accepted", { exact: true }).first()).toBeVisible();
   });
 
-  test("groups unresolved attendance by vacancy and links to the vacancy", async ({
+  test("decides an application from its row in the list", async ({ page }) => {
+    await signedIn(page);
+    await page.goto("/en/applications?view=waiting");
+
+    const row = page.getByRole("row").filter({ hasText: "City sports day" });
+    await row.getByRole("button", { name: "Accept" }).click();
+    await row.getByRole("button", { name: "Accept" }).click();
+
+    await expect(toast(page)).toContainText("was accepted");
+    await expect(
+      page.getByRole("row").filter({ hasText: "City sports day" }),
+    ).toHaveCount(0);
+  });
+
+  test("refuses to take back an acceptance once attendance is recorded", async ({
+    page,
+  }) => {
+    await signedIn(page);
+    await page.goto("/en/vacancies/00000000-0000-4000-8000-000000000401");
+    const roster = page.locator("#roll-call");
+    await roster.getByLabel("Outcome for everyone selected").selectOption("attended");
+    await roster.getByRole("button", { name: "Confirm selected" }).click();
+    await expect(roster.locator('[data-slot="form-message"]').first()).toContainText(
+      "Attendance was confirmed",
+    );
+
+    await page.goto("/en/applications/00000000-0000-4000-8000-000000000604");
+    await expect(page.getByRole("group", { name: /^Decision: / })).toHaveCount(0);
+  });
+
+  test("lists only ended events as due and links straight to the roll call", async ({
     page,
   }) => {
     await signedIn(page);
     await page.goto("/en/attendance");
 
+    const due = page.locator("#due");
     await expect(
-      page.getByRole("heading", { level: 2, name: "Winter book drive" }),
+      due.getByRole("link", { name: "Winter book drive", exact: true }),
     ).toBeVisible();
-    await page.getByRole("link", { name: "Open the vacancy" }).first().click();
+    await expect(due).not.toContainText("Reading room weekends");
+    await expect(page.locator("#upcoming")).toContainText("Reading room weekends");
 
-    await expect(page).toHaveURL(/\/en\/vacancies\/[0-9a-f-]+$/);
+    await due
+      .getByRole("link", { name: /Take roll call/ })
+      .first()
+      .click();
+    await expect(page).toHaveURL(/\/en\/vacancies\/[0-9a-f-]+#roll-call$/);
   });
 
   test("confirms a batch of accepted volunteers, then corrects one row", async ({
@@ -652,10 +762,7 @@ test.describe("review and attendance", () => {
     await signedIn(page);
     await page.goto("/en/vacancies/00000000-0000-4000-8000-000000000401");
 
-    const roster = page
-      .locator("section")
-      .filter({ hasText: "Confirm the selected volunteers" })
-      .first();
+    const roster = page.locator("#roll-call");
     await expect(
       roster.getByRole("button", { name: "Confirm selected" }),
     ).toBeVisible();
@@ -690,7 +797,9 @@ test.describe("review and attendance", () => {
     await signedIn(page);
     await page.goto("/en/vacancies/00000000-0000-4000-8000-000000000402");
 
-    await expect(statePanel(page).last()).toContainText("Attendance is not open yet");
+    await expect(page.locator("#roll-call")).toContainText(
+      "Attendance is not open yet",
+    );
     await expect(page.getByRole("button", { name: "Confirm selected" })).toHaveCount(0);
   });
 });
@@ -701,7 +810,7 @@ test.describe("volunteers and passwords", () => {
   }) => {
     await signedIn(page);
     await page.goto("/en/users");
-    await page.getByRole("link", { name: "Open" }).first().click();
+    await page.getByRole("link", { name: "Dilnoza Karimova" }).first().click();
 
     await expect(page.getByText("Password last changed")).toBeVisible();
     await expect(
@@ -715,7 +824,7 @@ test.describe("volunteers and passwords", () => {
   test("assigns a replacement temporary password", async ({ page }) => {
     await signedIn(page);
     await page.goto("/en/users");
-    await page.getByRole("link", { name: "Open" }).first().click();
+    await page.getByRole("link", { name: "Dilnoza Karimova" }).first().click();
 
     await page.getByLabel("Temporary password").fill("a-temporary-password");
     await page.getByRole("button", { name: "Assign it" }).click();
@@ -726,7 +835,7 @@ test.describe("volunteers and passwords", () => {
   test("refuses a temporary password the backend would reject", async ({ page }) => {
     await signedIn(page);
     await page.goto("/en/users");
-    await page.getByRole("link", { name: "Open" }).first().click();
+    await page.getByRole("link", { name: "Dilnoza Karimova" }).first().click();
 
     await page.getByLabel("Temporary password").fill("short");
     await page.getByRole("button", { name: "Assign it" }).click();
@@ -772,21 +881,21 @@ test.describe("activity", () => {
     await signedIn(page);
     await page.goto("/en/activity");
 
-    await expect(page.getByRole("cell", { name: "coordinator.created" })).toBeVisible();
-    await expect(page.getByRole("cell", { name: "opportunity.published" })).toHaveCount(
-      0,
-    );
+    await expect(page.getByRole("cell", { name: "Coordinator created" })).toBeVisible();
+    await expect(
+      page.getByRole("cell", { name: "Vacancy published directly" }),
+    ).toHaveCount(0);
   });
 
   test("keeps its filters in the URL", async ({ page }) => {
     await signedIn(page);
     await page.goto("/en/activity");
 
-    await page.getByLabel("Search the history").fill("coordinator");
+    await page.getByLabel("Action").selectOption("coordinator.created");
     await page.getByRole("button", { name: "Apply" }).click();
 
-    await expect(page).toHaveURL(/q=coordinator/);
-    await expect(page.getByRole("cell", { name: "coordinator.created" })).toBeVisible();
+    await expect(page).toHaveURL(/action=coordinator.created/);
+    await expect(page.getByRole("cell", { name: "Coordinator created" })).toBeVisible();
   });
 });
 
@@ -983,8 +1092,14 @@ test.describe("coordinator management", () => {
       .filter({ has: page.getByRole("heading", { name: "Coordinator accounts" }) });
 
     await expect(summary).toBeVisible();
-    for (const state of ["Active", "Blocked", "Removed"]) {
-      await expect(summary.getByText(state, { exact: true })).toBeVisible();
+    for (const [state, count] of [
+      ["Active", 3],
+      ["Blocked", 0],
+      ["Removed", 0],
+    ] as const) {
+      await expect(
+        summary.getByRole("link", { name: new RegExp(`^${state}\\s*${count}`) }),
+      ).toBeVisible();
     }
 
     await expect(page.getByRole("row", { name: /Nodira Alimova/ })).toContainText(
@@ -1063,17 +1178,17 @@ test.describe("organizations and the audit history", () => {
     await page.goto("/en/audit");
 
     await expect(
-      page.getByRole("cell", { name: "opportunity.published" }),
+      page.getByRole("cell", { name: "Vacancy published directly" }),
     ).toBeVisible();
 
-    await page.getByLabel("Coordinator").selectOption({ label: "Nodira Alimova" });
+    await page.getByLabel("Who").selectOption({ label: "Nodira Alimova" });
     await page.getByRole("button", { name: "Apply" }).click();
 
     await expect(page).toHaveURL(/actor=/);
     await expect(
-      page.getByRole("cell", { name: "opportunity.published" }),
+      page.getByRole("cell", { name: "Vacancy published directly" }),
     ).toBeVisible();
-    await expect(page.getByRole("cell", { name: "coordinator.created" })).toHaveCount(
+    await expect(page.getByRole("cell", { name: "Coordinator created" })).toHaveCount(
       0,
     );
   });
@@ -1086,10 +1201,10 @@ test.describe("organizations and the audit history", () => {
     await page.getByRole("button", { name: "Apply" }).click();
 
     await expect(page).toHaveURL(/action=coordinator.created/);
-    await expect(page.getByRole("cell", { name: "coordinator.created" })).toBeVisible();
-    await expect(page.getByRole("cell", { name: "opportunity.published" })).toHaveCount(
-      0,
-    );
+    await expect(page.getByRole("cell", { name: "Coordinator created" })).toBeVisible();
+    await expect(
+      page.getByRole("cell", { name: "Vacancy published directly" }),
+    ).toHaveCount(0);
   });
 
   test("offers the whole action vocabulary, not only what is on the page", async ({
@@ -1098,10 +1213,14 @@ test.describe("organizations and the audit history", () => {
     await signedIn(page);
     await page.goto("/en/audit");
 
-    const options = await page.getByLabel("Action").locator("option").allTextContents();
+    const options = await page
+      .getByLabel("Action")
+      .locator("option")
+      .evaluateAll((items) => items.map((item) => (item as HTMLOptionElement).value));
 
     expect(options).toContain("attendance.resolved");
     expect(options).toContain("coordinator.removed");
+    expect(options).toContain("application.closed");
   });
 });
 
@@ -1110,6 +1229,7 @@ test.describe("the dashboard charts", () => {
     page,
   }) => {
     await signedIn(page);
+    await page.goto("/en/insights");
 
     const panel = (name: string) =>
       page.locator("section").filter({ has: page.getByRole("heading", { name }) });
@@ -1128,29 +1248,34 @@ test.describe("the dashboard charts", () => {
       await expect(pipeline.getByText(stage, { exact: true })).toBeVisible();
     }
 
-    await expect(page.getByText("Vacancies published")).toBeVisible();
-    await expect(page.getByText("Attendance confirmed")).toBeVisible();
+    await expect(page.getByText("Vacancies published", { exact: true })).toBeVisible();
+    await expect(page.getByText("Attendance confirmed", { exact: true })).toBeVisible();
 
     for (const title of [
       "Applications submitted",
       "Applications by status",
       "Vacancies by region",
-      "Vacancies by stage",
+      "Vacancies by state",
       "Vacancies by format",
     ]) {
       await expect(page.getByRole("heading", { name: title })).toBeVisible();
     }
 
-    const stages = panel("Vacancies by stage");
-    await expect(stages.getByText("Published", { exact: true })).toBeVisible();
-    await expect(stages.getByText("Draft", { exact: true })).toBeVisible();
-    await expect(stages.getByText("Archived", { exact: true })).toBeVisible();
+    const states = panel("Vacancies by state");
+    await expect(
+      states.getByText("Approved and published", { exact: true }),
+    ).toBeVisible();
+    await expect(
+      states.getByText("Waiting for approval", { exact: true }),
+    ).toBeVisible();
+    await expect(states.getByText("Draft", { exact: true })).toBeVisible();
   });
 
   test("draws no bar for a count of zero rather than inventing one", async ({
     page,
   }) => {
     await signedIn(page);
+    await page.goto("/en/insights");
 
     const widths = await page
       .locator("section")
@@ -1164,6 +1289,7 @@ test.describe("the dashboard charts", () => {
 
   test("draws the joining rate as a line with a readable scale", async ({ page }) => {
     await signedIn(page);
+    await page.goto("/en/insights");
 
     const joins = page
       .locator("section")
@@ -1198,7 +1324,7 @@ test.describe("failures a screen has to explain", () => {
     await page.goto("/en/vacancies");
 
     await expect(statePanel(page)).toContainText("Change your password first");
-    await page.getByRole("link", { name: "Change password" }).click();
+    await statePanel(page).getByRole("link", { name: "Change password" }).click();
     await expect(page).toHaveURL(/\/en\/account\/change-password$/);
   });
 
@@ -1217,7 +1343,9 @@ test.describe("failures a screen has to explain", () => {
     await page.goto("/en/vacancies");
 
     await expect(statePanel(page)).toContainText("Change your password first");
-    await expect(page.getByRole("link", { name: "Change password" })).toBeVisible();
+    await expect(
+      statePanel(page).getByRole("link", { name: "Change password" }),
+    ).toBeVisible();
 
     await page.request.post(`${STUB}/__stub/break`, { data: { path: null } });
   });
@@ -1234,7 +1362,7 @@ test.describe("failures a screen has to explain", () => {
       },
     });
 
-    await page.goto("/en/dashboard");
+    await page.goto("/en/insights");
 
     await expect(statePanel(page)).toContainText(
       "The API has these workflows switched off",

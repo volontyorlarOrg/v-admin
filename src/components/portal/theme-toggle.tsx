@@ -4,11 +4,21 @@ import { Moon, Sun } from "lucide-react";
 import { useSyncExternalStore } from "react";
 
 import { applyTheme, readTheme, subscribeToTheme, type Theme } from "@/lib/theme";
+import { cn } from "@/lib/utils";
 
 const SERVER_THEME: Theme = "light";
 
-export function ThemeToggle({ label }: { label: string }) {
+export function ThemeToggle({
+  label,
+  tone = "default",
+  className,
+}: {
+  label: string;
+  tone?: "default" | "shell";
+  className?: string;
+}) {
   const theme = useSyncExternalStore(subscribeToTheme, readTheme, () => SERVER_THEME);
+  const shell = tone === "shell";
 
   return (
     <button
@@ -16,7 +26,13 @@ export function ThemeToggle({ label }: { label: string }) {
       aria-label={label}
       aria-pressed={theme === "dark"}
       onClick={() => applyTheme(theme === "dark" ? "light" : "dark")}
-      className="flex size-11 items-center justify-center rounded-lg text-ink-muted hover:bg-surface-sunk hover:text-ink"
+      className={cn(
+        "flex size-10 shrink-0 items-center justify-center rounded-lg border transition-colors",
+        shell
+          ? "border-shell-line bg-shell-raised text-shell-muted hover:border-shell-muted hover:text-shell-ink"
+          : "border-border-control text-ink-muted hover:border-primary-ink hover:text-primary-ink",
+        className,
+      )}
     >
       {theme === "dark" ? (
         <Sun aria-hidden="true" className="size-4" />

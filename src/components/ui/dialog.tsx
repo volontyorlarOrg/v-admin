@@ -37,7 +37,7 @@ function DialogOverlay({
   return (
     <DialogPrimitive.Overlay
       data-slot="dialog-overlay"
-      className={cn("fixed inset-0 z-50 bg-ink/35 backdrop-blur-[2px]", className)}
+      className={cn("fixed inset-0 z-50 bg-shell/55", className)}
       {...props}
     />
   );
@@ -59,7 +59,7 @@ function DialogContent({
       <DialogPrimitive.Content
         data-slot="dialog-content"
         className={cn(
-          "fixed top-1/2 left-1/2 z-50 flex max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground shadow-[0_24px_60px_-32px_rgb(28_36_43/0.55)] outline-none",
+          "fixed top-1/2 left-1/2 z-50 flex max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-2xl border border-border bg-popover text-popover-foreground shadow-raised outline-none",
           SIZE[size],
           className,
         )}
@@ -121,7 +121,7 @@ function DialogTitle({
   return (
     <DialogPrimitive.Title
       data-slot="dialog-title"
-      className={cn("text-section font-semibold text-foreground", className)}
+      className={cn("display-face text-2xl leading-tight text-foreground", className)}
       {...props}
     />
   );
