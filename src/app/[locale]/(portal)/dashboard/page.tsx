@@ -1,497 +1,571 @@
+import { ArrowRight } from "lucide-react";
 import { getFormatter, getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 
-import { BarChart, type BarRow } from "@/components/charts/bar-chart";
-import { ColumnChart } from "@/components/charts/column-chart";
-import { LineChart } from "@/components/charts/line-chart";
-import { Meter } from "@/components/charts/meter";
-import { StackedBar, type StackSegment } from "@/components/charts/stacked-bar";
-import { Stat } from "@/components/portal/figure";
-import { Panel } from "@/components/portal/panel";
+import { Avatar } from "@/components/portal/avatar";
+import {
+  QUEUE_ACTIONS,
+  QUEUE_EXPAND,
+  QueueMain,
+  QueueRow,
+  QueueSection,
+  QueueSide,
+} from "@/components/queue/queue";
+import { Totals } from "@/components/register/facts";
+import { InlineDecision } from "@/components/register/inline-decision";
+import { Register, RegisterNote } from "@/components/register/register";
+import { Seal, type SealTone } from "@/components/register/seal";
 import { LoadFailure } from "@/components/states/load-failure";
 import { PageHeader } from "@/components/states/page-header";
 import { buttonClass } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
 import { failureOf, isReady } from "@/lib/api/load";
 import { loadApplications } from "@/lib/applications/data.server";
-import { navHref } from "@/lib/routing/routes";
+import { reviewApplicationAction } from "@/lib/applications/actions";
+import { volunteerNameOf } from "@/lib/applications/filters";
+import { getSession } from "@/lib/auth/session.server";
+import { loadCoordinators } from "@/lib/coordinators/data.server";
+import { sealDate } from "@/lib/datetime";
+import { verifyOrganizationAction } from "@/lib/organizations/actions";
 import {
-  applicationStatuses,
-  joinTrend,
-  submissionTrend,
-  vacancyFormats,
-  vacancyRegions,
-  vacancyStages,
-  type Slice,
-} from "@/lib/statistics/breakdowns";
+  organizationDecisions,
+  vacancyDecisions,
+} from "@/lib/queue/approval-decisions.server";
+import { applicationDecisions, decisionLabels } from "@/lib/queue/decisions.server";
 import {
-  attendanceRatio,
-  coordinatorSplit,
-  pipeline,
-  publishedRatio,
-  type CoordinatorStateKey,
-} from "@/lib/statistics/charts";
+  applicationsToDecide,
+  blockingOrganizations,
+  clearedToday,
+  isFresh,
+  rollCallsDue,
+  vacanciesToApprove,
+  type Cleared,
+} from "@/lib/queue/today";
+import { MAX_PAGE_SIZE } from "@/lib/routing/search-params";
+import { applicationHref, navHref, vacancyHref } from "@/lib/routing/routes";
 import { loadStatistics } from "@/lib/statistics/data.server";
-import { loadEveryUser } from "@/lib/users/data.server";
-import { loadVacancies } from "@/lib/vacancies/data.server";
-import type { VacancyStage } from "@/lib/domain/vocabulary";
+import { decideVacancyAction } from "@/lib/vacancies/actions";
+import { loadOrganizations, loadVacancies } from "@/lib/vacancies/data.server";
 
 export const dynamic = "force-dynamic";
-
-const PERCENT = { style: "percent", maximumFractionDigits: 0 } as const;
-
-type Tone = StackSegment["tone"];
-
-const COORDINATOR_TONE: Record<CoordinatorStateKey, Tone> = {
-  active: "strong",
-  blocked: "mid",
-  removed: "soft",
-};
-
-const STAGE_ORDER: readonly VacancyStage[] = ["published", "draft", "archived"];
-
-const STAGE_TONE: Record<VacancyStage, Tone> = {
-  published: "strong",
-  draft: "mid",
-  archived: "soft",
-};
-
-function rowsOf<K extends string>(
-  slices: Slice<K>[],
-  label: (key: K) => string,
-  value: (count: number) => string,
-): BarRow[] {
-  return slices.map((slice) => ({
-    key: slice.key,
-    label: label(slice.key),
-    value: value(slice.value),
-    share: slice.share,
-  }));
-}
 
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/dashboard">): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "dashboard" });
+  const t = await getTranslations({ locale, namespace: "today" });
   return { title: t("title") };
 }
 
-export default async function DashboardPage({
-  params,
-}: PageProps<"/[locale]/dashboard">) {
+export default async function TodayPage({ params }: PageProps<"/[locale]/dashboard">) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const [t, applicationsT, vacanciesT, vocabulary, format] = await Promise.all([
-    getTranslations("dashboard"),
-    getTranslations("applications"),
-    getTranslations("vacancies"),
+  const [t, seal, vocabulary, format, session] = await Promise.all([
+    getTranslations("today"),
+    getTranslations("seal"),
     getTranslations("vocabulary"),
     getFormatter(),
+    getSession(),
   ]);
 
-  const [statistics, vacancies, applications, users] = await Promise.all([
-    loadStatistics(),
-    loadVacancies(),
-    loadApplications(),
-    loadEveryUser(),
-  ]);
+  const [vacancies, applications, organizations, coordinators, statistics] =
+    await Promise.all([
+      loadVacancies(),
+      loadApplications(),
+      loadOrganizations(),
+      loadCoordinators({ page: 1, pageSize: MAX_PAGE_SIZE }),
+      loadStatistics(),
+    ]);
 
-  const header = (
-    <PageHeader
-      eyebrow={t("eyebrow")}
-      title={t("title")}
-      description={t("description")}
-    />
-  );
+  const now = new Date();
+  const failure = failureOf(vacancies) ?? failureOf(applications);
 
-  if (!isReady(statistics)) {
-    const failure = failureOf(statistics);
+  if (failure || !isReady(vacancies) || !isReady(applications)) {
     return (
       <>
-        {header}
+        <PageHeader title={t("title")} />
         {failure ? <LoadFailure failure={failure} /> : null}
       </>
     );
   }
 
-  const totals = statistics.data.totals;
-  const stages = pipeline(totals);
-  const published = publishedRatio(totals);
-  const attendance = attendanceRatio(totals);
-  const coordinators = coordinatorSplit(totals);
-  const count = (value: number) => format.number(value);
-  const day = (value: string) => format.dateTime(new Date(value), "day");
-  const date = (value: string) => format.dateTime(new Date(value), "date");
+  const organizationRows = isReady(organizations) ? organizations.data : [];
+  const coordinatorNames = new Map(
+    isReady(coordinators)
+      ? coordinators.data.items.map((item) => [
+          item.id,
+          item.displayName ?? item.email ?? item.id,
+        ])
+      : [],
+  );
 
-  const charted = stages.some((stage) => stage.value > 0);
-  const rated = published.total > 0 || attendance.total > 0;
-  const empty = <p className="text-sm text-ink-muted">{t("charts.empty")}</p>;
+  const approve = vacanciesToApprove(vacancies.data, organizationRows, now);
+  const blocked = blockingOrganizations(vacancies.data, organizationRows);
+  const decide = applicationsToDecide(applications.data, vacancies.data);
+  const rollCalls = rollCallsDue(applications.data, vacancies.data, now);
+  const waiting = approve.length + blocked.length + decide.length + rollCalls.length;
+  const cleared = session
+    ? clearedToday({
+        vacancies: vacancies.data,
+        applications: applications.data,
+        me: session.userId,
+        now,
+      })
+    : [];
 
-  const applicationRows = isReady(applications) ? applications.data : null;
-  const trend = applicationRows ? submissionTrend(applicationRows) : null;
-  const statuses = applicationRows ? applicationStatuses(applicationRows) : [];
+  const [labels, vacancyOptions, applicationOptions, organizationOptions] =
+    await Promise.all([
+      decisionLabels(),
+      vacancyDecisions(),
+      applicationDecisions(),
+      organizationDecisions(),
+    ]);
 
-  const scan = isReady(users) ? users.data : null;
-  const joins = scan?.complete ? joinTrend(scan.users) : null;
+  const when = (value: string | undefined) =>
+    value ? format.relativeTime(new Date(value), now) : "";
+  const totals = isReady(statistics) ? statistics.data.totals : null;
+  const issuer = seal("issuer");
+  const figure = (chunks: ReactNode) => (
+    <span className="display-face tabular text-lg text-ink">{chunks}</span>
+  );
+  const earned = (chunks: ReactNode) => (
+    <span className="display-face tabular text-lg text-accent-ink">{chunks}</span>
+  );
 
-  const vacancyRows = isReady(vacancies) ? vacancies.data : null;
-  const regions = vacancyRows ? vacancyRegions(vacancyRows) : [];
-  const formats = vacancyRows ? vacancyFormats(vacancyRows) : [];
-  const stageSlices = vacancyRows ? vacancyStages(vacancyRows) : [];
-  const stageSegments = STAGE_ORDER.flatMap((stage) => {
-    const slice = stageSlices.find((entry) => entry.key === stage);
-    if (!slice) return [];
-    return [
-      {
-        key: slice.key,
-        label: vacanciesT(`stage.${slice.key}`),
-        value: count(slice.value),
-        share: slice.share,
-        tone: STAGE_TONE[slice.key],
-      },
-    ];
-  });
-
-  const applicationFailure = failureOf(applications);
-  const userFailure = failureOf(users);
-  const vacancyFailure = failureOf(vacancies);
+  const clearedSeal = (item: Cleared): { word: string; tone: SealTone } => {
+    if (item.kind === "rollCall") return { word: seal("recorded"), tone: "person" };
+    if (item.kind === "vacancy") {
+      return item.decision === "approved"
+        ? { word: seal("approved"), tone: "institution" }
+        : item.decision === "rejected"
+          ? { word: seal("rejected"), tone: "neutral" }
+          : { word: seal("returned"), tone: "neutral" };
+    }
+    return item.decision === "accepted"
+      ? { word: seal("accepted"), tone: "person" }
+      : item.decision === "closed"
+        ? { word: seal("closed"), tone: "neutral" }
+        : { word: seal("rejected"), tone: "neutral" };
+  };
 
   return (
     <>
       <PageHeader
-        eyebrow={t("eyebrow")}
         title={t("title")}
-        description={t("description")}
+        description={t("dateline", {
+          date: format.dateTime(now, {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+          }),
+          count: waiting,
+        })}
       />
 
-      <Panel>
-        <div className="grid gap-8 sm:grid-cols-[minmax(0,1fr)_minmax(0,auto)] sm:items-end">
-          <div className="min-w-0">
-            <p className="eyebrow text-ink-muted">{t("figures.confirmedHours")}</p>
-            <p className="tabular mt-3 text-hero text-accent-ink">
-              {count(totals.confirmedHours)}
-            </p>
-            <p className="tabular mt-3 text-sm text-ink-muted">
-              {t("range", {
-                from: date(statistics.data.range.from),
-                to: date(statistics.data.range.to),
-              })}
-            </p>
-          </div>
+      <Register
+        id="waiting"
+        title={t("listTitle")}
+        count={waiting}
+        countLabel={t("waitingLabel")}
+        countTone="waiting"
+      >
+        {waiting === 0 ? (
+          <RegisterNote
+            title={t("clear.title")}
+            description={t("clear.description")}
+            action={
+              <Seal
+                word={seal("clear")}
+                date={sealDate(now)}
+                issuer={issuer}
+                label={seal("label", { word: seal("clear"), date: sealDate(now) })}
+                tone="neutral"
+                size={72}
+              />
+            }
+          />
+        ) : null}
 
-          <dl className="grid grid-cols-2 gap-x-8 gap-y-5 sm:grid-cols-3">
-            {totals.volunteers === undefined ? null : (
-              <Stat label={t("figures.volunteers")} value={count(totals.volunteers)} />
-            )}
-            <Stat label={t("figures.vacancies")} value={count(totals.vacancies)} />
-            <Stat
-              label={t("figures.applications")}
-              value={count(totals.applications)}
-            />
-          </dl>
-        </div>
-      </Panel>
+        {approve.length > 0 ? (
+          <QueueSection
+            id="approve"
+            title={t("approve.title")}
+            count={approve.length}
+            countLabel={t("approve.countLabel")}
+          >
+            {approve.map((entry, index) => {
+              const ready = entry.missing.length === 0;
+              const coordinator = entry.vacancy.createdById
+                ? coordinatorNames.get(entry.vacancy.createdById)
+                : undefined;
+              const sideId = `approve-${entry.vacancy.id}-state`;
+              return (
+                <QueueRow
+                  key={entry.vacancy.id}
+                  number={index + 1}
+                  numberLabel={t("number")}
+                >
+                  <QueueMain
+                    title={
+                      <Link
+                        href={vacancyHref(entry.vacancy.id)}
+                        className="hover:text-primary-ink hover:underline"
+                      >
+                        {entry.vacancy.title}
+                      </Link>
+                    }
+                    meta={[
+                      entry.organization?.name,
+                      coordinator,
+                      vocabulary(`regions.${entry.vacancy.region}`),
+                    ]
+                      .filter(Boolean)
+                      .join(" · ")}
+                  />
+                  <QueueSide id={sideId}>
+                    <span>{t("approve.sent", { when: when(entry.receivedAt) })}</span>
+                    {ready ? (
+                      <span className="font-medium text-primary-ink">
+                        {t("approve.ready")}
+                      </span>
+                    ) : (
+                      <span className="font-medium text-danger-ink">
+                        {t("approve.needs", {
+                          items: entry.missing
+                            .map((item) => t(`requirements.${item}`))
+                            .join(", "),
+                        })}
+                      </span>
+                    )}
+                  </QueueSide>
+                  <InlineDecision
+                    action={decideVacancyAction}
+                    hidden={{ id: entry.vacancy.id }}
+                    subject={entry.vacancy.title}
+                    labels={labels}
+                    options={vacancyOptions({
+                      title: entry.vacancy.title,
+                      ready,
+                      describedBy: sideId,
+                    })}
+                    className={QUEUE_ACTIONS}
+                    expandClassName={QUEUE_EXPAND}
+                  />
+                </QueueRow>
+              );
+            })}
+          </QueueSection>
+        ) : null}
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-        <Panel
-          title={t("charts.pipeline.title")}
-          description={t("charts.pipeline.description")}
+        {blocked.length > 0 ? (
+          <QueueSection
+            id="blocked"
+            title={t("blocked.title")}
+            count={blocked.length}
+            countLabel={t("blocked.countLabel")}
+          >
+            {blocked.map((entry, index) => (
+              <QueueRow
+                key={entry.organization.id}
+                number={index + 1}
+                numberLabel={t("number")}
+              >
+                <QueueMain
+                  title={entry.organization.name}
+                  meta={t("blocked.meta", {
+                    count: entry.vacancies.length,
+                    titles: entry.vacancies.map((item) => item.title).join(", "),
+                  })}
+                />
+                <QueueSide>
+                  <span className="font-medium text-danger-ink">
+                    {t("blocked.state")}
+                  </span>
+                </QueueSide>
+                <InlineDecision
+                  action={verifyOrganizationAction}
+                  hidden={{ id: entry.organization.id }}
+                  subject={entry.organization.name}
+                  labels={labels}
+                  options={organizationOptions({ name: entry.organization.name })}
+                  className={QUEUE_ACTIONS}
+                  expandClassName={QUEUE_EXPAND}
+                />
+              </QueueRow>
+            ))}
+          </QueueSection>
+        ) : null}
+
+        {decide.length > 0 ? (
+          <QueueSection
+            id="decide"
+            title={t("decide.title")}
+            count={decide.length}
+            countLabel={t("decide.countLabel")}
+            action={
+              <Link
+                href={`${navHref("applications")}?view=waiting`}
+                className="inline-flex min-h-8 items-center gap-1 text-sm font-semibold text-primary-ink hover:underline"
+              >
+                {t("decide.all")}
+                <ArrowRight aria-hidden="true" className="size-4" />
+              </Link>
+            }
+          >
+            {decide.slice(0, 12).map((entry, index) => {
+              const name = volunteerNameOf(entry.application) || t("decide.unnamed");
+              const incomplete =
+                entry.application.volunteer?.profileCompletion?.complete === false;
+              return (
+                <QueueRow
+                  key={entry.application.id}
+                  number={index + 1}
+                  numberLabel={t("number")}
+                >
+                  <QueueMain
+                    lead={
+                      <Avatar
+                        name={name}
+                        src={entry.application.volunteer?.avatarUrl}
+                        person
+                      />
+                    }
+                    title={
+                      <Link
+                        href={applicationHref(entry.application.id)}
+                        className="hover:text-primary-ink hover:underline"
+                      >
+                        {name}
+                      </Link>
+                    }
+                    meta={entry.vacancy?.title ?? entry.application.opportunity?.title}
+                  />
+                  <QueueSide>
+                    <span>
+                      {t("decide.sent", {
+                        when: when(
+                          entry.application.submittedAt ?? entry.application.createdAt,
+                        ),
+                      })}
+                    </span>
+                    <span className="flex flex-wrap gap-x-3">
+                      {entry.application.essay ? (
+                        <span className="text-ink">{t("decide.essay")}</span>
+                      ) : null}
+                      {entry.application.status === "under_review" ? (
+                        <span className="text-primary-ink">{t("decide.looking")}</span>
+                      ) : null}
+                      {incomplete ? (
+                        <span className="text-ink-muted">{t("decide.incomplete")}</span>
+                      ) : null}
+                    </span>
+                  </QueueSide>
+                  <InlineDecision
+                    action={reviewApplicationAction}
+                    hidden={{ id: entry.application.id }}
+                    subject={name}
+                    labels={labels}
+                    options={applicationOptions({
+                      name,
+                      status: entry.application.status,
+                    })}
+                    className={QUEUE_ACTIONS}
+                    expandClassName={QUEUE_EXPAND}
+                  />
+                </QueueRow>
+              );
+            })}
+          </QueueSection>
+        ) : null}
+
+        {rollCalls.length > 0 ? (
+          <QueueSection
+            id="roll-calls"
+            title={t("rollCalls.title")}
+            count={rollCalls.length}
+            countLabel={t("rollCalls.countLabel")}
+          >
+            {rollCalls.map((call, index) => (
+              <QueueRow
+                key={call.vacancyId}
+                number={index + 1}
+                numberLabel={t("number")}
+              >
+                <QueueMain
+                  title={
+                    <Link
+                      href={vacancyHref(call.vacancyId)}
+                      className="hover:text-primary-ink hover:underline"
+                    >
+                      {call.title}
+                    </Link>
+                  }
+                  meta={
+                    call.endedAt
+                      ? t("rollCalls.ended", {
+                          when: format.relativeTime(call.endedAt, now),
+                        })
+                      : undefined
+                  }
+                />
+                <QueueSide>
+                  <span className="font-medium text-ink">
+                    {t("rollCalls.waiting", { count: call.awaiting })}
+                  </span>
+                  {call.resolved > 0 ? (
+                    <span>{t("rollCalls.resolved", { count: call.resolved })}</span>
+                  ) : null}
+                </QueueSide>
+                <div className={`flex ${QUEUE_ACTIONS}`}>
+                  <Link
+                    href={`${vacancyHref(call.vacancyId)}#roll-call`}
+                    className={buttonClass({ size: "row" })}
+                  >
+                    {t("rollCalls.open")}
+                  </Link>
+                </div>
+              </QueueRow>
+            ))}
+          </QueueSection>
+        ) : null}
+      </Register>
+
+      {cleared.length > 0 ? (
+        <Register
+          id="cleared"
+          title={t("cleared.title")}
+          count={cleared.length}
+          countLabel={t("cleared.countLabel")}
         >
-          {charted ? (
-            <BarChart
-              className="mt-1"
-              rows={rowsOf(
-                stages,
-                (key) => t(`figures.${key}`),
-                (value) => count(value),
-              )}
-            />
-          ) : (
-            empty
-          )}
-        </Panel>
-
-        <Panel className="flex flex-col justify-center">
-          {rated ? (
-            <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-1">
-              {published.total > 0 ? (
-                <Meter
-                  label={t("charts.published.label")}
-                  headline={format.number(published.share, PERCENT)}
-                  caption={t("charts.of", {
-                    value: count(published.value),
-                    total: count(published.total),
-                  })}
-                  share={published.share}
-                />
-              ) : null}
-              {attendance.total > 0 ? (
-                <Meter
-                  label={t("charts.attendance.label")}
-                  headline={format.number(attendance.share, PERCENT)}
-                  caption={t("charts.of", {
-                    value: count(attendance.value),
-                    total: count(attendance.total),
-                  })}
-                  share={attendance.share}
-                  tone="person"
-                />
-              ) : null}
-            </div>
-          ) : (
-            empty
-          )}
-        </Panel>
-      </div>
-
-      <div className="grid items-start gap-6 lg:grid-cols-2">
-        {applicationRows ? (
-          <Panel
-            title={t("charts.trend.title")}
-            description={t("charts.trend.description")}
-          >
-            {trend ? (
-              <div className="grid gap-4">
-                <ColumnChart
-                  columns={trend.buckets.map((bucket) => ({
-                    key: bucket.start,
-                    label: day(bucket.start),
-                    value: count(bucket.value),
-                    share: bucket.share,
-                  }))}
-                  peak={count(trend.peak)}
-                  from={day(trend.from)}
-                  to={day(trend.to)}
-                />
-                <p className="text-sm text-ink-muted">
-                  {t("charts.trend.summary", {
-                    total: trend.total,
-                    from: date(trend.from),
-                    to: date(trend.to),
-                  })}
-                </p>
-              </div>
-            ) : (
-              empty
-            )}
-          </Panel>
-        ) : applicationFailure ? (
-          <Panel
-            title={t("charts.trend.title")}
-            description={t("charts.trend.description")}
-          >
-            <LoadFailure failure={applicationFailure} />
-          </Panel>
-        ) : null}
-
-        {scan ? (
-          <Panel
-            title={t("charts.joins.title")}
-            description={t("charts.joins.description")}
-          >
-            {joins ? (
-              <div className="grid gap-4">
-                {joins.buckets.length > 1 ? (
-                  <LineChart
-                    points={joins.buckets.map((bucket) => ({
-                      key: bucket.start,
-                      label: day(bucket.start),
-                      value: count(bucket.value),
-                      share: bucket.share,
-                    }))}
-                    peak={count(joins.peak)}
-                    from={day(joins.from)}
-                    to={day(joins.to)}
+          <ol className="divide-y divide-border">
+            {cleared.map((item) => {
+              const mark = clearedSeal(item);
+              const date = sealDate(item.at);
+              const fresh = isFresh(item.at, now);
+              const key =
+                item.kind === "vacancy"
+                  ? `vacancy-${item.vacancy.id}`
+                  : item.kind === "application"
+                    ? `application-${item.application.id}`
+                    : `roll-${item.vacancyId}`;
+              return (
+                <li key={key} className="flex items-center gap-4 px-5 py-3">
+                  <Seal
+                    word={mark.word}
+                    date={date}
+                    issuer={issuer}
+                    tone={mark.tone}
+                    fresh={fresh}
+                    size={44}
+                    label={seal("label", { word: mark.word, date })}
                   />
-                ) : (
-                  <ColumnChart
-                    columns={joins.buckets.map((bucket) => ({
-                      key: bucket.start,
-                      label: day(bucket.start),
-                      value: count(bucket.value),
-                      share: bucket.share,
-                    }))}
-                    peak={count(joins.peak)}
-                    from={day(joins.from)}
-                    to={day(joins.to)}
-                  />
-                )}
-                <p className="text-sm text-ink-muted">
-                  {t("charts.joins.summary", {
-                    total: joins.total,
-                    from: date(joins.from),
-                    to: date(joins.to),
-                  })}
-                </p>
-              </div>
-            ) : scan.complete ? (
-              empty
-            ) : (
-              <p className="text-sm text-ink-muted">
-                {t("charts.joins.partial", {
-                  shown: count(scan.users.length),
-                  total: count(scan.total),
-                })}
-              </p>
-            )}
-          </Panel>
-        ) : userFailure ? (
-          <Panel
-            title={t("charts.joins.title")}
-            description={t("charts.joins.description")}
-          >
-            <LoadFailure failure={userFailure} />
-          </Panel>
-        ) : null}
-      </div>
-
-      <div className="grid items-start gap-6 lg:grid-cols-2">
-        {applicationRows ? (
-          <Panel
-            title={t("charts.status.title")}
-            description={t("charts.status.description")}
-          >
-            {statuses.length > 0 ? (
-              <BarChart
-                className="mt-1"
-                rows={rowsOf(
-                  statuses,
-                  (key) => applicationsT(`status.${key}`),
-                  (value) => count(value),
-                )}
-              />
-            ) : (
-              empty
-            )}
-          </Panel>
-        ) : applicationFailure ? (
-          <Panel
-            title={t("charts.status.title")}
-            description={t("charts.status.description")}
-          >
-            <LoadFailure failure={applicationFailure} />
-          </Panel>
-        ) : null}
-
-        {vacancyRows ? (
-          <Panel
-            title={t("charts.regions.title")}
-            description={t("charts.regions.description")}
-          >
-            {regions.length > 0 ? (
-              <BarChart
-                className="mt-1"
-                rows={rowsOf(
-                  regions,
-                  (key) => vocabulary(`regions.${key}`),
-                  (value) => count(value),
-                )}
-              />
-            ) : (
-              empty
-            )}
-          </Panel>
-        ) : vacancyFailure ? (
-          <Panel
-            title={t("charts.regions.title")}
-            description={t("charts.regions.description")}
-          >
-            <LoadFailure failure={vacancyFailure} />
-          </Panel>
-        ) : null}
-      </div>
-
-      {vacancyRows ? (
-        <div className="grid items-start gap-6 lg:grid-cols-2">
-          <Panel
-            title={t("charts.stages.title")}
-            description={t("charts.stages.description")}
-          >
-            {stageSegments.length > 0 ? <StackedBar segments={stageSegments} /> : empty}
-          </Panel>
-
-          <Panel
-            title={t("charts.formats.title")}
-            description={t("charts.formats.description")}
-          >
-            {formats.length > 0 ? (
-              <BarChart
-                className="mt-1"
-                rows={rowsOf(
-                  formats,
-                  (key) => vocabulary(`formats.${key}`),
-                  (value) => count(value),
-                )}
-              />
-            ) : (
-              empty
-            )}
-          </Panel>
-        </div>
-      ) : vacancyFailure ? (
-        <div className="grid items-start gap-6 lg:grid-cols-2">
-          <Panel
-            title={t("charts.stages.title")}
-            description={t("charts.stages.description")}
-          >
-            <LoadFailure failure={vacancyFailure} />
-          </Panel>
-          <Panel
-            title={t("charts.formats.title")}
-            description={t("charts.formats.description")}
-          >
-            <LoadFailure failure={vacancyFailure} />
-          </Panel>
-        </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold break-words text-ink">
+                      {item.kind === "vacancy" ? (
+                        <Link
+                          href={vacancyHref(item.vacancy.id)}
+                          className="hover:text-primary-ink hover:underline"
+                        >
+                          {item.vacancy.title}
+                        </Link>
+                      ) : item.kind === "application" ? (
+                        <Link
+                          href={applicationHref(item.application.id)}
+                          className="hover:text-primary-ink hover:underline"
+                        >
+                          {volunteerNameOf(item.application) || t("decide.unnamed")}
+                        </Link>
+                      ) : (
+                        <Link
+                          href={vacancyHref(item.vacancyId)}
+                          className="hover:text-primary-ink hover:underline"
+                        >
+                          {item.title}
+                        </Link>
+                      )}
+                    </p>
+                    <p className="mt-0.5 text-sm text-ink-muted">
+                      {item.kind === "vacancy"
+                        ? t(`cleared.vacancy.${item.decision}`)
+                        : item.kind === "application"
+                          ? t("cleared.application", {
+                              decision: t(`cleared.decision.${item.decision}`),
+                              vacancy: item.application.opportunity?.title ?? "",
+                            })
+                          : t("cleared.rollCall", {
+                              attended: item.attended,
+                              other: item.other,
+                            })}
+                    </p>
+                  </div>
+                  <span className="tabular shrink-0 text-sm text-ink-muted">
+                    {format.dateTime(new Date(item.at), "time")}
+                  </span>
+                </li>
+              );
+            })}
+          </ol>
+        </Register>
       ) : null}
 
-      {coordinators ? (
-        <Panel
-          title={t("coordinators.title")}
-          description={t("coordinators.description")}
-          actions={
+      {totals ? (
+        <Totals
+          id="operation"
+          title={t("operation.title")}
+          items={[
+            ...(totals.volunteers === undefined
+              ? []
+              : [
+                  {
+                    key: "volunteers",
+                    value: t.rich("operation.line.volunteers", {
+                      count: totals.volunteers,
+                      n: figure,
+                    }),
+                  },
+                ]),
+            {
+              key: "live",
+              value: t.rich("operation.line.live", {
+                count: totals.publishedVacancies,
+                n: figure,
+              }),
+            },
+            {
+              key: "applications",
+              value: t.rich("operation.line.applications", {
+                count: totals.applications,
+                n: figure,
+              }),
+            },
+            {
+              key: "attended",
+              value: t.rich("operation.line.attended", {
+                count: totals.attended,
+                n: figure,
+              }),
+            },
+            {
+              key: "hours",
+              value: t.rich("operation.line.hours", {
+                count: totals.confirmedHours,
+                n: earned,
+              }),
+            },
+          ]}
+          action={
             <Link
-              href={navHref("coordinators")}
-              className={buttonClass({ variant: "outline", size: "sm" })}
+              href={navHref("insights")}
+              className="inline-flex min-h-8 items-center gap-1 text-sm font-semibold text-primary-ink hover:underline"
             >
-              {t("coordinators.title")}
+              {t("operation.insights")}
+              <ArrowRight aria-hidden="true" className="size-4" />
             </Link>
           }
-        >
-          <StackedBar
-            segments={coordinators.map((segment) => ({
-              key: segment.key,
-              label: t(`coordinators.${segment.key}`),
-              value: count(segment.value),
-              share: segment.share,
-              tone: COORDINATOR_TONE[segment.key],
-            }))}
-          />
-        </Panel>
+        />
       ) : null}
-
-      <Panel title={t("next.title")}>
-        <ul className="flex flex-wrap gap-3">
-          <li>
-            <Link
-              href={`${navHref("applications")}?status=submitted`}
-              className={buttonClass({ variant: "outline", size: "sm" })}
-            >
-              {t("next.review", { count: totals.pendingReview })}
-            </Link>
-          </li>
-          <li>
-            <Link
-              href={navHref("attendance")}
-              className={buttonClass({ variant: "outline", size: "sm" })}
-            >
-              {t("next.attendance", { count: totals.awaitingAttendance })}
-            </Link>
-          </li>
-        </ul>
-      </Panel>
     </>
   );
 }

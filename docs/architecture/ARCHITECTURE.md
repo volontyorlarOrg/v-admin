@@ -4,8 +4,8 @@
 
 Next.js 16 App Router, React 19, Server Components by default. Every screen is
 rendered on the server from `v-backend`; the client bundle holds forms, the
-theme toggle, the locale switcher, the mobile menu and the confirmation dialog,
-and nothing else.
+inline decisions, the theme toggle, the locale switcher, the phone drawer, the
+confirmation dialog and the country ground, and nothing else.
 
 ```text
 src/proxy.ts                    locale routing, the session guard, session expiry,
@@ -27,14 +27,23 @@ e2e/                            Playwright, with a stub backend beside it
 
 `v-staff` and `v-admin` are independent repositories with their own lockfiles,
 deployments, cookies and secrets. They share a shape, not a package: the same
-`src/lib/api`, the same `Loaded` envelope, the same component set. What differs
-is declared in three files:
+`src/lib/api`, the same `Loaded` envelope, the same component set and the same
+stylesheet, byte for byte. What makes each repository its portal is declared in
+three files:
 
 - `src/lib/portal.ts` — the role, the cookie name, the secret's variable, the
   sign-in endpoint, the port;
 - `src/lib/api/endpoints.ts` — `/staff/*` against `/admin/*`, and the operations
   only an administrator has;
 - `src/lib/routing/routes.ts` — the section list.
+
+Beyond those, a file differs only where the work differs: the Today page (an
+administrator's approval queue against a coordinator's desk), the vacancy list
+and record (approving against sending for approval), the volunteer record (a
+coordinator never sees a volunteer's current profile), the activity page (the
+audit history against `/staff/activity`), the vacancy actions, the audit
+subject links, and the catalogs. Screens only an administrator has — Insights,
+Coordinators, Organizations, Audit — exist only in `v-admin`.
 
 Keeping them apart means a coordinator's deployment cannot be one misconfigured
 environment variable away from administrator access.
@@ -84,6 +93,12 @@ Client forms call an action with `useActionState`, and receive every label —
 including the error catalog — as props, because the root layout gives
 `NextIntlClientProvider` `messages={null}`.
 
+A write takes one of three shapes. A decision about one record is an
+`InlineDecision` in its row, built from `src/lib/queue/decisions.server.ts`:
+it awaits the action, toasts on success and keeps a failure inline. A long form
+is a page of its own that redirects to the record it created or changed. A write
+that needs protected focus — archiving, blocking, removing — is a `FormDialog`.
+
 ## Lists
 
 Filters are a plain `<form method="get">` and pagination is a set of links, so
@@ -106,5 +121,10 @@ and says so in [`../api/BACKEND_CONTRACT.md`](../api/BACKEND_CONTRACT.md).
   JSX. Components compose it.
 - Internal links use `Link` from `@/i18n/navigation` with `navHref()`, which
   adds the locale prefix itself.
-- Add a section by registering it in `src/lib/routing/routes.ts`: the sidebar,
-  the mobile menu, the proxy's guard and the tests all read from it.
+- Add a section by registering it in `src/lib/routing/routes.ts`: the rail, its
+  groups and waiting counts, the phone drawer, the proxy's guard and the tests
+  all read from it.
+- The shell renders the country ground once, behind every screen. It is
+  `aria-hidden`, ignores the pointer for hit-testing, and fits the country into
+  whichever `GroundWindow` the current screen registers (see
+  [`GROUND.md`](GROUND.md)).

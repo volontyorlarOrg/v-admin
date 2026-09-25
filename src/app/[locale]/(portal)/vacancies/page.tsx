@@ -1,15 +1,18 @@
+import { Plus } from "lucide-react";
 import { getFormatter, getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
 
-import { FilterForm, FilterSelect } from "@/components/forms/filter-form";
-import { StatusBadge, vacancyStateTone } from "@/components/portal/status-badge";
-import { EmptyState } from "@/components/states/empty-state";
+import { StatusBadge, vacancyStatus } from "@/components/portal/status-badge";
+import {
+  Register,
+  RegisterNote,
+  RegisterSearch,
+  RegisterTabs,
+} from "@/components/register/register";
 import { LoadFailure } from "@/components/states/load-failure";
 import { PageHeader } from "@/components/states/page-header";
 import { Pagination } from "@/components/states/pagination";
-import { VacancyDialog } from "@/components/vacancies/vacancy-dialog";
 import { buttonClass } from "@/components/ui/button";
-import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import {
   Table,
   TableBody,
@@ -21,25 +24,33 @@ import {
 } from "@/components/ui/table";
 import { Link } from "@/i18n/navigation";
 import { failureOf, isReady } from "@/lib/api/load";
+import { loadApplications } from "@/lib/applications/data.server";
 import { loadCoordinators } from "@/lib/coordinators/data.server";
-import { REGIONS, VACANCY_FORMATS, VACANCY_STATES } from "@/lib/domain/vocabulary";
+import { VACANCY_STATES, type VacancyState } from "@/lib/domain/vocabulary";
 import { navHref, vacancyHref } from "@/lib/routing/routes";
-import { MAX_PAGE_SIZE } from "@/lib/routing/search-params";
 import {
   DEFAULT_PAGE_SIZE,
+  MAX_PAGE_SIZE,
   hrefWith,
   paginate,
   readOption,
   readPage,
   readParam,
 } from "@/lib/routing/search-params";
-import { createVacancyAction } from "@/lib/vacancies/actions";
 import { vacancyStateOf } from "@/lib/vacancies/approval";
-import { loadOrganizations, loadVacancies } from "@/lib/vacancies/data.server";
-import { filterVacancies } from "@/lib/vacancies/filters";
-import { vacancyDialogLabels } from "@/lib/vacancies/labels.server";
+import { loadVacancies } from "@/lib/vacancies/data.server";
+import { countByState, filterVacancies } from "@/lib/vacancies/filters";
 
 export const dynamic = "force-dynamic";
+
+const TAB_ORDER: readonly VacancyState[] = [
+  "pending_review",
+  "changes_requested",
+  "draft",
+  "approved",
+  "rejected",
+  "archived",
+];
 
 export async function generateMetadata({
   params,
@@ -56,30 +67,30 @@ export default async function VacanciesPage({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const t = await getTranslations("vacancies");
-  const common = await getTranslations("common");
-  const format = await getFormatter();
+  const [t, common, vocabulary, format] = await Promise.all([
+    getTranslations("vacancies"),
+    getTranslations("common"),
+    getTranslations("vocabulary"),
+    getFormatter(),
+  ]);
 
   const query = await searchParams;
   const q = readParam(query, "q");
   const state = readOption(query, "state", VACANCY_STATES);
   const page = readPage(query);
 
-  const [loaded, organizations, coordinators] = await Promise.all([
+  const [loaded, applications, coordinators] = await Promise.all([
     loadVacancies(),
-    loadOrganizations(),
+    loadApplications(),
     loadCoordinators({ page: 1, pageSize: MAX_PAGE_SIZE }),
   ]);
 
   const failure = failureOf(loaded);
   const all = isReady(loaded) ? loaded.data : [];
-  const filtered = isReady(loaded) ? filterVacancies(loaded.data, { q, state }) : [];
+  const counts = countByState(all);
+  const filtered = filterVacancies(all, { q, ...(state ? { state } : {}) });
   const pageState = paginate(filtered, page, DEFAULT_PAGE_SIZE);
   const listPath = navHref("vacancies");
-
-  const waiting = all.filter(
-    (vacancy) => vacancyStateOf(vacancy) === "pending_review",
-  ).length;
 
   const coordinatorNames = new Map(
     isReady(coordinators)
@@ -90,7 +101,34 @@ export default async function VacanciesPage({
       : [],
   );
 
-  const createLabels = await vacancyDialogLabels("create");
+  const load = new Map<string, { sent: number; waiting: number }>();
+  if (isReady(applications)) {
+    for (const application of applications.data) {
+      const entry = load.get(application.opportunityId) ?? { sent: 0, waiting: 0 };
+      entry.sent += 1;
+      if (application.status === "submitted" || application.status === "under_review") {
+        entry.waiting += 1;
+      }
+      load.set(application.opportunityId, entry);
+    }
+  }
+
+  const tabs = [
+    {
+      key: "all",
+      label: t("state.all"),
+      href: hrefWith(listPath, { q }),
+      count: all.length,
+      active: state === undefined,
+    },
+    ...TAB_ORDER.map((value) => ({
+      key: value,
+      label: t(`state.${value}`),
+      href: hrefWith(listPath, { q, state: value }),
+      count: counts[value],
+      active: state === value,
+    })),
+  ];
 
   return (
     <>
@@ -98,100 +136,109 @@ export default async function VacanciesPage({
         title={t("title")}
         description={t("description")}
         actions={
-          <VacancyDialog
-            action={createVacancyAction}
-            labels={createLabels}
-            defaults={{}}
-            organizations={
-              isReady(organizations)
-                ? organizations.data.map((organization) => ({
-                    id: organization.id,
-                    name: organization.name,
-                    verified: organization.verified,
-                  }))
-                : []
-            }
-            regions={REGIONS}
-            formats={VACANCY_FORMATS}
-            triggerLabel={t("new")}
-            triggerHref={`/${locale}${navHref("newVacancy")}`}
-          />
+          <Link href={navHref("newVacancy")} className={buttonClass({ size: "sm" })}>
+            <Plus aria-hidden="true" />
+            {t("new")}
+          </Link>
         }
       />
 
       {failure ? <LoadFailure failure={failure} /> : null}
 
       {isReady(loaded) ? (
-        <>
-          {waiting > 0 && state !== "pending_review" ? (
-            <Link
-              href={hrefWith(listPath, { state: "pending_review" })}
-              className="flex items-center justify-between gap-4 rounded-xl border border-primary-muted bg-surface-soft px-5 py-4 text-sm font-medium text-ink transition-colors hover:border-primary-ink"
-            >
-              <span>{t("decide.queue")}</span>
-              <span className="tabular text-section font-semibold text-primary-ink">
-                {format.number(waiting)}
-              </span>
-            </Link>
-          ) : null}
-
-          <FilterForm
-            action={`/${locale}${listPath}`}
-            legend={t("filters.legend")}
-            searchLabel={t("filters.search")}
-            searchValue={q}
-            resetHref={listPath}
-          >
-            <FilterSelect id="filter-state" label={t("filters.state")}>
-              <NativeSelect id="filter-state" name="state" defaultValue={state ?? ""}>
-                <NativeSelectOption value="">{t("state.all")}</NativeSelectOption>
-                {VACANCY_STATES.map((value) => (
-                  <NativeSelectOption key={value} value={value}>
-                    {t(`state.${value}`)}
-                  </NativeSelectOption>
-                ))}
-              </NativeSelect>
-            </FilterSelect>
-          </FilterForm>
-
+        <Register
+          title={state ? t(`state.${state}`) : t("listTitle")}
+          count={filtered.length}
+          countLabel={t("countLabel")}
+          toolbar={
+            <div className="flex w-full flex-col gap-3">
+              <RegisterTabs label={t("filters.state")} items={tabs} />
+              <RegisterSearch
+                action={`/${locale}${listPath}`}
+                label={t("filters.search")}
+                submitLabel={common("search")}
+                value={q}
+                keep={{ state }}
+              />
+            </div>
+          }
+        >
           {pageState.items.length === 0 ? (
-            <EmptyState
+            <RegisterNote
               title={all.length === 0 ? t("empty.title") : t("noMatches.title")}
               description={
                 all.length === 0 ? t("empty.description") : t("noMatches.description")
               }
+              {...(all.length === 0
+                ? {
+                    action: (
+                      <Link
+                        href={navHref("newVacancy")}
+                        className={buttonClass({ size: "sm" })}
+                      >
+                        {t("new")}
+                      </Link>
+                    ),
+                  }
+                : {})}
             />
           ) : (
             <>
-              <div className="rounded-xl border border-border/70 panel-surface">
-                <Table>
-                  <TableCaption className="sr-only">{t("table.caption")}</TableCaption>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead scope="col">{t("table.title")}</TableHead>
-                      <TableHead scope="col">{t("table.state")}</TableHead>
-                      <TableHead scope="col">{t("table.coordinator")}</TableHead>
-                      <TableHead scope="col">{t("table.deadline")}</TableHead>
-                      <TableHead scope="col">{t("table.starts")}</TableHead>
-                      <TableHead scope="col">
-                        <span className="sr-only">{common("actions")}</span>
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {pageState.items.map((vacancy) => (
+              <Table>
+                <TableCaption className="sr-only">{t("table.caption")}</TableCaption>
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead scope="col">{t("table.title")}</TableHead>
+                    <TableHead scope="col">{t("table.state")}</TableHead>
+                    <TableHead scope="col">{t("table.applications")}</TableHead>
+                    <TableHead scope="col">{t("table.coordinator")}</TableHead>
+                    <TableHead scope="col">{t("table.deadline")}</TableHead>
+                    <TableHead scope="col">{t("table.starts")}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {pageState.items.map((vacancy) => {
+                    const current = vacancyStateOf(vacancy);
+                    const status = vacancyStatus(current);
+                    const counted = load.get(vacancy.id);
+                    return (
                       <TableRow key={vacancy.id}>
-                        <TableCell>
-                          <span className="font-medium text-ink">{vacancy.title}</span>
+                        <TableCell className="max-w-[22rem]">
+                          <Link
+                            href={vacancyHref(vacancy.id)}
+                            className="font-semibold text-ink hover:text-primary-ink hover:underline"
+                          >
+                            {vacancy.title}
+                          </Link>
                           <span className="mt-0.5 block text-xs text-ink-muted">
-                            {vacancy.organization?.name ?? vacancy.slug}
+                            {[
+                              vacancy.organization?.name,
+                              vocabulary(`regions.${vacancy.region}`),
+                            ]
+                              .filter(Boolean)
+                              .join(" · ")}
                           </span>
                         </TableCell>
                         <TableCell>
                           <StatusBadge
-                            label={t(`state.${vacancyStateOf(vacancy)}`)}
-                            tone={vacancyStateTone(vacancyStateOf(vacancy))}
+                            label={t(`state.${current}`)}
+                            tone={status.tone}
+                            icon={status.icon}
                           />
+                        </TableCell>
+                        <TableCell className="tabular whitespace-nowrap">
+                          {counted ? (
+                            <>
+                              {format.number(counted.sent)}
+                              {counted.waiting > 0 ? (
+                                <span className="ml-2 font-semibold text-primary-ink">
+                                  {t("table.waiting", { count: counted.waiting })}
+                                </span>
+                              ) : null}
+                            </>
+                          ) : (
+                            <span className="text-ink-muted">—</span>
+                          )}
                         </TableCell>
                         <TableCell className="text-ink-muted">
                           {(vacancy.createdById
@@ -207,28 +254,19 @@ export default async function VacanciesPage({
                         <TableCell className="tabular whitespace-nowrap">
                           {format.dateTime(new Date(vacancy.startsAt), "day")}
                         </TableCell>
-                        <TableCell className="text-right">
-                          <Link
-                            href={vacancyHref(vacancy.id)}
-                            className={buttonClass({ variant: "ghost", size: "sm" })}
-                          >
-                            {t("table.open")}
-                            <span className="sr-only"> — {vacancy.title}</span>
-                          </Link>
-                        </TableCell>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-
+                    );
+                  })}
+                </TableBody>
+              </Table>
               <Pagination
+                framed
                 state={pageState}
                 hrefFor={(next) => hrefWith(listPath, { q, state, page: next })}
               />
             </>
           )}
-        </>
+        </Register>
       ) : null}
     </>
   );

@@ -2,13 +2,18 @@
 
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 import { failedResult, type ActionResult } from "@/lib/api/action-result";
-import { write } from "@/lib/api/gateway.server";
+import { write, writeReturning } from "@/lib/api/gateway.server";
+import { vacancySchema } from "@/lib/api/schemas";
 import { fieldErrorsOf, stringField } from "@/lib/auth/credentials";
+import { isLocale } from "@/i18n/routing";
+import { vacancyHref } from "@/lib/routing/routes";
 import { DECISION_ENDPOINTS, vacancyDecisionSchema } from "@/lib/vacancies/decision";
 import {
   toVacancyPayload,
+  toVacancyUpdate,
   vacancyFormSchema,
   vacancyFromFormData,
 } from "@/lib/vacancies/form";
@@ -38,13 +43,18 @@ export async function createVacancyAction(
     return failedResult("validationFailed", fieldErrorsOf(parsed.error));
   }
 
-  const result = await write("createVacancy", {
+  const { result, data } = await writeReturning("createVacancy", {
+    schema: vacancySchema,
     body: {
       ...toVacancyPayload(parsed.data),
       slug: vacancySlug(parsed.data.title),
     },
   });
-  if (result.status === "ok") revalidateVacancies();
+  if (result.status !== "ok") return result;
+
+  revalidateVacancies();
+  const locale = stringField(formData, "locale");
+  if (data && isLocale(locale)) redirect(`/${locale}${vacancyHref(data.id)}`);
   return result;
 }
 
@@ -62,9 +72,13 @@ export async function updateVacancyAction(
 
   const result = await write("updateVacancy", {
     params: { id },
-    body: toVacancyPayload(parsed.data),
+    body: toVacancyUpdate(parsed.data),
   });
-  if (result.status === "ok") revalidateVacancies();
+  if (result.status !== "ok") return result;
+
+  revalidateVacancies();
+  const locale = stringField(formData, "locale");
+  if (isLocale(locale)) redirect(`/${locale}${vacancyHref(id)}`);
   return result;
 }
 

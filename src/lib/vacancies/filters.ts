@@ -22,7 +22,7 @@ export function filterVacancies(
   return sortByCreated(vacancies).filter((vacancy) => {
     if (state && vacancyStateOf(vacancy) !== state) return false;
     if (!term) return true;
-    return `${vacancy.title} ${vacancy.description} ${vacancy.slug}`
+    return `${vacancy.title} ${vacancy.organization?.name ?? ""} ${vacancy.description} ${vacancy.slug}`
       .toLowerCase()
       .includes(term);
   });
@@ -32,4 +32,17 @@ export function awaitingDecision(vacancies: Vacancy[]): Vacancy[] {
   return sortByCreated(vacancies).filter(
     (vacancy) => vacancyStateOf(vacancy) === "pending_review",
   );
+}
+
+export function countByState(vacancies: Vacancy[]): Record<VacancyState, number> {
+  const counts: Record<VacancyState, number> = {
+    draft: 0,
+    pending_review: 0,
+    changes_requested: 0,
+    approved: 0,
+    rejected: 0,
+    archived: 0,
+  };
+  for (const vacancy of vacancies) counts[vacancyStateOf(vacancy)] += 1;
+  return counts;
 }

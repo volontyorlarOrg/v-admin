@@ -1,13 +1,15 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
 
-import { Panel } from "@/components/portal/panel";
 import { LoadFailure } from "@/components/states/load-failure";
 import { PageHeader } from "@/components/states/page-header";
 import { StatePanel } from "@/components/states/state-panel";
+import { buttonClass } from "@/components/ui/button";
 import { VacancyForm } from "@/components/vacancies/vacancy-form";
+import { Link } from "@/i18n/navigation";
 import { failureOf, isReady } from "@/lib/api/load";
 import { REGIONS, VACANCY_FORMATS } from "@/lib/domain/vocabulary";
+import { navHref } from "@/lib/routing/routes";
 import { createVacancyAction } from "@/lib/vacancies/actions";
 import { loadOrganizations } from "@/lib/vacancies/data.server";
 import { vacancyFormLabels } from "@/lib/vacancies/labels.server";
@@ -42,7 +44,7 @@ export default async function NewVacancyPage({
   return (
     <>
       <PageHeader
-        eyebrow={t("detail.eyebrow")}
+        back={{ href: navHref("vacancies"), label: t("title") }}
         title={t("form.createTitle")}
         description={t("form.createDescription")}
       />
@@ -50,24 +52,35 @@ export default async function NewVacancyPage({
       {failure ? <LoadFailure failure={failure} /> : null}
 
       {isReady(organizations) && available.length === 0 ? (
-        <StatePanel role="status" title={t("form.noOrganizations")} />
+        <StatePanel
+          role="status"
+          title={t("form.noOrganizations")}
+          actions={
+            <Link
+              href={navHref("organizations")}
+              className={buttonClass({ size: "sm", variant: "outline" })}
+            >
+              {t("form.addOrganization")}
+            </Link>
+          }
+        />
       ) : null}
 
       {available.length > 0 ? (
-        <Panel>
-          <VacancyForm
-            action={createVacancyAction}
-            labels={labels}
-            defaults={{}}
-            organizations={available.map((organization) => ({
-              id: organization.id,
-              name: organization.name,
-              verified: organization.verified,
-            }))}
-            regions={REGIONS}
-            formats={VACANCY_FORMATS}
-          />
-        </Panel>
+        <VacancyForm
+          action={createVacancyAction}
+          locale={locale}
+          cancelHref={navHref("vacancies")}
+          labels={labels}
+          defaults={{}}
+          organizations={available.map((organization) => ({
+            id: organization.id,
+            name: organization.name,
+            verified: organization.verified,
+          }))}
+          regions={REGIONS}
+          formats={VACANCY_FORMATS}
+        />
       ) : null}
     </>
   );

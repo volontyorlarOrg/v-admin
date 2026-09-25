@@ -1,213 +1,438 @@
-# Design
+---
+name: Volontyorlar administrator portal
+description: The institution's register — every vacancy, application and roll call arrives as an entry and leaves with a decision stamped on it.
+colors:
+  institution-blue: "#007fc2"
+  institution-ink: "#005e92"
+  institution-deep: "#004a73"
+  institution-mist: "#bfdcef"
+  action: "#005e92"
+  action-hover: "#004a73"
+  earned-orange: "#e85d30"
+  earned-ink: "#b34917"
+  danger: "#b3261e"
+  danger-ink: "#8f1e18"
+  danger-muted: "#f7e3e2"
+  shell-navy: "#0b2340"
+  shell-raised: "#14345a"
+  shell-line: "#1e3f66"
+  shell-ink: "#f1f6fb"
+  shell-muted: "#9db4cc"
+  shell-active: "#bfdcef"
+  paper: "#f5f8fb"
+  surface: "#ffffff"
+  surface-sunk: "#ecf1f5"
+  surface-soft: "#e7f1f9"
+  ink: "#222b33"
+  ink-muted: "#566270"
+  border: "#dbe3ea"
+  border-control: "#85909a"
+  knockout: "#ffffff"
+  chart-strong: "#004a73"
+  chart-mid: "#007fc2"
+  chart-soft: "#388fbe"
+  chart-track: "#d7e8f4"
+  chart-person: "#e85d30"
+  chart-person-track: "#f8ded3"
+typography:
+  page:
+    fontFamily: "Source Serif 4, ui-serif, Georgia, serif"
+    fontSize: "2.25rem"
+    fontWeight: 400
+    lineHeight: 1.1
+    letterSpacing: "-0.025em"
+  page-compact:
+    fontFamily: "Source Serif 4, ui-serif, Georgia, serif"
+    fontSize: "1.875rem"
+    fontWeight: 400
+    lineHeight: 1.12
+    letterSpacing: "-0.025em"
+  figure:
+    fontFamily: "Source Serif 4, ui-serif, Georgia, serif"
+    fontSize: "1.5rem"
+    fontWeight: 400
+    lineHeight: 1
+    letterSpacing: "-0.02em"
+  section:
+    fontFamily: "Onest, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "1rem"
+    fontWeight: 600
+    lineHeight: 1.4
+    letterSpacing: "-0.01em"
+  body:
+    fontFamily: "Onest, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "0.875rem"
+    fontWeight: 400
+    lineHeight: 1.5
+  lead:
+    fontFamily: "Onest, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "1.0625rem"
+    fontWeight: 400
+    lineHeight: 1.55
+  label:
+    fontFamily: "Onest, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "0.75rem"
+    fontWeight: 600
+    lineHeight: 1.35
+    letterSpacing: "0.08em"
+rounded:
+  sm: "6px"
+  md: "10px"
+  lg: "14px"
+  xl: "20px"
+  2xl: "28px"
+  pill: "9999px"
+spacing:
+  row-x: "20px"
+  row-y: "14px"
+  section-gap: "24px"
+  page-x-phone: "16px"
+  page-x-desk: "40px"
+components:
+  button-primary:
+    backgroundColor: "{colors.action}"
+    textColor: "{colors.knockout}"
+    rounded: "{rounded.pill}"
+    height: "36px"
+    padding: "0 14px"
+  button-primary-hover:
+    backgroundColor: "{colors.action-hover}"
+  button-outline:
+    textColor: "{colors.ink}"
+    rounded: "{rounded.pill}"
+    height: "36px"
+    padding: "0 14px"
+  button-danger:
+    backgroundColor: "{colors.danger}"
+    textColor: "{colors.knockout}"
+    rounded: "{rounded.pill}"
+  button-danger-outline:
+    textColor: "{colors.danger-ink}"
+    rounded: "{rounded.pill}"
+  sheet:
+    backgroundColor: "{colors.surface}"
+    rounded: "{rounded.xl}"
+  decision-slip:
+    backgroundColor: "{colors.surface-soft}"
+    rounded: "{rounded.xl}"
+    padding: "16px 20px"
+  field:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.lg}"
+    height: "48px"
+  field-compact:
+    backgroundColor: "{colors.surface}"
+    rounded: "{rounded.pill}"
+    height: "40px"
+  nav-item:
+    textColor: "{colors.shell-muted}"
+    rounded: "{rounded.lg}"
+    height: "44px"
+  nav-item-active:
+    backgroundColor: "{colors.shell-active}"
+    textColor: "{colors.institution-deep}"
+  count:
+    backgroundColor: "{colors.surface-soft}"
+    textColor: "{colors.institution-ink}"
+    rounded: "{rounded.pill}"
+---
 
-## What this is
+# Design System: Volontyorlar administrator portal
 
-An operational portal, not a product surface and not a marketing page. The
-people using it are working: reading a queue, deciding, confirming, moving on.
-The design brief is therefore density, legibility and a complete set of states —
-not delight.
+## Overview
 
-It takes its brand from the Volontyorlar design system already in `../v-web` and
-`../v-app`: the same logo, the same two brand colours with the same roles, the
-same typeface, the same semantic tokens. What it drops is the whiteboard ground,
-the display serif and the entry motion. A table of applications does not need
-a hero.
+**Creative North Star: "The Registry"**
 
-## Colour
+The portal is the institution's register. Every vacancy, application and roll
+call arrives as an entry and leaves with a decision stamped on it. An
+administrator sees what waits on them, decides it in the row, and watches it
+move into "Cleared today". The system refuses the KPI-card dashboard and the
+monochrome inbox: work is a queue of entries on ruled sheets, and numbers are
+printed where they belong, not arranged as tiles.
 
-Two brand colours, each with one job, exactly as in the volunteer application:
+It is the family's ink on a navy-shelled desk. The brand, the logo, the two
+colour roles and the working typeface come from `../v-web` and `../v-app`; the
+navy rail echoes `v-app`'s shell, the hairline rows its registers, and the round
+seal the stamp its welcome flow already presses. Titles and figures speak in a
+serif, work speaks in Onest, and beneath everything Uzbekistan's fourteen regions
+are drawn as a slow WebGL line terrain that stills the moment you act.
 
-- **Blue is the institution.** Navigation, structure, chips for a system state,
-  primary actions.
-- **Orange is the person.** An accepted application, a confirmed attendance,
-  confirmed hours — what a volunteer earned.
+Density is the brief. The people here are working — reading a queue, deciding,
+confirming, moving on — so every screen puts the decision next to the thing it
+decides, and nothing makes them open a record just to act on it.
 
-Blue and orange sit 1.25:1 apart and are never combined. The one exception is
-the logo, whose orange heart the logo kit draws as its own shape beside the
-blue. Each has a graphics value and a text value; solid fills use `action` and
-`band`, never `primary-ink`.
+**Key Characteristics:**
 
-**One colour is added here that the volunteer application does not define:**
-`danger` `#B3261E`. This portal blocks, removes and replaces passwords, and a
-destructive confirmation needs to be distinguishable at a glance. The value, and
-the reasoning for not reusing orange, come from the design record archived at
-`../v-app/docs/reference/foundation-v1/agent-memory/why-danger-is-not-orange.md`:
-orange means achievement, and it stops meaning that the moment it also means
-"careful". `danger` is used for destructive confirmations and for a failure the
-operator must not miss. It is never a decoration.
+- A navy rail on the left, no top bar; the account, language, theme and sign-out
+  live at the rail's foot.
+- One register sheet per concern, divided by hairlines, never boxes in boxes.
+- Decisions are pill buttons in the row; confirmations and notes open inline.
+- Source Serif 4 for the one page title and for figures; Onest for everything
+  else.
+- A round seal records a decision; orange is kept for what a volunteer earned.
+- The country terrain sits in the empty band beside each page title.
+
+## Colors
+
+Two brand colours with one job each, plus one colour for danger, on cool paper
+under a navy shell.
+
+### Primary
+
+- **Institution Blue** (`institution-blue`): the institution's graphic colour —
+  the logo, chart marks, the terrain's country lines.
+- **Institution Ink** (`institution-ink`): blue that has to be read — links,
+  waiting counts, the focus ring, the selected state of a chip.
+- **Action** (`action`, hover `action-hover`): the fill of every primary pill and
+  of the "Approved and published" chip. Solid fills use `action`, never
+  `institution-ink`.
+
+### Secondary
+
+- **Earned Orange** (`earned-orange`, text `earned-ink`): what a volunteer earned
+  — an accepted application, attended events, confirmed hours, the person tone of
+  a seal.
+
+### Tertiary
+
+- **Danger** (`danger`, text `danger-ink`, fill `danger-muted`): destructive
+  confirmations, rejections, and an invalid field. It was added for this portal
+  because it blocks, removes and replaces passwords; the reasoning for not
+  reusing orange is archived in `v-app` at
+  `docs/reference/foundation-v1/agent-memory/why-danger-is-not-orange.md`.
+
+### Neutral
+
+- **Shell Navy** (`shell-navy`, with `shell-raised`, `shell-line`,
+  `shell-ink`, `shell-muted`, `shell-active`): the rail and the phone drawer.
+- **Paper** (`paper`) and **Sunk Paper** (`surface-sunk`): the page ground under
+  the terrain wash.
+- **Sheet White** (`surface`) and **Soft Blue Sheet** (`surface-soft`): register
+  sheets, and the tinted decision slip.
+- **Ink** (`ink`), **Muted Ink** (`ink-muted`), **Hairline** (`border`) and
+  **Control Line** (`border-control`): text, secondary text, rules between rows,
+  and the stroke of controls.
+
+The dark theme is not an inversion. It is a navy elevation model: paper
+`#0a101b`, sunk `#0d1524`, sheet `#18243d`, soft sheet `#1f3350`, raised
+`#243655`, with blue lifted to `#46a6e6` / ink `#8fcbf3` and danger to `#ef7a70`.
+Every surface in dark is one step lighter than what it sits on.
+
+### Named Rules
+
+**The One Job Rule.** Blue is the institution and orange is the person, and they
+are never combined. The only exception is the logo, whose orange heart the kit
+draws beside the blue.
+
+**The Earned-Only Orange Rule.** Orange marks what a volunteer earned and nothing
+else: not identity (avatar rings are a neutral hairline), not caution (that is
+danger), not a vacancy's state (a vacancy has earned nothing).
+
+**The Danger Is Not Decoration Rule.** Danger appears on a destructive action, a
+rejection, or a field that needs fixing — never as an accent.
 
 Use semantic tokens, never a literal hex.
 
-## Logo
+## Typography
 
-The logo is the Volontyorlar web logo kit, drawn inline by
-`src/components/brand/logo.tsx` from the kit's paths in `logo-paths.ts`, with
-the same `BrandIcon` and `BrandWordmark` as `../v-web` and `../v-app`;
-`../v-web/docs/brand/BRAND_ASSETS.md` is the authority. `BrandLockup` is the kit's icon and wordmark, sized from one
-variable (`--logo: 2.65rem`) so the wordmark stays above the kit's 120px
-minimum, followed by a hairline and the portal's name. The wordmark is blue in
-the light theme and white in the dark, and the heart is always orange.
+**Display Font:** Source Serif 4 (with ui-serif, Georgia)
+**Body Font:** Onest (with ui-sans-serif, system-ui)
 
-The header is crowded between the small and large breakpoints, so the shell
-passes `condensed`: the icon alone until the large breakpoint, then the whole
-lockup with the portal's name. The sign-in header has room, so it shows the
-icon and wordmark at every width and adds the portal's name from the small
-breakpoint. The favicon, SVG icon and Apple touch icon in `src/app/` are the
-kit's own files.
+**Character:** a quiet book serif sets the one title and the figures, like the
+heading and totals of a ledger page; Onest carries every label, row and button at
+working sizes.
 
-## Type
+### Hierarchy
 
-One family, Onest, at operational sizes. No display serif: headings here are
-labels for regions of a screen, not statements.
+- **Page** (400, 2.25rem from the small breakpoint, 1.875rem below it, 1.1):
+  the one `h1` per page, in the serif.
+- **Figure** (400, 1.5rem, 1): a number that is the content — record figures,
+  meters, applications counted by status, the ledger totals line — in the serif.
+- **Section** (600, 1rem, 1.4): the `h2` of a sheet and the `h3` of a register
+  section.
+- **Body** (400, 0.875rem): rows, facts, descriptions; descriptions stop at
+  42rem.
+- **Lead** (400, 1.0625rem, 1.55): the rare introductory paragraph.
+- **Label** (600, 0.75rem, 0.08em, uppercase): table column heads only.
 
-| Token        | Use                                     |
-| ------------ | --------------------------------------- |
-| `page-title` | the one `h1` per page                   |
-| `section`    | a panel heading                         |
-| `hero`       | the one leading number on the dashboard |
-| `figure`     | a dashboard number                      |
-| `eyebrow`    | a small uppercase label above something |
+### Named Rules
 
-Numbers use `.tabular`, always, so a column of counts and hours lines up.
+**The Serif Speaks Once Rule.** The serif sets the page title and figures. It
+never sets a button, a row, a label or body copy.
 
-## Charts
-
-The dashboard is the one screen that draws its numbers rather than only printing
-them. Every mark on it comes from a real count: `pipeline`, `publishedRatio`,
-`attendanceRatio` and `coordinatorSplit` derive from `/admin/statistics`; the
-breakdowns and the submission trend derive from the full `/admin/opportunities`
-and `/admin/applications` lists; the joining rate derives from every page of
-`/admin/users`. Nothing is interpolated, smoothed, projected or
-padded, a zero draws no bar, and a chart with nothing to show says so instead of
-drawing an empty frame. The derivations live in `src/lib/statistics/` as pure,
-tested functions — never in JSX.
-
-Two of those sources are paginated, and that is not allowed to become a lie.
-`loadEveryUser` reads page one, learns the total, and fetches the rest in
-parallel; a set too large to read in full is **not drawn at all** — the panel
-says how many of how many the API returned. A rate charted from an arbitrary
-page would be worse than no chart.
-
-Time is bucketed by Tashkent day, not UTC day, because that is the day the
-formatter prints. A span is divided into at most thirty buckets, so a year
-reads as weeks and a fortnight reads as days. One bucket is not a rate: a
-single day of joins is drawn as a column, never as a flat line implying a
-trend that was never measured.
-
-The form follows the job:
-
-| The reader is doing                       | Form                                                           |
-| ----------------------------------------- | -------------------------------------------------------------- |
-| comparing magnitudes                      | horizontal bars, one hue, value at the row end                 |
-| reading one ratio against its limit       | a meter: fill plus a lighter track of the same ramp            |
-| reading a part-to-whole of ordered states | a stacked bar, 2px surface gaps, a legend carrying every value |
-| reading change over time                  | columns on a hairline baseline                                 |
-
-Two rules keep it honest. **Length carries the value; hue never doubles for it.**
-A comparison is one colour and the bars do the work. **Only an ordered set gets
-the ramp** — coordinator states and vacancy stages — because a three-step
-blue-on-blue ramp is a legitimate ordinal scale but an illegible categorical one.
-Nominal sets (regions, formats, statuses) are bars instead.
-
-`chart-strong`, `chart-mid` and `chart-soft` are that ramp, and `chart-track` and
-`chart-person-track` are the meter tracks. Both ramps were checked against the
-data-visualisation colour rules — one hue, monotone lightness, a visible step
-between neighbours, and a pale end that still clears the surface — in light and
-dark separately, rather than one being flipped from the other. Chart marks are
-the one place `action` and `band` do not apply: those are the tokens for solid UI
-fills, and a data mark is not a button. Text beside a mark keeps its text token;
-only the mark wears the data colour.
-
-`text-hero` is the dashboard's single leading number. There is exactly one per
-screen.
-
-## Background
-
-The portal sits on a moving ground: a canvas of Perlin-noise lines adapted from
-React Bits' `Waves`, drawn in `border` at 60% so it is the faintest thing on the
-page and correct in both themes. It is `aria-hidden`, `pointer-events-none`, and
-it obeys the same reduced-motion promise as everything else — under
-`prefers-reduced-motion` it paints one still frame and never asks for another.
-It lives in `PortalShell`, so every screen inside the portal shares it and the
-sign-in screen does not.
-
-`panel-surface` is what makes that readable: every panel, table frame, filter bar
-and empty state sits at 82% card with a blur behind it, so the ground shows
-through without touching the contrast of anything on top. It is one utility, in
-one place — a surface that differs per screen is a surface nobody trusts.
+**The Tabular Rule.** Every count, hour and date that can sit in a column uses
+tabular figures so the column lines up.
 
 ## Layout
 
-Desktop: a fixed sidebar of sections and a top bar carrying identity, language,
-theme and sign-out. Below the large breakpoint the sidebar collapses into a menu
-button and the content takes the full width. Content is capped at 72rem so a
-table stays readable on a wide monitor.
+A fixed navy rail of 16.5rem on the left from the large breakpoint; below it the
+rail becomes a drawer behind a menu button in a white header, and the content
+takes the width. The rail holds the stacked inverse lockup, the sections in
+hairline-separated groups (work, office, records) with waiting counts on
+Vacancies, Applications and Attendance, and at its foot the identity card, My
+activity, Change password, language and theme, and Sign out.
 
-The top bar and the sidebar are sticky, so the identity, the sections and the
-sign-out stay reachable down a long table. A person in a list carries their
-initials, their name and their address in one cell rather than three columns:
-the row is scanned by who it is, not by which column the address landed in.
+The content column is capped at 80rem with 16px side padding on phones, 24px on
+small screens and 40px on the desk, 24px between blocks. A screen is a page
+header, then sheets. The page header carries the title, an optional back link,
+meta and description on the left, the ground window in the middle, and the
+page's actions on the right.
 
-A screen is a page header, then panels. A panel is a bordered card with an
-optional heading and actions. Tables scroll inside their own container so the
-page body never scrolls horizontally.
+Inside a sheet, a row is a grid of entry number, main line, side facts and
+actions; on phones the side and actions drop under the main line and a section's
+link moves to the section's foot. Record pages put details and description in a
+main column and approval, history or account in a 22rem aside from the extra-
+large breakpoint. Tables scroll inside their own frame so the page never scrolls
+sideways.
 
-## States
+Filters are a GET form and pagination is links, so both work without
+JavaScript and can be shared.
 
-Every list ships six: loading, empty, no-matches, denied, failed, and — because
-the backend is still being written — **awaiting contract**, which names the
-method and path the screen is waiting for. Every write ships pending, error and
-success. `LoadFailure` and `StatePanel` render them; nothing invents a fallback
-value to fill a gap.
+## Elevation & Depth
 
-Every write happens in a dialog. `FormDialog` is the only one: it holds the
-pending state, keeps itself open on failure, closes on success, and says so with
-a toast that survives the revalidation. Destructive actions wear `danger` and
-say what cannot be undone.
+Depth is tonal. Sheets sit on the paper with a hairline border and a shadow so
+faint it only separates white from white (`0 1px 2px` at 5% ink in light, an
+inset top highlight at 7% white in dark). Nothing floats except what is actually
+above the page: dialogs, menus and the sign-in sheet take the raised shadow
+(`0 18px 40px -28px`). There is no glass and no blur.
 
-## Error
+The ground is the one layer below the paper: a fixed, `aria-hidden`,
+pointer-inert WebGL line terrain of the fourteen regions (outlines from Natural
+Earth, public domain, via `v-web`). Its ruled field fades out laterally and with
+depth; the country is fitted into the page header's ground window with a camera
+view offset, so the same pose is drawn at every size, and it glides to the new
+window when a page changes. On phones, where the header has no free band, it
+rests at the bottom of the first viewport. It drifts slowly, leans gently toward
+a fine pointer, stills on any pointer, key, wheel or touch and resumes after
+2.6 seconds, stops while the tab is hidden, caps itself at 30 frames a second
+and a pixel ratio of 1.5, and under reduced motion paints one still frame. When
+WebGL is missing, a tilted SVG outline takes its place.
 
-`danger` is not decoration and it is not only for destructive confirmations: an
-invalid field wears it. The control takes a `danger` border, a `danger-muted`
-fill and a 2px ring; the message under it is `danger-ink` with a warning mark,
-tied to the control with `aria-describedby` and announced as `role="alert"`. A
-form with more than one bad field repeats them in a summary at the top, each one
-a link to its control; with a single bad field the summary would only say the
-same thing twice, so there is none.
+### Named Rules
 
-Colour is never the only carrier. A readiness list marks what is missing in red
-**and** says "Still needed" in words only a screen reader hears, so the state
-survives without colour.
+**The Ground Stills When You Act Rule.** The terrain is atmosphere, never
+motion in the way: the instant someone points, types or scrolls, it stops.
 
-## State chips
+**The Tonal Depth Rule.** A surface is separated from what it sits on by one
+tonal step and a hairline, not by a shadow.
 
-A vacancy's state is a chip, and every one of them stays inside the two brand
-colours:
+## Shapes
 
-| State                  | Chip                                 |
-| ---------------------- | ------------------------------------ |
-| Draft                  | grey outline                         |
-| Waiting for approval   | filled `surface-soft`, `primary-ink` |
-| Changes requested      | `primary-muted` outline              |
-| Approved and published | solid `action`                       |
-| Rejected, archived     | dashed, uppercase, muted             |
+Sheets and dialogs are softly rounded (20px, the sign-in sheet and dialogs 28px),
+fields 14px, the rail's items 14px. Every action, tab, chip and count is a pill.
+Avatars and the seal are circles. Rules are hairlines; the only thicker line is
+the completion meter on a volunteer's profile.
 
-Orange stays out of this table. It means what a volunteer earned — an accepted
-application, a confirmed attendance, confirmed hours — and a vacancy waiting for
-an administrator has earned nothing.
+## Components
 
-## Accessibility
+### Buttons
 
-- One `h1` per page; panels are `h2`.
-- Every control has a label, every error is tied to its field with
-  `aria-describedby`, and errors are `role="alert"`.
-- Focus is a 3px `primary-ink` outline at a 2px offset, never removed.
-- Tables use `scope="col"` headers and a caption, and a repeated "Open" link
-  carries the row's subject in visually hidden text.
-- The keyboard reaches everything, including the mobile menu, which closes on
-  `Escape`.
-- Filters are a `<form method="get">` and pagination is links, so both work
-  without JavaScript.
-- Reduced motion removes every animation and transition, globally.
-- Light and dark are one token set switched by `data-theme`, set before paint by
-  an inline script so there is no flash.
+- **Shape:** pills (9999px).
+- **Sizes:** row 36px (in rows and decisions), small 40px, medium 48px, icon
+  40px. A press scales to 0.97 on the press curve (`cubic-bezier(0.16, 1, 0.3,
+1)`).
+- **Primary:** `action` fill, knockout text; hover `action-hover`.
+- **Outline:** control-line stroke, ink text; hover turns stroke and text blue
+  over the soft sheet.
+- **Ghost:** blue text only, soft sheet on hover.
+- **Danger / Danger outline:** a destructive confirmation fills with danger; a
+  destructive trigger (Reject, Archive) is outlined in danger.
+- **Shell:** the rail's own quiet buttons.
+
+### Chips
+
+- **Style:** small pills with an icon. Draft: control-line outline, muted text.
+  Waiting for approval, submitted, under review: soft blue fill, blue ink.
+  Changes requested: blue-mist outline. Approved and published: `action` fill.
+  Rejected, archived: dashed, uppercase, muted. Accepted: orange outline —
+  the volunteer earned it. Rejected or withdrawn applications: hairline, muted.
+
+### Cards / Containers
+
+- **Sheet:** white, hairline border, 20px corners, the faint sheet shadow, no
+  nesting. A register sheet has a header row (section title, count pill,
+  optional actions and description), an optional toolbar (tabs with counts, a
+  search), and hairline-divided sections or rows.
+- **Decision slip:** a soft-blue sheet with a round stamp mark beside its title,
+  holding the decision for the record it sits on (a vacancy waiting for
+  approval, an application to decide).
+
+### Inputs / Fields
+
+- **Style:** 48px fields with 14px corners on forms; 40px pill fields in
+  toolbars. Control-line stroke, white field, blue caret.
+- **Focus:** a 3px `institution-ink` outline at a 2px offset.
+- **Error:** danger border, danger-muted fill and a 2px danger ring; the message
+  under it is danger ink, tied with `aria-describedby` and announced. More than
+  one bad field repeats them in a summary at the top, each a link to its
+  control.
+
+### Navigation
+
+- **Rail items:** 44px, 14px corners, shell-muted text with a stroked icon; the
+  current page takes `shell-active` with deep ink and a matching count pill.
+- **Phone:** a white header with the logo and a menu button; the drawer is the
+  same navy rail and closes on Escape.
+
+### Inline Decision
+
+The signature interaction. A row's decisions are pills; one that needs a
+confirmation replaces the pills with the question and a single confirm, one that
+needs a note opens a textarea below the row with its help text. A success is a
+toast that survives revalidation and the row leaves the queue; a failure stays
+inline in red. Focus returns to the trigger on cancel.
+
+### Seal
+
+A round stamp — the decision's word, the Tashkent date, the issuer — rotated
+−8°, in institution blue for the institution's decisions, orange for what a
+volunteer earned, muted for a closure. A seal pressed in the last few seconds
+lands with a short press (520ms; a fade under reduced motion). Seals stamp an
+approved vacancy's header and every entry in "Cleared today".
+
+### Totals Line
+
+A ledger foot under the Today register: a small title and a run of serif figures
+with their words ("5 volunteers · 2 live vacancies · …"), confirmed hours in
+orange, and a link to Insights.
+
+### Charts
+
+Charts live on Insights, never on Today. Every mark comes from a real count and
+nothing is interpolated, smoothed or padded; a zero draws no bar and an empty
+chart says so. A source too large to read in full is not drawn at all. Time is
+bucketed by Tashkent day, at most thirty buckets, and one bucket is a column,
+never a line. Comparisons are horizontal bars in one hue with the value at the
+row end, a ratio is a meter on its own lighter track, ordered states are a
+stacked bar, change over time is columns on a hairline baseline. Length carries
+the value, hue never doubles for it, and only an ordered set gets the
+`chart-strong` / `chart-mid` / `chart-soft` ramp. Chart marks are the one place
+the solid-fill tokens do not apply.
+
+## Do's and Don'ts
+
+### Do:
+
+- **Do** put the decision in the row: Approve, Return, Reject, Accept, Verify and
+  Take roll call are reachable without opening the record.
+- **Do** open long forms — a new vacancy, an edit — as their own page, with a
+  sticky footer holding Cancel and the submit.
+- **Do** keep modals for what needs protected focus: archiving a vacancy,
+  blocking or removing a coordinator.
+- **Do** ship every list with loading, empty, no-matches, denied, failed and
+  awaiting-contract states, and every write with pending, error and success.
+- **Do** keep one `h1` per page, label every control, give the phone drawer and
+  every decision a keyboard path, and honour reduced motion globally.
+- **Do** write every string in Uzbek, Russian and English.
+
+### Don't:
+
+- **Don't** put an eyebrow or kicker above a heading; the heading carries itself.
+- **Don't** arrange numbers as a row of KPI cards on Today; print them as the
+  totals line, and chart them on Insights.
+- **Don't** nest a box inside a sheet, or draw a coloured stripe on one side of
+  it; a state is a chip, a decision is a slip.
+- **Don't** use orange for identity, caution or a vacancy's state.
+- **Don't** use glass, blur or hard offset shadows.
+- **Don't** let the terrain sit behind text, or keep moving while someone works.

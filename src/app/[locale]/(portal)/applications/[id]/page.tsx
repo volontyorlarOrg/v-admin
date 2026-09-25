@@ -1,11 +1,17 @@
 import { getFormatter, getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { Stamp } from "lucide-react";
 
-import { ReviewForm } from "@/components/applications/review-form";
-import { DefinitionList, type Definition } from "@/components/portal/definition-list";
 import { Panel } from "@/components/portal/panel";
-import { StatusBadge, applicationStatusTone } from "@/components/portal/status-badge";
+import {
+  StatusBadge,
+  applicationStatus,
+  attendanceStatus,
+} from "@/components/portal/status-badge";
+import { Facts, type Fact } from "@/components/register/facts";
+import { InlineDecision } from "@/components/register/inline-decision";
+import { Seal } from "@/components/register/seal";
 import { LoadFailure } from "@/components/states/load-failure";
 import { PageHeader } from "@/components/states/page-header";
 import { StatePanel } from "@/components/states/state-panel";
@@ -17,11 +23,13 @@ import {
 } from "@/components/users/volunteer-profile";
 import { Link } from "@/i18n/navigation";
 import { failureOf, isReady } from "@/lib/api/load";
+import { reviewApplicationAction } from "@/lib/applications/actions";
 import { loadApplication } from "@/lib/applications/data.server";
 import { volunteerNameOf } from "@/lib/applications/filters";
-import { REVIEW_DECISIONS, isRegion, isReviewable } from "@/lib/domain/vocabulary";
-import { errorCatalog } from "@/lib/vacancies/labels.server";
-import { userHref, vacancyHref } from "@/lib/routing/routes";
+import { sealDate } from "@/lib/datetime";
+import { isRegion, isReviewable } from "@/lib/domain/vocabulary";
+import { applicationDecisions, decisionLabels } from "@/lib/queue/decisions.server";
+import { navHref, userHref, vacancyHref } from "@/lib/routing/routes";
 
 export const dynamic = "force-dynamic";
 
@@ -30,7 +38,7 @@ export async function generateMetadata({
 }: PageProps<"/[locale]/applications/[id]">): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "applications" });
-  return { title: t("detail.eyebrow") };
+  return { title: t("record") };
 }
 
 export default async function ApplicationPage({
@@ -39,12 +47,16 @@ export default async function ApplicationPage({
   const { locale, id } = await params;
   setRequestLocale(locale);
 
-  const t = await getTranslations("applications");
-  const common = await getTranslations("common");
-  const errors = await getTranslations("errors");
-  const vocabulary = await getTranslations("vocabulary");
-  const format = await getFormatter();
+  const [t, attendanceCopy, common, vocabulary, seal, format] = await Promise.all([
+    getTranslations("applications"),
+    getTranslations("attendance"),
+    getTranslations("common"),
+    getTranslations("vocabulary"),
+    getTranslations("seal"),
+    getFormatter(),
+  ]);
   const languages = new Intl.DisplayNames([locale], { type: "language" });
+  const back = { href: navHref("applications"), label: t("title") };
 
   const loaded = await loadApplication(id);
   const failure = failureOf(loaded);
@@ -52,7 +64,7 @@ export default async function ApplicationPage({
   if (failure) {
     return (
       <>
-        <PageHeader eyebrow={t("detail.eyebrow")} title={t("title")} />
+        <PageHeader back={back} title={t("record")} />
         <LoadFailure failure={failure} />
       </>
     );
@@ -61,9 +73,9 @@ export default async function ApplicationPage({
   if (!isReady(loaded)) notFound();
 
   const application = loaded.data;
-
-  const name = volunteerNameOf(application);
+  const name = volunteerNameOf(application) || common("notSet");
   const snapshot = application.profileSnapshot;
+  const chip = applicationStatus(application.status);
   const regionName = (region: string) =>
     isRegion(region) ? vocabulary(`regions.${region}`) : region;
   const languageName = (code: string) => {
@@ -73,14 +85,6 @@ export default async function ApplicationPage({
       return code;
     }
   };
-
-  const timeline: Array<[string, string | undefined]> = [
-    ["createdAt", application.createdAt],
-    ["submittedAt", application.submittedAt],
-    ["reviewedAt", application.reviewedAt],
-    ["withdrawnAt", application.withdrawnAt],
-    ["updatedAt", application.updatedAt],
-  ];
 
   const profileLabels: VolunteerProfileLabels = {
     fields: Object.fromEntries(
@@ -93,35 +97,119 @@ export default async function ApplicationPage({
     application.reviewedById === undefined &&
     application.opportunity?.acceptanceMode === "automatic";
 
-  const history: Definition[] = timeline.flatMap(([key, value]) =>
+  const timeline: Array<[string, string | undefined]> = [
+    ["createdAt", application.createdAt],
+    ["submittedAt", application.submittedAt],
+    [
+      acceptedAutomatically ? "acceptedAutomatically" : "reviewedAt",
+      application.reviewedAt,
+    ],
+    ["withdrawnAt", application.withdrawnAt],
+    ["updatedAt", application.updatedAt],
+  ];
+  const history: Fact[] = timeline.flatMap(([key, value]) =>
     value
       ? [
           {
-            term:
-              key === "reviewedAt" && acceptedAutomatically
-                ? t("history.acceptedAutomatically")
-                : t(`history.${key}`),
+            term: t(`history.${key}`),
             value: format.dateTime(new Date(value), "stamp"),
           },
         ]
       : [],
   );
 
+  const attendance = application.attendance;
+  const attendanceChip = attendance ? attendanceStatus(attendance.outcome) : null;
+  const attendanceFacts: Fact[] = attendance
+    ? [
+        {
+          term: attendanceCopy("table.outcome"),
+          value: attendanceChip ? (
+            <StatusBadge
+              label={attendanceCopy(`outcome.${attendance.outcome}`)}
+              tone={attendanceChip.tone}
+              icon={attendanceChip.icon}
+            />
+          ) : null,
+        },
+        ...(attendance.confirmedHours === undefined
+          ? []
+          : [
+              {
+                term: attendanceCopy("table.hours"),
+                value: format.number(attendance.confirmedHours),
+              },
+            ]),
+        ...(attendance.resolvedAt
+          ? [
+              {
+                term: attendanceCopy("table.resolved"),
+                value: format.dateTime(new Date(attendance.resolvedAt), "stamp"),
+              },
+            ]
+          : []),
+      ]
+    : [];
+
+  const attendanceResolved =
+    attendance !== undefined && attendance.outcome !== "awaiting_confirmation";
+  const reviewable =
+    isReviewable(application.status) &&
+    !(application.status === "accepted" && attendanceResolved);
+
+  const [labels, options] = await Promise.all([
+    decisionLabels(),
+    applicationDecisions(),
+  ]);
+  const choices = options({ name, status: application.status, withNote: true }).filter(
+    (option) => (application.status === "accepted" ? option.key === "reject" : true),
+  );
+
+  const accepted = application.status === "accepted" && application.reviewedAt;
+
   return (
     <>
       <PageHeader
-        eyebrow={t("detail.eyebrow")}
-        title={name || common("notSet")}
-        description={application.opportunity?.title}
-        actions={
+        back={back}
+        title={name}
+        meta={
           <>
+            <StatusBadge
+              label={t(`status.${application.status}`)}
+              tone={chip.tone}
+              icon={chip.icon}
+            />
             {application.opportunity ? (
               <Link
                 href={vacancyHref(application.opportunity.id)}
-                className={buttonClass({ variant: "outline", size: "sm" })}
+                className="text-primary-ink hover:underline"
               >
-                {t("table.vacancy")}
+                {application.opportunity.title}
               </Link>
+            ) : null}
+            {application.submittedAt ? (
+              <span>
+                {t("sentOn", {
+                  when: format.dateTime(new Date(application.submittedAt), "date"),
+                })}
+              </span>
+            ) : null}
+          </>
+        }
+        actions={
+          <>
+            {accepted ? (
+              <Seal
+                word={seal("accepted")}
+                date={sealDate(application.reviewedAt as string)}
+                issuer={seal("issuer")}
+                tone="person"
+                size={76}
+                label={seal("label", {
+                  word: seal("accepted"),
+                  date: sealDate(application.reviewedAt as string),
+                })}
+              />
             ) : null}
             <Link
               href={userHref(application.volunteerId)}
@@ -133,92 +221,49 @@ export default async function ApplicationPage({
         }
       />
 
-      <div>
-        <StatusBadge
-          label={t(`status.${application.status}`)}
-          tone={applicationStatusTone(application.status)}
+      {reviewable ? (
+        <section
+          aria-labelledby="review-title"
+          className="flex flex-col gap-3 rounded-xl border border-border bg-surface-soft px-5 py-4 shadow-(--sheet-shadow) lg:flex-row lg:items-start lg:justify-between"
+        >
+          <div className="flex min-w-0 gap-3">
+            <span
+              aria-hidden="true"
+              className="grid size-9 shrink-0 place-items-center rounded-full bg-primary text-knockout"
+            >
+              <Stamp className="size-4" strokeWidth={2} />
+            </span>
+            <div className="min-w-0">
+              <h2 id="review-title" className="text-section text-ink">
+                {application.status === "accepted"
+                  ? t("review.acceptedTitle")
+                  : t("review.title")}
+              </h2>
+              <p className="mt-1 text-sm text-ink-muted">
+                {application.status === "accepted"
+                  ? t("review.acceptedDescription")
+                  : t("review.description")}
+              </p>
+            </div>
+          </div>
+          <div className="flex w-full flex-col gap-3 lg:w-auto lg:items-end">
+            <InlineDecision
+              action={reviewApplicationAction}
+              hidden={{ id: application.id }}
+              subject={name}
+              labels={labels}
+              options={choices}
+              className="lg:justify-end"
+              expandClassName="w-full lg:w-[30rem]"
+            />
+          </div>
+        </section>
+      ) : application.status === "accepted" && attendanceResolved ? (
+        <StatePanel
+          role="status"
+          title={t("review.recordedTitle")}
+          description={t("review.recordedDescription")}
         />
-      </div>
-
-      {application.essay ? (
-        <Panel title={t("detail.essay")}>
-          <p className="max-w-prose text-sm leading-relaxed whitespace-pre-line text-ink">
-            {application.essay}
-          </p>
-        </Panel>
-      ) : null}
-
-      {snapshot ? (
-        <Panel title={t("detail.snapshot")} description={t("detail.snapshotNote")}>
-          <VolunteerProfile
-            identity={{
-              name: name || common("notSet"),
-              username: snapshot.username ?? application.volunteer?.username,
-              avatarUrl: application.volunteer?.avatarUrl,
-            }}
-            profile={snapshot}
-            labels={profileLabels}
-            regionName={regionName}
-            languageName={languageName}
-          />
-        </Panel>
-      ) : null}
-
-      {application.answers.length > 0 ? (
-        <Panel title={t("detail.answers")}>
-          <dl className="flex flex-col gap-4">
-            {application.answers.map((answer, index) => (
-              <div key={answer.id ?? index}>
-                <dt className="text-sm font-semibold text-ink">
-                  {answer.questionPrompt}
-                </dt>
-                <dd className="mt-1 text-sm leading-relaxed whitespace-pre-line text-ink-muted">
-                  {Array.isArray(answer.value) ? answer.value.join(", ") : answer.value}
-                </dd>
-              </div>
-            ))}
-          </dl>
-        </Panel>
-      ) : null}
-
-      {isReviewable(application.status) ? (
-        <Panel title={t("review.title")}>
-          <ReviewForm
-            applicationId={application.id}
-            currentStatus={application.status}
-            currentNote={application.reviewerNote ?? ""}
-            decisions={REVIEW_DECISIONS}
-            labels={{
-              decision: t("review.decision"),
-              decisions: Object.fromEntries(
-                REVIEW_DECISIONS.map((decision) => [decision, t(`status.${decision}`)]),
-              ),
-              note: t("review.note"),
-              noteHelp: t("review.noteHelp"),
-              submit: t("review.submit"),
-              pending: t("review.pending"),
-              success: t("review.success"),
-              fallbackError: errors("server"),
-              errors: await errorCatalog([
-                "server",
-                "network",
-                "timeout",
-                "rateLimited",
-                "unavailable",
-                "forbidden",
-                "notFound",
-                "conflict",
-                "validationFailed",
-                "awaitingContract",
-                "sessionExpired",
-                "required",
-                "tooLong",
-                "applicationNotFound",
-                "applicationCannotBeReviewed",
-              ]),
-            }}
-          />
-        </Panel>
       ) : (
         <StatePanel
           role="status"
@@ -227,17 +272,74 @@ export default async function ApplicationPage({
         />
       )}
 
-      <Panel title={t("detail.history")}>
-        <DefinitionList items={history} />
-        {application.reviewerNote ? (
-          <div className="mt-5">
-            <h3 className="eyebrow text-ink-muted">{t("detail.reviewerNote")}</h3>
-            <p className="mt-1 text-sm leading-relaxed text-ink">
-              {application.reviewerNote}
-            </p>
-          </div>
-        ) : null}
-      </Panel>
+      <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
+        <div className="flex min-w-0 flex-col gap-6">
+          {application.essay ? (
+            <Panel title={t("detail.essay")}>
+              <p className="max-w-prose text-base leading-relaxed whitespace-pre-line text-ink">
+                {application.essay}
+              </p>
+            </Panel>
+          ) : null}
+
+          {application.answers.length > 0 ? (
+            <Panel title={t("detail.answers")}>
+              <dl className="flex flex-col divide-y divide-border">
+                {application.answers.map((answer, index) => (
+                  <div key={answer.id ?? index} className="py-3 first:pt-0 last:pb-0">
+                    <dt className="text-sm font-semibold text-ink">
+                      {answer.questionPrompt}
+                    </dt>
+                    <dd className="mt-1 text-sm leading-relaxed whitespace-pre-line text-ink-muted">
+                      {Array.isArray(answer.value)
+                        ? answer.value.join(", ")
+                        : answer.value}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </Panel>
+          ) : null}
+
+          {snapshot ? (
+            <Panel title={t("detail.snapshot")} description={t("detail.snapshotNote")}>
+              <VolunteerProfile
+                identity={{
+                  name,
+                  username: snapshot.username ?? application.volunteer?.username,
+                  avatarUrl: application.volunteer?.avatarUrl,
+                }}
+                profile={snapshot}
+                labels={profileLabels}
+                regionName={regionName}
+                languageName={languageName}
+              />
+            </Panel>
+          ) : null}
+        </div>
+
+        <aside className="flex min-w-0 flex-col gap-6">
+          <Panel title={t("detail.history")}>
+            <Facts items={history} />
+            {application.reviewerNote ? (
+              <div className="mt-4 border-t border-border pt-4">
+                <h3 className="text-sm font-semibold text-ink">
+                  {t("detail.reviewerNote")}
+                </h3>
+                <p className="mt-1 text-sm leading-relaxed text-ink">
+                  {application.reviewerNote}
+                </p>
+              </div>
+            ) : null}
+          </Panel>
+
+          {attendanceFacts.length > 0 ? (
+            <Panel title={attendanceCopy("record")}>
+              <Facts items={attendanceFacts} />
+            </Panel>
+          ) : null}
+        </aside>
+      </div>
     </>
   );
 }

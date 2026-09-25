@@ -14,9 +14,11 @@ export function lastPage({ pageSize, total }: PageState): number {
 export async function Pagination({
   state,
   hrefFor,
+  framed = false,
 }: {
   state: PageState;
   hrefFor: (page: number) => string;
+  framed?: boolean;
 }) {
   const t = await getTranslations("common");
   const last = lastPage(state);
@@ -29,7 +31,10 @@ export async function Pagination({
   return (
     <nav
       aria-label={t("pagination")}
-      className="flex items-center justify-between gap-4 pt-2"
+      className={cn(
+        "flex items-center justify-between gap-4",
+        framed ? "border-t border-border px-5 py-3" : "pt-2",
+      )}
     >
       <Link
         href={hrefFor(state.page - 1)}
