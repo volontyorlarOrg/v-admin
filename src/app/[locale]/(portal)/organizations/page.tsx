@@ -6,6 +6,7 @@ import {
   OrganizationDialog,
   type OrganizationDialogLabels,
 } from "@/components/organizations/organization-dialog";
+import { OrganizationAccountDialog } from "@/components/organizations/organization-account-dialog";
 import { StatusBadge, organizationStatus } from "@/components/portal/status-badge";
 import { InlineDecision } from "@/components/register/inline-decision";
 import {
@@ -32,6 +33,13 @@ import {
   updateOrganizationAction,
   verifyOrganizationAction,
 } from "@/lib/organizations/actions";
+import {
+  blockOrganizationAccountAction,
+  createOrganizationAccountAction,
+  replaceOrganizationAccountPasswordAction,
+  unblockOrganizationAccountAction,
+} from "@/lib/organizations/account-actions";
+import { loadOrganizationAccounts } from "@/lib/organizations/accounts.server";
 import { loadOrganizations } from "@/lib/organizations/data.server";
 import { filterOrganizations } from "@/lib/organizations/filters";
 import { organizationDecisions } from "@/lib/queue/approval-decisions.server";
@@ -61,10 +69,11 @@ export default async function OrganizationsPage({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const [t, common, errors, format] = await Promise.all([
+  const [t, common, errors, auth, format] = await Promise.all([
     getTranslations("organizations"),
     getTranslations("common"),
     getTranslations("errors"),
+    getTranslations("auth"),
     getFormatter(),
   ]);
 
@@ -72,10 +81,20 @@ export default async function OrganizationsPage({
   const q = readParam(query, "q");
   const verified = readOption(query, "verified", VERIFICATION);
 
-  const [loaded, vacancies] = await Promise.all([loadOrganizations(), loadVacancies()]);
+  const [loaded, vacancies, accountLoaded] = await Promise.all([
+    loadOrganizations(),
+    loadVacancies(),
+    loadOrganizationAccounts(),
+  ]);
   const failure = failureOf(loaded);
   const all = isReady(loaded) ? loaded.data : [];
   const rows = filterOrganizations(all, { q, ...(verified ? { verified } : {}) });
+  const accounts = new Map(
+    (isReady(accountLoaded) ? accountLoaded.data : []).map((account) => [
+      account.organizationId,
+      account,
+    ]),
+  );
   const listPath = navHref("organizations");
 
   const vacancyRows = isReady(vacancies) ? vacancies.data : [];
@@ -113,7 +132,29 @@ export default async function OrganizationsPage({
     "url",
     "slugUnavailable",
     "organizationNotFound",
+    "organizationAccountNotFound",
+    "organizationAccountExists",
+    "weakPassword",
+    "passwordShort",
+    "passwordLong",
   ]);
+
+  const accountLabels = (kind: "issue" | "replace" | "block" | "unblock") => ({
+    title: t(`account.${kind}.title`),
+    description: t(`account.${kind}.description`),
+    submit: t(`account.${kind}.submit`),
+    pending: t(`account.${kind}.pending`),
+    success: t(`account.${kind}.success`),
+    cancel: common("cancel"),
+    close: common("close"),
+    summary: common("fixFields"),
+    fallbackError: errors("server"),
+    errors: catalog,
+    passwordLabel: t("account.passwordLabel"),
+    passwordHelp: t("account.passwordHelp"),
+    showPassword: auth("showPassword"),
+    hidePassword: auth("hidePassword"),
+  });
 
   const shared = {
     fields: {
@@ -195,6 +236,9 @@ export default async function OrganizationsPage({
       />
 
       {failure ? <LoadFailure failure={failure} /> : null}
+      {failureOf(accountLoaded) ? (
+        <LoadFailure failure={failureOf(accountLoaded)!} />
+      ) : null}
 
       {isReady(loaded) ? (
         <Register
@@ -229,6 +273,7 @@ export default async function OrganizationsPage({
                   <TableHead scope="col">{t("table.name")}</TableHead>
                   <TableHead scope="col">{t("table.verified")}</TableHead>
                   <TableHead scope="col">{t("table.vacancies")}</TableHead>
+                  <TableHead scope="col">{t("account.column")}</TableHead>
                   <TableHead scope="col">
                     <span className="sr-only">{common("actions")}</span>
                   </TableHead>
@@ -238,6 +283,7 @@ export default async function OrganizationsPage({
                 {rows.map((organization) => {
                   const chip = organizationStatus(organization.verified);
                   const holding = held.get(organization.id) ?? 0;
+                  const account = accounts.get(organization.id);
                   return (
                     <TableRow key={organization.id}>
                       <TableCell>
@@ -266,7 +312,62 @@ export default async function OrganizationsPage({
                         ) : null}
                       </TableCell>
                       <TableCell>
+                        {account
+                          ? t(`account.status.${account.status}`)
+                          : t("account.status.none")}
+                      </TableCell>
+                      <TableCell>
                         <span className="flex flex-wrap items-center justify-end gap-2">
+                          {isReady(accountLoaded) && !account ? (
+                            <OrganizationAccountDialog
+                              action={createOrganizationAccountAction}
+                              id={organization.id}
+                              labels={accountLabels("issue")}
+                              password
+                              trigger={
+                                <Button type="button" variant="ghost" size="row">
+                                  {t("account.issue.trigger")}
+                                </Button>
+                              }
+                            />
+                          ) : null}
+                          {isReady(accountLoaded) && account ? (
+                            <>
+                              <OrganizationAccountDialog
+                                action={replaceOrganizationAccountPasswordAction}
+                                id={organization.id}
+                                labels={accountLabels("replace")}
+                                password
+                                trigger={
+                                  <Button type="button" variant="ghost" size="row">
+                                    {t("account.replace.trigger")}
+                                  </Button>
+                                }
+                              />
+                              <OrganizationAccountDialog
+                                action={
+                                  account.status === "active"
+                                    ? blockOrganizationAccountAction
+                                    : unblockOrganizationAccountAction
+                                }
+                                id={organization.id}
+                                labels={accountLabels(
+                                  account.status === "active" ? "block" : "unblock",
+                                )}
+                                password={false}
+                                danger={account.status === "active"}
+                                trigger={
+                                  <Button type="button" variant="ghost" size="row">
+                                    {t(
+                                      account.status === "active"
+                                        ? "account.block.trigger"
+                                        : "account.unblock.trigger",
+                                    )}
+                                  </Button>
+                                }
+                              />
+                            </>
+                          ) : null}
                           {organization.verified ? null : (
                             <InlineDecision
                               action={verifyOrganizationAction}
