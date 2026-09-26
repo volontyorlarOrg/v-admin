@@ -412,6 +412,7 @@ function vacancy(id, slug, title, createdById, overrides) {
     id,
     slug,
     title,
+    kind: "volunteering",
     description: `${title} description`,
     requirements: [],
     region: "tashkent-city",
@@ -919,6 +920,7 @@ const server = createServer(async (request, response) => {
         return send(response, 409, { code: "slugUnavailable" });
       }
       const created = vacancy(randomUUID(), body.slug, body.title, actor.id, {
+        kind: body.kind ?? "volunteering",
         description: body.description,
         region: body.region,
         format: body.format,

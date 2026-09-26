@@ -44,6 +44,7 @@ export function VacancyForm({
   organizations,
   regions,
   formats,
+  kindLocked = false,
 }: {
   action: (previous: ActionResult, formData: FormData) => Promise<ActionResult>;
   id?: string;
@@ -56,6 +57,7 @@ export function VacancyForm({
   organizations: readonly VacancyOrganization[];
   regions: readonly string[];
   formats: readonly string[];
+  kindLocked?: boolean;
 }) {
   const [result, dispatch] = useActionState(action, idleResult);
   const fields = fieldsOf(result);
@@ -111,6 +113,7 @@ export function VacancyForm({
         organizations={organizations}
         regions={regions}
         formats={formats}
+        kindLocked={kindLocked}
         error={(name) => fieldMessage(fields, name, labels.errors)}
         idPrefix={idPrefix}
       />

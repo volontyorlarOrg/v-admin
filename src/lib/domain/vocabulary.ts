@@ -20,6 +20,9 @@ export function isRegion(value: string): value is Region {
   return (REGIONS as readonly string[]).includes(value);
 }
 
+export const VACANCY_KINDS = ["volunteering", "competition"] as const;
+export type VacancyKind = (typeof VACANCY_KINDS)[number];
+
 export const VACANCY_FORMATS = ["onsite", "remote", "hybrid"] as const;
 export type VacancyFormat = (typeof VACANCY_FORMATS)[number];
 

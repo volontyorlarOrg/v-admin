@@ -1,6 +1,11 @@
 import { z } from "zod";
 
-import { ACCEPTANCE_MODES, REGIONS, VACANCY_FORMATS } from "@/lib/domain/vocabulary";
+import {
+  ACCEPTANCE_MODES,
+  REGIONS,
+  VACANCY_FORMATS,
+  VACANCY_KINDS,
+} from "@/lib/domain/vocabulary";
 import { hasMeetingCredentials } from "@/lib/vacancies/approval";
 import { vacancyImageFileProblem } from "@/lib/vacancies/image";
 
@@ -9,6 +14,7 @@ export const MAX_ESTIMATED_TOTAL_HOURS = 100_000;
 
 export const VACANCY_FIELDS = [
   "title",
+  "kind",
   "description",
   "organizationId",
   "region",
@@ -32,7 +38,11 @@ function withEveryField(value: unknown) {
   return Object.fromEntries(
     VACANCY_FIELDS.map((field) => [
       field,
-      typeof record[field] === "string" ? record[field] : "",
+      typeof record[field] === "string"
+        ? record[field]
+        : field === "kind"
+          ? "volunteering"
+          : "",
     ]),
   );
 }
@@ -40,6 +50,7 @@ function withEveryField(value: unknown) {
 const vacancyShape = z
   .object({
     title: trimmed.min(2, "required").max(180, "tooLong"),
+    kind: z.enum(VACANCY_KINDS, { message: "required" }),
     description: trimmed.min(2, "required").max(10_000, "tooLong"),
     organizationId: trimmed.min(1, "required"),
     region: z.enum(REGIONS, { message: "required" }),
@@ -90,6 +101,14 @@ const vacancyShape = z
     const capacity = Number(values.capacity);
     if (values.capacity && (!Number.isInteger(capacity) || capacity < 1)) {
       context.addIssue({ code: "custom", path: ["capacity"], message: "capacity" });
+    }
+
+    if (values.kind === "competition" && values.estimatedTotalHours) {
+      context.addIssue({
+        code: "custom",
+        path: ["estimatedTotalHours"],
+        message: "competitionHoursNotAllowed",
+      });
     }
 
     const hours = Number(values.estimatedTotalHours);
@@ -153,6 +172,7 @@ function lines(value: string | undefined): string[] {
 export function toVacancyPayload(values: VacancyFormValues) {
   return {
     title: values.title,
+    kind: values.kind,
     description: values.description,
     organizationId: values.organizationId,
     region: values.region,
@@ -163,7 +183,7 @@ export function toVacancyPayload(values: VacancyFormValues) {
     essayRequired: values.essayRequired === "on",
     ...(values.endsAt ? { endsAt: new Date(values.endsAt).toISOString() } : {}),
     ...(values.capacity ? { capacity: Number(values.capacity) } : {}),
-    ...(values.estimatedTotalHours
+    ...(values.kind === "volunteering" && values.estimatedTotalHours
       ? { estimatedTotalHours: Number(values.estimatedTotalHours) }
       : {}),
     ...(values.city ? { city: values.city } : {}),
@@ -177,9 +197,10 @@ export function toVacancyUpdate(values: VacancyFormValues) {
     ...toVacancyPayload(values),
     endsAt: values.endsAt ? new Date(values.endsAt).toISOString() : null,
     capacity: values.capacity ? Number(values.capacity) : null,
-    estimatedTotalHours: values.estimatedTotalHours
-      ? Number(values.estimatedTotalHours)
-      : null,
+    estimatedTotalHours:
+      values.kind === "volunteering" && values.estimatedTotalHours
+        ? Number(values.estimatedTotalHours)
+        : null,
     city: values.city || null,
     locationName: values.locationName || null,
     requirements: lines(values.requirements),

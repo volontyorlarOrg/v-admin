@@ -20,6 +20,7 @@ const vacancy = {
   id: "vac-1",
   slug: "winter-book-drive",
   title: "Winter book drive",
+  kind: "volunteering",
   summary: "Sort books",
   description: "Long description",
   requirements: ["Be 15 or older"],

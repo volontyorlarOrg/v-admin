@@ -200,7 +200,9 @@
     "progressBelowZero": "That would take the volunteer below zero XP or hours. Take away less.",
     "ownProgressNotAdjustable": "You cannot change the XP or hours of your own account.",
     "xpAmount": "Enter a whole number of XP from 0 to 100,000.",
-    "hoursAmount": "Enter hours from 0 to 999, with at most two decimals."
+    "hoursAmount": "Enter hours from 0 to 999, with at most two decimals.",
+    "competitionHoursNotAllowed": "Competition opportunities cannot include volunteer hours.",
+    "opportunityKindLocked": "The type cannot change after publication or application."
   },
   "dashboard": {
     "title": "Insights",
@@ -347,7 +349,9 @@
         "automatic": "Everyone who applies is accepted at once. A place limit applies only if you set one."
       },
       "locationNameHelp": "Optional. The venue or a public description of where the work happens online. Never a meeting password.",
-      "cityHelp": "Optional. The city or district volunteers travel to."
+      "cityHelp": "Optional. The city or district volunteers travel to.",
+      "kind": "Opportunity type",
+      "kindHelp": "Choose how the person will take part. Competitions earn event XP, but no volunteer hours."
     },
     "form": {
       "createTitle": "New vacancy",
@@ -437,7 +441,11 @@
     },
     "listTitle": "Every vacancy",
     "countLabel": "vacancies",
-    "record": "Vacancy"
+    "record": "Vacancy",
+    "kinds": {
+      "volunteering": "Volunteering",
+      "competition": "Competitions"
+    }
   },
   "applications": {
     "title": "Applications",
@@ -846,7 +854,11 @@
   "organizations": {
     "account": {
       "column": "Portal account",
-      "status": { "none": "Not issued", "active": "Active", "blocked": "Blocked" },
+      "status": {
+        "none": "Not issued",
+        "active": "Active",
+        "blocked": "Blocked"
+      },
       "passwordLabel": "Permanent password",
       "passwordHelp": "The organization cannot change this password. Share it securely; it will not be shown again.",
       "issue": {

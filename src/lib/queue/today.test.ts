@@ -38,6 +38,7 @@ function vacancy(overrides: Record<string, unknown> = {}): Vacancy {
     id: "vacancy-1",
     slug: "library-day",
     title: "Library day",
+    kind: "volunteering",
     description: "Help at the library.",
     region: "tashkent-city",
     format: "onsite",

@@ -9,6 +9,7 @@ import {
   QUESTION_TYPES,
   REGIONS,
   VACANCY_FORMATS,
+  VACANCY_KINDS,
   VACANCY_STATUSES,
   isSent,
 } from "@/lib/domain/vocabulary";
@@ -95,6 +96,7 @@ export const vacancySchema = z.object({
   id,
   slug: z.string(),
   title: z.string(),
+  kind: z.enum(VACANCY_KINDS),
   description: z.string().default(""),
   requirements: z.array(z.string()).default([]),
   region: apiRegion,

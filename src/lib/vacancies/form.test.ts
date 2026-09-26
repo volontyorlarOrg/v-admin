@@ -31,6 +31,25 @@ describe("vacancyFormSchema", () => {
     expect(vacancyFormSchema.safeParse(valid).success).toBe(true);
   });
 
+  it("accepts a competition without hours and rejects volunteer hours", () => {
+    expect(
+      vacancyFormSchema.safeParse({
+        ...valid,
+        kind: "competition",
+        estimatedTotalHours: "",
+      }).success,
+    ).toBe(true);
+    expect(
+      fieldErrorsOf(
+        vacancyFormSchema.safeParse({
+          ...valid,
+          kind: "competition",
+          estimatedTotalHours: "4",
+        }).error!,
+      ).estimatedTotalHours,
+    ).toContain("competitionHoursNotAllowed");
+  });
+
   it("allows optional logistics to stay empty", () => {
     expect(
       vacancyFormSchema.safeParse({

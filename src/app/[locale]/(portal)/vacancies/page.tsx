@@ -212,6 +212,7 @@ export default async function VacanciesPage({
                           </Link>
                           <span className="mt-0.5 block text-xs text-ink-muted">
                             {[
+                              t(`kinds.${vacancy.kind}`),
                               vacancy.organization?.name,
                               vocabulary(`regions.${vacancy.region}`),
                             ]

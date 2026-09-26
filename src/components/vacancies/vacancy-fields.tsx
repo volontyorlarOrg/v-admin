@@ -7,11 +7,17 @@ import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui
 import { Input } from "@/components/ui/input";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
-import { ACCEPTANCE_MODES, type AcceptanceMode } from "@/lib/domain/vocabulary";
+import {
+  ACCEPTANCE_MODES,
+  VACANCY_KINDS,
+  type AcceptanceMode,
+  type VacancyKind,
+} from "@/lib/domain/vocabulary";
 import type { MessageCatalog } from "@/lib/forms/messages";
 
 export type VacancyFieldLabels = {
   fields: Record<string, string>;
+  kinds: Record<VacancyKind, string>;
   help: Record<string, string>;
   regions: Record<string, string>;
   formats: Record<string, string>;
@@ -79,6 +85,7 @@ export function VacancyFields({
   regions,
   formats,
   error,
+  kindLocked = false,
   idPrefix = "vacancy",
 }: {
   labels: VacancyFieldLabels;
@@ -87,9 +94,13 @@ export function VacancyFields({
   regions: readonly string[];
   formats: readonly string[];
   error: (name: string) => string | undefined;
+  kindLocked?: boolean;
   idPrefix?: string;
 }) {
   const [organizationId, setOrganizationId] = useState(defaults.organizationId ?? "");
+  const [kind, setKind] = useState<VacancyKind>(
+    defaults.kind === "competition" ? "competition" : "volunteering",
+  );
 
   const idOf = (name: string) => `${idPrefix}-${name}`;
   const selected = organizations.find((item) => item.id === organizationId);
@@ -168,6 +179,25 @@ export function VacancyFields({
         title={labels.sections.about}
         help={labels.sectionHelp.about}
       >
+        <Field invalid={Boolean(error("kind"))}>
+          <FieldLabel htmlFor={idOf("kind")}>{labels.fields.kind}</FieldLabel>
+          <NativeSelect
+            id={idOf("kind")}
+            name="kind"
+            value={kind}
+            disabled={kindLocked}
+            onChange={(event) => setKind(event.target.value as VacancyKind)}
+          >
+            {VACANCY_KINDS.map((value) => (
+              <NativeSelectOption key={value} value={value}>
+                {labels.kinds[value]}
+              </NativeSelectOption>
+            ))}
+          </NativeSelect>
+          {kindLocked ? <input type="hidden" name="kind" value={kind} /> : null}
+          <FieldDescription>{labels.help.kind}</FieldDescription>
+          <FieldError>{error("kind")}</FieldError>
+        </Field>
         {text("title", { required: true })}
         {area("description", true)}
       </Section>
@@ -283,17 +313,25 @@ export function VacancyFields({
 
       <Section
         id={idOf("volunteers")}
-        title={labels.sections.volunteers}
-        help={labels.sectionHelp.volunteers}
+        title={
+          kind === "competition" ? labels.kinds.competition : labels.sections.volunteers
+        }
+        help={
+          kind === "competition"
+            ? (labels.help.kind ?? "")
+            : labels.sectionHelp.volunteers
+        }
       >
         <div className="grid gap-4 sm:grid-cols-2">
           {text("capacity", { type: "number", min: 1, step: 1 })}
-          {text("estimatedTotalHours", {
-            type: "number",
-            min: 0.25,
-            max: 100_000,
-            step: 0.01,
-          })}
+          {kind === "volunteering"
+            ? text("estimatedTotalHours", {
+                type: "number",
+                min: 0.25,
+                max: 100_000,
+                step: 0.01,
+              })
+            : null}
         </div>
         <fieldset
           className="flex flex-col gap-2"
