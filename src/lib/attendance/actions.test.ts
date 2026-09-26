@@ -16,6 +16,23 @@ describe("resolveAttendanceSchema", () => {
     ).toBe(true);
   });
 
+  it("confirms competition participation without volunteer hours", () => {
+    const result = resolveAttendanceSchema.safeParse({
+      outcome: "attended",
+      kind: "competition",
+    });
+    expect(result.success).toBe(true);
+    if (result.success)
+      expect(attendanceBody(result.data)).toEqual({ outcome: "attended" });
+    expect(
+      resolveAttendanceSchema.safeParse({
+        outcome: "attended",
+        kind: "competition",
+        confirmedHours: "2",
+      }).success,
+    ).toBe(false);
+  });
+
   it("requires hours when the volunteer attended", () => {
     const result = resolveAttendanceSchema.safeParse({ outcome: "attended" });
     expect(fieldErrorsOf(result.error!).confirmedHours).toEqual([

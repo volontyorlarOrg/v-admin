@@ -34,12 +34,14 @@ export function ResolveAttendanceForm({
   labels,
   currentOutcome,
   currentHours,
+  kind = "volunteering",
 }: {
   applicationId: string;
   outcomes: readonly string[];
   labels: ResolveLabels;
   currentOutcome?: string;
   currentHours?: string;
+  kind?: "volunteering" | "competition";
 }) {
   const [result, dispatch] = useActionState(resolveAttendanceAction, idleResult);
   const fields = fieldsOf(result);
@@ -52,6 +54,7 @@ export function ResolveAttendanceForm({
   return (
     <form action={dispatch} noValidate className="flex flex-col gap-4">
       <input type="hidden" name="applicationId" value={applicationId} />
+      <input type="hidden" name="kind" value={kind} />
 
       {result.status === "ok" ? (
         <FormMessage tone="success">{labels.success}</FormMessage>
@@ -80,22 +83,26 @@ export function ResolveAttendanceForm({
           <FieldError>{outcomeError}</FieldError>
         </Field>
 
-        <Field invalid={Boolean(hoursError)}>
-          <FieldLabel htmlFor={inputId}>{labels.hours}</FieldLabel>
-          <Input
-            id={inputId}
-            name="confirmedHours"
-            type="number"
-            min={0}
-            max={999}
-            step="0.25"
-            inputMode="decimal"
-            defaultValue={currentHours ?? ""}
-            aria-describedby={`${inputId}-help`}
-          />
-          <FieldDescription id={`${inputId}-help`}>{labels.hoursHelp}</FieldDescription>
-          <FieldError>{hoursError}</FieldError>
-        </Field>
+        {kind === "volunteering" ? (
+          <Field invalid={Boolean(hoursError)}>
+            <FieldLabel htmlFor={inputId}>{labels.hours}</FieldLabel>
+            <Input
+              id={inputId}
+              name="confirmedHours"
+              type="number"
+              min={0}
+              max={999}
+              step="0.25"
+              inputMode="decimal"
+              defaultValue={currentHours ?? ""}
+              aria-describedby={`${inputId}-help`}
+            />
+            <FieldDescription id={`${inputId}-help`}>
+              {labels.hoursHelp}
+            </FieldDescription>
+            <FieldError>{hoursError}</FieldError>
+          </Field>
+        ) : null}
       </div>
 
       <div>

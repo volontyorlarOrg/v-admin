@@ -2052,6 +2052,11 @@ export interface components {
             password: string;
         };
         CreateOrgOpportunityDto: {
+            /**
+             * @default volunteering
+             * @enum {string}
+             */
+            kind: "volunteering" | "competition";
             slug: string;
             title: string;
             /**
@@ -2091,6 +2096,11 @@ export interface components {
             sourcedByYvc: boolean;
         };
         UpdateOrgOpportunityDto: {
+            /**
+             * @default volunteering
+             * @enum {string}
+             */
+            kind: "volunteering" | "competition";
             slug?: string;
             title?: string;
             /**
@@ -2150,6 +2160,11 @@ export interface components {
         };
         Object: Record<string, never>;
         CreateOpportunityDto: {
+            /**
+             * @default volunteering
+             * @enum {string}
+             */
+            kind: "volunteering" | "competition";
             slug: string;
             title: string;
             /**
@@ -2190,6 +2205,11 @@ export interface components {
             organizationId: string;
         };
         UpdateOpportunityDto: {
+            /**
+             * @default volunteering
+             * @enum {string}
+             */
+            kind: "volunteering" | "competition";
             slug?: string;
             title?: string;
             /**
@@ -3745,6 +3765,7 @@ export interface operations {
                 q?: string;
                 region?: "andijan" | "bukhara" | "fergana" | "jizzakh" | "kashkadarya" | "khorezm" | "namangan" | "navoiy" | "samarkand" | "sirdaryo" | "surkhandarya" | "tashkent-region" | "tashkent-city" | "karakalpakstan";
                 format?: "onsite" | "remote" | "hybrid";
+                kind?: "volunteering" | "competition";
                 status?: "open" | "closed" | "full";
                 sort?: "deadline" | "startDate" | "newest";
                 page?: components["schemas"]["Object"];

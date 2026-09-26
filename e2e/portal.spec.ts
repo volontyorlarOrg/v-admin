@@ -685,6 +685,22 @@ test.describe("the vacancy lifecycle", () => {
     await expect(page.getByText("This vacancy is archived")).toBeVisible();
   });
 
+  test("creates a competition without volunteer hours", async ({ page }) => {
+    await signedIn(page);
+    await page.goto("/en/vacancies/new");
+    await fillVacancyDraft(page, { title: "City youth debate" });
+    await page
+      .getByRole("combobox", { name: "Opportunity type" })
+      .selectOption("competition");
+    await expect(page.getByLabel("Estimated hours")).toHaveCount(0);
+    await page.getByRole("button", { name: "Create the draft" }).click();
+
+    await expect(page.getByRole("heading", { level: 1 })).toContainText(
+      "City youth debate",
+    );
+    await expect(page.getByText("Competitions", { exact: true }).first()).toBeVisible();
+  });
+
   test("closes the applications nobody decided when a vacancy is archived", async ({
     page,
   }) => {
@@ -1444,9 +1460,7 @@ test.describe("organizations and the audit history", () => {
     await dialog(page).getByLabel("Login name").fill("no-password-group");
     await dialog(page).getByRole("button", { name: "Create the organization" }).click();
 
-    await expect(
-      dialog(page).getByText("Use at least 8 characters."),
-    ).toBeVisible();
+    await expect(dialog(page).getByText("Use at least 8 characters.")).toBeVisible();
     await expect(page.getByRole("row", { name: /No Password Group/ })).toHaveCount(0);
   });
 

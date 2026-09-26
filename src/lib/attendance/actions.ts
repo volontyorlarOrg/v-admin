@@ -22,6 +22,7 @@ export async function resolveAttendanceAction(
   const hours = stringField(formData, "confirmedHours").trim();
   const parsed = resolveAttendanceSchema.safeParse({
     outcome: stringField(formData, "outcome"),
+    kind: stringField(formData, "kind") || "volunteering",
     ...(hours ? { confirmedHours: hours } : {}),
   });
 
@@ -48,6 +49,7 @@ export async function resolveVacancyAttendanceAction(
   const hours = stringField(formData, "confirmedHours").trim();
   const parsed = batchAttendanceSchema.safeParse({
     outcome: stringField(formData, "outcome"),
+    kind: stringField(formData, "kind") || "volunteering",
     ...(hours ? { confirmedHours: hours } : {}),
     applicationIds: formData
       .getAll("applicationIds")

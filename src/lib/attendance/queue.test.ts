@@ -100,6 +100,7 @@ describe("groupAttendance", () => {
       id: "v1",
       slug: "v1",
       title: "Library day",
+      kind: "volunteering",
       description: "Help at the library.",
       region: "tashkent-city",
       format: "onsite",

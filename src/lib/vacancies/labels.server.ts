@@ -26,6 +26,8 @@ const ERROR_CODES = [
   "endBeforeStart",
   "capacity",
   "estimatedHours",
+  "competitionHoursNotAllowed",
+  "opportunityKindLocked",
   "cityRequired",
   "venueRequired",
   "onlineLocationRequired",
@@ -65,8 +67,13 @@ async function vacancyFieldLabels(): Promise<VacancyFieldLabels> {
   const vocabulary = await getTranslations("vocabulary");
 
   return {
+    kinds: {
+      volunteering: t("kinds.volunteering"),
+      competition: t("kinds.competition"),
+    },
     fields: {
       title: t("fields.title"),
+      kind: t("fields.kind"),
       description: t("fields.description"),
       organizationId: t("fields.organization"),
       region: t("fields.region"),
@@ -84,6 +91,7 @@ async function vacancyFieldLabels(): Promise<VacancyFieldLabels> {
       image: t("image.choose"),
     },
     help: {
+      kind: t("fields.kindHelp"),
       organizationId: t("fields.organizationHelp"),
       capacity: t("fields.capacityHelp"),
       estimatedTotalHours: t("fields.estimatedTotalHoursHelp"),

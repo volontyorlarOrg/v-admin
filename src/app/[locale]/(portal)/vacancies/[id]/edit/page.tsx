@@ -74,7 +74,9 @@ export default async function EditVacancyPage({
           locale={locale}
           cancelHref={vacancyHref(vacancy.id)}
           labels={labels}
+          kindLocked={Boolean(vacancy.publishedAt)}
           defaults={{
+            kind: vacancy.kind,
             title: vacancy.title,
             description: vacancy.description,
             organizationId: vacancy.organizationId,

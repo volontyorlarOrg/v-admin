@@ -200,7 +200,9 @@
     "progressBelowZero": "Bunda volontyorning XP yoki soatlari noldan kam boʻlib qoladi. Kamroq ayiring.",
     "ownProgressNotAdjustable": "Oʻz hisobingizning XP va soatlarini oʻzgartira olmaysiz.",
     "xpAmount": "0 dan 100 000 gacha butun sondagi XP kiriting.",
-    "hoursAmount": "Soatlarni 0 dan 999 gacha, koʻpi bilan ikki kasr xonasi bilan kiriting."
+    "hoursAmount": "Soatlarni 0 dan 999 gacha, koʻpi bilan ikki kasr xonasi bilan kiriting.",
+    "competitionHoursNotAllowed": "Tanlov uchun volontyorlik soatlarini kiritib boʻlmaydi.",
+    "opportunityKindLocked": "Nashr yoki arizadan keyin turni oʻzgartirib boʻlmaydi."
   },
   "dashboard": {
     "title": "Tahlil",
@@ -347,7 +349,9 @@
         "automatic": "Ariza berganlar darhol qabul qilinadi. Joylar soni faqat chegarani belgilasangiz hisobga olinadi."
       },
       "locationNameHelp": "Ixtiyoriy. Joy nomi yoki onlayn ishning ochiq tavsifi. Uchrashuv parolini yozmang.",
-      "cityHelp": "Ixtiyoriy. Volontyorlar boradigan shahar yoki tuman."
+      "cityHelp": "Ixtiyoriy. Volontyorlar boradigan shahar yoki tuman.",
+      "kind": "Imkoniyat turi",
+      "kindHelp": "Ishtirok turini tanlang. Tanlovlar tadbir uchun XP beradi, lekin volontyorlik soatlari hisoblanmaydi."
     },
     "form": {
       "createTitle": "Yangi vakansiya",
@@ -437,7 +441,11 @@
     },
     "listTitle": "Barcha vakansiyalar",
     "countLabel": "vakansiya",
-    "record": "Vakansiya"
+    "record": "Vakansiya",
+    "kinds": {
+      "volunteering": "Volontyorlik",
+      "competition": "Tanlovlar"
+    }
   },
   "applications": {
     "title": "Arizalar",
@@ -846,7 +854,11 @@
   "organizations": {
     "account": {
       "column": "Portal hisobi",
-      "status": { "none": "Berilmagan", "active": "Faol", "blocked": "Bloklangan" },
+      "status": {
+        "none": "Berilmagan",
+        "active": "Faol",
+        "blocked": "Bloklangan"
+      },
       "passwordLabel": "Doimiy parol",
       "passwordHelp": "Tashkilot bu parolni oʻzgartira olmaydi. Uni xavfsiz yetkazing; keyin qayta koʻrsatilmaydi.",
       "issue": {

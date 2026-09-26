@@ -67,12 +67,14 @@ export function AttendanceRoster({
   rows,
   outcomes,
   defaultHours,
+  kind = "volunteering",
   labels,
 }: {
   vacancyId: string;
   rows: readonly RosterRow[];
   outcomes: readonly string[];
   defaultHours?: string;
+  kind?: "volunteering" | "competition";
   labels: RosterLabels;
 }) {
   const formId = useId();
@@ -180,6 +182,7 @@ export function AttendanceRoster({
                         {...(row.outcome ? { currentOutcome: row.outcome } : {})}
                         {...(row.hours ? { currentHours: row.hours } : {})}
                         labels={labels.row}
+                        kind={kind}
                       />
                     </div>
                   </details>
@@ -197,6 +200,7 @@ export function AttendanceRoster({
         className="flex flex-col gap-4 border-t border-border pt-5"
       >
         <input type="hidden" name="vacancyId" value={vacancyId} />
+        <input type="hidden" name="kind" value={kind} />
 
         <div>
           <h3 className="text-section font-semibold text-ink">{labels.batchTitle}</h3>
@@ -231,24 +235,26 @@ export function AttendanceRoster({
             <FieldError>{outcomeError}</FieldError>
           </Field>
 
-          <Field invalid={Boolean(hoursError)}>
-            <FieldLabel htmlFor={`${formId}-hours`}>{labels.hours}</FieldLabel>
-            <Input
-              id={`${formId}-hours`}
-              name="confirmedHours"
-              type="number"
-              min={0.25}
-              max={999}
-              step="0.25"
-              inputMode="decimal"
-              defaultValue={defaultHours}
-              aria-describedby={`${formId}-hours-help`}
-            />
-            <FieldDescription id={`${formId}-hours-help`}>
-              {labels.hoursHelp}
-            </FieldDescription>
-            <FieldError>{hoursError}</FieldError>
-          </Field>
+          {kind === "volunteering" ? (
+            <Field invalid={Boolean(hoursError)}>
+              <FieldLabel htmlFor={`${formId}-hours`}>{labels.hours}</FieldLabel>
+              <Input
+                id={`${formId}-hours`}
+                name="confirmedHours"
+                type="number"
+                min={0.25}
+                max={999}
+                step="0.25"
+                inputMode="decimal"
+                defaultValue={defaultHours}
+                aria-describedby={`${formId}-hours-help`}
+              />
+              <FieldDescription id={`${formId}-hours-help`}>
+                {labels.hoursHelp}
+              </FieldDescription>
+              <FieldError>{hoursError}</FieldError>
+            </Field>
+          ) : null}
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
