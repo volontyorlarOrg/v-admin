@@ -146,6 +146,7 @@ function reset() {
         verified: false,
       },
     ],
+    organizationAccounts: [],
     vacancies: [
       vacancy(
         "00000000-0000-4000-8000-000000000401",
@@ -1475,6 +1476,12 @@ const server = createServer(async (request, response) => {
 
   if (path === "/organizations" && method === "POST") {
     if (!isAdmin(actor)) return send(response, 403, { code: "forbidden" });
+    if (!body.password || String(body.password).length < 8) {
+      return send(response, 422, {
+        code: "validationFailed",
+        errors: { password: ["passwordShort"] },
+      });
+    }
     if (state.organizations.some((item) => item.slug === body.slug)) {
       return send(response, 409, {
         code: "slugUnavailable",
@@ -1489,7 +1496,20 @@ const server = createServer(async (request, response) => {
       verified: Boolean(body.verified),
     };
     state.organizations.push(created);
+    state.organizationAccounts.push({
+      organizationId: created.id,
+      userId: randomUUID(),
+      status: "active",
+      createdAt: new Date().toISOString(),
+      blockedAt: null,
+      passwordChangedAt: null,
+    });
     return send(response, 201, created);
+  }
+
+  if (path === "/admin/organizations/accounts" && method === "GET") {
+    if (!isAdmin(actor)) return send(response, 403, { code: "forbidden" });
+    return send(response, 200, state.organizationAccounts);
   }
 
   const organizationMatch = /^\/organizations\/([^/]+)$/.exec(path);

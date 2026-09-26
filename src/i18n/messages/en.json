@@ -912,8 +912,8 @@
     },
     "fields": {
       "name": "Name",
-      "slug": "Address",
-      "slugHelp": "Optional. Leave it empty to derive it from the name. Lowercase letters, numbers and single hyphens; it cannot be changed later.",
+      "slug": "Login name",
+      "slugHelp": "Use lowercase letters, numbers and hyphens. This is the permanent login name at org.volontyorlar.uz.",
       "logoUrl": "Logo URL",
       "logoUrlHelp": "Optional. A full https:// address.",
       "verified": "Verified",
@@ -923,8 +923,8 @@
       "title": "New organization",
       "submit": "Create the organization",
       "pending": "Creating…",
-      "success": "The organization was created.",
-      "description": "Add the organization that vacancies will be published under. Its address cannot be changed later."
+      "success": "The organization and its portal account were created.",
+      "description": "Set the organization name, login name and permanent password. Share the credentials securely after creation."
     },
     "update": {
       "title": "Edit organization",

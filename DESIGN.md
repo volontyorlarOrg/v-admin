@@ -266,15 +266,17 @@ tabular figures so the column lines up.
 
 ## Layout
 
-A fixed navy rail of 16.5rem on the left from the large breakpoint; below it the
+A fixed navy rail of 15rem on the left from the large breakpoint; below it the
 rail becomes a drawer behind a menu button in a white header, and the content
-takes the width. The rail holds the stacked inverse lockup, the sections in
-hairline-separated groups (work, office, records) with waiting counts on
-Vacancies, Applications and Attendance, and at its foot the identity card, My
+takes the width. The rail holds the stacked inverse lockup and six destinations
+in two groups: Today, Vacancies, Applications, Volunteers, Coordinators, and
+Organizations. Vacancies and Applications show waiting counts. Attendance is
+linked from Today and each vacancy record; Insights from Today; Audit history
+from My activity. At its foot are the identity card, My
 activity, Change password, language and theme, and Sign out.
 
 The content column is capped at 80rem with 16px side padding on phones, 24px on
-small screens and 40px on the desk, 24px between blocks. A screen is a page
+small screens and 32px on the desk, 20px between blocks. A screen is a page
 header, then sheets. The page header carries the title, an optional back link,
 meta and description on the left, the ground window in the middle, and the
 page's actions on the right.

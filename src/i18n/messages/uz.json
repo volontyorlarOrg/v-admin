@@ -912,8 +912,8 @@
     },
     "fields": {
       "name": "Nomi",
-      "slug": "Manzil",
-      "slugHelp": "Ixtiyoriy. Boʻsh qoldirsangiz, nomdan olinadi. Kichik lotin harflari, raqamlar va bitta chiziqcha; keyin oʻzgartirib boʻlmaydi.",
+      "slug": "Kirish nomi",
+      "slugHelp": "Kichik lotin harflari, raqamlar va chiziqchalardan foydalaning. Bu org.volontyorlar.uz uchun doimiy kirish nomi.",
       "logoUrl": "Logotip havolasi",
       "logoUrlHelp": "Ixtiyoriy. https:// bilan toʻliq manzil.",
       "verified": "Tasdiqlangan",
@@ -923,8 +923,8 @@
       "title": "Yangi tashkilot",
       "submit": "Tashkilotni yaratish",
       "pending": "Yaratilmoqda…",
-      "success": "Tashkilot yaratildi.",
-      "description": "Vakansiyalar eʻlon qilinadigan tashkilotni qoʻshing. Uning manzilini keyin oʻzgartirib boʻlmaydi."
+      "success": "Tashkilot va uning portal hisobi yaratildi.",
+      "description": "Tashkilot nomi, kirish nomi va doimiy parolni kiriting. Kirish maʼlumotlarini xavfsiz yetkazing."
     },
     "update": {
       "title": "Tashkilotni tahrirlash",
