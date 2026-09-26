@@ -1412,22 +1412,42 @@ test.describe("coordinator management", () => {
 });
 
 test.describe("organizations and the audit history", () => {
-  test("creates an organization in a dialog and marks it verified", async ({
+  test("creates an organization with its own portal login and password", async ({
     page,
   }) => {
     await signedIn(page);
     await page.goto("/en/organizations");
 
     await openDialog(page, "New organization");
-    await dialog(page).getByLabel("Name").fill("Fergana Youth Union");
-    await dialog(page).getByLabel("Address").fill("fergana-youth-union");
-    await dialog(page).getByLabel("Verified").check();
+    await dialog(page).getByLabel("Name", { exact: true }).fill("Fergana Youth Union");
+    await dialog(page).getByLabel("Login name").fill("fergana-youth-union");
+    await dialog(page)
+      .getByLabel("Permanent password")
+      .fill("A unique long password for Fergana account!");
     await dialog(page).getByRole("button", { name: "Create the organization" }).click();
 
     await expect(dialog(page)).toHaveCount(0);
     await expect(page.getByRole("row", { name: /Fergana Youth Union/ })).toContainText(
-      "Verified",
+      "Active",
     );
+    await expect(page.getByRole("row", { name: /Fergana Youth Union/ })).toContainText(
+      "fergana-youth-union",
+    );
+  });
+
+  test("cannot create an organization without a password", async ({ page }) => {
+    await signedIn(page);
+    await page.goto("/en/organizations");
+
+    await openDialog(page, "New organization");
+    await dialog(page).getByLabel("Name", { exact: true }).fill("No Password Group");
+    await dialog(page).getByLabel("Login name").fill("no-password-group");
+    await dialog(page).getByRole("button", { name: "Create the organization" }).click();
+
+    await expect(
+      dialog(page).getByText("Use at least 8 characters."),
+    ).toBeVisible();
+    await expect(page.getByRole("row", { name: /No Password Group/ })).toHaveCount(0);
   });
 
   test("edits one organization without unfolding every other row", async ({ page }) => {

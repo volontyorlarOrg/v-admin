@@ -98,7 +98,7 @@
   --text-label--line-height: 1.35;
   --text-label--letter-spacing: 0.08em;
 
-  --sidebar-width: 16.5rem;
+  --sidebar-width: 15rem;
 }
 
 @layer base {

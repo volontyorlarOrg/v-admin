@@ -42,29 +42,28 @@ describe("createOrganizationSchema", () => {
     const result = createOrganizationSchema.safeParse({
       name: "Reading Corners",
       slug: "Reading Corners",
-      verified: false,
+      password: "A unique long password for this account!",
     });
     expect(fieldErrorsOf(result.error!).slug).toEqual(["slug"]);
   });
 
-  it("treats an empty logo URL as no logo rather than an error", () => {
+  it("requires a stable login name and password for portal access", () => {
+    const result = createOrganizationSchema.safeParse({
+      name: "Reading Corners",
+      slug: "",
+      password: "",
+    });
+    expect(fieldErrorsOf(result.error!).slug).toContain("required");
+    expect(fieldErrorsOf(result.error!).password).toContain("passwordShort");
+  });
+
+  it("accepts a complete organization account", () => {
     expect(
       createOrganizationSchema.safeParse({
         name: "Reading Corners",
         slug: "reading-corners",
-        logoUrl: "",
-        verified: true,
+        password: "A unique long password for this account!",
       }).success,
     ).toBe(true);
-  });
-
-  it("rejects a logo that is not a URL", () => {
-    const result = createOrganizationSchema.safeParse({
-      name: "Reading Corners",
-      slug: "reading-corners",
-      logoUrl: "not-a-url",
-      verified: false,
-    });
-    expect(fieldErrorsOf(result.error!).logoUrl).toEqual(["url"]);
   });
 });

@@ -1,6 +1,5 @@
 "use server";
 
-import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 
 import { failedResult, type ActionResult } from "@/lib/api/action-result";
@@ -8,7 +7,6 @@ import { write } from "@/lib/api/gateway.server";
 import { fieldErrorsOf, stringField } from "@/lib/auth/credentials";
 import {
   createOrganizationSchema,
-  organizationSlug,
   updateOrganizationSchema,
 } from "@/lib/organizations/schema";
 
@@ -23,21 +21,15 @@ export async function createOrganizationAction(
   const parsed = createOrganizationSchema.safeParse({
     name: stringField(formData, "name"),
     slug: stringField(formData, "slug"),
-    logoUrl: stringField(formData, "logoUrl"),
-    verified: checkbox(formData, "verified"),
+    password: stringField(formData, "password"),
   });
 
   if (!parsed.success) {
     return failedResult("validationFailed", fieldErrorsOf(parsed.error));
   }
 
-  const { logoUrl, slug, ...rest } = parsed.data;
   const result = await write("createOrganization", {
-    body: {
-      ...rest,
-      slug: slug || organizationSlug(rest.name, randomUUID().slice(0, 6)),
-      ...(logoUrl ? { logoUrl } : {}),
-    },
+    body: parsed.data,
   });
 
   if (result.status === "ok") revalidatePath("/", "layout");

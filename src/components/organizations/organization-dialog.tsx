@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 
 import { FormDialog, type FormDialogLabels } from "@/components/forms/form-dialog";
+import { PasswordInput } from "@/components/forms/password-input";
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import type { ActionResult } from "@/lib/api/action-result";
@@ -12,6 +13,10 @@ export type OrganizationDialogLabels = FormDialogLabels & {
     name: string;
     slug: string;
     slugHelp: string;
+    password: string;
+    passwordHelp: string;
+    showPassword: string;
+    hidePassword: string;
     logoUrl: string;
     logoUrlHelp: string;
     verified: string;
@@ -73,6 +78,7 @@ export function OrganizationDialog({
                 id={idOf("slug")}
                 name="slug"
                 autoComplete="off"
+                required
                 aria-invalid={Boolean(error("slug")) || undefined}
                 aria-describedby={`${idOf("slug")}-help${
                   error("slug") ? ` ${idOf("slug")}-error` : ""
@@ -85,43 +91,75 @@ export function OrganizationDialog({
             </Field>
           )}
 
-          <Field invalid={Boolean(error("logoUrl"))}>
-            <FieldLabel htmlFor={idOf("logoUrl")}>{labels.fields.logoUrl}</FieldLabel>
-            <Input
-              id={idOf("logoUrl")}
-              name="logoUrl"
-              type="url"
-              inputMode="url"
-              defaultValue={defaults?.logoUrl ?? ""}
-              aria-invalid={Boolean(error("logoUrl")) || undefined}
-              aria-describedby={`${idOf("logoUrl")}-help${
-                error("logoUrl") ? ` ${idOf("logoUrl")}-error` : ""
-              }`}
-            />
-            <FieldDescription id={`${idOf("logoUrl")}-help`}>
-              {labels.fields.logoUrlHelp}
-            </FieldDescription>
-            <FieldError id={`${idOf("logoUrl")}-error`}>{error("logoUrl")}</FieldError>
-          </Field>
-
-          <Field>
-            <span className="flex items-center gap-3">
-              <input
-                id={idOf("verified")}
-                name="verified"
-                type="checkbox"
-                defaultChecked={defaults?.verified ?? false}
-                className="size-5 accent-[var(--color-action)]"
-                aria-describedby={`${idOf("verified")}-help`}
-              />
-              <FieldLabel htmlFor={idOf("verified")}>
-                {labels.fields.verified}
+          {id ? null : (
+            <Field invalid={Boolean(error("password"))}>
+              <FieldLabel htmlFor={idOf("password")}>
+                {labels.fields.password}
               </FieldLabel>
-            </span>
-            <FieldDescription id={`${idOf("verified")}-help`}>
-              {labels.fields.verifiedHelp}
-            </FieldDescription>
-          </Field>
+              <PasswordInput
+                id={idOf("password")}
+                name="password"
+                autoComplete="new-password"
+                required
+                showLabel={labels.fields.showPassword}
+                hideLabel={labels.fields.hidePassword}
+                aria-invalid={Boolean(error("password")) || undefined}
+                aria-describedby={`${idOf("password")}-help${
+                  error("password") ? ` ${idOf("password")}-error` : ""
+                }`}
+              />
+              <FieldDescription id={`${idOf("password")}-help`}>
+                {labels.fields.passwordHelp}
+              </FieldDescription>
+              <FieldError id={`${idOf("password")}-error`}>
+                {error("password")}
+              </FieldError>
+            </Field>
+          )}
+
+          {id ? (
+            <Field invalid={Boolean(error("logoUrl"))}>
+              <FieldLabel htmlFor={idOf("logoUrl")}>{labels.fields.logoUrl}</FieldLabel>
+              <Input
+                id={idOf("logoUrl")}
+                name="logoUrl"
+                type="url"
+                inputMode="url"
+                defaultValue={defaults?.logoUrl ?? ""}
+                aria-invalid={Boolean(error("logoUrl")) || undefined}
+                aria-describedby={`${idOf("logoUrl")}-help${
+                  error("logoUrl") ? ` ${idOf("logoUrl")}-error` : ""
+                }`}
+              />
+              <FieldDescription id={`${idOf("logoUrl")}-help`}>
+                {labels.fields.logoUrlHelp}
+              </FieldDescription>
+              <FieldError id={`${idOf("logoUrl")}-error`}>
+                {error("logoUrl")}
+              </FieldError>
+            </Field>
+          ) : null}
+
+          {id ? (
+            <Field>
+              <span className="flex items-center gap-3">
+                <input
+                  id={idOf("verified")}
+                  name="verified"
+                  type="checkbox"
+                  defaultChecked={defaults?.verified ?? false}
+                  className="size-5 accent-[var(--color-action)]"
+                  aria-describedby={`${idOf("verified")}-help`}
+                />
+                <FieldLabel htmlFor={idOf("verified")}>
+                  {labels.fields.verified}
+                </FieldLabel>
+              </span>
+              <FieldDescription id={`${idOf("verified")}-help`}>
+                {labels.fields.verifiedHelp}
+              </FieldDescription>
+            </Field>
+          ) : null}
         </>
       )}
     </FormDialog>
