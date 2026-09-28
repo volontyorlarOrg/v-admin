@@ -2,7 +2,12 @@ import "server-only";
 
 import type { z } from "zod";
 
-import { authedApi, authedMultipart, type QueryParams } from "@/lib/api/client.server";
+import {
+  authedApi,
+  authedMultipart,
+  authedMultipartReturning,
+  type QueryParams,
+} from "@/lib/api/client.server";
 import { endpoints, pathFor, type EndpointName } from "@/lib/api/endpoints";
 import { isApiError, isSessionOver } from "@/lib/api/errors";
 import { loadedFromError, ready, type Loaded } from "@/lib/api/load";
@@ -118,5 +123,27 @@ export async function writeMultipart(
   } catch (error) {
     if (isSessionOver(error)) return failedResult("sessionExpired");
     return resultFromError(error);
+  }
+}
+
+export async function writeMultipartReturning<TSchema extends z.ZodType>(
+  name: EndpointName,
+  params: Params,
+  body: FormData,
+  schema: TSchema,
+): Promise<{ result: ActionResult; data?: z.infer<TSchema> }> {
+  const session = await getSession();
+  if (!session) return { result: failedResult("sessionExpired") };
+  try {
+    const data = await authedMultipartReturning(
+      pathFor(name, params),
+      session.accessToken,
+      body,
+      schema,
+    );
+    return { result: okResult, data };
+  } catch (error) {
+    if (isSessionOver(error)) return { result: failedResult("sessionExpired") };
+    return { result: resultFromError(error) };
   }
 }

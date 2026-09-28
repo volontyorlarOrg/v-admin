@@ -23,6 +23,50 @@ export const endpoints = {
 
   statistics: { method: "GET", path: "/admin/statistics", contract: "published" },
   audit: { method: "GET", path: "/admin/audit", contract: "published" },
+  blogPosts: { method: "GET", path: "/admin/blog", contract: "published" },
+  createBlogPost: { method: "POST", path: "/admin/blog", contract: "published" },
+  blogPost: { method: "GET", path: "/admin/blog/{id}", contract: "published" },
+  blogRevision: {
+    method: "GET",
+    path: "/admin/blog/{id}/revisions/{revisionId}",
+    contract: "published",
+  },
+  updateBlogPost: { method: "PATCH", path: "/admin/blog/{id}", contract: "published" },
+  saveBlogTranslation: {
+    method: "PUT",
+    path: "/admin/blog/{id}/translations/{locale}",
+    contract: "published",
+  },
+  publishBlogTranslation: {
+    method: "POST",
+    path: "/admin/blog/{id}/translations/{locale}/publish",
+    contract: "published",
+  },
+  unpublishBlogTranslation: {
+    method: "POST",
+    path: "/admin/blog/{id}/translations/{locale}/unpublish",
+    contract: "published",
+  },
+  restoreBlogRevision: {
+    method: "POST",
+    path: "/admin/blog/{id}/translations/{locale}/restore",
+    contract: "published",
+  },
+  blogPreviewSession: {
+    method: "POST",
+    path: "/admin/blog/{id}/translations/{locale}/preview-session",
+    contract: "published",
+  },
+  archiveBlogPost: {
+    method: "POST",
+    path: "/admin/blog/{id}/archive",
+    contract: "published",
+  },
+  uploadBlogMedia: {
+    method: "POST",
+    path: "/admin/blog/{id}/media",
+    contract: "published",
+  },
 
   vacancies: { method: "GET", path: "/admin/opportunities", contract: "published" },
   vacancy: {

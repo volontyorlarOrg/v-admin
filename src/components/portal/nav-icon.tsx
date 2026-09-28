@@ -1,5 +1,6 @@
 import {
   Building2,
+  BookOpen,
   CalendarCheck,
   ChartColumn,
   ClipboardList,
@@ -19,6 +20,7 @@ import {
 
 const ICONS: Record<string, LucideIcon> = {
   "building-2": Building2,
+  "book-open": BookOpen,
   "calendar-check": CalendarCheck,
   "chart-column": ChartColumn,
   "clipboard-list": ClipboardList,
