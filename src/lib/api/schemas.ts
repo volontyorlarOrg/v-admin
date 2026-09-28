@@ -29,6 +29,93 @@ export function optional<T extends z.ZodTypeAny>(schema: T) {
 const isoDate = z.string().min(1);
 const id = z.string().min(1);
 
+export const blogLocaleSchema = z.enum(["uz", "ru", "en"]);
+export const blogTranslationSchema = z.object({
+  locale: blogLocaleSchema,
+  version: z.number().int(),
+  title: z.string(),
+  summary: z.string(),
+  body: z.record(z.string(), z.unknown()),
+  coverMediaId: z.string().nullable(),
+  coverUrl: z.string().nullable(),
+  coverAlt: z.string(),
+  coverCaption: z.string(),
+  coverCredit: z.string(),
+  seoDescription: z.string(),
+  authorName: z.string(),
+  updatedAt: isoDate,
+  publishedRevisionId: z.string().nullable(),
+  publishedAt: z.string().nullable(),
+});
+export const blogRevisionSchema = z.object({
+  id,
+  locale: blogLocaleSchema,
+  version: z.number().int(),
+  title: z.string(),
+  publishedAt: z.string().nullable(),
+  createdAt: isoDate,
+});
+export const blogRevisionDetailSchema = blogRevisionSchema.extend({
+  summary: z.string(),
+  body: z.record(z.string(), z.unknown()),
+  coverMediaId: z.string().nullable(),
+  coverAlt: z.string(),
+  coverCaption: z.string(),
+  coverCredit: z.string(),
+  seoDescription: z.string(),
+  authorName: z.string(),
+});
+export type BlogRevisionDetail = z.infer<typeof blogRevisionDetailSchema>;
+export const blogPostSchema = z.object({
+  id,
+  slug: z.string(),
+  primaryLocale: blogLocaleSchema,
+  archivedAt: z.string().nullable(),
+  firstPublishedAt: z.string().nullable(),
+  createdAt: isoDate,
+  updatedAt: isoDate,
+  translations: z.array(blogTranslationSchema),
+  revisions: z.array(blogRevisionSchema),
+});
+export type BlogPost = z.infer<typeof blogPostSchema>;
+export type BlogTranslation = z.infer<typeof blogTranslationSchema>;
+export const blogPostListSchema = z.array(
+  z.object({
+    id,
+    slug: z.string(),
+    primaryLocale: blogLocaleSchema,
+    archivedAt: z.string().nullable(),
+    firstPublishedAt: z.string().nullable(),
+    updatedAt: isoDate,
+    translations: z.array(
+      z.object({
+        locale: blogLocaleSchema,
+        draftTitle: z.string(),
+        version: z.number().int(),
+        publishedRevisionId: z.string().nullable(),
+        updatedAt: isoDate,
+      }),
+    ),
+  }),
+);
+export const blogSaveResultSchema = z.object({
+  version: z.number().int(),
+  savedAt: isoDate,
+});
+export const blogMediaSchema = z.object({
+  id,
+  width: z.number().int(),
+  height: z.number().int(),
+  url: z.string(),
+  variants: z.record(z.string(), z.string()),
+});
+export const blogPreviewSessionSchema = z.object({
+  token: z.string(),
+  slug: z.string(),
+  locale: blogLocaleSchema,
+  expiresInSeconds: z.number().int(),
+});
+
 const decimal = z
   .union([z.number(), z.string()])
   .nullish()

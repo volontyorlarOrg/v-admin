@@ -6,6 +6,7 @@ Use this file to route a question to the smallest source that answers it.
 | ------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
 | What the product is, and what an administrator does                                               | [`../PRODUCT.md`](../PRODUCT.md)                                                       |
 | The design system as applied to an operational portal                                             | [`../DESIGN.md`](../DESIGN.md)                                                         |
+| Blog writing flow and public/admin layout concepts                                               | [`../../v-web/docs/plans/BLOG_IMPLEMENTATION_PLAN.md`](../../v-web/docs/plans/BLOG_IMPLEMENTATION_PLAN.md) |
 | Routes, rendering, module ownership, the two-portal split                                         | [`architecture/ARCHITECTURE.md`](architecture/ARCHITECTURE.md)                         |
 | Today: what waits on an administrator, in what order, and how a decision leaves it                | [`architecture/TODAY.md`](architecture/TODAY.md)                                       |
 | Insights statistics, sources, completeness limits and chart rules                                 | [`architecture/INSIGHTS.md`](architecture/INSIGHTS.md)                                 |

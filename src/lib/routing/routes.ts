@@ -5,6 +5,8 @@ export const ROUTE_KEYS = [
   "dashboard",
   "insights",
   "vacancies",
+  "blog",
+  "newBlog",
   "newVacancy",
   "applications",
   "users",
@@ -86,6 +88,23 @@ export const appRoutes: readonly AppRoute[] = [
   {
     key: "newVacancy",
     path: "/vacancies/new",
+    area: "portal",
+    guard: "session",
+    inNav: false,
+    icon: "plus",
+  },
+  {
+    key: "blog",
+    path: "/blog",
+    area: "portal",
+    guard: "session",
+    inNav: true,
+    group: "work",
+    icon: "book-open",
+  },
+  {
+    key: "newBlog",
+    path: "/blog/new",
     area: "portal",
     guard: "session",
     inNav: false,
@@ -195,6 +214,10 @@ export function navHref(key: RouteKey): string {
 
 export function vacancyHref(id: string): string {
   return `${navHref("vacancies")}/${encodeURIComponent(id)}`;
+}
+
+export function blogHref(id: string): string {
+  return `${navHref("blog")}/${encodeURIComponent(id)}`;
 }
 
 export function vacancyEditHref(id: string): string {

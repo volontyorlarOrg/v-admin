@@ -247,3 +247,47 @@ export async function authedMultipart(
   const parsed = z.object({ imageUrl: z.url() }).safeParse(parseJson(responseText));
   if (!parsed.success) throw new ApiError("invalidResponse", { requestId });
 }
+
+export async function authedMultipartReturning<TSchema extends z.ZodType>(
+  path: ApiPath,
+  accessToken: string,
+  body: FormData,
+  schema: TSchema,
+): Promise<z.infer<TSchema>> {
+  const baseUrl = apiBaseUrl();
+  if (!baseUrl) throw new ApiError("notConfigured");
+  const requestId = crypto.randomUUID();
+  let response: Response;
+  try {
+    response = await fetch(new URL(path, `${baseUrl}/`), {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${accessToken}`,
+        [REQUEST_ID_HEADER]: requestId,
+        ...(await forwardedVisitor()),
+      },
+      body,
+      cache: "no-store",
+      signal: AbortSignal.timeout(DEFAULT_TIMEOUT_MS),
+    });
+  } catch (error) {
+    const classified = classifyApiError(error);
+    logFailure("POST", path, classified);
+    throw classified;
+  }
+  const payload = await response.text();
+  if (!response.ok) {
+    const error = new ApiError(codeForStatus(response.status), {
+      status: response.status,
+      requestId,
+      details: payload ? parseJson(payload) : null,
+    });
+    logFailure("POST", path, error);
+    throw error;
+  }
+  const parsed = schema.safeParse(parseJson(payload));
+  if (!parsed.success)
+    throw new ApiError("invalidResponse", { requestId, cause: parsed.error });
+  return parsed.data;
+}
