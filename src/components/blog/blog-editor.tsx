@@ -1,7 +1,7 @@
 "use client";
 
 import Placeholder from "@tiptap/extension-placeholder";
-import { EditorContent, useEditor, useEditorState, type Editor } from "@tiptap/react";
+import { EditorContent, useEditor, type Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import {
   ArrowUpRight,
@@ -75,9 +75,11 @@ import {
   slugFromTitle,
   translationState,
   type BlogLocale,
+  type BodyFacts,
   type ChecklistKey,
   type TranslationState,
 } from "@/lib/blog/content";
+import { useDebouncedCallback } from "@/lib/hooks/use-debounced-callback";
 import { blogHref } from "@/lib/routing/routes";
 import { cn } from "@/lib/utils";
 
@@ -238,6 +240,11 @@ const RETRYABLE = new Set([
   "unavailable",
   "rateLimited",
 ]);
+const AUTOSAVE_DELAY_MS = 3000;
+const AUTOSAVE_MAX_WAIT_MS = 20_000;
+const FACTS_DELAY_MS = 300;
+const RETRY_FIRST_MS = 5000;
+const RETRY_MAX_MS = 60_000;
 
 function draftOf(translation: BlogTranslation | undefined, title = ""): Draft {
   return {
@@ -250,6 +257,19 @@ function draftOf(translation: BlogTranslation | undefined, title = ""): Draft {
     authorName: translation?.authorName ?? "",
     seoDescription: translation?.seoDescription ?? "",
   };
+}
+
+function snapshotOf(draft: Draft, body: unknown) {
+  return JSON.stringify({ draft, body });
+}
+
+function sameFacts(a: BodyFacts, b: BodyFacts) {
+  return (
+    a.words === b.words &&
+    a.images === b.images &&
+    a.missingAlt === b.missingAlt &&
+    a.hasText === b.hasText
+  );
 }
 
 function mediaPath(uiLocale: string, id: string, variant = "md") {
@@ -328,10 +348,12 @@ export function BlogEditor({
     draftOf(current, recoveredTitle ?? ""),
   );
   const [version, setVersion] = useState(current?.version ?? 0);
-  const [saveState, setSaveState] = useState<SaveState>("clean");
+  const recovering = !!recoveredTitle && !current?.title;
+  const [saveState, setSaveState] = useState<SaveState>(recovering ? "dirty" : "clean");
   const [saveError, setSaveError] = useState<string | null>(null);
   const [savedAt, setSavedAt] = useState<string | null>(null);
-  const [edits, setEdits] = useState(0);
+  const [touched, setTouched] = useState(recovering);
+  const [facts, setFacts] = useState(() => bodyFacts(initialBody));
   const [conflict, setConflict] = useState<BlogTranslation | null>(null);
   const [uploads, setUploads] = useState<Upload[]>([]);
   const [linkOpen, setLinkOpen] = useState(false);
@@ -361,6 +383,8 @@ export function BlogEditor({
   const conflictRef = useRef(false);
   const leavingRef = useRef(false);
   const retryTimer = useRef<number | undefined>(undefined);
+  const retryDelay = useRef(RETRY_FIRST_MS);
+  const baselineRef = useRef<string | null>(null);
   const uploadKey = useRef(0);
   const saveRef = useRef<() => Promise<boolean>>(async () => true);
   const editorRef = useRef<Editor | null>(null);
@@ -368,13 +392,27 @@ export function BlogEditor({
     (kind: "cover" | "inline", files: File[], at?: number) => void
   >(() => undefined);
 
+  const scheduleSave = useDebouncedCallback(
+    () => void saveRef.current(),
+    AUTOSAVE_DELAY_MS,
+    { maxWait: AUTOSAVE_MAX_WAIT_MS },
+  );
+
+  const refreshFacts = useDebouncedCallback(() => {
+    const instance = editorRef.current;
+    if (!instance) return;
+    const next = bodyFacts(instance.getJSON());
+    setFacts((previous) => (sameFacts(previous, next) ? previous : next));
+  }, FACTS_DELAY_MS);
+
   const markDirty = useCallback(() => {
     if (archived) return;
     dirtyRef.current = true;
     editsRef.current += 1;
-    setEdits(editsRef.current);
+    setTouched(true);
     setSaveState((state) => (state === "conflict" ? state : "dirty"));
-  }, [archived]);
+    scheduleSave.run();
+  }, [archived, scheduleSave]);
 
   function update(patch: Partial<Draft>) {
     const next = { ...draftRef.current, ...patch };
@@ -416,8 +454,15 @@ export function BlogEditor({
         Placeholder.configure({ placeholder: labels.bodyPlaceholder }),
       ],
       content: initialBody,
+      onCreate: ({ editor: instance }) => {
+        const body = cleanBody(instance.getJSON());
+        baselineRef.current = snapshotOf(draftOf(current), body);
+        setFacts(bodyFacts(body));
+      },
       onUpdate: ({ transaction }) => {
-        if (transaction.docChanged) markDirty();
+        if (!transaction.docChanged) return;
+        markDirty();
+        refreshFacts.run();
       },
       editorProps: {
         attributes: {
@@ -459,13 +504,6 @@ export function BlogEditor({
     editorRef.current = editor;
   }, [editor]);
 
-  const facts =
-    useEditorState({
-      editor,
-      selector: ({ editor: instance }) =>
-        instance ? bodyFacts(instance.getJSON()) : bodyFacts(initialBody),
-    }) ?? bodyFacts(initialBody);
-
   useEffect(() => {
     if (editor && editor.isEditable === archived) editor.setEditable(!archived, false);
   }, [editor, archived]);
@@ -475,7 +513,9 @@ export function BlogEditor({
       if (RETRYABLE.has(code)) {
         setSaveState("retrying");
         window.clearTimeout(retryTimer.current);
-        retryTimer.current = window.setTimeout(() => void saveRef.current(), 5000);
+        const wait = retryDelay.current;
+        retryDelay.current = Math.min(wait * 2, RETRY_MAX_MS);
+        retryTimer.current = window.setTimeout(() => void saveRef.current(), wait);
         return;
       }
       setSaveState("failed");
@@ -495,11 +535,20 @@ export function BlogEditor({
   );
 
   const saveNow = useCallback(async (): Promise<boolean> => {
+    scheduleSave.cancel();
     while (activeSave.current) await activeSave.current;
     if (!dirtyRef.current || archived) return true;
     if (conflictRef.current) return false;
     window.clearTimeout(retryTimer.current);
     const sent = editsRef.current;
+    const draftToSend = draftRef.current;
+    const body = cleanBody(editor ? editor.getJSON() : initialBody);
+    const snapshot = snapshotOf(draftToSend, body);
+    if (snapshot === baselineRef.current) {
+      dirtyRef.current = false;
+      setSaveState("saved");
+      return true;
+    }
     const task = (async () => {
       setSaveState("saving");
       setSaveError(null);
@@ -507,8 +556,8 @@ export function BlogEditor({
       try {
         response = await saveBlogDraft(post.id, locale, {
           version: versionRef.current,
-          ...draftRef.current,
-          body: cleanBody(editor ? editor.getJSON() : initialBody),
+          ...draftToSend,
+          body,
         });
       } catch {
         failSave("network");
@@ -516,6 +565,8 @@ export function BlogEditor({
       }
       if (response.result.status === "ok" && response.data) {
         versionRef.current = response.data.version;
+        baselineRef.current = snapshot;
+        retryDelay.current = RETRY_FIRST_MS;
         setVersion(response.data.version);
         setSavedAt(response.data.savedAt);
         if (editsRef.current === sent) {
@@ -545,26 +596,21 @@ export function BlogEditor({
     } finally {
       activeSave.current = null;
     }
-  }, [archived, editor, failSave, initialBody, locale, post.id]);
+  }, [archived, editor, failSave, initialBody, locale, post.id, scheduleSave]);
 
   useEffect(() => {
     saveRef.current = saveNow;
   }, [saveNow]);
 
   useEffect(() => {
-    if (!edits) return;
-    const timer = window.setTimeout(() => void saveNow(), 2000);
-    return () => window.clearTimeout(timer);
-  }, [edits, saveNow]);
-
-  useEffect(() => {
-    if (recoveredTitle && !current?.title) {
-      markDirty();
-      router.replace(`/${uiLocale}${blogHref(post.id)}?lang=${locale}`, {
-        scroll: false,
-      });
-    }
-  }, [current?.title, locale, markDirty, post.id, recoveredTitle, router, uiLocale]);
+    if (!recovering) return;
+    dirtyRef.current = true;
+    editsRef.current += 1;
+    scheduleSave.run();
+    router.replace(`/${uiLocale}${blogHref(post.id)}?lang=${locale}`, {
+      scroll: false,
+    });
+  }, [locale, post.id, recovering, router, scheduleSave, uiLocale]);
 
   useEffect(() => {
     const pending = () => dirtyRef.current || !!activeSave.current;
@@ -730,7 +776,7 @@ export function BlogEditor({
               { version, publishedRevisionId: current.publishedRevisionId },
               post.revisions,
             )
-          : edits > 0 || version > 0
+          : touched || version > 0
             ? "draft"
             : "missing"
         : translationState(translations[lang], post.revisions);
@@ -799,7 +845,6 @@ export function BlogEditor({
             }
           : {}),
       });
-      router.refresh();
       return null;
     }
     const code = result.status === "error" ? result.code : "";
@@ -818,7 +863,6 @@ export function BlogEditor({
     const result = await unpublishBlogLanguage(post.id, locale);
     if (result.status !== "ok") return labels.error;
     toast.success(labels.unpublishedToast);
-    router.refresh();
     return null;
   }
 
@@ -827,7 +871,6 @@ export function BlogEditor({
     const result = await archiveBlog(post.id);
     if (result.status !== "ok") return labels.error;
     toast.success(labels.archivedToast);
-    router.refresh();
     return null;
   }
 
@@ -860,6 +903,9 @@ export function BlogEditor({
     draftRef.current = next;
     setDraft(next);
     editor?.commands.setContent(cleanBody(restored.body), { emitUpdate: false });
+    const restoredBody = cleanBody(editor ? editor.getJSON() : restored.body);
+    baselineRef.current = snapshotOf(next, restoredBody);
+    setFacts(bodyFacts(restoredBody));
     versionRef.current = response.data.version;
     setVersion(response.data.version);
     setSavedAt(response.data.savedAt);
@@ -875,6 +921,7 @@ export function BlogEditor({
     versionRef.current = conflict.version;
     conflictRef.current = false;
     setConflict(null);
+    baselineRef.current = null;
     dirtyRef.current = true;
     void saveNow();
   }
@@ -885,6 +932,9 @@ export function BlogEditor({
     draftRef.current = next;
     setDraft(next);
     editor?.commands.setContent(cleanBody(conflict.body), { emitUpdate: false });
+    const theirBody = cleanBody(editor ? editor.getJSON() : conflict.body);
+    baselineRef.current = snapshotOf(next, theirBody);
+    setFacts(bodyFacts(theirBody));
     versionRef.current = conflict.version;
     setVersion(conflict.version);
     conflictRef.current = false;
@@ -947,7 +997,6 @@ export function BlogEditor({
     if (result.status === "ok") {
       setSlugError(null);
       toast.success(labels.slugSaved);
-      router.refresh();
       return;
     }
     const code = result.status === "error" ? result.code : "";
@@ -1168,7 +1217,6 @@ export function BlogEditor({
                     document.getElementById(`${id}-summary`)?.focus();
                   }
                 }}
-                onBlur={() => void saveNow()}
                 className="[field-sizing:content] w-full resize-none border-0 bg-transparent p-0 font-serif text-[2rem] leading-tight text-ink placeholder:text-ink-muted/70 focus-visible:outline-none"
               />
             </FieldText>
@@ -1191,7 +1239,6 @@ export function BlogEditor({
                 lang={locale}
                 maxLength={BLOG_LIMITS.summary}
                 onChange={(event) => update({ summary: event.target.value })}
-                onBlur={() => void saveNow()}
                 className={cn(
                   compactInputClass,
                   "[field-sizing:content] min-h-20 resize-y rounded-lg py-2.5 text-base leading-relaxed disabled:bg-surface-sunk disabled:text-ink-muted",
@@ -1226,7 +1273,7 @@ export function BlogEditor({
             </ul>
           ) : null}
 
-          <div className="px-5 py-6 sm:px-8" onBlur={() => void saveNow()}>
+          <div className="px-5 py-6 sm:px-8">
             <EditorContent editor={editor} />
           </div>
 
@@ -1261,13 +1308,14 @@ export function BlogEditor({
                   size="sm"
                   variant="outline"
                   onClick={() => void preview()}
-                  disabled={previewing || (!current && edits === 0)}
+                  disabled={previewing || (!current && !touched)}
                 >
                   {previewing ? labels.previewOpening : labels.preview}
                 </Button>
                 <Button
                   size="sm"
                   onClick={() => {
+                    refreshFacts.flush();
                     setRights(false);
                     setDialog("publish");
                   }}
@@ -1466,7 +1514,6 @@ export function BlogEditor({
                       maxLength={BLOG_LIMITS.alt}
                       aria-invalid={!draft.coverAlt.trim() || undefined}
                       onChange={(event) => update({ coverAlt: event.target.value })}
-                      onBlur={() => void saveNow()}
                       className={cn(
                         compactInputClass,
                         "rounded-lg disabled:bg-surface-sunk aria-invalid:border-danger aria-invalid:bg-danger-muted",
@@ -1479,7 +1526,6 @@ export function BlogEditor({
                       value={draft.coverCaption}
                       maxLength={BLOG_LIMITS.caption}
                       onChange={(event) => update({ coverCaption: event.target.value })}
-                      onBlur={() => void saveNow()}
                       className={cn(
                         compactInputClass,
                         "rounded-lg disabled:bg-surface-sunk disabled:text-ink-muted",
@@ -1492,7 +1538,6 @@ export function BlogEditor({
                       value={draft.coverCredit}
                       maxLength={BLOG_LIMITS.credit}
                       onChange={(event) => update({ coverCredit: event.target.value })}
-                      onBlur={() => void saveNow()}
                       className={cn(
                         compactInputClass,
                         "rounded-lg disabled:bg-surface-sunk disabled:text-ink-muted",
@@ -1573,7 +1618,6 @@ export function BlogEditor({
                     value={draft.authorName}
                     maxLength={BLOG_LIMITS.author}
                     onChange={(event) => update({ authorName: event.target.value })}
-                    onBlur={() => void saveNow()}
                     className={cn(
                       compactInputClass,
                       "rounded-lg disabled:bg-surface-sunk disabled:text-ink-muted",
@@ -1599,7 +1643,6 @@ export function BlogEditor({
                     maxLength={BLOG_LIMITS.seo}
                     lang={locale}
                     onChange={(event) => update({ seoDescription: event.target.value })}
-                    onBlur={() => void saveNow()}
                     className={cn(
                       compactInputClass,
                       "min-h-20 resize-y rounded-lg py-2.5 disabled:bg-surface-sunk disabled:text-ink-muted",
