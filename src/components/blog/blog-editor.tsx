@@ -25,6 +25,7 @@ import {
 } from "react";
 import { toast } from "sonner";
 
+import { BlogCardPreview } from "@/components/blog/blog-card";
 import { createBlogImage, type BlogImageLabels } from "@/components/blog/blog-image";
 import { BlogReference } from "@/components/blog/blog-reference";
 import { blogStatus, fill } from "@/components/blog/blog-status";
@@ -167,6 +168,7 @@ export type BlogEditorLabels = BlogToolbarLabels &
     unpublishedToast: string;
     cover: string;
     coverHint: string;
+    cardPreview: string;
     coverUpload: string;
     coverReplace: string;
     coverRemove: string;
@@ -1438,14 +1440,18 @@ export function BlogEditor({
 
           <Panel title={labels.cover} description={labels.coverHint}>
             <fieldset disabled={archived} className="flex flex-col gap-4">
-              {draft.coverMediaId ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={mediaSrc(draft.coverMediaId)}
-                  alt={draft.coverAlt}
-                  className="aspect-video w-full rounded-lg bg-surface-sunk object-cover"
+              <figure className="flex flex-col gap-2">
+                <BlogCardPreview
+                  title={draft.title}
+                  summary={draft.summary}
+                  cover={draft.coverMediaId ? mediaSrc(draft.coverMediaId) : null}
+                  lang={locale}
+                  untitled={labels.untitled}
                 />
-              ) : null}
+                <figcaption className="text-xs text-ink-muted">
+                  {labels.cardPreview}
+                </figcaption>
+              </figure>
               {uploads
                 .filter((upload) => upload.kind === "cover")
                 .map((upload) => (

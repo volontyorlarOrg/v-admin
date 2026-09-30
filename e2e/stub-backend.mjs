@@ -341,8 +341,97 @@ function reset() {
       },
     ],
     progressAdjustments: [],
+    blog: [
+      blogPost("00000000-0000-4000-8000-000000000b01", "riverbank-clean-up", "en", {
+        archivedAt: null,
+        firstPublishedAt: at(-3),
+        updatedAt: at(-1),
+        translations: [
+          blogTranslation("en", "A day at the riverbank clean-up", at(-1), "rev-en"),
+          blogTranslation("uz", "Daryo boʻyidagi tozalash kuni", at(-2), null),
+        ],
+      }),
+      blogPost("00000000-0000-4000-8000-000000000b02", "article-5d1e0c9a", "uz", {
+        archivedAt: null,
+        firstPublishedAt: null,
+        updatedAt: at(0),
+        translations: [blogTranslation("uz", "", at(0), null)],
+      }),
+      blogPost("00000000-0000-4000-8000-000000000b03", "old-news", "ru", {
+        archivedAt: at(-20),
+        firstPublishedAt: at(-40),
+        updatedAt: at(-20),
+        translations: [blogTranslation("ru", "Старые новости", at(-30), "rev-ru")],
+      }),
+    ],
     sessions: new Map(),
     broken: null,
+  };
+}
+
+function blogPost(id, slug, primaryLocale, rest) {
+  return { id, slug, primaryLocale, ...rest };
+}
+
+function blogTranslation(locale, draftTitle, updatedAt, publishedRevisionId) {
+  return { locale, draftTitle, version: 3, publishedRevisionId, updatedAt };
+}
+
+const BLOG_COVER = "00000000-0000-4000-8000-000000000c01";
+const BLOG_PIXEL = Buffer.from(
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+  "base64",
+);
+
+function blogDetail(post) {
+  return {
+    id: post.id,
+    slug: post.slug,
+    primaryLocale: post.primaryLocale,
+    archivedAt: post.archivedAt,
+    firstPublishedAt: post.firstPublishedAt,
+    createdAt: post.updatedAt,
+    updatedAt: post.updatedAt,
+    translations: post.translations.map((translation) => {
+      const cover = translation.locale === "en" && post.slug === "riverbank-clean-up";
+      return {
+        locale: translation.locale,
+        version: translation.version,
+        title: translation.draftTitle,
+        summary: cover
+          ? "Forty volunteers, two tonnes of litter and one very muddy afternoon."
+          : "",
+        body: {
+          type: "doc",
+          content: [
+            {
+              type: "paragraph",
+              content: [{ type: "text", text: "We met at nine by the bridge." }],
+            },
+          ],
+        },
+        coverMediaId: cover ? BLOG_COVER : null,
+        coverUrl: cover ? `/admin/blog/media/${BLOG_COVER}/md` : null,
+        coverAlt: cover ? "Volunteers on the riverbank" : "",
+        coverCaption: "",
+        coverCredit: "",
+        seoDescription: "",
+        authorName: "",
+        updatedAt: translation.updatedAt,
+        publishedRevisionId: translation.publishedRevisionId,
+        publishedAt: translation.publishedRevisionId ? translation.updatedAt : null,
+      };
+    }),
+    revisions: post.translations
+      .filter((translation) => translation.publishedRevisionId)
+      .map((translation) => ({
+        id: translation.publishedRevisionId,
+        locale: translation.locale,
+        version: translation.version,
+        title: translation.draftTitle,
+        publishedAt: translation.updatedAt,
+        createdAt: translation.updatedAt,
+      })),
   };
 }
 
@@ -909,6 +998,25 @@ const server = createServer(async (request, response) => {
       pageSize,
       total: matched.length,
     });
+  }
+
+  if (path === "/admin/blog" && method === "GET") {
+    if (!isAdmin(actor)) return send(response, 403, { code: "forbidden" });
+    return send(response, 200, state.blog);
+  }
+
+  if (path.startsWith("/admin/blog/media/") && method === "GET") {
+    if (!isAdmin(actor)) return send(response, 403, { code: "forbidden" });
+    response.writeHead(200, { "content-type": "image/png" });
+    return response.end(BLOG_PIXEL);
+  }
+
+  const blogMatch = /^\/admin\/blog\/([^/]+)$/.exec(path);
+  if (blogMatch && method === "GET") {
+    if (!isAdmin(actor)) return send(response, 403, { code: "forbidden" });
+    const post = state.blog.find((item) => item.id === blogMatch[1]);
+    if (!post) return send(response, 404, { code: "blogPostNotFound" });
+    return send(response, 200, blogDetail(post));
   }
 
   if (path === "/staff/opportunities" || path === "/admin/opportunities") {

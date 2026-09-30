@@ -1230,6 +1230,7 @@
     "languages": "Tillar",
     "lastEdited": "Oxirgi tahrir: {date}",
     "lastEditedLabel": "Oxirgi tahrir",
+    "viewOnSite": "Saytda koʻrish",
     "states": {
       "draft": "Qoralama",
       "published": "Chop etilgan",
@@ -1372,6 +1373,7 @@
       "unpublishedToast": "Saytdan olindi.",
       "cover": "Muqova surati",
       "coverHint": "Maqola tepasida va maqolalar roʻyxatida koʻrinadi. Keng suratlar yaxshi chiqadi.",
+      "cardPreview": "Maqola kartasi blog roʻyxatida shunday koʻrinadi.",
       "coverUpload": "Muqova yuklash",
       "coverReplace": "Almashtirish",
       "coverRemove": "Olib tashlash",
