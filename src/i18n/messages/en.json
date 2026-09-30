@@ -1230,6 +1230,7 @@
     "languages": "Languages",
     "lastEdited": "Last edited {date}",
     "lastEditedLabel": "Last edited",
+    "viewOnSite": "View on site",
     "states": {
       "draft": "Draft",
       "published": "Published",
@@ -1372,6 +1373,7 @@
       "unpublishedToast": "Taken off the site.",
       "cover": "Cover picture",
       "coverHint": "Shown at the top of the article and on the blog list. Wide pictures work best.",
+      "cardPreview": "How the article's card looks on the blog list.",
       "coverUpload": "Upload cover",
       "coverReplace": "Replace",
       "coverRemove": "Remove",

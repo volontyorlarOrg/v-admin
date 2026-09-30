@@ -298,6 +298,16 @@
 }
 
 @layer components {
+  .blog-plate {
+    background-color: var(--color-surface-soft);
+    background-image: radial-gradient(
+      circle at 1px 1px,
+      color-mix(in srgb, var(--color-primary) 18%, transparent) 1px,
+      transparent 1.6px
+    );
+    background-size: 18px 18px;
+  }
+
   .article-editor {
     font-size: 1.0625rem;
     line-height: 1.75;

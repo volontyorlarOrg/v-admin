@@ -359,6 +359,20 @@ the completion meter on a volunteer's profile.
 - **Decision slip:** a soft-blue sheet with a round stamp mark beside its title,
   holding the decision for the record it sits on (a vacancy waiting for
   approval, an application to decide).
+- **Article card:** the blog is the one list drawn as cards, because an
+  article is a piece of writing an administrator recognises by its title and
+  its languages, not a queue entry to decide. Each card is a sheet on the
+  paper — never inside a register sheet — with the article's state chip and
+  last edit, the title and address, then one hairline row per language
+  (Published in blue ink, Draft in ink, Not started muted) that opens the
+  editor in that language, and "View on site" once a language is live. The
+  title's link stretches over the card; the language rows and the site link
+  sit above it. Filters and search sit on the paper above the grid, which is
+  one, two, then three columns wide.
+- **Card preview:** the editor's cover panel draws the public site's article
+  card from the draft — cover at 3:2, or the dot-grid plate with the kit's
+  heart when there is none — so the writer sees the crop and where the summary
+  is cut before publishing.
 
 ### Inputs / Fields
 

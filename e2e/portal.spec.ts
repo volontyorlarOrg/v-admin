@@ -1683,3 +1683,75 @@ test.describe("failures a screen has to explain", () => {
     await page.request.post(`${STUB}/__stub/break`, { data: { path: null } });
   });
 });
+
+test.describe("the blog", () => {
+  test("lists articles as cards with each language one click away", async ({
+    page,
+  }) => {
+    await signedIn(page);
+    await page.goto("/en/blog");
+    await expect(page.getByRole("heading", { level: 1, name: "Blog" })).toBeVisible();
+    const cards = page.getByRole("main").getByRole("article");
+    await expect(cards).toHaveCount(2);
+
+    const draft = cards.nth(0);
+    await expect(draft.getByRole("link", { name: "Untitled article" })).toHaveAttribute(
+      "href",
+      "/en/blog/00000000-0000-4000-8000-000000000b02",
+    );
+    await expect(draft.locator('[data-slot="status"]')).toHaveText("Draft");
+
+    const published = cards.nth(1);
+    const languages = published.getByRole("list", { name: "Languages" });
+    await expect(languages.getByRole("link")).toHaveCount(3);
+    await expect(
+      languages.getByRole("link", { name: /English\s*Published/ }),
+    ).toHaveAttribute("href", "/en/blog/00000000-0000-4000-8000-000000000b01?lang=en");
+    await expect(languages.getByRole("link", { name: /Uzbek\s*Draft/ })).toBeVisible();
+    await expect(
+      languages.getByRole("link", { name: /Russian\s*Not started/ }),
+    ).toBeVisible();
+  });
+
+  test("the editor previews the article's card as the blog list shows it", async ({
+    page,
+  }) => {
+    await signedIn(page);
+    await page.goto("/en/blog/00000000-0000-4000-8000-000000000b02");
+    const caption = "How the article's card looks on the blog list.";
+    await expect(
+      page.getByRole("figure", { name: caption }).locator('[data-slot="blog-plate"]'),
+    ).toBeVisible();
+
+    await page.goto("/en/blog/00000000-0000-4000-8000-000000000b01?lang=en");
+    const preview = page.getByRole("figure", { name: caption });
+    await expect(preview.getByText("A day at the riverbank clean-up")).toBeVisible();
+    await expect(preview.locator("img")).toHaveAttribute(
+      "src",
+      "/en/blog/media/00000000-0000-4000-8000-000000000c01/md",
+    );
+    await page.getByLabel("Title").fill("A morning by the river");
+    await expect(preview.getByText("A morning by the river")).toBeVisible();
+  });
+
+  test("filters and searches the cards", async ({ page }) => {
+    await signedIn(page);
+    await page.goto("/en/blog?state=archived");
+    const cards = page.getByRole("main").getByRole("article");
+    await expect(cards).toHaveCount(1);
+    await expect(cards.getByRole("link", { name: "Старые новости" })).toBeVisible();
+
+    await page.goto("/en/blog");
+    await page
+      .getByRole("searchbox", { name: "Search by title or address" })
+      .fill("river");
+    await page.getByRole("button", { name: "Search", exact: true }).click();
+    await expect(cards).toHaveCount(1);
+    await expect(
+      cards.getByRole("link", { name: "A day at the riverbank clean-up" }),
+    ).toBeVisible();
+
+    await page.goto("/en/blog?q=nothing-like-this");
+    await expect(page.getByText("Nothing matches “nothing-like-this”")).toBeVisible();
+  });
+});
