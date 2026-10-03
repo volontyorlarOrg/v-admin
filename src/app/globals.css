@@ -432,3 +432,35 @@
     }
   }
 }
+
+@media (prefers-reduced-motion: no-preference) {
+  .drawer-panel[data-state="open"] {
+    animation: drawer-in 240ms var(--ease-press) both;
+  }
+
+  .bar-rise {
+    animation: bar-rise 200ms var(--ease-press) both;
+  }
+}
+
+@keyframes drawer-in {
+  from {
+    opacity: 0;
+    translate: 1.5rem 0;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@keyframes bar-rise {
+  from {
+    opacity: 0;
+    translate: 0 0.5rem;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}

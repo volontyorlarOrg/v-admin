@@ -40,11 +40,11 @@ describe("resolveAttendanceSchema", () => {
     ]);
   });
 
-  it("does not ask for hours when the event was excused or cancelled", () => {
+  it("does not ask for hours when the volunteer was excused or did not come", () => {
     expect(resolveAttendanceSchema.safeParse({ outcome: "excused" }).success).toBe(
       true,
     );
-    expect(resolveAttendanceSchema.safeParse({ outcome: "cancelled" }).success).toBe(
+    expect(resolveAttendanceSchema.safeParse({ outcome: "no_show" }).success).toBe(
       true,
     );
   });
