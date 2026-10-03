@@ -1771,7 +1771,7 @@
       "penaltyValue": "−{value} XP",
       "locked": "Rewards are fixed once the vacancy is published.",
       "dialogTitle": "XP rewards",
-      "dialogDescription": "Volunteers see these before they apply, so they cannot change after publishing.",
+      "dialogDescription": "Rewards are fixed once the vacancy is published, so everyone who applies is scored by the same rules.",
       "invalid": "A whole number from 0 to {max}.",
       "cancel": "Cancel",
       "save": "Save rewards",
