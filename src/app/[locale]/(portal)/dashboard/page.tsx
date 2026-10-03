@@ -22,6 +22,7 @@ import { buttonClass } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
 import { failureOf, isReady } from "@/lib/api/load";
 import { loadApplications } from "@/lib/applications/data.server";
+import { loadVerificationQueue } from "@/lib/results/data.server";
 import { reviewApplicationAction } from "@/lib/applications/actions";
 import { volunteerNameOf } from "@/lib/applications/filters";
 import { getSession } from "@/lib/auth/session.server";
@@ -71,13 +72,14 @@ export default async function TodayPage({ params }: PageProps<"/[locale]/dashboa
     getSession(),
   ]);
 
-  const [vacancies, applications, organizations, coordinators, statistics] =
+  const [vacancies, applications, organizations, coordinators, statistics, queue] =
     await Promise.all([
       loadVacancies(),
       loadApplications(),
       loadOrganizations(),
       loadCoordinators({ page: 1, pageSize: MAX_PAGE_SIZE }),
       loadStatistics(),
+      loadVerificationQueue(),
     ]);
 
   const now = new Date();
@@ -106,7 +108,13 @@ export default async function TodayPage({ params }: PageProps<"/[locale]/dashboa
   const blocked = blockingOrganizations(vacancies.data, organizationRows);
   const decide = applicationsToDecide(applications.data, vacancies.data);
   const rollCalls = rollCallsDue(applications.data, vacancies.data, now);
-  const waiting = approve.length + blocked.length + decide.length + rollCalls.length;
+  const toVerify = isReady(queue) ? queue.data.items : [];
+  const waiting =
+    approve.length +
+    blocked.length +
+    toVerify.length +
+    decide.length +
+    rollCalls.length;
   const cleared = session
     ? clearedToday({
         vacancies: vacancies.data,
@@ -389,6 +397,58 @@ export default async function TodayPage({ params }: PageProps<"/[locale]/dashboa
           </QueueSection>
         ) : null}
 
+        {toVerify.length > 0 ? (
+          <QueueSection
+            id="verify"
+            title={t("verify.title")}
+            count={toVerify.length}
+            countLabel={t("verify.countLabel")}
+          >
+            {toVerify.map((item, index) => (
+              <QueueRow
+                key={item.opportunityId}
+                number={index + 1}
+                numberLabel={t("number")}
+              >
+                <QueueMain
+                  title={
+                    <Link
+                      href={`${vacancyHref(item.opportunityId)}?tab=attendance`}
+                      className="hover:text-primary-ink hover:underline"
+                    >
+                      {item.title}
+                    </Link>
+                  }
+                  meta={item.organization?.name}
+                />
+                <QueueSide>
+                  <span>
+                    {t("verify.submitted", {
+                      when: item.submittedAt
+                        ? format.relativeTime(new Date(item.submittedAt), now)
+                        : "",
+                    })}
+                  </span>
+                  <span className="font-medium text-ink">
+                    {item.correction
+                      ? t("verify.correction")
+                      : t("verify.volunteers", { count: item.volunteers })}
+                  </span>
+                </QueueSide>
+                <div className={`flex ${QUEUE_ACTIONS}`}>
+                  <Link
+                    href={`${vacancyHref(item.opportunityId)}?tab=attendance`}
+                    className={buttonClass({ size: "row" })}
+                  >
+                    {t("verify.open")}
+                    <span className="sr-only"> — {item.title}</span>
+                  </Link>
+                </div>
+              </QueueRow>
+            ))}
+          </QueueSection>
+        ) : null}
+
         {rollCalls.length > 0 ? (
           <QueueSection
             id="roll-calls"
@@ -429,7 +489,7 @@ export default async function TodayPage({ params }: PageProps<"/[locale]/dashboa
                 </QueueSide>
                 <div className={`flex ${QUEUE_ACTIONS}`}>
                   <Link
-                    href={`${vacancyHref(call.vacancyId)}#roll-call`}
+                    href={`${vacancyHref(call.vacancyId)}?tab=attendance`}
                     className={buttonClass({ size: "row" })}
                   >
                     {t("rollCalls.open")}
