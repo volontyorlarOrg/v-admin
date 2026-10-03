@@ -91,6 +91,7 @@ const ATTENDANCE: Record<string, Status> = {
   awaiting_confirmation: { tone: "waiting", icon: Clock },
   excused: { tone: "neutral", icon: CalendarMinus },
   cancelled: { tone: "neutral", icon: CalendarX },
+  no_show: { tone: "danger", icon: UserX },
 };
 
 const COORDINATOR: Record<string, Status> = {

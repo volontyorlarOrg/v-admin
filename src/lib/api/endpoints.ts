@@ -137,6 +137,62 @@ export const endpoints = {
     contract: "published",
   },
 
+  stageDecisions: {
+    method: "PUT",
+    path: "/admin/opportunities/{id}/decisions",
+    contract: "published",
+  },
+  sendDecisions: {
+    method: "POST",
+    path: "/admin/opportunities/{id}/decisions/send",
+    contract: "published",
+  },
+  instructions: {
+    method: "GET",
+    path: "/admin/opportunities/{id}/instructions",
+    contract: "published",
+  },
+  sendInstructions: {
+    method: "POST",
+    path: "/admin/opportunities/{id}/instructions",
+    contract: "published",
+  },
+  retryInstructions: {
+    method: "POST",
+    path: "/admin/opportunities/{id}/instructions/retry",
+    contract: "published",
+  },
+
+  attendanceSheets: {
+    method: "GET",
+    path: "/admin/attendance-sheets",
+    contract: "published",
+  },
+  attendanceSheet: {
+    method: "GET",
+    path: "/admin/opportunities/{id}/attendance-sheet",
+    contract: "published",
+  },
+  saveAttendanceDraft: {
+    method: "PUT",
+    path: "/admin/opportunities/{id}/attendance-sheet",
+    contract: "published",
+  },
+  discardAttendanceDraft: {
+    method: "DELETE",
+    path: "/admin/opportunities/{id}/attendance-sheet/draft",
+    contract: "published",
+  },
+  verifyAttendance: {
+    method: "POST",
+    path: "/admin/opportunities/{id}/attendance-sheet/verify",
+    contract: "published",
+  },
+  requestAttendanceChanges: {
+    method: "POST",
+    path: "/admin/opportunities/{id}/attendance-sheet/request-changes",
+    contract: "published",
+  },
   resolveAttendance: {
     method: "PUT",
     path: "/admin/attendance/{applicationId}",

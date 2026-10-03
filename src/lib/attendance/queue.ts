@@ -7,6 +7,7 @@ export type AttendanceGroup = {
   title: string;
   opensAt: Date | null;
   open: boolean;
+  sheet: Vacancy["attendanceSheet"];
   unresolved: Application[];
   resolved: Application[];
 };
@@ -38,6 +39,7 @@ export function groupAttendance(
       title: vacancy?.title ?? application.opportunity?.title ?? vacancyId,
       opensAt: when ? attendanceOpensAt(when) : null,
       open: when ? isAttendanceOpen(when, now) : false,
+      sheet: vacancy?.attendanceSheet,
       unresolved: [],
       resolved: [],
     };
@@ -62,6 +64,17 @@ export function groupAttendance(
     if (waiting !== 0) return waiting;
     return (a.opensAt?.getTime() ?? Infinity) - (b.opensAt?.getTime() ?? Infinity);
   });
+}
+
+export type GroupStage = "upcoming" | "due" | "returned" | "verifying" | "verified";
+
+export function groupStage(group: AttendanceGroup): GroupStage {
+  if (!group.open) return "upcoming";
+  if (group.sheet?.status === "changes_requested") return "returned";
+  if (group.sheet?.status === "submitted") return "verifying";
+  if (group.sheet?.status === "verified" && !group.sheet.correction) return "verified";
+  if (!group.sheet && group.unresolved.length === 0) return "verified";
+  return "due";
 }
 
 export function unresolvedCount(groups: readonly AttendanceGroup[]): number {
