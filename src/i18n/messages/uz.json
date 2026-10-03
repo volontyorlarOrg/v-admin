@@ -1771,7 +1771,7 @@
       "penaltyValue": "−{value} XP",
       "locked": "Vakansiya eʼlon qilingach, mukofotlar oʻzgarmaydi.",
       "dialogTitle": "XP mukofotlari",
-      "dialogDescription": "Volontyorlar ularni ariza berishdan oldin koʻradi, shuning uchun eʼlon qilingach oʻzgartirib boʻlmaydi.",
+      "dialogDescription": "Vakansiya eʼlon qilingach, mukofotlar oʻzgarmaydi, shunda barcha arizachilar bir xil qoidalar bilan baholanadi.",
       "invalid": "0 dan {max} gacha butun son.",
       "cancel": "Bekor qilish",
       "save": "Mukofotlarni saqlash",
