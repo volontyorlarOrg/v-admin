@@ -151,8 +151,7 @@ export const appRoutes: readonly AppRoute[] = [
     path: "/coordinators",
     area: "portal",
     guard: "session",
-    inNav: true,
-    group: "office",
+    inNav: false,
     icon: "user-cog",
   },
   {

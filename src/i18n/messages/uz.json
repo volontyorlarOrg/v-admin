@@ -9,7 +9,6 @@
     "theme": "Yorugʻ va qorongʻi rejimni almashtirish",
     "signOut": "Chiqish",
     "signingOut": "Chiqilmoqda…",
-    "signedIn": "Tizimdasiz",
     "apply": "Qoʻllash",
     "reset": "Filtrlarni tozalash",
     "previous": "Orqaga",
@@ -33,8 +32,7 @@
     "no": "Yoʻq",
     "loading": "Yuklanmoqda…",
     "close": "Yopish",
-    "fixFields": "Bu maydonlarni tekshiring",
-    "roleName": "Administrator"
+    "fixFields": "Bu maydonlarni tekshiring"
   },
   "nav": {
     "label": "Portal boʻlimlari",

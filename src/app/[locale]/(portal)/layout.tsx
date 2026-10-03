@@ -2,7 +2,7 @@ import { setRequestLocale } from "next-intl/server";
 import { redirect } from "next/navigation";
 
 import { PortalShell } from "@/components/portal/portal-shell";
-import { holdsPortalRole, toPublicSession } from "@/lib/auth/session";
+import { holdsPortalRole } from "@/lib/auth/session";
 import { clearSession, getSession } from "@/lib/auth/session.server";
 import { ENTRY_ROUTE, localePath } from "@/lib/routing/routes";
 import type { Locale } from "@/i18n/routing";
@@ -28,7 +28,7 @@ export default async function PortalLayout({
   }
 
   return (
-    <PortalShell locale={locale as Locale} session={toPublicSession(session)}>
+    <PortalShell locale={locale as Locale}>
       {children}
     </PortalShell>
   );

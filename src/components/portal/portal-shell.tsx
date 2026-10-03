@@ -10,17 +10,14 @@ import { Toaster } from "@/components/ui/sonner";
 import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import { isReady } from "@/lib/api/load";
-import type { PublicSession } from "@/lib/auth/session";
 import { HOME_ROUTE, NAV_GROUPS, navGroupRoutes, navHref } from "@/lib/routing/routes";
 import { loadStatistics } from "@/lib/statistics/data.server";
 
 export async function PortalShell({
   locale,
-  session,
   children,
 }: {
   locale: Locale;
-  session: PublicSession;
   children: ReactNode;
 }) {
   const [common, nav, statistics] = await Promise.all([
@@ -45,7 +42,7 @@ export async function PortalShell({
   })).filter((group) => group.items.length > 0);
 
   const home = navHref(HOME_ROUTE);
-  const foot = <SidebarFoot locale={locale} session={session} />;
+  const foot = <SidebarFoot locale={locale} />;
 
   return (
     <div className="flex min-h-full flex-1 flex-col lg:flex-row">
