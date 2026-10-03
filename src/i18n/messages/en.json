@@ -9,7 +9,6 @@
     "theme": "Switch between light and dark",
     "signOut": "Sign out",
     "signingOut": "Signing out…",
-    "signedIn": "Signed in",
     "apply": "Apply",
     "reset": "Clear filters",
     "previous": "Previous",
@@ -33,8 +32,7 @@
     "no": "No",
     "loading": "Loading…",
     "close": "Close",
-    "fixFields": "Check these fields",
-    "roleName": "Administrator"
+    "fixFields": "Check these fields"
   },
   "nav": {
     "label": "Portal sections",
