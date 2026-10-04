@@ -48,6 +48,21 @@ XP and hours adjustment on the volunteer record
 (`src/components/users/progress-adjustment-form.tsx`,
 `src/lib/users/progress*.ts`).
 
+The vacancy record's Applications and Attendance tabs are `v-admin` only too
+(`src/components/results/`, `src/lib/results/`), and they come from the
+organization portal `v-org`, which has the same files: an applications desk that
+stages accept / reject / hold and sends them together, an instructions panel for
+accepted applicants, and an attendance desk. What only an administrator has is
+`verification-desk.tsx`: an organization's submitted results are read as sent,
+rows are flagged with a note, and the sheet is either returned for changes or
+verified, which is the moment hours and XP are awarded. An administrator's own
+roll call is applied directly (`verifyAttendance` with the rows). The results
+queue on Today and Attendance reads `GET /admin/attendance-sheets`. These
+screens have many counted strings, so they receive their copy through
+`ResultsCopy`, a scoped `NextIntlClientProvider` holding only the `results`
+namespace (plus application statuses and attendance outcomes), rather than as
+props; the root layout still passes `messages={null}`.
+
 Keeping them apart means a coordinator's deployment cannot be one misconfigured
 environment variable away from administrator access.
 

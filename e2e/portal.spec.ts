@@ -912,13 +912,12 @@ test.describe("review and attendance", () => {
     page,
   }) => {
     await signedIn(page);
-    await page.goto("/en/vacancies/00000000-0000-4000-8000-000000000401");
-    const roster = page.locator("#roll-call");
-    await roster.getByLabel("Outcome for everyone selected").selectOption("attended");
-    await roster.getByRole("button", { name: "Confirm selected" }).click();
-    await expect(roster.locator('[data-slot="form-message"]').first()).toContainText(
-      "Attendance was confirmed",
-    );
+    await page.goto("/en/vacancies/00000000-0000-4000-8000-000000000401?tab=attendance");
+    await page.getByRole("checkbox", { name: "Select every volunteer" }).check();
+    await page.getByRole("button", { name: "Mark attended" }).click();
+    await page.getByRole("button", { name: "Review and apply" }).click();
+    await page.getByRole("dialog").getByRole("button", { name: "Apply results" }).click();
+    await expect(toast(page)).toContainText("Results applied");
 
     await page.goto("/en/applications/00000000-0000-4000-8000-000000000604");
     await expect(page.getByRole("group", { name: /^Decision: / })).toHaveCount(0);
@@ -941,54 +940,121 @@ test.describe("review and attendance", () => {
       .getByRole("link", { name: /Take roll call/ })
       .first()
       .click();
-    await expect(page).toHaveURL(/\/en\/vacancies\/[0-9a-f-]+#roll-call$/);
+    await expect(page).toHaveURL(/\/en\/vacancies\/[0-9a-f-]+\?tab=attendance$/);
   });
 
-  test("confirms a batch of accepted volunteers, then corrects one row", async ({
+  test("records a roll call, refuses missing hours, then corrects one row", async ({
     page,
   }) => {
     await signedIn(page);
-    await page.goto("/en/vacancies/00000000-0000-4000-8000-000000000401");
+    await page.goto("/en/vacancies/00000000-0000-4000-8000-000000000401?tab=attendance");
 
-    const roster = page.locator("#roll-call");
-    await expect(
-      roster.getByRole("button", { name: "Confirm selected" }),
-    ).toBeVisible();
+    await page.getByRole("checkbox", { name: "Select every volunteer" }).check();
+    await page.getByRole("button", { name: "Mark attended" }).click();
+    const hours = page.getByRole("textbox", { name: /^Hours worked by/ });
+    await expect(hours.first()).toHaveValue("6");
+    await hours.first().fill("");
+    await page.getByRole("button", { name: "Review and apply" }).click();
+    const dialog = page.getByRole("dialog");
+    await expect(dialog).toContainText("1 row must be fixed first");
+    await expect(dialog.getByRole("button", { name: "Apply results" })).toBeDisabled();
+    await dialog.getByRole("button", { name: "Back to attendance" }).click();
 
-    await roster.getByLabel("Outcome for everyone selected").selectOption("attended");
-    const hours = roster.getByLabel("Hours for everyone selected");
-    await expect(hours).toHaveValue("6");
-    await hours.fill("");
-    await roster.getByRole("button", { name: "Confirm selected" }).click();
-    await expect(roster.locator('[data-slot="field-error"]').first()).toContainText(
-      "Enter the hours",
-    );
-
-    await roster.getByLabel("Hours for everyone selected").fill("4");
-    await roster.getByRole("button", { name: "Confirm selected" }).click();
-    await expect(roster.locator('[data-slot="form-message"]').first()).toContainText(
-      "Attendance was confirmed",
-    );
+    await hours.first().fill("4");
+    await page.getByRole("button", { name: "Review and apply" }).click();
+    await page.getByRole("dialog").getByRole("button", { name: "Apply results" }).click();
+    await expect(toast(page)).toContainText("Results applied");
 
     await page.reload();
-    await expect(roster.getByText("Attended").first()).toBeVisible();
-
-    await roster.locator("summary").first().click();
-    await roster.getByLabel("Outcome", { exact: true }).first().selectOption("excused");
-    await roster.getByRole("button", { name: "Save the decision" }).first().click();
-    await expect(roster.locator('[data-slot="form-message"]').first()).toContainText(
-      "Attendance was confirmed",
-    );
+    await expect(page.getByText("Verified", { exact: true }).first()).toBeVisible();
+    await page.getByRole("button", { name: "Edit results" }).click();
+    await page
+      .getByRole("combobox", { name: /^Attendance of/ })
+      .first()
+      .selectOption("excused");
+    await page.getByRole("button", { name: "Review and apply" }).click();
+    await page.getByRole("dialog").getByRole("button", { name: "Apply results" }).click();
+    await expect(toast(page)).toContainText("Results applied");
   });
 
-  test("keeps attendance shut until the event has ended", async ({ page }) => {
+  test("keeps attendance shut until the event has started", async ({ page }) => {
     await signedIn(page);
-    await page.goto("/en/vacancies/00000000-0000-4000-8000-000000000402");
+    await page.goto("/en/vacancies/00000000-0000-4000-8000-000000000402?tab=attendance");
 
-    await expect(page.locator("#roll-call")).toContainText(
-      "Attendance is not open yet",
-    );
-    await expect(page.getByRole("button", { name: "Confirm selected" })).toHaveCount(0);
+    await expect(
+      page.getByText("Attendance opens when the event starts"),
+    ).toBeVisible();
+    await expect(page.getByRole("button", { name: "Review and apply" })).toHaveCount(0);
+  });
+
+  test("returns an organization's results with a flagged row", async ({ page }) => {
+    await page.request.post(`${STUB}/__stub/submit-sheet`, {
+      data: {
+        vacancyId: "00000000-0000-4000-8000-000000000401",
+        entries: [
+          {
+            applicationId: "00000000-0000-4000-8000-000000000602",
+            outcome: "attended",
+            hours: 10,
+          },
+          {
+            applicationId: "00000000-0000-4000-8000-000000000604",
+            outcome: "no_show",
+          },
+        ],
+      },
+    });
+    await signedIn(page);
+    await page.goto("/en/attendance");
+    const queue = page.locator("#verify");
+    await expect(queue).toContainText("Winter book drive");
+    await queue.getByRole("link", { name: /^Verify/ }).click();
+
+    await expect(page.getByText("Results waiting for your verification")).toBeVisible();
+    await page.getByRole("button", { name: /^Flag/ }).first().click();
+    await expect(page.getByRole("button", { name: "Verify and apply" })).toBeDisabled();
+    await page
+      .getByRole("textbox", { name: /^What is wrong with/ })
+      .fill("Check the 10-hour entry against the sign-in sheet.");
+    await page.getByRole("button", { name: "Request changes" }).click();
+    const dialog = page.getByRole("dialog");
+    await dialog
+      .getByLabel("Note to the organization")
+      .fill("Please check the 10-hour entry.");
+    await dialog.getByRole("button", { name: "Return for changes" }).click();
+
+    await expect(toast(page)).toContainText("Returned to the organization");
+    await expect(page.getByText("Please check the 10-hour entry.").first()).toBeVisible();
+    await expect(
+      page.getByText("Check the 10-hour entry against the sign-in sheet."),
+    ).toBeVisible();
+  });
+
+  test("verifies an organization's results so hours and XP count", async ({ page }) => {
+    await page.request.post(`${STUB}/__stub/submit-sheet`, {
+      data: {
+        vacancyId: "00000000-0000-4000-8000-000000000401",
+        entries: [
+          {
+            applicationId: "00000000-0000-4000-8000-000000000602",
+            outcome: "attended",
+            hours: 4,
+          },
+          {
+            applicationId: "00000000-0000-4000-8000-000000000604",
+            outcome: "excused",
+          },
+        ],
+      },
+    });
+    await signedIn(page);
+    await page.goto("/en/vacancies/00000000-0000-4000-8000-000000000401");
+
+    await expect(page.getByText("Results waiting for your verification")).toBeVisible();
+    await page.getByRole("button", { name: "Verify and apply" }).click();
+    await page.getByRole("dialog").getByRole("button", { name: "Apply results" }).click();
+    await expect(toast(page)).toContainText("Verified. Hours and XP were added.");
+    await expect(page.getByText("+40 XP").first()).toBeVisible();
   });
 });
 

@@ -364,6 +364,8 @@ function reset() {
         translations: [blogTranslation("ru", "Старые новости", at(-30), "rev-ru")],
       }),
     ],
+    sheets: {},
+    instructions: {},
     sessions: new Map(),
     broken: null,
   };
@@ -433,6 +435,123 @@ function blogDetail(post) {
         createdAt: translation.updatedAt,
       })),
   };
+}
+
+const RULES = {
+  xpPerHour: 10,
+  xpWinner: 50,
+  xpContributor: 30,
+  xpAttendee: 10,
+  xpNoShowPenalty: 10,
+};
+
+function acceptedWithAttendance(item) {
+  return state.applications.filter(
+    (candidate) =>
+      candidate.opportunityId === item.id &&
+      candidate.status === "accepted" &&
+      candidate.attendance,
+  );
+}
+
+function verifiedValues(attendance) {
+  return {
+    outcome: attendance.outcome,
+    hours: attendance.confirmedHours === null ? null : Number(attendance.confirmedHours),
+    placement: attendance.placement ?? null,
+    note: attendance.note ?? null,
+  };
+}
+
+function sheetView(item) {
+  const sheet = state.sheets[item.id];
+  const accepted = acceptedWithAttendance(item);
+  const resolved =
+    accepted.length > 0 &&
+    accepted.every((candidate) => candidate.attendance.outcome !== "awaiting_confirmation");
+  const organization = state.organizations.find((o) => o.id === item.organizationId);
+  return {
+    opportunityId: item.id,
+    title: item.title,
+    kind: item.kind,
+    organization: organization ? { id: organization.id, name: organization.name } : null,
+    estimatedTotalHours:
+      item.estimatedTotalHours === null ? null : Number(item.estimatedTotalHours),
+    rules: RULES,
+    status: sheet?.status ?? (resolved ? "verified" : "draft"),
+    correction: sheet?.correction ?? false,
+    revision: sheet?.revision ?? 0,
+    submittedAt: sheet?.submittedAt ?? null,
+    reviewedAt: sheet?.reviewedAt ?? null,
+    reviewNote: sheet?.reviewNote ?? null,
+    verifiedAt: sheet?.verifiedAt ?? null,
+    opensAt: item.startsAt,
+    submittableAt: item.endsAt ?? item.startsAt,
+    started: Date.now() >= Date.parse(item.startsAt),
+    ended: Date.now() >= attendanceOpensAt(item),
+    requiresVerification: false,
+    editable: Date.now() >= Date.parse(item.startsAt),
+    rows: accepted.map((candidate) => {
+      const person = userById(candidate.volunteerId);
+      const attendance = candidate.attendance;
+      return {
+        applicationId: candidate.id,
+        attendanceId: attendance.id,
+        submittedAt: candidate.submittedAt,
+        volunteer: {
+          id: candidate.volunteerId,
+          displayName: person?.displayName ?? null,
+          username: person?.username ?? "volunteer",
+          avatarUrl: null,
+        },
+        verified: {
+          ...verifiedValues(attendance),
+          xpAwarded: attendance.xpAwarded ?? 0,
+          resolvedAt: attendance.resolvedAt,
+        },
+        draft: attendance.draft ?? null,
+        reviewNote: attendance.reviewNote ?? null,
+      };
+    }),
+    history: sheet?.events ?? [],
+  };
+}
+
+function writeDraft(item, entries) {
+  for (const entry of entries) {
+    const target = acceptedWithAttendance(item).find(
+      (candidate) => candidate.id === entry.applicationId,
+    );
+    if (!target) return false;
+    target.attendance.draft =
+      entry.outcome === null
+        ? null
+        : {
+            outcome: entry.outcome,
+            hours: entry.outcome === "attended" ? (entry.hours ?? null) : null,
+            placement: entry.placement ?? null,
+            note: entry.note ?? null,
+          };
+  }
+  return true;
+}
+
+function sheetEvent(item, action, note, actor) {
+  const sheet = (state.sheets[item.id] ??= {
+    status: "draft",
+    correction: false,
+    revision: 0,
+    events: [],
+  });
+  sheet.events.unshift({
+    id: `event-${sheet.events.length + 1}`,
+    action,
+    note: note ?? null,
+    revision: sheet.revision,
+    createdAt: new Date().toISOString(),
+    actor: { id: actor.id, name: actor.displayName },
+  });
+  return sheet;
 }
 
 function volunteer(id, displayName, profile = {}) {
@@ -864,6 +983,18 @@ const server = createServer(async (request, response) => {
     return send(response, 200, { status: "reset" });
   }
 
+  if (path === "/__stub/submit-sheet" && method === "POST") {
+    const item = state.vacancies.find((candidate) => candidate.id === body.vacancyId);
+    if (!item) return send(response, 404, { code: "opportunityNotFound" });
+    writeDraft(item, body.entries ?? []);
+    const organizer = { id: item.createdById, displayName: "Youth Volunteer Club" };
+    const sheet = sheetEvent(item, "submitted", null, organizer);
+    sheet.revision += 1;
+    sheet.events[0].revision = sheet.revision;
+    Object.assign(sheet, { status: "submitted", submittedAt: new Date().toISOString() });
+    return send(response, 200, sheetView(item));
+  }
+
   if (path === "/__stub/expire" && method === "POST") {
     state.sessions.clear();
     return send(response, 200, { status: "expired" });
@@ -1050,6 +1181,206 @@ const server = createServer(async (request, response) => {
       record("opportunity.created", "Opportunity", created.id, actor.id);
       return send(response, 201, created);
     }
+  }
+
+  if (path === "/admin/attendance-sheets" && method === "GET") {
+    const items = state.vacancies
+      .filter((item) => state.sheets[item.id]?.status === "submitted")
+      .map((item) => {
+        const organization = state.organizations.find(
+          (o) => o.id === item.organizationId,
+        );
+        const sheet = state.sheets[item.id];
+        return {
+          opportunityId: item.id,
+          title: item.title,
+          kind: item.kind,
+          organization: organization
+            ? { id: organization.id, name: organization.name }
+            : null,
+          startsAt: item.startsAt,
+          endsAt: item.endsAt ?? null,
+          imageUrl: null,
+          volunteers: acceptedWithAttendance(item).length,
+          status: sheet.status,
+          correction: sheet.correction,
+          revision: sheet.revision,
+          submittedAt: sheet.submittedAt,
+          reviewedAt: sheet.reviewedAt ?? null,
+        };
+      });
+    return send(response, 200, { items, total: items.length });
+  }
+
+  const resultsMatch =
+    /^\/admin\/opportunities\/([^/]+)\/(decisions|decisions\/send|instructions|instructions\/retry|attendance-sheet|attendance-sheet\/draft|attendance-sheet\/verify|attendance-sheet\/request-changes)$/.exec(
+      path,
+    );
+  if (resultsMatch) {
+    const [, id, verb] = resultsMatch;
+    const item = ownedVacancies(actor).find((candidate) => candidate.id === id);
+    if (!item) return send(response, 404, { code: "opportunityNotFound" });
+    if (verb === "attendance-sheet" && method === "GET") {
+      return send(response, 200, sheetView(item));
+    }
+    if (verb === "attendance-sheet" && method === "PUT") {
+      if (!writeDraft(item, body.entries ?? [])) {
+        return send(response, 404, { code: "attendanceNotFound" });
+      }
+      return send(response, 200, sheetView(item));
+    }
+    if (verb === "attendance-sheet/verify" && method === "POST") {
+      if (Date.now() < attendanceOpensAt(item)) {
+        return send(response, 409, { code: "attendanceNotOpen" });
+      }
+      if (!writeDraft(item, body.entries ?? [])) {
+        return send(response, 404, { code: "attendanceNotFound" });
+      }
+      const accepted = acceptedWithAttendance(item);
+      const problems = accepted.flatMap((candidate) => {
+        const next = candidate.attendance.draft ?? verifiedValues(candidate.attendance);
+        if (next.outcome === "awaiting_confirmation") {
+          return [{ applicationId: candidate.id, reason: "outcomeRequired" }];
+        }
+        if (next.outcome === "attended" && !next.hours) {
+          return [{ applicationId: candidate.id, reason: "hoursRequired" }];
+        }
+        return [];
+      });
+      if (problems.length > 0) {
+        return send(response, 409, { code: "attendanceIncomplete", problems });
+      }
+      const resolvedAt = new Date().toISOString();
+      for (const candidate of accepted) {
+        const next = candidate.attendance.draft;
+        if (next) {
+          Object.assign(candidate.attendance, {
+            outcome: next.outcome,
+            confirmedHours: next.hours === null ? null : String(next.hours),
+            placement: next.placement,
+            note: next.note,
+            xpAwarded:
+              next.outcome === "attended"
+                ? Math.round((next.hours ?? 0) * RULES.xpPerHour)
+                : next.outcome === "no_show"
+                  ? -RULES.xpNoShowPenalty
+                  : 0,
+            resolvedAt,
+            confirmedById: actor.id,
+            draft: null,
+          });
+          record("attendance.resolved", "attendance", candidate.attendance.id, actor.id);
+        }
+        candidate.attendance.reviewNote = null;
+      }
+      const submitted = state.sheets[item.id]?.status === "submitted";
+      const sheet = sheetEvent(item, submitted ? "verified" : "applied", null, actor);
+      Object.assign(sheet, {
+        status: "verified",
+        correction: false,
+        verifiedAt: resolvedAt,
+        reviewedAt: resolvedAt,
+        reviewNote: null,
+      });
+      return send(response, 200, sheetView(item));
+    }
+    if (verb === "attendance-sheet/request-changes" && method === "POST") {
+      if (state.sheets[item.id]?.status !== "submitted") {
+        return send(response, 409, { code: "attendanceSheetNotSubmitted" });
+      }
+      for (const candidate of acceptedWithAttendance(item)) {
+        candidate.attendance.reviewNote =
+          (body.flags ?? []).find((flag) => flag.applicationId === candidate.id)
+            ?.note ?? null;
+      }
+      const sheet = sheetEvent(item, "changes_requested", body.note, actor);
+      Object.assign(sheet, {
+        status: "changes_requested",
+        reviewedAt: new Date().toISOString(),
+        reviewNote: body.note,
+      });
+      return send(response, 200, sheetView(item));
+    }
+    if (verb === "attendance-sheet/draft" && method === "DELETE") {
+      for (const candidate of acceptedWithAttendance(item)) {
+        candidate.attendance.draft = null;
+      }
+      return send(response, 200, sheetView(item));
+    }
+    if (verb === "decisions" && method === "PUT") {
+      for (const entry of body.decisions ?? []) {
+        const target = state.applications.find(
+          (candidate) =>
+            candidate.id === entry.applicationId && candidate.opportunityId === item.id,
+        );
+        if (!target) return send(response, 404, { code: "applicationNotFound" });
+        target.stagedDecision = entry.decision;
+      }
+      return send(response, 200, { accept: 0, reject: 0, hold: 0, undecided: 0 });
+    }
+    if (verb === "decisions/send" && method === "POST") {
+      const staged = state.applications.filter(
+        (candidate) =>
+          candidate.opportunityId === item.id &&
+          ["accept", "reject"].includes(candidate.stagedDecision),
+      );
+      if (staged.length === 0) {
+        return send(response, 409, { code: "noDecisionsToSend" });
+      }
+      for (const candidate of staged) {
+        candidate.status = candidate.stagedDecision === "accept" ? "accepted" : "rejected";
+        candidate.reviewedAt = new Date().toISOString();
+        candidate.stagedDecision = null;
+        if (candidate.status === "accepted" && !candidate.attendance) {
+          candidate.attendance = {
+            id: `${candidate.id}-attendance`,
+            outcome: "awaiting_confirmation",
+            scheduledHours: null,
+            confirmedHours: null,
+            resolvedAt: null,
+            applicationId: candidate.id,
+            volunteerId: candidate.volunteerId,
+            opportunityId: item.id,
+          };
+        }
+        record(`application.${candidate.status}`, "application", candidate.id, actor.id);
+      }
+      const accepted = staged.filter((candidate) => candidate.status === "accepted");
+      return send(response, 200, {
+        accepted: accepted.length,
+        rejected: staged.length - accepted.length,
+        held: 0,
+        placesFilled: acceptedWithAttendance(item).length,
+        capacity: item.capacity ?? null,
+      });
+    }
+    if (verb.startsWith("instructions")) {
+      if (method === "POST" && verb === "instructions") {
+        state.instructions[item.id] = {
+          message: body.message,
+          groupLink: body.groupLink ?? null,
+          sentAt: new Date().toISOString(),
+        };
+      }
+      const sent = state.instructions[item.id];
+      const recipients = acceptedWithAttendance(item).length;
+      return send(response, 200, {
+        message: sent?.message ?? null,
+        groupLink: sent?.groupLink ?? null,
+        version: sent ? 1 : 0,
+        sentAt: sent?.sentAt ?? null,
+        updatedAt: sent?.sentAt ?? null,
+        recipients,
+        unsent: sent ? 0 : recipients,
+        delivery: {
+          sent: sent ? recipients : 0,
+          notConnected: 0,
+          failed: 0,
+          pending: 0,
+        },
+      });
+    }
+    return send(response, 405, { code: "methodNotAllowed" });
   }
 
   const vacancyMatch =
