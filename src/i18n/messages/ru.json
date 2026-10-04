@@ -317,7 +317,13 @@
       "span": "{from} – {to}",
       "noLimit": "Без ограничения",
       "places": "Занято {taken} из {capacity}",
-      "applicationsList": "Заявки"
+      "applicationsList": "Заявки",
+      "dailyTime": "Время",
+      "eachDay": "{time} каждый день",
+      "attendance": "Посещение",
+      "allDays": "{count, plural, =1 {Нужно прийти в этот день} one {Обязательны все # день} few {Обязательны все # дня} many {Обязательны все # дней} other {Обязательны все # дня}}",
+      "someDays": "Можно прийти не во все дни",
+      "question": "Вопрос в заявке"
     },
     "fields": {
       "title": "Название",

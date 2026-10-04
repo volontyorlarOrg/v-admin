@@ -317,7 +317,13 @@
       "span": "{from} – {to}",
       "noLimit": "Cheklanmagan",
       "places": "{capacity} oʻrindan {taken} tasi band",
-      "applicationsList": "Arizalar"
+      "applicationsList": "Arizalar",
+      "dailyTime": "Kunlik vaqt",
+      "eachDay": "Har kuni {time}",
+      "attendance": "Qatnashish",
+      "allDays": "{count, plural, =1 {Shu kuni qatnashish kerak} other {Barcha # kunda qatnashish majburiy}}",
+      "someDays": "Volontyorlar kunlarning bir qismida kelishi mumkin",
+      "question": "Arizadagi savol"
     },
     "fields": {
       "title": "Nomi",
