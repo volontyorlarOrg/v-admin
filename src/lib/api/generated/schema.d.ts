@@ -1738,6 +1738,41 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/users/{id}/past-events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add a past volunteering event to a volunteer */
+        post: operations["AdminManagementController_createPastEvent"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/users/{id}/past-events/{eventId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Correct a manually added past event */
+        put: operations["AdminManagementController_updatePastEvent"];
+        post?: never;
+        /** Remove a manually added past event */
+        delete: operations["AdminManagementController_removePastEvent"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/statistics": {
         parameters: {
             query?: never;
@@ -2977,6 +3012,56 @@ export interface components {
             hoursDelta: number;
             reason: string;
         };
+        CreateManualPastEventDto: {
+            title: string;
+            /** Format: uuid */
+            organizationId: string;
+            /**
+             * Format: date
+             * @example 2026-09-20
+             */
+            eventDate: string;
+            hours: number;
+            xpAwarded: number;
+            countsTowardProgress: boolean;
+            /** Format: uuid */
+            submissionId: string;
+        };
+        ManualPastEventResponseDto: {
+            title: string;
+            /** Format: uuid */
+            organizationId: string;
+            /**
+             * Format: date
+             * @example 2026-09-20
+             */
+            eventDate: string;
+            hours: number;
+            xpAwarded: number;
+            countsTowardProgress: boolean;
+            /** Format: uuid */
+            id: string;
+            organization: string;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        ManualPastEventDto: {
+            title: string;
+            /** Format: uuid */
+            organizationId: string;
+            /**
+             * Format: date
+             * @example 2026-09-20
+             */
+            eventDate: string;
+            hours: number;
+            xpAwarded: number;
+            countsTowardProgress: boolean;
+        };
+        RemovedManualPastEventDto: {
+            /** Format: uuid */
+            id: string;
+        };
         SaveEssayDto: {
             title?: string;
             prompt?: string;
@@ -3115,6 +3200,17 @@ export interface components {
             attendedEvents: number;
             confirmedHours: number;
         };
+        PublicPastEventDto: {
+            /** Format: uuid */
+            id: string;
+            title: string;
+            organization: string;
+            /** Format: date */
+            eventDate: string;
+            hours: number;
+            xpAwarded: number;
+            countsTowardProgress: boolean;
+        };
         PublicProfileDto: {
             /** @example Aziza Karimova */
             displayName: string;
@@ -3148,6 +3244,7 @@ export interface components {
             level: "newcomer" | "active" | "trusted" | "core";
             xp: number;
             stats: components["schemas"]["PublicProfileStatsDto"];
+            pastEvents: components["schemas"]["PublicPastEventDto"][];
         };
         CreateBlogPostDto: {
             /** @enum {string} */
@@ -11760,6 +11857,261 @@ export interface operations {
             };
             /** @description Request body exceeds the configured limit */
             413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Request validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Request rate limit exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Authentication or an upstream dependency is unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminManagementController_createPastEvent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateManualPastEventDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ManualPastEventResponseDto"];
+                };
+            };
+            /** @description Malformed request body */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Authenticated account cannot perform this operation */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Requested resource was not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Resource state or uniqueness conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Request body exceeds the configured limit */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Request validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Request rate limit exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Authentication or an upstream dependency is unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminManagementController_updatePastEvent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                eventId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ManualPastEventDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ManualPastEventResponseDto"];
+                };
+            };
+            /** @description Malformed request body */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Authenticated account cannot perform this operation */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Requested resource was not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Request body exceeds the configured limit */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Request validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Request rate limit exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Authentication or an upstream dependency is unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminManagementController_removePastEvent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                eventId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RemovedManualPastEventDto"];
+                };
+            };
+            /** @description Missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Authenticated account cannot perform this operation */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Requested resource was not found */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

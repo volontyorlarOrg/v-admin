@@ -648,6 +648,41 @@
       "unknownAuthor": "Qayd etilmagan",
       "xpChange": "{value} XP",
       "hoursChange": "{value} soat"
+    },
+    "pastEvents": {
+      "heading": "Oʻtgan tadbirlar",
+      "countLabel": "tadbir",
+      "description": "Mavjud tashkilotni tanlab, oʻtgan koʻngillilik tadbirini qoʻshing. Zarur boʻlsa, uni taraqqiyotga hisoblang.",
+      "empty": "Hozircha oʻtgan tadbirlar qoʻlda qoʻshilmagan.",
+      "add": "Oʻtgan tadbirni qoʻshish",
+      "edit": "Tahrirlash",
+      "remove": "Oʻchirish",
+      "noOrganizations": "Avval tashkilot qoʻshing.",
+      "organizationsUnavailable": "Tashkilotlarni yuklab boʻlmadi. Tahrirlashdan oldin qayta urinib koʻring.",
+      "counted": "Taraqqiyotga hisoblash",
+      "notCounted": "Faqat tarix",
+      "countHelp": "Hisoblansa, bitta qatnashilgan tadbir, kiritilgan soat va XP qoʻshiladi. Soatlar XP ni avtomatik bermaydi.",
+      "removePrompt": "Bu tadbirni koʻngilli tarixidan oʻchirib, taraqqiyotini qayta hisoblaysizmi?",
+      "hoursUnit": "soat",
+      "fields": {
+        "title": "Tadbir nomi",
+        "organization": "Tashkilot",
+        "date": "Tadbir sanasi",
+        "hours": "Soatlar",
+        "xp": "Beriladigan XP"
+      },
+      "addSuccess": "Oʻtgan tadbir qoʻshildi.",
+      "editSuccess": "Oʻtgan tadbir yangilandi.",
+      "removeSuccess": "Oʻtgan tadbir oʻchirildi.",
+      "errors": {
+        "hoursAmount": "0 dan 999 gacha soat kiriting, kasrdan keyin ikki raqamgacha.",
+        "xpAmount": "0 dan 100 000 gacha butun XP sonini kiriting.",
+        "dateInvalid": "Bugundan oldingi haqiqiy sanani tanlang.",
+        "uncreditedXp": "Faqat tarix uchun tadbir XP bera olmaydi.",
+        "notFound": "Bu tadbir endi mavjud emas. Sahifani yangilang.",
+        "submissionConflict": "Bu yuborish allaqachon ishlatilgan. Sahifani yangilab, qayta urinib koʻring.",
+        "organizationNotFound": "Mavjud tashkilotni tanlang."
+      }
     }
   },
   "attendance": {

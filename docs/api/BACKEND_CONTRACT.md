@@ -194,7 +194,7 @@ backend that still sends them from showing them.
 ## The volunteer behind an application
 
 Applying needs a chosen username and a full profile — every field except the
-photo, Instagram, LinkedIn and portfolio links — and the backend refuses
+phone, photo, Instagram, LinkedIn and portfolio links — and the backend refuses
 anything less (`profileIncomplete` with the missing `fields`). What an
 administrator sees follows from that:
 
@@ -229,6 +229,15 @@ administrator sees follows from that:
   (`progressBelowZero`) or that touches the administrator's own account
   (`ownProgressNotAdjustable`). XP and hours are independent: added hours do
   not add hour XP. Each change is audited as `user.progress.adjusted`.
+- **Administrators can add past events from an existing organization.** The
+  volunteer page reads `pastEvents` from `GET /admin/users/:id`. The create,
+  update and remove endpoints under `/admin/users/{id}/past-events` require an
+  administrator. An event has a title, past date, organization and hours; the
+  count switch determines whether its hours, one attended event and entered XP
+  affect progress. History-only events award no XP. The backend recalculates
+  progress after every change, keeps removed rows out of history, and records
+  each change in the audit log. Manual events also appear in the volunteer's
+  record and public profile when that profile is enabled.
 
 ## Archiving, reversals and the navigation counts
 
