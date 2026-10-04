@@ -202,6 +202,17 @@ export const vacancySchema = z.object({
   estimatedTotalHours: decimal,
   acceptanceMode: z.enum(ACCEPTANCE_MODES).default("manual"),
   essayRequired: z.boolean().default(false),
+  essayPrompt: optional(z.string()),
+  schedule: optional(
+    z.array(
+      z.object({
+        date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+        startTime: z.string().regex(/^\d{2}:\d{2}$/),
+        endTime: z.string().regex(/^\d{2}:\d{2}$/),
+      }),
+    ),
+  ),
+  allDaysRequired: z.boolean().default(true),
   approvalStatus: optional(z.enum(OPPORTUNITY_APPROVAL_STATUSES)),
   approvalSubmittedAt: optional(isoDate),
   approvalReviewedAt: optional(isoDate),

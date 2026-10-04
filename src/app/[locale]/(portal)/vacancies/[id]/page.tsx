@@ -193,6 +193,42 @@ export default async function VacancyPage({
         : `${vacancy.locationName} · ${vacancy.city}`
       : (vacancy.locationName ?? vacancy.city);
 
+  // An organization sets daily times; the admin sees what volunteers will see.
+  const schedule = vacancy.schedule ?? [];
+  const firstDay = schedule[0];
+  const sameTimes = schedule.every(
+    (day) => day.startTime === firstDay?.startTime && day.endTime === firstDay?.endTime,
+  );
+  const scheduleFacts: Fact[] = firstDay
+    ? [
+        {
+          term: t("detail.dailyTime"),
+          value: sameTimes
+            ? schedule.length > 1
+              ? t("detail.eachDay", {
+                  time: `${firstDay.startTime}–${firstDay.endTime}`,
+                })
+              : `${firstDay.startTime}–${firstDay.endTime}`
+            : schedule
+                .map(
+                  (day) =>
+                    `${format.dateTime(new Date(`${day.date}T12:00:00+05:00`), "day")}: ${day.startTime}–${day.endTime}`,
+                )
+                .join(" · "),
+        },
+        ...(schedule.length > 1
+          ? [
+              {
+                term: t("detail.attendance"),
+                value: vacancy.allDaysRequired
+                  ? t("detail.allDays", { count: schedule.length })
+                  : t("detail.someDays"),
+              },
+            ]
+          : []),
+      ]
+    : [];
+
   const facts: Fact[] = [
     {
       term: t("fields.startsAt"),
@@ -203,6 +239,7 @@ export default async function VacancyPage({
           })
         : format.dateTime(new Date(vacancy.startsAt), "stamp"),
     },
+    ...scheduleFacts,
     {
       term: t("fields.applicationDeadline"),
       value: format.dateTime(new Date(vacancy.applicationDeadline), "stamp"),
@@ -243,6 +280,9 @@ export default async function VacancyPage({
         ? t("fields.essayRequiredYes")
         : t("fields.essayRequiredNo"),
     },
+    ...(vacancy.essayRequired && vacancy.essayPrompt
+      ? [{ term: t("detail.question"), value: vacancy.essayPrompt }]
+      : []),
   ];
 
   const reviewer =

@@ -317,7 +317,13 @@
       "span": "{from} – {to}",
       "noLimit": "No fixed limit",
       "places": "{taken} of {capacity} taken",
-      "applicationsList": "Applications"
+      "applicationsList": "Applications",
+      "dailyTime": "Daily time",
+      "eachDay": "{time} each day",
+      "attendance": "Attendance",
+      "allDays": "{count, plural, =1 {Required on the day} other {All # days required}}",
+      "someDays": "Volunteers can come on some of the days",
+      "question": "Application question"
     },
     "fields": {
       "title": "Title",
