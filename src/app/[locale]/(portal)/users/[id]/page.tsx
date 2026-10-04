@@ -1,4 +1,5 @@
 import { getFormatter, getTranslations, setRequestLocale } from "next-intl/server";
+import { randomUUID } from "node:crypto";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
@@ -10,6 +11,11 @@ import {
 } from "@/components/portal/status-badge";
 import { TemporaryPasswordForm } from "@/components/portal/temporary-password-form";
 import { ProgressAdjustmentForm } from "@/components/users/progress-adjustment-form";
+import {
+  PastEventDialog,
+  RemovePastEventDialog,
+  type PastEventLabels,
+} from "@/components/users/past-event-dialog";
 import { Facts, FigureRow } from "@/components/register/facts";
 import { Register, RegisterNote } from "@/components/register/register";
 import { LoadFailure } from "@/components/states/load-failure";
@@ -35,6 +41,12 @@ import { isRegion } from "@/lib/domain/vocabulary";
 import { applicationHref, navHref, vacancyHref } from "@/lib/routing/routes";
 import { replaceUserPasswordAction } from "@/lib/users/actions";
 import { loadUser } from "@/lib/users/data.server";
+import { loadOrganizations } from "@/lib/organizations/data.server";
+import {
+  createPastEventAction,
+  updatePastEventAction,
+  removePastEventAction,
+} from "@/lib/users/past-events-actions";
 import { completionShare, participationOf } from "@/lib/users/participation";
 import { passwordLoginState } from "@/lib/users/password-state";
 import { signedChange } from "@/lib/users/progress";
@@ -69,7 +81,10 @@ export default async function UserPage({ params }: PageProps<"/[locale]/users/[i
   const languages = new Intl.DisplayNames([locale], { type: "language" });
   const back = { href: navHref("users"), label: t("title") };
 
-  const loaded = await loadUser(id);
+  const [loaded, loadedOrganizations] = await Promise.all([
+    loadUser(id),
+    loadOrganizations(),
+  ]);
   const failure = failureOf(loaded);
 
   if (failure) {
@@ -88,6 +103,47 @@ export default async function UserPage({ params }: PageProps<"/[locale]/users/[i
   const password = passwordLoginState(user);
   const participation = participationOf(user.applications);
   const progress = user.progress;
+  const organizations = isReady(loadedOrganizations) ? loadedOrganizations.data : [];
+  const pastEventLabels: PastEventLabels = {
+    add: t("pastEvents.add"),
+    edit: t("pastEvents.edit"),
+    remove: t("pastEvents.remove"),
+    noOrganizations: isReady(loadedOrganizations)
+      ? t("pastEvents.noOrganizations")
+      : t("pastEvents.organizationsUnavailable"),
+    counted: t("pastEvents.counted"),
+    notCounted: t("pastEvents.notCounted"),
+    countHelp: t("pastEvents.countHelp"),
+    removePrompt: t("pastEvents.removePrompt"),
+    title: t("pastEvents.fields.title"),
+    organization: t("pastEvents.fields.organization"),
+    date: t("pastEvents.fields.date"),
+    hours: t("pastEvents.fields.hours"),
+    xp: t("pastEvents.fields.xp"),
+    close: common("close"),
+    cancel: common("cancel"),
+    pending: common("saving"),
+    addSuccess: t("pastEvents.addSuccess"),
+    editSuccess: t("pastEvents.editSuccess"),
+    removeSuccess: t("pastEvents.removeSuccess"),
+    fallbackError: errors("server"),
+    errors: {
+      required: errors("required"),
+      tooLong: errors("tooLong"),
+      hoursAmount: t("pastEvents.errors.hoursAmount"),
+      xpAmount: t("pastEvents.errors.xpAmount"),
+      pastEventDateInvalid: t("pastEvents.errors.dateInvalid"),
+      pastEventUncreditedXp: t("pastEvents.errors.uncreditedXp"),
+      pastEventNotFound: t("pastEvents.errors.notFound"),
+      pastEventSubmissionConflict: t("pastEvents.errors.submissionConflict"),
+      organizationNotFound: t("pastEvents.errors.organizationNotFound"),
+      userNotFound: errors("userNotFound"),
+      forbidden: errors("forbidden"),
+      network: errors("network"),
+      timeout: errors("timeout"),
+      server: errors("server"),
+    },
+  };
   const adjustments = progress?.adjustments ?? [];
   const profileLabels: VolunteerProfileLabels = {
     fields: Object.fromEntries(
@@ -137,7 +193,9 @@ export default async function UserPage({ params }: PageProps<"/[locale]/users/[i
           },
           {
             label: t("figures.attended"),
-            value: format.number(participation.attended),
+            value: format.number(
+              participation.attended + (progress?.manualAttended ?? 0),
+            ),
             tone: "person",
           },
           {
@@ -277,6 +335,72 @@ export default async function UserPage({ params }: PageProps<"/[locale]/users/[i
                   })}
                 </TableBody>
               </Table>
+            )}
+          </Register>
+
+          <Register
+            title={t("pastEvents.heading")}
+            count={user.pastEvents.length}
+            countLabel={t("pastEvents.countLabel")}
+            description={t("pastEvents.description")}
+            actions={
+              <PastEventDialog
+                userId={user.id}
+                organizations={organizations}
+                submissionId={randomUUID()}
+                action={createPastEventAction}
+                labels={pastEventLabels}
+              />
+            }
+          >
+            {user.pastEvents.length === 0 ? (
+              <RegisterNote title={t("pastEvents.empty")} />
+            ) : (
+              <div className="divide-y divide-border">
+                {user.pastEvents.map((event) => (
+                  <div
+                    key={event.id}
+                    className="flex flex-wrap items-center gap-x-5 gap-y-3 px-5 py-3.5"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-ink">{event.title}</p>
+                      <p className="text-sm text-ink-muted">
+                        {event.organization} ·{" "}
+                        {format.dateTime(
+                          new Date(`${event.eventDate}T00:00:00Z`),
+                          "day",
+                        )}
+                      </p>
+                    </div>
+                    <p className="tabular text-sm text-ink">
+                      {format.number(event.hours)} {t("pastEvents.hoursUnit")}
+                      {event.countsTowardProgress
+                        ? ` · ${format.number(event.xpAwarded)} XP`
+                        : ""}
+                    </p>
+                    <span className="text-xs font-semibold text-ink-muted">
+                      {event.countsTowardProgress
+                        ? pastEventLabels.counted
+                        : pastEventLabels.notCounted}
+                    </span>
+                    <div className="flex gap-2">
+                      <PastEventDialog
+                        userId={user.id}
+                        event={event}
+                        organizations={organizations}
+                        action={updatePastEventAction}
+                        labels={pastEventLabels}
+                      />
+                      <RemovePastEventDialog
+                        userId={user.id}
+                        eventId={event.id}
+                        action={removePastEventAction}
+                        labels={pastEventLabels}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
           </Register>
 

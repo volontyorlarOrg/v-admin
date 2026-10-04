@@ -409,12 +409,27 @@ export const volunteerProgressSchema = z.object({
   xp: z.number().int(),
   hours: z.number(),
   attendedHours: z.number().default(0),
+  manualAttended: z.number().int().nonnegative().default(0),
   xpAdjustment: z.number().int().default(0),
   hoursAdjustment: z.number().default(0),
   adjustments: z.array(progressAdjustmentRecordSchema).default([]),
 });
 
 export type VolunteerProgress = z.infer<typeof volunteerProgressSchema>;
+
+export const manualPastEventSchema = z.object({
+  id,
+  title: z.string(),
+  organizationId: id,
+  organization: z.string(),
+  eventDate: z.iso.date(),
+  hours: z.number().nonnegative(),
+  xpAwarded: z.number().int().nonnegative(),
+  countsTowardProgress: z.boolean(),
+  createdAt: isoDate,
+});
+
+export type ManualPastEvent = z.infer<typeof manualPastEventSchema>;
 
 export const userDetailSchema = z.object({
   id,
@@ -430,6 +445,7 @@ export const userDetailSchema = z.object({
   passwordCredential: optional(passwordStateSchema),
   applications: z.array(applicationSchema).default([]).transform(sentOnly),
   progress: optional(volunteerProgressSchema),
+  pastEvents: z.array(manualPastEventSchema).default([]),
 });
 
 export type UserDetail = z.infer<typeof userDetailSchema>;

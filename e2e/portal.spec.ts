@@ -361,9 +361,58 @@ test.describe("an administrator sees everything", () => {
     await expect(page.getByText("Profile incomplete")).toBeVisible();
     await expect(
       page.getByText(
-        "Still missing before they can apply: Bio, City or district, Year or grade, Languages, Phone, Telegram.",
+        "Still missing before they can apply: Bio, City or district, Year or grade, Languages, Telegram.",
       ),
     ).toBeVisible();
+  });
+});
+
+test.describe("manually added past events", () => {
+  test("adds, edits, and removes a past event with optional progress credit", async ({
+    page,
+  }) => {
+    await signedIn(page);
+    await page.goto("/en/users/00000000-0000-4000-8000-000000000201");
+    const panel = page.locator("section").filter({
+      has: page.getByRole("heading", { level: 2, name: "Past events" }),
+    });
+
+    await panel.getByRole("button", { name: "Add past event" }).click();
+    await dialog(page).getByLabel("Event title").fill("Neighborhood reading day");
+    await dialog(page)
+      .getByRole("combobox", { name: "Organization" })
+      .selectOption({ label: "Chilonzor Reading Corners" });
+    await dialog(page).getByLabel("Event date").fill("2025-09-20");
+    await dialog(page).getByLabel("Hours").fill("3.5");
+    await dialog(page)
+      .getByRole("checkbox", { name: "Counts toward progress" })
+      .check();
+    await dialog(page).getByLabel("XP to award").fill("120");
+    await dialog(page).getByRole("button", { name: "Add past event" }).click();
+
+    await expect(panel.getByText("Neighborhood reading day")).toBeVisible();
+    await expect(
+      panel.getByText("Chilonzor Reading Corners", { exact: false }),
+    ).toBeVisible();
+    await expect(
+      page.locator("dl > div").filter({ hasText: "XP" }).locator("dd").first(),
+    ).toHaveText("120");
+
+    await panel.getByRole("button", { name: "Edit" }).click();
+    await dialog(page).getByLabel("Event title").fill("Neighborhood reading fair");
+    await dialog(page)
+      .getByRole("checkbox", { name: "Counts toward progress" })
+      .uncheck();
+    await dialog(page).getByRole("button", { name: "Edit" }).click();
+    await expect(panel.getByText("Neighborhood reading fair")).toBeVisible();
+    await expect(panel.getByText("History only")).toBeVisible();
+    await expect(
+      page.locator("dl > div").filter({ hasText: "XP" }).locator("dd").first(),
+    ).toHaveText("0");
+
+    await panel.getByRole("button", { name: "Remove" }).click();
+    await dialog(page).getByRole("button", { name: "Remove" }).click();
+    await expect(panel.getByText("Neighborhood reading fair")).toHaveCount(0);
   });
 });
 
@@ -912,11 +961,16 @@ test.describe("review and attendance", () => {
     page,
   }) => {
     await signedIn(page);
-    await page.goto("/en/vacancies/00000000-0000-4000-8000-000000000401?tab=attendance");
+    await page.goto(
+      "/en/vacancies/00000000-0000-4000-8000-000000000401?tab=attendance",
+    );
     await page.getByRole("checkbox", { name: "Select every volunteer" }).check();
     await page.getByRole("button", { name: "Mark attended" }).click();
     await page.getByRole("button", { name: "Review and apply" }).click();
-    await page.getByRole("dialog").getByRole("button", { name: "Apply results" }).click();
+    await page
+      .getByRole("dialog")
+      .getByRole("button", { name: "Apply results" })
+      .click();
     await expect(toast(page)).toContainText("Results applied");
 
     await page.goto("/en/applications/00000000-0000-4000-8000-000000000604");
@@ -947,7 +1001,9 @@ test.describe("review and attendance", () => {
     page,
   }) => {
     await signedIn(page);
-    await page.goto("/en/vacancies/00000000-0000-4000-8000-000000000401?tab=attendance");
+    await page.goto(
+      "/en/vacancies/00000000-0000-4000-8000-000000000401?tab=attendance",
+    );
 
     await page.getByRole("checkbox", { name: "Select every volunteer" }).check();
     await page.getByRole("button", { name: "Mark attended" }).click();
@@ -962,7 +1018,10 @@ test.describe("review and attendance", () => {
 
     await hours.first().fill("4");
     await page.getByRole("button", { name: "Review and apply" }).click();
-    await page.getByRole("dialog").getByRole("button", { name: "Apply results" }).click();
+    await page
+      .getByRole("dialog")
+      .getByRole("button", { name: "Apply results" })
+      .click();
     await expect(toast(page)).toContainText("Results applied");
 
     await page.reload();
@@ -973,13 +1032,18 @@ test.describe("review and attendance", () => {
       .first()
       .selectOption("excused");
     await page.getByRole("button", { name: "Review and apply" }).click();
-    await page.getByRole("dialog").getByRole("button", { name: "Apply results" }).click();
+    await page
+      .getByRole("dialog")
+      .getByRole("button", { name: "Apply results" })
+      .click();
     await expect(toast(page)).toContainText("Results applied");
   });
 
   test("keeps attendance shut until the event has started", async ({ page }) => {
     await signedIn(page);
-    await page.goto("/en/vacancies/00000000-0000-4000-8000-000000000402?tab=attendance");
+    await page.goto(
+      "/en/vacancies/00000000-0000-4000-8000-000000000402?tab=attendance",
+    );
 
     await expect(
       page.getByText("Attendance opens when the event starts"),
@@ -1024,7 +1088,9 @@ test.describe("review and attendance", () => {
     await dialog.getByRole("button", { name: "Return for changes" }).click();
 
     await expect(toast(page)).toContainText("Returned to the organization");
-    await expect(page.getByText("Please check the 10-hour entry.").first()).toBeVisible();
+    await expect(
+      page.getByText("Please check the 10-hour entry.").first(),
+    ).toBeVisible();
     await expect(
       page.getByText("Check the 10-hour entry against the sign-in sheet."),
     ).toBeVisible();
@@ -1052,7 +1118,10 @@ test.describe("review and attendance", () => {
 
     await expect(page.getByText("Results waiting for your verification")).toBeVisible();
     await page.getByRole("button", { name: "Verify and apply" }).click();
-    await page.getByRole("dialog").getByRole("button", { name: "Apply results" }).click();
+    await page
+      .getByRole("dialog")
+      .getByRole("button", { name: "Apply results" })
+      .click();
     await expect(toast(page)).toContainText("Verified. Hours and XP were added.");
     await expect(page.getByText("+40 XP").first()).toBeVisible();
   });
