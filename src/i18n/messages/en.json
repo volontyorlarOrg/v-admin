@@ -661,6 +661,7 @@
       "attended": "Attended",
       "excused": "Excused",
       "cancelled": "Cancelled",
+      "no_show": "Unexcused no-show",
       "awaiting_confirmation": "Awaiting confirmation",
       "unknown": "Not published by the API"
     },
@@ -682,7 +683,10 @@
       "view": "Open",
       "ended": "Ended {when}",
       "accepted": "{count, plural, one {# volunteer accepted} other {# volunteers accepted}}",
-      "number": "Number"
+      "number": "Number",
+      "verify": "Verify",
+      "submittedBy": "Submitted {when} · {organization}",
+      "correction": "Correction"
     },
     "roster": {
       "title": "Attendance",
@@ -715,7 +719,10 @@
       "upcomingLabel": "upcoming",
       "upcomingDescription": "Each roll call opens when its event ends.",
       "recorded": "Recorded",
-      "recordedLabel": "recorded"
+      "recordedLabel": "recorded",
+      "verify": "Results to verify",
+      "verifyLabel": "to verify",
+      "verifyDescription": "Organizations submitted these. Nothing counts until you verify it."
     }
   },
   "activity": {
@@ -1200,6 +1207,14 @@
         "attended": "{count, plural, one {<n>#</n> event attended} other {<n>#</n> events attended}}",
         "hours": "{count, plural, one {<n>#</n> hour confirmed} other {<n>#</n> hours confirmed}}"
       }
+    },
+    "verify": {
+      "title": "Results to verify",
+      "countLabel": "results to verify",
+      "submitted": "Submitted {when}",
+      "correction": "Correction to verified results",
+      "volunteers": "{count, plural, one {# volunteer} other {# volunteers}}",
+      "open": "Verify"
     }
   },
   "blog": {
@@ -1421,6 +1436,428 @@
         "ru": "Russian",
         "en": "English"
       }
+    }
+  },
+  "results": {
+    "tabs": {
+      "pending": "applications waiting for a decision",
+      "sheet": {
+        "draft": "Draft",
+        "submitted": "Awaiting verification",
+        "changes_requested": "Changes requested",
+        "verified": "Verified",
+        "correction": "Correction"
+      }
+    },
+    "decision": {
+      "choose": "Choose",
+      "accept": "Accept",
+      "hold": "Hold",
+      "reject": "Reject"
+    },
+    "desk": {
+      "title": "{count, plural, one {# application} other {# applications}}",
+      "pending": "{count} pending",
+      "acceptedCount": "{count} accepted",
+      "places": "{filled} of {capacity} places filled",
+      "search": "Search applicants",
+      "filterLabel": "Show",
+      "filters": {
+        "all": "Everyone",
+        "undecided": "Not decided",
+        "ready": "Ready to send",
+        "hold": "On hold",
+        "accepted": "Accepted",
+        "rejected": "Not accepted",
+        "withdrawn": "Withdrawn or closed"
+      },
+      "bulk": {
+        "label": "Decide for the selected applicants",
+        "selected": "{count} selected on this page",
+        "accept": "Accept",
+        "reject": "Reject",
+        "hold": "Hold",
+        "undo": "Undo decision",
+        "clear": "Clear selection"
+      },
+      "empty": {
+        "title": "No applications yet",
+        "description": "Applications appear here as volunteers send them."
+      },
+      "noMatches": "No applicant matches this search and filter.",
+      "caption": "Applications to this vacancy and the decision chosen for each",
+      "selectPage": "Select every applicant on this page",
+      "columns": {
+        "name": "Applicant",
+        "applied": "Applied",
+        "status": "Status",
+        "decision": "Decision"
+      },
+      "select": "Select {name}",
+      "appliedShort": "Applied",
+      "decisionFor": "Decision for {name}",
+      "notSent": "Not sent",
+      "sentOn": "Sent {when}",
+      "pagination": {
+        "label": "Pages of applicants",
+        "showing": "Showing {from}–{to} of {total}",
+        "previous": "Previous page",
+        "next": "Next page"
+      },
+      "footer": {
+        "ready": "{count, plural, one {# decision ready} other {# decisions ready}}",
+        "hold": "{count} on hold",
+        "idle": "Choose Accept or Reject for the applicants you have read.",
+        "help": "Nothing reaches applicants until you review and send.",
+        "review": "Review and send"
+      }
+    },
+    "drawer": {
+      "title": "Application",
+      "position": "{index} of {total}",
+      "close": "Close",
+      "applied": "Applied on {when}",
+      "essay": "Why they want to join",
+      "answers": "Answers",
+      "profile": "Profile sent with the application",
+      "profileNote": "This is the profile as it was when they applied.",
+      "decision": "Decision",
+      "decisionFor": "Decision for {name}",
+      "chooseHelp": "Your choice is kept as a draft. The applicant hears nothing until you review and send.",
+      "stagedHelp": "Kept as a draft until you review and send.",
+      "holdHelp": "On hold: the application stays pending and the applicant is not told anything.",
+      "sentOn": "Decision sent on {when}",
+      "noDecision": "No decision is needed.",
+      "previous": "Previous applicant",
+      "next": "Next applicant",
+      "open": "Open the full application"
+    },
+    "send": {
+      "title": "{count, plural, one {Send # decision?} other {Send # decisions?}}",
+      "description": "Check what each applicant will hear before it goes out.",
+      "accepted": "{count} accepted",
+      "rejected": "{count} not accepted",
+      "held": "{count} stay pending",
+      "places": "{filled} of {capacity} places will be filled",
+      "acceptedTotal": "{count} accepted in total",
+      "overCapacity": "{count, plural, one {That is # more than the places available. Remove an acceptance first.} other {That is # more than the places available. Remove some acceptances first.}}",
+      "notify": "Accepted and not accepted applicants are notified at once. Applicants on hold or not decided stay pending.",
+      "recheck": "Applications are checked again as they are sent. If anyone has withdrawn since you chose, nothing is sent and you can review again.",
+      "back": "Back to review",
+      "confirm": "{count, plural, one {Send # decision} other {Send # decisions}}",
+      "sending": "Sending…",
+      "close": "Close",
+      "success": "Sent: {accepted} accepted, {rejected} not accepted.",
+      "withdrawnTitle": "{count, plural, one {# applicant withdrew. Nothing was sent.} other {# applicants withdrew. Nothing was sent.}}",
+      "withdrawnDescription": "Their decisions were removed: {names}. Review the list and send again."
+    },
+    "instructions": {
+      "title": "Instructions for accepted applicants",
+      "description": "{count, plural, one {Sent to the # accepted applicant and shown on their application page.} other {Sent to all # accepted applicants and shown on each application page.}}",
+      "recipients": "{count, plural, one {# accepted applicant} other {# accepted applicants}}",
+      "message": "Message",
+      "messagePlaceholder": "Meet at the main entrance at 08:45 on 12 October. Bring your ID.",
+      "link": "Telegram group link",
+      "optional": "(optional)",
+      "linkHelp": "Applicants get this link with the message.",
+      "linkInvalid": "Use a Telegram link such as https://t.me/your_group.",
+      "send": "Send instructions",
+      "sendUpdate": "Send the updated instructions",
+      "sendNew": "{count, plural, one {Send to # new applicant} other {Send to # new applicants}}",
+      "allReached": "Everyone has them",
+      "sending": "Sending…",
+      "sent": "Instructions sent.",
+      "editedHelp": "Sending an edited message reaches every accepted applicant again.",
+      "preview": "Preview message",
+      "previewTitle": "Message preview",
+      "previewHeading": "Instructions: {title}",
+      "previewHelp": "This is how the bot sends it. The same text appears on the applicant's page and in their notifications.",
+      "close": "Close",
+      "delivery": {
+        "title": "Delivery",
+        "lastSent": "Last sent {when}",
+        "sent": "Sent on Telegram",
+        "notConnected": "No Telegram — in-app only",
+        "failed": "Failed to send",
+        "pending": "Sending",
+        "retry": "Retry failed",
+        "help": "Failed messages can be retried. Applicants who already have the instructions never get a second copy."
+      }
+    },
+    "sheet": {
+      "title": "{count, plural, one {# accepted volunteer} other {# accepted volunteers}}",
+      "titleCompetition": "{count, plural, one {# participant} other {# participants}}",
+      "caption": "Attendance of accepted volunteers",
+      "status": {
+        "draft": "Draft",
+        "submitted": "Awaiting verification",
+        "changes_requested": "Changes requested",
+        "verified": "Verified",
+        "correction": "Correction draft"
+      },
+      "lead": {
+        "org": "An administrator verifies these results before hours and XP are added.",
+        "admin": "Results you apply count at once.",
+        "verified": "These verified results count towards each volunteer's hours and XP."
+      },
+      "summary": {
+        "attended": "{count} attended",
+        "excused": "{count} excused",
+        "noShow": "{count} no-show",
+        "undecided": "{count} not recorded"
+      },
+      "selectAll": "Select every volunteer",
+      "select": "Select {name}",
+      "columns": {
+        "volunteer": "Volunteer",
+        "participant": "Participant",
+        "attendance": "Attendance",
+        "hours": "Actual hours",
+        "placement": "Outcome",
+        "note": "Note",
+        "xpPreview": "XP after verification",
+        "xp": "XP awarded"
+      },
+      "notRecorded": "Not recorded",
+      "outcome": {
+        "attended": "Attended",
+        "excused": "Excused absence",
+        "no_show": "Unexcused no-show",
+        "cancelled": "Cancelled"
+      },
+      "placement": {
+        "winner": "Winner",
+        "contributor": "Contributor",
+        "attendee": "Attendee"
+      },
+      "outcomeFor": "Attendance of {name}",
+      "hoursFor": "Hours worked by {name}",
+      "placementFor": "Outcome for {name}",
+      "noteFor": "Note about {name}",
+      "notePlaceholder": "Optional",
+      "hoursPlaceholder": "Hours",
+      "hoursUnit": "h",
+      "hoursValue": "{hours} h",
+      "xp": "{value} XP",
+      "was": "Verified: {value}",
+      "problem": {
+        "hoursRequired": "Enter the hours worked",
+        "hoursInvalid": "Between 0.25 and 999 hours"
+      },
+      "bulk": {
+        "label": "Record for the selected volunteers",
+        "selected": "{count} selected",
+        "attended": "Mark attended",
+        "excused": "Excused",
+        "noShow": "No-show",
+        "hoursLabel": "Hours for everyone selected",
+        "hoursPlaceholder": "h",
+        "setHours": "Set hours",
+        "placementLabel": "Outcome for everyone selected",
+        "placement": "Set outcome…",
+        "clear": "Clear"
+      },
+      "footer": {
+        "ready": "{count} recorded",
+        "pending": "{count} not recorded",
+        "hours": "{hours} h in total",
+        "notEnded": "You can submit once the event ends, {when}.",
+        "unsaved": "{count, plural, one {# unsaved change} other {# unsaved changes}}",
+        "saved": "All changes saved.",
+        "save": "Save draft",
+        "submit": "Review and submit",
+        "apply": "Review and apply"
+      },
+      "empty": {
+        "title": "No accepted volunteers",
+        "description": "Attendance is recorded for the applicants you accept."
+      },
+      "notOpen": {
+        "title": "Attendance opens when the event starts",
+        "description": "{count, plural, one {You can record the # accepted volunteer from {when}.} other {You can record the # accepted volunteers from {when}.}}"
+      },
+      "awaiting": {
+        "title": "Awaiting verification",
+        "description": "Submitted {when}. An administrator is reviewing it; hours and XP have not been added yet."
+      },
+      "returned": {
+        "title": "An administrator asked for changes",
+        "org": "Returned {when}. Fix the flagged rows and submit again.",
+        "admin": "Returned to the organization {when}."
+      },
+      "verified": {
+        "title": "Verified",
+        "attended": "{count} attended",
+        "hours": "{hours} verified hours",
+        "description": "Verified {when}. Hours and XP have been added.",
+        "applied": "Hours and XP have been added.",
+        "correct": "Request a correction",
+        "edit": "Edit results"
+      },
+      "correction": {
+        "org": "You are correcting verified results. They stay in force until an administrator verifies your correction, and nothing is counted twice.",
+        "admin": "You are changing verified results. Only the rows you change are scored again.",
+        "cancel": "Cancel correction"
+      },
+      "history": {
+        "toggle": "View history",
+        "title": "{count, plural, one {Review history (# entry)} other {Review history (# entries)}}",
+        "actions": {
+          "submitted": "Submitted for verification",
+          "correction_submitted": "Correction submitted",
+          "changes_requested": "Changes requested",
+          "verified": "Verified",
+          "applied": "Recorded by an administrator"
+        }
+      },
+      "savedToast": "Draft saved.",
+      "discardedToast": "Correction cancelled.",
+      "submittedToast": "Submitted for verification.",
+      "appliedToast": "Results applied. Hours and XP were added.",
+      "incompleteNames": "Still to record: {names}."
+    },
+    "finish": {
+      "titleSubmit": "Submit attendance for verification?",
+      "titleCorrection": "Submit this correction?",
+      "titleApply": "Apply these results?",
+      "descriptionSubmit": "An administrator checks the results before anything is added.",
+      "descriptionApply": "Hours and XP are added as soon as you confirm.",
+      "recorded": "{count, plural, one {# person recorded} other {# people recorded}}",
+      "attended": "{count} attended",
+      "excused": "{count, plural, one {# excused absence} other {# excused absences}}",
+      "noShow": "{count, plural, one {# unexcused no-show} other {# unexcused no-shows}}",
+      "noShowEffect": "Each takes {penalty} XP away from the volunteer.",
+      "hours": "{hours} volunteering hours",
+      "placements": "{winner, plural, one {# winner} other {# winners}} · {contributor, plural, one {# contributor} other {# contributors}}",
+      "issues": "{count, plural, one {# row must be fixed first} other {# rows must be fixed first}}",
+      "problem": {
+        "outcomeRequired": "{name}: attendance not recorded",
+        "hoursRequired": "{name}: hours missing",
+        "hoursInvalid": "{name}: hours out of range"
+      },
+      "moreIssues": "and {count} more",
+      "reason": "What changes and why",
+      "reasonPlaceholder": "Name who is affected, the change and the reason.",
+      "reasonHelp": "The administrator reads this before verifying the correction.",
+      "verifyNote": "An administrator reviews these results. Hours and XP are added after approval.",
+      "applyNote": "Volunteers are notified, and their hours and XP update at once.",
+      "back": "Back to attendance",
+      "working": "Working…",
+      "confirmSubmit": "Submit for verification",
+      "confirmApply": "Apply results",
+      "close": "Close"
+    },
+    "rewards": {
+      "title": "XP rewards",
+      "leadVolunteering": "What volunteers earn for verified attendance.",
+      "leadCompetition": "What participants earn by their verified outcome.",
+      "edit": "Edit",
+      "fields": {
+        "xpPerHour": "Per verified hour",
+        "xpWinner": "Winner",
+        "xpContributor": "Contributor",
+        "xpAttendee": "Attendee",
+        "xpNoShowPenalty": "Unexcused no-show"
+      },
+      "help": {
+        "xpPerHour": "Multiplied by the hours you confirm. 0–100.",
+        "xpWinner": "For the winners. 0–1000.",
+        "xpContributor": "For those who contributed notably. 0–1000.",
+        "xpAttendee": "For everyone else who took part. 0–1000.",
+        "xpNoShowPenalty": "Taken away from accepted volunteers who did not come without notice. 0–500."
+      },
+      "value": "{value} XP",
+      "hourValue": "{value} XP / h",
+      "penaltyValue": "−{value} XP",
+      "locked": "Rewards are fixed once the vacancy is published.",
+      "dialogTitle": "XP rewards",
+      "dialogDescription": "Rewards are fixed once the vacancy is published, so everyone who applies is scored by the same rules.",
+      "invalid": "A whole number from 0 to {max}.",
+      "cancel": "Cancel",
+      "save": "Save rewards",
+      "saving": "Saving…",
+      "saved": "Rewards saved.",
+      "close": "Close"
+    },
+    "errors": {
+      "generic": "That did not work. Try again.",
+      "sessionExpired": "Your session ended. Sign in again.",
+      "network": "No connection to the server. Try again.",
+      "timeout": "The server took too long. Try again.",
+      "unavailable": "The service is unavailable right now. Try again shortly.",
+      "rateLimited": "Too many requests. Wait a moment and try again.",
+      "forbidden": "This account cannot do that.",
+      "notFound": "It no longer exists.",
+      "validationFailed": "Some values are not valid.",
+      "opportunityNotFound": "This vacancy is not available to this account.",
+      "applicationNotFound": "That application no longer exists.",
+      "applicationCannotBeReviewed": "That application can no longer be decided. Reload to see its status.",
+      "duplicateApplication": "An applicant was listed twice.",
+      "noDecisionsToSend": "There are no decisions to send.",
+      "opportunityAtCapacity": "Accepting them all would go over the places available.",
+      "opportunityArchived": "This vacancy is archived, so no one can be accepted.",
+      "stagedApplicationsChanged": "Some applicants withdrew. Their decisions were removed.",
+      "instructionsAlreadySent": "Every accepted applicant already has these instructions.",
+      "noAcceptedApplicants": "Accept applicants before sending instructions.",
+      "instructionsMessageRequired": "Write a message first.",
+      "instructionsNotFound": "No instructions have been sent yet.",
+      "telegramGroupLinkInvalid": "Use a Telegram link such as https://t.me/your_group.",
+      "attendanceNotOpen": "Attendance is not open yet.",
+      "attendanceSheetSubmitted": "These results are with an administrator and cannot be changed now.",
+      "attendanceSheetNotSubmitted": "These results have not been submitted.",
+      "attendanceNoChanges": "Nothing differs from the verified results.",
+      "correctionReasonRequired": "Explain what changes and why.",
+      "attendanceIncomplete": "Some rows still need an outcome or hours.",
+      "attendanceNothingToSubmit": "There is no one to record.",
+      "attendanceDraftNotDiscardable": "There is no draft to cancel.",
+      "attendanceNeedsVerification": "An administrator must verify these results.",
+      "attendanceNotFound": "A volunteer is no longer on this list. Reload.",
+      "duplicateAttendanceApplication": "A volunteer was listed twice.",
+      "competitionHoursNotAllowed": "Competitions record outcomes, not hours.",
+      "opportunityRewardsLocked": "Rewards are fixed once the vacancy is published.",
+      "opportunityNotEditable": "This vacancy cannot be edited now."
+    },
+    "list": {
+      "staged": "{decision} · not sent",
+      "review": "Review in vacancy",
+      "decide": "Decide with the other applicants",
+      "decideDescription": "Decisions for this vacancy are prepared together on its Applications tab and sent in one go after you review them."
+    },
+    "verify": {
+      "title": "Results waiting for your verification",
+      "titleCorrection": "A correction waiting for your verification",
+      "submitted": "Submitted {when} by {organization} · revision {revision}",
+      "reason": "Their reason:",
+      "caption": "Submitted attendance, with flags",
+      "xpTotal": "{value} XP in total",
+      "columns": {
+        "xp": "XP if verified",
+        "flag": "Flag"
+      },
+      "flag": "Flag",
+      "unflag": "Unflag",
+      "flagFor": "What is wrong with {name}'s row",
+      "flagPlaceholder": "What should they check?",
+      "flagged": "{count, plural, one {# row flagged} other {# rows flagged}}",
+      "noneFlagged": "Nothing flagged",
+      "help": "Flag a row to send it back with a note, or verify to add hours and XP.",
+      "adjust": "Adjust and apply",
+      "requestChanges": "Request changes",
+      "verify": "Verify and apply",
+      "unflagFirst": "Clear the flags to verify, or request changes.",
+      "returnTitle": "Return these results?",
+      "returnDescription": "{organization} sees your note and the flagged rows, fixes them and submits again. Nothing is added meanwhile.",
+      "note": "Note to the organization",
+      "notePlaceholder": "Please check the 10-hour entry against the attendance record.",
+      "flaggedRows": "{count, plural, one {# flagged row} other {# flagged rows}}",
+      "flagMissing": "add what to check",
+      "noFlagsHint": "Flag rows in the table to point at what needs fixing.",
+      "cancel": "Cancel",
+      "returnConfirm": "Return for changes",
+      "working": "Working…",
+      "close": "Close",
+      "returnedToast": "Returned to the organization.",
+      "verifiedToast": "Verified. Hours and XP were added."
     }
   }
 }
