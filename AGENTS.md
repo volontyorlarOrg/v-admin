@@ -141,7 +141,9 @@ docs/                           stable documentation
 - **Every user-facing string exists in `uz`, `ru` and `en`.** Uzbek uses the
   turned comma `ʻ` (U+02BB); Russian is Cyrillic. A test enforces key parity and
   ICU argument parity. Client components receive labels as props — the root
-  layout passes `messages={null}`.
+  layout passes `messages={null}`. The one exception is the vacancy record's
+  results desks, which read the `results` namespace through `ResultsCopy`; see
+  `docs/architecture/ARCHITECTURE.md`.
 - **A `"use server"` file may export only async functions.** Schemas live beside
   their actions. See
   [`.agent-memory/use-server-exports.md`](.agent-memory/use-server-exports.md).

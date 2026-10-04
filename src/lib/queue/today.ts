@@ -175,6 +175,9 @@ export function rollCallsDue(
       endsAt: application.opportunity?.endsAt,
     };
     if (!timing.startsAt || !isAttendanceOpen(timing, now)) continue;
+    const sheet = vacancy?.attendanceSheet;
+    if (sheet?.status === "submitted") continue;
+    if (sheet?.status === "verified" && !sheet.correction) continue;
 
     const call = calls.get(application.opportunityId) ?? {
       vacancyId: application.opportunityId,

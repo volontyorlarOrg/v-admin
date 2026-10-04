@@ -661,6 +661,7 @@
       "attended": "Keldi",
       "excused": "Sababli",
       "cancelled": "Bekor qilindi",
+      "no_show": "Sababsiz kelmadi",
       "awaiting_confirmation": "Tasdiq kutilmoqda",
       "unknown": "API bu maydonni eʼlon qilmagan"
     },
@@ -682,7 +683,10 @@
       "view": "Ochish",
       "ended": "{when} tugagan",
       "accepted": "{count, plural, other {# koʻngilli qabul qilingan}}",
-      "number": "Raqam"
+      "number": "Raqam",
+      "verify": "Tekshirish",
+      "submittedBy": "{when} da yuborilgan · {organization}",
+      "correction": "Tuzatish"
     },
     "roster": {
       "title": "Ishtirok",
@@ -715,7 +719,10 @@
       "upcomingLabel": "oldinda",
       "upcomingDescription": "Har bir davomat oʻz tadbiri tugagach ochiladi.",
       "recorded": "Belgilangan",
-      "recordedLabel": "belgilangan"
+      "recordedLabel": "belgilangan",
+      "verify": "Tekshiriladigan natijalar",
+      "verifyLabel": "tekshirish uchun",
+      "verifyDescription": "Ularni tashkilotlar yubordi. Siz tasdiqlamaguningizcha hech narsa hisobga olinmaydi."
     }
   },
   "activity": {
@@ -1200,6 +1207,14 @@
         "attended": "{count, plural, other {<n>#</n> ta tadbirda qatnashilgan}}",
         "hours": "{count, plural, other {<n>#</n> soat tasdiqlangan}}"
       }
+    },
+    "verify": {
+      "title": "Tekshiriladigan natijalar",
+      "countLabel": "tekshiriladigan natija",
+      "submitted": "{when} yuborilgan",
+      "correction": "Tasdiqlangan natijalarga tuzatish",
+      "volunteers": "{count, plural, other {# ta volontyor}}",
+      "open": "Tekshirish"
     }
   },
   "blog": {
@@ -1421,6 +1436,428 @@
         "ru": "Ruscha",
         "en": "Inglizcha"
       }
+    }
+  },
+  "results": {
+    "tabs": {
+      "pending": "ta ariza qaror kutmoqda",
+      "sheet": {
+        "draft": "Qoralama",
+        "submitted": "Tekshiruvda",
+        "changes_requested": "Tuzatish soʻralgan",
+        "verified": "Tasdiqlangan",
+        "correction": "Tuzatish"
+      }
+    },
+    "decision": {
+      "choose": "Tanlang",
+      "accept": "Qabul qilish",
+      "hold": "Kutishga qoldirish",
+      "reject": "Rad etish"
+    },
+    "desk": {
+      "title": "{count, plural, other {# ta ariza}}",
+      "pending": "{count} tasi qaror kutmoqda",
+      "acceptedCount": "{count} tasi qabul qilingan",
+      "places": "{capacity} oʻrindan {filled} tasi band",
+      "search": "Arizachilarni qidirish",
+      "filterLabel": "Koʻrsatish",
+      "filters": {
+        "all": "Hammasi",
+        "undecided": "Qaror qilinmagan",
+        "ready": "Yuborishga tayyor",
+        "hold": "Kutishda",
+        "accepted": "Qabul qilingan",
+        "rejected": "Qabul qilinmagan",
+        "withdrawn": "Qaytarib olingan yoki yopilgan"
+      },
+      "bulk": {
+        "label": "Tanlangan arizachilar uchun qaror",
+        "selected": "Bu sahifada {count} ta tanlandi",
+        "accept": "Qabul qilish",
+        "reject": "Rad etish",
+        "hold": "Kutishga qoldirish",
+        "undo": "Qarorni bekor qilish",
+        "clear": "Tanlovni tozalash"
+      },
+      "empty": {
+        "title": "Hali ariza yoʻq",
+        "description": "Volontyorlar ariza yuborgach, ular shu yerda koʻrinadi."
+      },
+      "noMatches": "Bu qidiruv va filtrga mos arizachi yoʻq.",
+      "caption": "Bu vakansiyaga kelgan arizalar va har biri uchun tanlangan qaror",
+      "selectPage": "Bu sahifadagi barcha arizachilarni tanlash",
+      "columns": {
+        "name": "Arizachi",
+        "applied": "Topshirilgan",
+        "status": "Holat",
+        "decision": "Qaror"
+      },
+      "select": "{name}ni tanlash",
+      "appliedShort": "Topshirilgan",
+      "decisionFor": "{name} uchun qaror",
+      "notSent": "Yuborilmagan",
+      "sentOn": "{when} da yuborilgan",
+      "pagination": {
+        "label": "Arizachilar sahifalari",
+        "showing": "{total} tadan {from}–{to}",
+        "previous": "Oldingi sahifa",
+        "next": "Keyingi sahifa"
+      },
+      "footer": {
+        "ready": "{count, plural, other {# ta qaror tayyor}}",
+        "hold": "{count} tasi kutishda",
+        "idle": "Oʻqib chiqilgan arizalar uchun «Qabul qilish» yoki «Rad etish»ni tanlang.",
+        "help": "Koʻrib chiqib yubormaguningizcha arizachilarga hech narsa bormaydi.",
+        "review": "Koʻrib chiqish va yuborish"
+      }
+    },
+    "drawer": {
+      "title": "Ariza",
+      "position": "{total} tadan {index}",
+      "close": "Yopish",
+      "applied": "{when} da topshirilgan",
+      "essay": "Nega qatnashmoqchi",
+      "answers": "Javoblar",
+      "profile": "Ariza bilan yuborilgan profil",
+      "profileNote": "Bu ariza topshirilgan paytdagi profil.",
+      "decision": "Qaror",
+      "decisionFor": "{name} uchun qaror",
+      "chooseHelp": "Tanlovingiz qoralama sifatida saqlanadi. Yubormaguningizcha arizachi hech narsa bilmaydi.",
+      "stagedHelp": "Yuborguningizcha qoralama sifatida saqlanadi.",
+      "holdHelp": "Kutishda: ariza koʻrib chiqilayotgan holatda qoladi, arizachiga hech narsa aytilmaydi.",
+      "sentOn": "Qaror {when} da yuborilgan",
+      "noDecision": "Qaror talab qilinmaydi.",
+      "previous": "Oldingi arizachi",
+      "next": "Keyingi arizachi",
+      "open": "Arizani toʻliq ochish"
+    },
+    "send": {
+      "title": "{count, plural, other {# ta qaror yuborilsinmi?}}",
+      "description": "Yuborishdan oldin har bir arizachi nimani bilishini tekshiring.",
+      "accepted": "{count} tasi qabul qilinadi",
+      "rejected": "{count} tasi qabul qilinmaydi",
+      "held": "{count} tasi koʻrib chiqilayotgan holatda qoladi",
+      "places": "{capacity} oʻrindan {filled} tasi band boʻladi",
+      "acceptedTotal": "jami {count} ta qabul qilingan",
+      "overCapacity": "{count, plural, other {Bu boʻsh oʻrinlardan # taga koʻp. Avval ayrim qabullarni olib tashlang.}}",
+      "notify": "Qabul qilingan va qabul qilinmagan arizachilarga darhol xabar boradi. Kutishdagi va qaror qilinmaganlar koʻrib chiqilayotgan holatda qoladi.",
+      "recheck": "Yuborish paytida arizalar yana tekshiriladi. Tanlaganingizdan keyin kimdir arizasini qaytarib olgan boʻlsa, hech narsa yuborilmaydi va qayta koʻrib chiqasiz.",
+      "back": "Koʻrib chiqishga qaytish",
+      "confirm": "{count, plural, other {# ta qarorni yuborish}}",
+      "sending": "Yuborilmoqda…",
+      "close": "Yopish",
+      "success": "Yuborildi: {accepted} tasi qabul qilindi, {rejected} tasi qabul qilinmadi.",
+      "withdrawnTitle": "{count, plural, other {# ta arizachi arizasini qaytarib oldi. Hech narsa yuborilmadi.}}",
+      "withdrawnDescription": "Ularning qarorlari olib tashlandi: {names}. Roʻyxatni koʻrib chiqib, qayta yuboring."
+    },
+    "instructions": {
+      "title": "Qabul qilinganlar uchun yoʻriqnoma",
+      "description": "{count, plural, other {Qabul qilingan # ta arizachiga yuboriladi va har birining ariza sahifasida koʻrinadi.}}",
+      "recipients": "{count, plural, other {# ta qabul qilingan arizachi}}",
+      "message": "Xabar",
+      "messagePlaceholder": "12-oktabr kuni soat 08:45 da asosiy kirish eshigi oldida uchrashamiz. Shaxsingizni tasdiqlovchi hujjatni olib keling.",
+      "link": "Telegram guruhi havolasi",
+      "optional": "(ixtiyoriy)",
+      "linkHelp": "Arizachilar bu havolani xabar bilan birga oladi.",
+      "linkInvalid": "Telegram havolasini kiriting, masalan https://t.me/your_group.",
+      "send": "Yoʻriqnomani yuborish",
+      "sendUpdate": "Yangilangan yoʻriqnomani yuborish",
+      "sendNew": "{count, plural, other {# ta yangi arizachiga yuborish}}",
+      "allReached": "Hamma oldi",
+      "sending": "Yuborilmoqda…",
+      "sent": "Yoʻriqnoma yuborildi.",
+      "editedHelp": "Oʻzgartirilgan xabar barcha qabul qilinganlarga qayta boradi.",
+      "preview": "Oldindan koʻrish",
+      "previewTitle": "Xabar qanday koʻrinadi",
+      "previewHeading": "Yoʻriqnoma: {title}",
+      "previewHelp": "Bot shunday yuboradi. Xuddi shu matn arizachining sahifasida va bildirishnomalarida ham koʻrinadi.",
+      "close": "Yopish",
+      "delivery": {
+        "title": "Yetkazish",
+        "lastSent": "Oxirgi marta {when} da yuborilgan",
+        "sent": "Telegramga yetkazildi",
+        "notConnected": "Telegram yoʻq — faqat saytda",
+        "failed": "Yuborib boʻlmadi",
+        "pending": "Yuborilmoqda",
+        "retry": "Muvaffaqiyatsizlarini qayta yuborish",
+        "help": "Muvaffaqiyatsiz xabarlarni qayta yuborish mumkin. Yoʻriqnomani olganlar ikkinchi nusxani olmaydi."
+      }
+    },
+    "sheet": {
+      "title": "{count, plural, other {# ta qabul qilingan volontyor}}",
+      "titleCompetition": "{count, plural, other {# ta ishtirokchi}}",
+      "caption": "Qabul qilingan volontyorlar davomati",
+      "status": {
+        "draft": "Qoralama",
+        "submitted": "Tekshiruvda",
+        "changes_requested": "Tuzatish soʻralgan",
+        "verified": "Tasdiqlangan",
+        "correction": "Tuzatish qoralamasi"
+      },
+      "lead": {
+        "org": "Soat va XP qoʻshilishidan oldin administrator natijalarni tekshiradi.",
+        "admin": "Siz qoʻllagan natijalar darhol hisobga olinadi.",
+        "verified": "Bu tasdiqlangan natijalar har bir volontyorning soati va XP sida hisobga olingan."
+      },
+      "summary": {
+        "attended": "{count} tasi keldi",
+        "excused": "{count} tasi sababli",
+        "noShow": "{count} tasi sababsiz kelmadi",
+        "undecided": "{count} tasi belgilanmagan"
+      },
+      "selectAll": "Barcha volontyorlarni tanlash",
+      "select": "{name}ni tanlash",
+      "columns": {
+        "volunteer": "Volontyor",
+        "participant": "Ishtirokchi",
+        "attendance": "Davomat",
+        "hours": "Haqiqiy soatlar",
+        "placement": "Natija",
+        "note": "Izoh",
+        "xpPreview": "Tekshiruvdan keyingi XP",
+        "xp": "Berilgan XP"
+      },
+      "notRecorded": "Belgilanmagan",
+      "outcome": {
+        "attended": "Keldi",
+        "excused": "Sababli kelmadi",
+        "no_show": "Sababsiz kelmadi",
+        "cancelled": "Bekor qilindi"
+      },
+      "placement": {
+        "winner": "Gʻolib",
+        "contributor": "Faol ishtirokchi",
+        "attendee": "Ishtirokchi"
+      },
+      "outcomeFor": "{name} davomati",
+      "hoursFor": "{name} ishlagan soatlar",
+      "placementFor": "{name} natijasi",
+      "noteFor": "{name} haqida izoh",
+      "notePlaceholder": "Ixtiyoriy",
+      "hoursPlaceholder": "Soat",
+      "hoursUnit": "soat",
+      "hoursValue": "{hours} soat",
+      "xp": "{value} XP",
+      "was": "Tasdiqlangan: {value}",
+      "problem": {
+        "hoursRequired": "Ishlangan soatlarni kiriting",
+        "hoursInvalid": "0,25 dan 999 soatgacha"
+      },
+      "bulk": {
+        "label": "Tanlangan volontyorlar uchun belgilash",
+        "selected": "{count} ta tanlandi",
+        "attended": "Keldi deb belgilash",
+        "excused": "Sababli",
+        "noShow": "Kelmadi",
+        "hoursLabel": "Barcha tanlanganlar uchun soat",
+        "hoursPlaceholder": "soat",
+        "setHours": "Soatni belgilash",
+        "placementLabel": "Barcha tanlanganlar uchun natija",
+        "placement": "Natijani belgilash…",
+        "clear": "Tozalash"
+      },
+      "footer": {
+        "ready": "{count} tasi belgilandi",
+        "pending": "{count} tasi belgilanmagan",
+        "hours": "jami {hours} soat",
+        "notEnded": "Tadbir tugagach, {when} dan keyin yuborish mumkin.",
+        "unsaved": "{count, plural, other {# ta saqlanmagan oʻzgarish}}",
+        "saved": "Barcha oʻzgarishlar saqlandi.",
+        "save": "Qoralamani saqlash",
+        "submit": "Koʻrib chiqish va yuborish",
+        "apply": "Koʻrib chiqish va qoʻllash"
+      },
+      "empty": {
+        "title": "Qabul qilingan volontyor yoʻq",
+        "description": "Davomat siz qabul qilgan arizachilar uchun belgilanadi."
+      },
+      "notOpen": {
+        "title": "Davomat tadbir boshlanganda ochiladi",
+        "description": "{count, plural, other {Qabul qilingan # ta volontyorni {when} dan belgilash mumkin.}}"
+      },
+      "awaiting": {
+        "title": "Tekshiruvda",
+        "description": "{when} da yuborilgan. Administrator koʻrib chiqmoqda; soat va XP hali qoʻshilmagan."
+      },
+      "returned": {
+        "title": "Administrator tuzatish soʻradi",
+        "org": "{when} da qaytarilgan. Belgilangan qatorlarni tuzatib, qayta yuboring.",
+        "admin": "{when} da tashkilotga qaytarilgan."
+      },
+      "verified": {
+        "title": "Tasdiqlangan",
+        "attended": "{count} tasi keldi",
+        "hours": "{hours} soat tasdiqlangan",
+        "description": "{when} da tasdiqlangan. Soat va XP qoʻshildi.",
+        "applied": "Soat va XP qoʻshildi.",
+        "correct": "Tuzatish soʻrash",
+        "edit": "Natijalarni oʻzgartirish"
+      },
+      "correction": {
+        "org": "Siz tasdiqlangan natijalarni tuzatyapsiz. Administrator tuzatishni tasdiqlamaguncha ular amalda qoladi va hech narsa ikki marta hisoblanmaydi.",
+        "admin": "Siz tasdiqlangan natijalarni oʻzgartiryapsiz. Faqat oʻzgartirilgan qatorlar qayta hisoblanadi.",
+        "cancel": "Tuzatishni bekor qilish"
+      },
+      "history": {
+        "toggle": "Tarixni koʻrish",
+        "title": "{count, plural, other {Tekshiruv tarixi (# ta yozuv)}}",
+        "actions": {
+          "submitted": "Tekshiruvga yuborildi",
+          "correction_submitted": "Tuzatish yuborildi",
+          "changes_requested": "Tuzatish soʻraldi",
+          "verified": "Tasdiqlandi",
+          "applied": "Administrator belgiladi"
+        }
+      },
+      "savedToast": "Qoralama saqlandi.",
+      "discardedToast": "Tuzatish bekor qilindi.",
+      "submittedToast": "Tekshiruvga yuborildi.",
+      "appliedToast": "Natijalar qoʻllandi. Soat va XP qoʻshildi.",
+      "incompleteNames": "Hali belgilanmagan: {names}."
+    },
+    "finish": {
+      "titleSubmit": "Davomat tekshiruvga yuborilsinmi?",
+      "titleCorrection": "Tuzatish yuborilsinmi?",
+      "titleApply": "Natijalar qoʻllansinmi?",
+      "descriptionSubmit": "Biror narsa qoʻshilishidan oldin administrator natijalarni tekshiradi.",
+      "descriptionApply": "Tasdiqlashingiz bilan soat va XP qoʻshiladi.",
+      "recorded": "{count, plural, other {# kishi belgilandi}}",
+      "attended": "{count} tasi keldi",
+      "excused": "{count, plural, other {# ta sababli kelmaslik}}",
+      "noShow": "{count, plural, other {# ta sababsiz kelmaslik}}",
+      "noShowEffect": "Har biri volontyordan {penalty} XP ayiradi.",
+      "hours": "{hours} volontyorlik soati",
+      "placements": "{winner, plural, other {# ta gʻolib}} · {contributor, plural, other {# ta faol ishtirokchi}}",
+      "issues": "{count, plural, other {Avval # ta qatorni tuzating}}",
+      "problem": {
+        "outcomeRequired": "{name}: davomat belgilanmagan",
+        "hoursRequired": "{name}: soat kiritilmagan",
+        "hoursInvalid": "{name}: soat ruxsat etilgan oraliqda emas"
+      },
+      "moreIssues": "va yana {count} ta",
+      "reason": "Nima oʻzgaradi va nima uchun",
+      "reasonPlaceholder": "Kimga taalluqli ekani, nima oʻzgarishi va sababini yozing.",
+      "reasonHelp": "Administrator tuzatishni tasdiqlashdan oldin buni oʻqiydi.",
+      "verifyNote": "Administrator natijalarni koʻrib chiqadi. Soat va XP tasdiqlangandan keyin qoʻshiladi.",
+      "applyNote": "Volontyorlarga xabar boradi, ularning soati va XP darhol yangilanadi.",
+      "back": "Davomatga qaytish",
+      "working": "Bajarilmoqda…",
+      "confirmSubmit": "Tekshiruvga yuborish",
+      "confirmApply": "Natijalarni qoʻllash",
+      "close": "Yopish"
+    },
+    "rewards": {
+      "title": "XP mukofotlari",
+      "leadVolunteering": "Volontyorlar tasdiqlangan ishtirok uchun nima oladi.",
+      "leadCompetition": "Ishtirokchilar tasdiqlangan natijasi uchun nima oladi.",
+      "edit": "Oʻzgartirish",
+      "fields": {
+        "xpPerHour": "Har bir tasdiqlangan soat uchun",
+        "xpWinner": "Gʻolib",
+        "xpContributor": "Faol ishtirokchi",
+        "xpAttendee": "Ishtirokchi",
+        "xpNoShowPenalty": "Sababsiz kelmaslik"
+      },
+      "help": {
+        "xpPerHour": "Tasdiqlangan soatlarga koʻpaytiriladi. 0 dan 100 gacha.",
+        "xpWinner": "Gʻoliblar uchun. 0 dan 1000 gacha.",
+        "xpContributor": "Ayniqsa faol boʻlganlar uchun. 0 dan 1000 gacha.",
+        "xpAttendee": "Qolgan barcha ishtirokchilar uchun. 0 dan 1000 gacha.",
+        "xpNoShowPenalty": "Ogohlantirmasdan kelmagan qabul qilingan volontyorlardan ayiriladi. 0 dan 500 gacha."
+      },
+      "value": "{value} XP",
+      "hourValue": "{value} XP / soat",
+      "penaltyValue": "−{value} XP",
+      "locked": "Vakansiya eʼlon qilingach, mukofotlar oʻzgarmaydi.",
+      "dialogTitle": "XP mukofotlari",
+      "dialogDescription": "Vakansiya eʼlon qilingach, mukofotlar oʻzgarmaydi, shunda barcha arizachilar bir xil qoidalar bilan baholanadi.",
+      "invalid": "0 dan {max} gacha butun son.",
+      "cancel": "Bekor qilish",
+      "save": "Mukofotlarni saqlash",
+      "saving": "Saqlanmoqda…",
+      "saved": "Mukofotlar saqlandi.",
+      "close": "Yopish"
+    },
+    "errors": {
+      "generic": "Bajarilmadi. Qayta urinib koʻring.",
+      "sessionExpired": "Seans tugadi. Qayta kiring.",
+      "network": "Server bilan aloqa yoʻq. Qayta urinib koʻring.",
+      "timeout": "Server oʻz vaqtida javob bermadi. Qayta urinib koʻring.",
+      "unavailable": "Xizmat hozir ishlamayapti. Birozdan keyin urinib koʻring.",
+      "rateLimited": "Soʻrovlar juda koʻp. Biroz kuting.",
+      "forbidden": "Bu hisob buni qila olmaydi.",
+      "notFound": "Bu endi mavjud emas.",
+      "validationFailed": "Baʼzi qiymatlar notoʻgʻri.",
+      "opportunityNotFound": "Bu vakansiya ushbu hisob uchun mavjud emas.",
+      "applicationNotFound": "Bunday ariza endi yoʻq.",
+      "applicationCannotBeReviewed": "Bu ariza boʻyicha endi qaror qilib boʻlmaydi. Sahifani yangilang.",
+      "duplicateApplication": "Arizachi ikki marta koʻrsatilgan.",
+      "noDecisionsToSend": "Yuboriladigan qaror yoʻq.",
+      "opportunityAtCapacity": "Hammasi qabul qilinsa, oʻrinlar yetmaydi.",
+      "opportunityArchived": "Vakansiya arxivda, hech kimni qabul qilib boʻlmaydi.",
+      "stagedApplicationsChanged": "Baʼzi arizachilar arizasini qaytarib oldi. Ularning qarorlari olib tashlandi.",
+      "instructionsAlreadySent": "Barcha qabul qilinganlar bu yoʻriqnomani allaqachon olgan.",
+      "noAcceptedApplicants": "Avval arizachilarni qabul qiling.",
+      "instructionsMessageRequired": "Avval xabar yozing.",
+      "instructionsNotFound": "Yoʻriqnoma hali yuborilmagan.",
+      "telegramGroupLinkInvalid": "Telegram havolasini kiriting, masalan https://t.me/your_group.",
+      "attendanceNotOpen": "Davomat hali ochilmagan.",
+      "attendanceSheetSubmitted": "Natijalar administratorda, hozir ularni oʻzgartirib boʻlmaydi.",
+      "attendanceSheetNotSubmitted": "Bu natijalar yuborilmagan.",
+      "attendanceNoChanges": "Tasdiqlangan natijalardan hech qanday farq yoʻq.",
+      "correctionReasonRequired": "Nima oʻzgarishi va sababini tushuntiring.",
+      "attendanceIncomplete": "Baʼzi qatorlarda davomat yoki soat yoʻq.",
+      "attendanceNothingToSubmit": "Belgilanadigan hech kim yoʻq.",
+      "attendanceDraftNotDiscardable": "Bekor qilinadigan qoralama yoʻq.",
+      "attendanceNeedsVerification": "Bu natijalarni administrator tasdiqlashi kerak.",
+      "attendanceNotFound": "Volontyor endi roʻyxatda yoʻq. Sahifani yangilang.",
+      "duplicateAttendanceApplication": "Volontyor ikki marta koʻrsatilgan.",
+      "competitionHoursNotAllowed": "Tanlovlarda soat emas, natija belgilanadi.",
+      "opportunityRewardsLocked": "Vakansiya eʼlon qilingach, mukofotlar oʻzgarmaydi.",
+      "opportunityNotEditable": "Hozir bu vakansiyani oʻzgartirib boʻlmaydi."
+    },
+    "list": {
+      "staged": "{decision} · yuborilmagan",
+      "review": "Vakansiyada koʻrib chiqish",
+      "decide": "Boshqa arizachilar bilan birga hal qilish",
+      "decideDescription": "Bu vakansiya boʻyicha qarorlar «Arizalar» boʻlimida birga tayyorlanadi va koʻrib chiqilgach, bir martada yuboriladi."
+    },
+    "verify": {
+      "title": "Natijalar tekshiruvingizni kutmoqda",
+      "titleCorrection": "Tuzatish tekshiruvingizni kutmoqda",
+      "submitted": "{when} da {organization} yubordi · {revision}-versiya",
+      "reason": "Sababi:",
+      "caption": "Belgilar bilan yuborilgan davomat",
+      "xpTotal": "jami {value} XP",
+      "columns": {
+        "xp": "Tasdiqlansa XP",
+        "flag": "Belgi"
+      },
+      "flag": "Belgilash",
+      "unflag": "Belgini olish",
+      "flagFor": "{name} qatorida nima notoʻgʻri",
+      "flagPlaceholder": "Nimani tekshirish kerak?",
+      "flagged": "{count, plural, other {# ta qator belgilandi}}",
+      "noneFlagged": "Hech narsa belgilanmagan",
+      "help": "Qatorni izoh bilan qaytarish uchun belgilang yoki soat va XP qoʻshish uchun tasdiqlang.",
+      "adjust": "Tuzatib qoʻllash",
+      "requestChanges": "Tuzatish soʻrash",
+      "verify": "Tasdiqlash va qoʻllash",
+      "unflagFirst": "Tasdiqlash uchun belgilarni oling yoki tuzatish soʻrang.",
+      "returnTitle": "Natijalar qaytarilsinmi?",
+      "returnDescription": "{organization} izohingiz va belgilangan qatorlarni koʻradi, ularni tuzatib, qayta yuboradi. Shu paytgacha hech narsa qoʻshilmaydi.",
+      "note": "Tashkilotga izoh",
+      "notePlaceholder": "10 soatlik yozuvni davomat jurnali bilan solishtiring.",
+      "flaggedRows": "{count, plural, other {# ta belgilangan qator}}",
+      "flagMissing": "nimani tekshirishni yozing",
+      "noFlagsHint": "Nimani tuzatish kerakligini koʻrsatish uchun jadvaldagi qatorlarni belgilang.",
+      "cancel": "Bekor qilish",
+      "returnConfirm": "Tuzatishga qaytarish",
+      "working": "Bajarilmoqda…",
+      "close": "Yopish",
+      "returnedToast": "Tashkilotga qaytarildi.",
+      "verifiedToast": "Tasdiqlandi. Soat va XP qoʻshildi."
     }
   }
 }

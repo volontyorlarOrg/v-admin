@@ -14,7 +14,12 @@ import { buttonClass } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
 import { failureOf, isReady } from "@/lib/api/load";
 import { loadApplications } from "@/lib/applications/data.server";
-import { groupAttendance, type AttendanceGroup } from "@/lib/attendance/queue";
+import {
+  groupAttendance,
+  groupStage,
+  type AttendanceGroup,
+} from "@/lib/attendance/queue";
+import { loadVerificationQueue } from "@/lib/results/data.server";
 import { vacancyHref } from "@/lib/routing/routes";
 import { loadVacancies } from "@/lib/vacancies/data.server";
 
@@ -40,19 +45,26 @@ export default async function AttendancePage({
   ]);
 
   const now = new Date();
-  const [applications, vacancies] = await Promise.all([
+  const [applications, vacancies, queue] = await Promise.all([
     loadApplications({ status: "accepted" }),
     loadVacancies(),
+    loadVerificationQueue(),
   ]);
+  const toVerify = isReady(queue) ? queue.data.items : [];
   const failure = failureOf(applications) ?? failureOf(vacancies);
   const groups =
     isReady(applications) && isReady(vacancies)
       ? groupAttendance(applications.data, now, vacancies.data)
       : [];
-  const due = groups.filter((group) => group.open && group.unresolved.length > 0);
-  const upcoming = groups.filter((group) => !group.open);
+  const stageOf = new Map(groups.map((group) => [group.vacancyId, groupStage(group)]));
+  const due = groups.filter((group) =>
+    ["due", "returned"].includes(stageOf.get(group.vacancyId) ?? ""),
+  );
+  const upcoming = groups.filter(
+    (group) => stageOf.get(group.vacancyId) === "upcoming",
+  );
   const recorded = groups.filter(
-    (group) => group.open && group.unresolved.length === 0,
+    (group) => stageOf.get(group.vacancyId) === "verified",
   );
 
   const rows = (list: AttendanceGroup[], kind: "due" | "upcoming" | "recorded") => (
@@ -104,7 +116,7 @@ export default async function AttendancePage({
           </QueueSide>
           <div className={`flex ${QUEUE_ACTIONS}`}>
             <Link
-              href={`${vacancyHref(group.vacancyId)}#roll-call`}
+              href={`${vacancyHref(group.vacancyId)}?tab=attendance`}
               className={buttonClass({
                 size: "row",
                 variant: kind === "due" ? "primary" : "outline",
@@ -127,6 +139,61 @@ export default async function AttendancePage({
 
       {isReady(applications) && isReady(vacancies) ? (
         <>
+          {toVerify.length > 0 ? (
+            <Register
+              id="verify"
+              title={t("sections.verify")}
+              count={toVerify.length}
+              countLabel={t("sections.verifyLabel")}
+              countTone="waiting"
+              description={t("sections.verifyDescription")}
+            >
+              <ol className="divide-y divide-border">
+                {toVerify.map((item, index) => (
+                  <QueueRow
+                    key={item.opportunityId}
+                    number={index + 1}
+                    numberLabel={t("queue.number")}
+                  >
+                    <QueueMain
+                      title={
+                        <Link
+                          href={`${vacancyHref(item.opportunityId)}?tab=attendance`}
+                          className="hover:text-primary-ink hover:underline"
+                        >
+                          {item.title}
+                        </Link>
+                      }
+                      meta={t("queue.submittedBy", {
+                        when: item.submittedAt
+                          ? format.relativeTime(new Date(item.submittedAt), now)
+                          : "",
+                        organization: item.organization?.name ?? "",
+                      })}
+                    />
+                    <QueueSide>
+                      <span>{t("queue.accepted", { count: item.volunteers })}</span>
+                      {item.correction ? (
+                        <span className="font-semibold text-accent-ink">
+                          {t("queue.correction")}
+                        </span>
+                      ) : null}
+                    </QueueSide>
+                    <div className={`flex ${QUEUE_ACTIONS}`}>
+                      <Link
+                        href={`${vacancyHref(item.opportunityId)}?tab=attendance`}
+                        className={buttonClass({ size: "row" })}
+                      >
+                        {t("queue.verify")}
+                        <span className="sr-only"> — {item.title}</span>
+                      </Link>
+                    </div>
+                  </QueueRow>
+                ))}
+              </ol>
+            </Register>
+          ) : null}
+
           <Register
             id="due"
             title={t("sections.due")}
