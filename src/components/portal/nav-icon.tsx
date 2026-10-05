@@ -1,4 +1,5 @@
 import {
+  Award,
   Building2,
   BookOpen,
   CalendarCheck,
@@ -19,6 +20,7 @@ import {
 } from "lucide-react";
 
 const ICONS: Record<string, LucideIcon> = {
+  award: Award,
   "building-2": Building2,
   "book-open": BookOpen,
   "calendar-check": CalendarCheck,

@@ -14,7 +14,8 @@ export type AuditSubjectKind =
   | "volunteer"
   | "organization"
   | "attendance"
-  | "account";
+  | "account"
+  | "bulkAward";
 
 export type AuditSubject = { kind: AuditSubjectKind; href: string | null };
 
@@ -26,6 +27,11 @@ export function subjectOf(
   const id = event.entityId;
 
   if (type === "opportunity") return { kind: "vacancy", href: vacancyHref(id) };
+  if (type === "bulkaward")
+    return {
+      kind: "bulkAward",
+      href: `${navHref("bulkAwards")}/${encodeURIComponent(id)}`,
+    };
   if (type === "application") return { kind: "application", href: applicationHref(id) };
   if (type === "organization")
     return { kind: "organization", href: navHref("organizations") };

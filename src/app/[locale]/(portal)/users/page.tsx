@@ -5,6 +5,7 @@ import { Avatar } from "@/components/portal/avatar";
 import { Register, RegisterNote, RegisterSearch } from "@/components/register/register";
 import { LoadFailure } from "@/components/states/load-failure";
 import { PageHeader } from "@/components/states/page-header";
+import { buttonClass } from "@/components/ui/button";
 import { Pagination } from "@/components/states/pagination";
 import {
   Table,
@@ -60,7 +61,18 @@ export default async function UsersPage({
 
   return (
     <>
-      <PageHeader title={t("title")} description={t("description")} />
+      <PageHeader
+        title={t("title")}
+        description={t("description")}
+        actions={
+          <Link
+            href={navHref("bulkAwards")}
+            className={buttonClass({ variant: "outline", size: "sm" })}
+          >
+            {t("bulkAwards")}
+          </Link>
+        }
+      />
 
       {failure ? <LoadFailure failure={failure} /> : null}
 
