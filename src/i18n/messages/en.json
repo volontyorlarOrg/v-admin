@@ -53,7 +53,8 @@
       "pendingReview": "applications to decide",
       "attendanceDue": "volunteers to record"
     },
-    "blog": "Blog"
+    "blog": "Blog",
+    "bulkAwards": "Bulk awards"
   },
   "auth": {
     "metaTitle": "Sign in",
@@ -647,7 +648,8 @@
       },
       "unknownAuthor": "Not recorded",
       "xpChange": "{value} XP",
-      "hoursChange": "{value} h"
+      "hoursChange": "{value} h",
+      "fromBulkAward": "Bulk award"
     },
     "pastEvents": {
       "heading": "Past events",
@@ -683,7 +685,8 @@
         "submissionConflict": "This submission was already used. Refresh the page and try again.",
         "organizationNotFound": "Choose an existing organization."
       }
-    }
+    },
+    "bulkAwards": "Bulk awards"
   },
   "attendance": {
     "title": "Attendance",
@@ -1044,7 +1047,8 @@
       "volunteer": "Volunteer",
       "organization": "Organization",
       "attendance": "Attendance record",
-      "account": "Account"
+      "account": "Account",
+      "bulkAward": "Bulk award"
     },
     "details": {
       "closedByArchive": "Closed when the vacancy was archived",
@@ -1077,7 +1081,9 @@
       "user_username_changed": "Username changed",
       "user_avatar_updated": "Photo updated",
       "user_avatar_removed": "Photo removed",
-      "user_progress_adjusted": "XP and hours adjusted"
+      "user_progress_adjusted": "XP and hours adjusted",
+      "bulk_award_created": "Bulk award given",
+      "bulk_award_revoked": "Bulk award taken back"
     }
   },
   "vocabulary": {
@@ -1899,6 +1905,112 @@
       "close": "Close",
       "returnedToast": "Returned to the organization.",
       "verifiedToast": "Verified. Hours and XP were added."
+    }
+  },
+  "bulkAwards": {
+    "title": "Bulk awards",
+    "description": "Give the same XP and hours to many volunteers in one step. It applies immediately, and you can take it back.",
+    "search": "Search by name, username or email",
+    "unknownPerson": "not recorded",
+    "xpAmount": "+{value, number} XP",
+    "hoursAmount": "+{value, number} h",
+    "history": {
+      "title": "Given awards",
+      "countLabel": "awards",
+      "meta": "{recipients, plural, one {# volunteer} other {# volunteers}} · {by} · {date}",
+      "revoked": "Taken back",
+      "emptyTitle": "No awards yet",
+      "emptyDescription": "Awards you give appear here, newest first."
+    },
+    "detail": {
+      "title": "Bulk award",
+      "given": "Given {date} by {by}",
+      "summary": "Award summary",
+      "recipients": "Volunteers",
+      "xpEach": "XP each",
+      "hoursEach": "Hours each",
+      "scope": "Given to",
+      "scopeAll": "Every active volunteer at the time",
+      "scopeSelected": "Chosen volunteers",
+      "total": "In total",
+      "skipped": "Left out",
+      "skippedValue": "{count, plural, one {# chosen account} other {# chosen accounts}} could no longer receive awards",
+      "recipientsTitle": "Who received it",
+      "noMatches": "Nobody matches this search.",
+      "revokedTitle": "Taken back",
+      "revokedDescription": "Taken back {date} by {by}. The XP and hours were removed from every volunteer's record.",
+      "countLabel": "volunteers"
+    },
+    "revoke": {
+      "title": "Take it back",
+      "description": "Removes these XP and hours from every volunteer who received them. Use it to undo a mistake; the award stays in the history.",
+      "trigger": "Take back award",
+      "dialogTitle": "Take back this award?",
+      "dialogDescription": "This removes {amounts} from each of {recipients, plural, one {# volunteer} other {# volunteers}}. The award stays in the history, marked as taken back.",
+      "submit": "Take it back",
+      "pending": "Taking back…",
+      "success": "Award taken back"
+    },
+    "composer": {
+      "who": "Who receives it",
+      "scopeLabel": "Who receives it",
+      "scopeSelected": "Chosen volunteers",
+      "scopeAll": "Everyone",
+      "everyoneTitle": "Active volunteers: {count}",
+      "everyoneHelp": "Everyone with an active volunteer account when you confirm. Your own account is left out, and people who join later don't receive it.",
+      "selected": "Chosen: {count}",
+      "selectPage": "Everyone on this page",
+      "selectMatching": "Choose all results ({count})",
+      "selecting": "Choosing…",
+      "selectionTruncated": "Only the first 10,000 were chosen.",
+      "clear": "Clear",
+      "remove": "Remove {name}",
+      "more": "+{count} more",
+      "noMatches": "No volunteers match this search.",
+      "noVolunteers": "There are no active volunteers yet.",
+      "currentXp": "{value} XP",
+      "what": "What each one gets",
+      "xp": "XP",
+      "hours": "Hours",
+      "amountHelp": "Leave one empty to give only the other. Hours given here don't add XP by themselves.",
+      "reason": "Reason",
+      "reasonHelp": "Shown on every volunteer's record and kept in the audit history.",
+      "summaryRecipients": "Volunteers",
+      "summaryEach": "Each gets",
+      "summaryTotal": "In total",
+      "xpValue": "+{value} XP",
+      "hoursValue": "+{value} h",
+      "review": "Review award",
+      "reviewHint": "Nothing changes until you confirm on the next step.",
+      "confirmTitle": "Give this award?",
+      "confirmDescription": "It's added to every volunteer's record the moment you confirm. You can take it back later from the award's page.",
+      "everyoneSummary": "Every active volunteer",
+      "confirm": "Give award",
+      "pending": "Giving…",
+      "cancel": "Cancel",
+      "close": "Close",
+      "successTitle": "Award given",
+      "successBody": "Their records, leaderboard places and profiles already include it.",
+      "skipped": "Left out because the account can no longer receive awards: {count}",
+      "viewAward": "Open the award",
+      "newAward": "Give another award",
+      "toast": "Award given",
+      "error": "The award couldn't be given. Try again."
+    },
+    "errors": {
+      "adjustmentEmpty": "Enter XP, hours or both.",
+      "amountInvalid": "Use a whole number of XP and at most two decimals for hours.",
+      "amountTooLarge": "That's more than one award allows: up to 100,000 XP and 999 hours each.",
+      "reasonRequired": "Write a reason.",
+      "reasonTooLong": "Keep the reason under 500 characters.",
+      "bulkAwardSelectionInvalid": "Choose at least one volunteer, or switch to Everyone.",
+      "bulkAwardInputInvalid": "Check the amounts, the reason and who receives it.",
+      "bulkAwardNoRecipients": "None of the chosen volunteers can receive awards any more. Refresh the page and choose again.",
+      "bulkAwardSubmissionConflict": "This award was already given with different details. Check the award history.",
+      "bulkAwardNotFound": "This award no longer exists.",
+      "progressBelowZero": "Taking it back would leave someone below zero hours because of a later correction. Fix that volunteer's record first.",
+      "selectAllFailed": "Couldn't choose the results. Try again.",
+      "sessionExpired": "Your session ended. Sign in again."
     }
   }
 }

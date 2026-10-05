@@ -3,6 +3,15 @@ import { describe, expect, it } from "vitest";
 import { subjectOf } from "@/lib/audit/describe";
 
 describe("what an audit event touched", () => {
+  it("links a bulk award to its page, where it can be reviewed or taken back", () => {
+    expect(
+      subjectOf({
+        action: "bulk_award.revoked",
+        entityType: "BulkAward",
+        entityId: "award-1",
+      }),
+    ).toEqual({ kind: "bulkAward", href: "/bulk-awards/award-1" });
+  });
   it("links vacancies, applications and organizations to their pages", () => {
     expect(
       subjectOf({
