@@ -341,6 +341,7 @@ function reset() {
       },
     ],
     progressAdjustments: [],
+    manualPastEvents: [],
     sheets: {},
     instructions: {},
     sessions: new Map(),
@@ -368,7 +369,8 @@ function acceptedWithAttendance(item) {
 function verifiedValues(attendance) {
   return {
     outcome: attendance.outcome,
-    hours: attendance.confirmedHours === null ? null : Number(attendance.confirmedHours),
+    hours:
+      attendance.confirmedHours === null ? null : Number(attendance.confirmedHours),
     placement: attendance.placement ?? null,
     note: attendance.note ?? null,
   };
@@ -379,13 +381,17 @@ function sheetView(item) {
   const accepted = acceptedWithAttendance(item);
   const resolved =
     accepted.length > 0 &&
-    accepted.every((candidate) => candidate.attendance.outcome !== "awaiting_confirmation");
+    accepted.every(
+      (candidate) => candidate.attendance.outcome !== "awaiting_confirmation",
+    );
   const organization = state.organizations.find((o) => o.id === item.organizationId);
   return {
     opportunityId: item.id,
     title: item.title,
     kind: item.kind,
-    organization: organization ? { id: organization.id, name: organization.name } : null,
+    organization: organization
+      ? { id: organization.id, name: organization.name }
+      : null,
     estimatedTotalHours:
       item.estimatedTotalHours === null ? null : Number(item.estimatedTotalHours),
     rules: RULES,
@@ -506,7 +512,6 @@ const REQUIRED_PROFILE_FIELDS = [
   "school",
   "gradeYear",
   "languages",
-  "phone",
   "telegram",
 ];
 
@@ -760,10 +765,24 @@ function progressOf(volunteerId) {
     (total, item) => total + item.hoursDelta,
     0,
   );
+  const manual = state.manualPastEvents.filter(
+    (item) => item.volunteerId === volunteerId && item.countsTowardProgress,
+  );
   return {
-    xp: attended.length * 50 + Math.round(attendedHours * 10) + xpAdjustment,
-    hours: Math.round((attendedHours + hoursAdjustment) * 100) / 100,
+    xp:
+      attended.length * 50 +
+      Math.round(attendedHours * 10) +
+      manual.reduce((total, item) => total + item.xpAwarded, 0) +
+      xpAdjustment,
+    hours:
+      Math.round(
+        (attendedHours +
+          manual.reduce((total, item) => total + item.hours, 0) +
+          hoursAdjustment) *
+          100,
+      ) / 100,
     attendedHours,
+    manualAttended: manual.length,
     xpAdjustment,
     hoursAdjustment,
     adjustments: adjustments.map((item) => ({
@@ -902,7 +921,10 @@ const server = createServer(async (request, response) => {
     const sheet = sheetEvent(item, "submitted", null, organizer);
     sheet.revision += 1;
     sheet.events[0].revision = sheet.revision;
-    Object.assign(sheet, { status: "submitted", submittedAt: new Date().toISOString() });
+    Object.assign(sheet, {
+      status: "submitted",
+      submittedAt: new Date().toISOString(),
+    });
     return send(response, 200, sheetView(item));
   }
 
@@ -1161,7 +1183,12 @@ const server = createServer(async (request, response) => {
             confirmedById: actor.id,
             draft: null,
           });
-          record("attendance.resolved", "attendance", candidate.attendance.id, actor.id);
+          record(
+            "attendance.resolved",
+            "attendance",
+            candidate.attendance.id,
+            actor.id,
+          );
         }
         candidate.attendance.reviewNote = null;
       }
@@ -1220,7 +1247,8 @@ const server = createServer(async (request, response) => {
         return send(response, 409, { code: "noDecisionsToSend" });
       }
       for (const candidate of staged) {
-        candidate.status = candidate.stagedDecision === "accept" ? "accepted" : "rejected";
+        candidate.status =
+          candidate.stagedDecision === "accept" ? "accepted" : "rejected";
         candidate.reviewedAt = new Date().toISOString();
         candidate.stagedDecision = null;
         if (candidate.status === "accepted" && !candidate.attendance) {
@@ -1235,7 +1263,12 @@ const server = createServer(async (request, response) => {
             opportunityId: item.id,
           };
         }
-        record(`application.${candidate.status}`, "application", candidate.id, actor.id);
+        record(
+          `application.${candidate.status}`,
+          "application",
+          candidate.id,
+          actor.id,
+        );
       }
       const accepted = staged.filter((candidate) => candidate.status === "accepted");
       return send(response, 200, {
@@ -1582,6 +1615,81 @@ const server = createServer(async (request, response) => {
     return send(response, 200, directory(reachable.map(publicUser), url));
   }
 
+  const pastEventMatch = /^\/admin\/users\/([^/]+)\/past-events(?:\/([^/]+))?$/.exec(
+    path,
+  );
+  if (pastEventMatch) {
+    if (!isAdmin(actor)) return send(response, 403, { code: "forbidden" });
+    const [, volunteerId, eventId] = pastEventMatch;
+    const target = userById(volunteerId);
+    if (!target?.roles.includes("volunteer")) {
+      return send(response, 404, { code: "userNotFound" });
+    }
+    const existing = state.manualPastEvents.find(
+      (item) => item.id === eventId && item.volunteerId === volunteerId,
+    );
+    if (eventId && !existing) {
+      return send(response, 404, { code: "pastEventNotFound" });
+    }
+    if ((method === "POST" && !eventId) || (method === "PUT" && eventId)) {
+      const organization = state.organizations.find(
+        (item) => item.id === body.organizationId,
+      );
+      if (!organization) {
+        return send(response, 404, { code: "organizationNotFound" });
+      }
+      if (body.eventDate >= new Date().toISOString().slice(0, 10)) {
+        return send(response, 422, { code: "pastEventDateInvalid" });
+      }
+      const values = {
+        title: String(body.title).trim(),
+        organizationId: body.organizationId,
+        organization: organization.name,
+        eventDate: body.eventDate,
+        hours: Number(body.hours),
+        xpAwarded: Number(body.xpAwarded),
+        countsTowardProgress: body.countsTowardProgress,
+      };
+      if (!values.countsTowardProgress && values.xpAwarded !== 0) {
+        return send(response, 422, { code: "pastEventUncreditedXp" });
+      }
+      if (existing) {
+        Object.assign(existing, values);
+        record("user.past_event.updated", "ManualPastEvent", existing.id, actor.id);
+        return send(response, 200, existing);
+      }
+      const duplicate = state.manualPastEvents.find(
+        (item) => item.submissionId === body.submissionId,
+      );
+      if (duplicate) {
+        return send(
+          response,
+          duplicate.volunteerId === volunteerId ? 201 : 409,
+          duplicate.volunteerId === volunteerId
+            ? duplicate
+            : { code: "pastEventSubmissionConflict" },
+        );
+      }
+      const created = {
+        id: randomUUID(),
+        submissionId: body.submissionId,
+        volunteerId,
+        createdAt: new Date().toISOString(),
+        ...values,
+      };
+      state.manualPastEvents.push(created);
+      record("user.past_event.created", "ManualPastEvent", created.id, actor.id);
+      return send(response, 201, created);
+    }
+    if (method === "DELETE" && existing) {
+      state.manualPastEvents = state.manualPastEvents.filter(
+        (item) => item.id !== eventId,
+      );
+      record("user.past_event.removed", "ManualPastEvent", eventId, actor.id);
+      return send(response, 200, { id: eventId });
+    }
+  }
+
   const userMatch =
     /^\/(staff|admin)\/users\/([^/]+)(?:\/(password|progress-adjustments))?$/.exec(
       path,
@@ -1650,7 +1758,14 @@ const server = createServer(async (request, response) => {
       return send(response, 200, {
         ...publicUser(target),
         applications,
-        ...(isAdmin(actor) ? { progress: progressOf(id) } : {}),
+        ...(isAdmin(actor)
+          ? {
+              progress: progressOf(id),
+              pastEvents: state.manualPastEvents.filter(
+                (item) => item.volunteerId === id,
+              ),
+            }
+          : {}),
       });
     }
   }
