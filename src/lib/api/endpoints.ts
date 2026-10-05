@@ -215,6 +215,21 @@ export const endpoints = {
     path: "/admin/users/{id}/progress-adjustments",
     contract: "published",
   },
+  createPastEvent: {
+    method: "POST",
+    path: "/admin/users/{id}/past-events",
+    contract: "published",
+  },
+  updatePastEvent: {
+    method: "PUT",
+    path: "/admin/users/{id}/past-events/{eventId}",
+    contract: "published",
+  },
+  removePastEvent: {
+    method: "DELETE",
+    path: "/admin/users/{id}/past-events/{eventId}",
+    contract: "published",
+  },
 
   coordinators: { method: "GET", path: "/admin/coordinators", contract: "published" },
   createCoordinator: {

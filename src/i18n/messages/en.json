@@ -648,6 +648,41 @@
       "unknownAuthor": "Not recorded",
       "xpChange": "{value} XP",
       "hoursChange": "{value} h"
+    },
+    "pastEvents": {
+      "heading": "Past events",
+      "countLabel": "events",
+      "description": "Add past volunteering with an existing organization. Count it toward progress only when the record should receive credit.",
+      "empty": "No past events have been added manually.",
+      "add": "Add past event",
+      "edit": "Edit",
+      "remove": "Remove",
+      "noOrganizations": "Add an organization before recording a past event.",
+      "organizationsUnavailable": "Organizations could not be loaded. Try again before editing this event.",
+      "counted": "Counts toward progress",
+      "notCounted": "History only",
+      "countHelp": "When counted, this adds one attended event, the entered hours, and the entered XP. Hours do not generate XP automatically.",
+      "removePrompt": "Remove this event from the volunteer's history and recalculate their progress?",
+      "hoursUnit": "h",
+      "fields": {
+        "title": "Event title",
+        "organization": "Organization",
+        "date": "Event date",
+        "hours": "Hours",
+        "xp": "XP to award"
+      },
+      "addSuccess": "Past event added.",
+      "editSuccess": "Past event updated.",
+      "removeSuccess": "Past event removed.",
+      "errors": {
+        "hoursAmount": "Enter 0–999 hours, with at most two decimal places.",
+        "xpAmount": "Enter a whole XP amount from 0 to 100,000.",
+        "dateInvalid": "Choose a real date before today.",
+        "uncreditedXp": "History-only events cannot award XP.",
+        "notFound": "This past event no longer exists. Refresh the page.",
+        "submissionConflict": "This submission was already used. Refresh the page and try again.",
+        "organizationNotFound": "Choose an existing organization."
+      }
     }
   },
   "attendance": {
