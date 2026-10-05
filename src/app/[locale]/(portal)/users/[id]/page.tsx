@@ -447,6 +447,14 @@ export default async function UserPage({ params }: PageProps<"/[locale]/users/[i
                       </TableCell>
                       <TableCell className="min-w-[12rem] align-top break-words whitespace-normal">
                         {adjustment.reason}
+                        {adjustment.bulkAwardId ? (
+                          <Link
+                            href={`${navHref("bulkAwards")}/${adjustment.bulkAwardId}`}
+                            className="mt-1 block w-fit text-xs font-semibold text-primary-ink hover:underline"
+                          >
+                            {t("progress.fromBulkAward")}
+                          </Link>
+                        ) : null}
                       </TableCell>
                       <TableCell className="align-top text-ink-muted">
                         {adjustment.createdBy?.displayName ??

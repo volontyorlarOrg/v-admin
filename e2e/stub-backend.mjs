@@ -341,6 +341,7 @@ function reset() {
       },
     ],
     progressAdjustments: [],
+    bulkAwards: [],
     manualPastEvents: [],
     sheets: {},
     instructions: {},
@@ -792,6 +793,7 @@ function progressOf(volunteerId) {
       reason: item.reason,
       createdAt: item.createdAt,
       createdBy: item.createdBy,
+      bulkAwardId: item.bulkAwardId ?? null,
     })),
   };
 }
@@ -911,6 +913,21 @@ const server = createServer(async (request, response) => {
   if (path === "/__stub/reset" && method === "POST") {
     reset();
     return send(response, 200, { status: "reset" });
+  }
+
+  if (path === "/__stub/bulk-users" && method === "POST") {
+    for (let index = 0; index < 30; index += 1) {
+      state.users.push({
+        id: `00000000-0000-4000-9000-${String(index + 1).padStart(12, "0")}`,
+        username: `bulk_test_${index}`,
+        displayName: `Test volunteer ${String(index).padStart(2, "0")}`,
+        email: null,
+        roles: ["volunteer"],
+        isActive: true,
+        createdAt: at(-30),
+      });
+    }
+    return send(response, 200, { status: "ready" });
   }
 
   if (path === "/__stub/submit-sheet" && method === "POST") {
@@ -1603,6 +1620,142 @@ const server = createServer(async (request, response) => {
     item.attendance.confirmedById = actor.id;
     record("attendance.resolved", "attendance", item.attendance.id, actor.id);
     return send(response, 200, item.attendance);
+  }
+
+  if (path.startsWith("/admin/bulk-awards")) {
+    if (!isAdmin(actor)) return send(response, 403, { code: "forbidden" });
+    const eligible = state.users.filter(
+      (user) =>
+        user.roles.includes("volunteer") && user.isActive && user.id !== actor.id,
+    );
+    const q = (url.searchParams.get("q") ?? "").trim().toLowerCase();
+    const matching = eligible.filter((user) =>
+      `${user.displayName ?? ""} ${user.username ?? ""} ${user.email ?? ""}`
+        .toLowerCase()
+        .includes(q),
+    );
+    const awardView = (award) => {
+      const view = { ...award };
+      delete view.submissionId;
+      return view;
+    };
+    const page = (items) => {
+      const number = Number(url.searchParams.get("page") ?? 1) || 1;
+      const size = Number(url.searchParams.get("pageSize") ?? 25) || 25;
+      return {
+        items: items.slice((number - 1) * size, number * size),
+        page: number,
+        pageSize: size,
+        total: items.length,
+      };
+    };
+    if (path === "/admin/bulk-awards/volunteers" && method === "GET") {
+      return send(response, 200, {
+        ...page(
+          matching.map((user) => ({
+            id: user.id,
+            displayName: user.displayName ?? null,
+            username: user.username ?? `user_${user.id.slice(-8)}`,
+            email: user.email ?? null,
+            xp: Math.max(0, progressOf(user.id).xp),
+          })),
+        ),
+        eligibleTotal: eligible.length,
+      });
+    }
+    if (path === "/admin/bulk-awards/volunteers/ids" && method === "GET") {
+      return send(response, 200, {
+        ids: matching.map((user) => user.id),
+        total: matching.length,
+        truncated: false,
+      });
+    }
+    if (path === "/admin/bulk-awards" && method === "GET")
+      return send(response, 200, page(state.bulkAwards.map(awardView)));
+    if (path === "/admin/bulk-awards" && method === "POST") {
+      const existing = state.bulkAwards.find(
+        (award) => award.submissionId === body.submissionId,
+      );
+      if (existing) return send(response, 201, awardView(existing));
+      const xp = Number(body.xp);
+      const hours = Number(body.hours);
+      if (!xp && !hours) return send(response, 422, { code: "adjustmentEmpty" });
+      const chosen =
+        body.scope === "all"
+          ? eligible
+          : eligible.filter((user) => (body.userIds ?? []).includes(user.id));
+      if (!chosen.length) return send(response, 422, { code: "bulkAwardNoRecipients" });
+      const award = {
+        id: randomUUID(),
+        submissionId: body.submissionId,
+        scope: body.scope,
+        xp,
+        hours,
+        reason: String(body.reason).trim(),
+        recipients: chosen.length,
+        skipped: body.scope === "all" ? 0 : (body.userIds ?? []).length - chosen.length,
+        createdAt: new Date().toISOString(),
+        createdBy: { id: actor.id, displayName: actor.displayName ?? null },
+        revokedAt: null,
+        revokedBy: null,
+      };
+      for (const user of chosen)
+        state.progressAdjustments.unshift({
+          id: randomUUID(),
+          volunteerId: user.id,
+          bulkAwardId: award.id,
+          xpDelta: xp,
+          hoursDelta: hours,
+          reason: award.reason,
+          createdAt: award.createdAt,
+          createdBy: award.createdBy,
+        });
+      state.bulkAwards.unshift(award);
+      record("bulk_award.created", "BulkAward", award.id, actor.id);
+      return send(response, 201, awardView(award));
+    }
+    const match = /^\/admin\/bulk-awards\/([^/]+)(?:\/(recipients|revoke))?$/.exec(
+      path,
+    );
+    const award = state.bulkAwards.find((item) => item.id === match?.[1]);
+    if (!award) return send(response, 404, { code: "bulkAwardNotFound" });
+    if (match?.[2] === "revoke" && method === "POST") {
+      if (!award.revokedAt) {
+        state.progressAdjustments = state.progressAdjustments.filter(
+          (item) => item.bulkAwardId !== award.id,
+        );
+        award.revokedAt = new Date().toISOString();
+        award.revokedBy = { id: actor.id, displayName: actor.displayName ?? null };
+        record("bulk_award.revoked", "BulkAward", award.id, actor.id);
+      }
+      return send(response, 200, awardView(award));
+    }
+    if (match?.[2] === "recipients" && method === "GET") {
+      const ids = new Set(
+        state.progressAdjustments
+          .filter((item) => item.bulkAwardId === award.id)
+          .map((item) => item.volunteerId),
+      );
+      return send(
+        response,
+        200,
+        page(
+          state.users
+            .filter((user) => ids.has(user.id))
+            .filter((user) =>
+              `${user.displayName ?? ""} ${user.username ?? ""}`
+                .toLowerCase()
+                .includes(q),
+            )
+            .map((user) => ({
+              id: user.id,
+              displayName: user.displayName ?? null,
+              username: user.username ?? `user_${user.id.slice(-8)}`,
+            })),
+        ),
+      );
+    }
+    return send(response, 200, awardView(award));
   }
 
   if (path === "/staff/users" || path === "/admin/users") {

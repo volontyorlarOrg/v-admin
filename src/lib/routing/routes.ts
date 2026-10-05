@@ -10,6 +10,7 @@ export const ROUTE_KEYS = [
   "newVacancy",
   "applications",
   "users",
+  "bulkAwards",
   "attendance",
   "activity",
   "coordinators",
@@ -137,6 +138,15 @@ export const appRoutes: readonly AppRoute[] = [
     inNav: true,
     group: "work",
     icon: "users",
+  },
+  {
+    key: "bulkAwards",
+    path: "/bulk-awards",
+    area: "portal",
+    guard: "session",
+    inNav: true,
+    group: "work",
+    icon: "award",
   },
   {
     key: "activity",

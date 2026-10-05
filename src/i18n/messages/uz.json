@@ -53,7 +53,8 @@
       "pendingReview": "qaror kutayotgan ariza",
       "attendanceDue": "koʻngillining davomati belgilanmagan"
     },
-    "blog": "Blog"
+    "blog": "Blog",
+    "bulkAwards": "Ommaviy mukofotlash"
   },
   "auth": {
     "metaTitle": "Kirish",
@@ -647,7 +648,8 @@
       },
       "unknownAuthor": "Qayd etilmagan",
       "xpChange": "{value} XP",
-      "hoursChange": "{value} soat"
+      "hoursChange": "{value} soat",
+      "fromBulkAward": "Ommaviy mukofot"
     },
     "pastEvents": {
       "heading": "Oʻtgan tadbirlar",
@@ -683,7 +685,8 @@
         "submissionConflict": "Bu yuborish allaqachon ishlatilgan. Sahifani yangilab, qayta urinib koʻring.",
         "organizationNotFound": "Mavjud tashkilotni tanlang."
       }
-    }
+    },
+    "bulkAwards": "Ommaviy mukofotlash"
   },
   "attendance": {
     "title": "Ishtirok",
@@ -1044,7 +1047,8 @@
       "volunteer": "Volontyor",
       "organization": "Tashkilot",
       "attendance": "Davomat yozuvi",
-      "account": "Hisob"
+      "account": "Hisob",
+      "bulkAward": "Ommaviy mukofot"
     },
     "details": {
       "closedByArchive": "Vakansiya arxivlanganda yopildi",
@@ -1077,7 +1081,9 @@
       "user_username_changed": "Foydalanuvchi nomi oʻzgartirildi",
       "user_avatar_updated": "Rasm yangilandi",
       "user_avatar_removed": "Rasm olib tashlandi",
-      "user_progress_adjusted": "XP va soatlar oʻzgartirildi"
+      "user_progress_adjusted": "XP va soatlar oʻzgartirildi",
+      "bulk_award_created": "Ommaviy mukofot berildi",
+      "bulk_award_revoked": "Ommaviy mukofot qaytarib olindi"
     }
   },
   "vocabulary": {
@@ -1899,6 +1905,112 @@
       "close": "Yopish",
       "returnedToast": "Tashkilotga qaytarildi.",
       "verifiedToast": "Tasdiqlandi. Soat va XP qoʻshildi."
+    }
+  },
+  "bulkAwards": {
+    "title": "Ommaviy mukofotlash",
+    "description": "Koʻp volontyorlarga bir xil XP va soatni bir qadamda bering. Mukofot darhol qoʻllanadi va uni qaytarib olish mumkin.",
+    "search": "Ism, foydalanuvchi nomi yoki email boʻyicha qidirish",
+    "unknownPerson": "koʻrsatilmagan",
+    "xpAmount": "+{value, number} XP",
+    "hoursAmount": "+{value, number} soat",
+    "history": {
+      "title": "Berilgan mukofotlar",
+      "countLabel": "mukofot",
+      "meta": "{recipients} ta volontyor · {by} · {date}",
+      "revoked": "Qaytarib olingan",
+      "emptyTitle": "Hali mukofot berilmagan",
+      "emptyDescription": "Bergan mukofotlaringiz shu yerda chiqadi, eng yangisi birinchi."
+    },
+    "detail": {
+      "title": "Ommaviy mukofot",
+      "given": "{date} · {by} tomonidan berilgan",
+      "summary": "Mukofot xulosasi",
+      "recipients": "Volontyorlar",
+      "xpEach": "Har biriga XP",
+      "hoursEach": "Har biriga soat",
+      "scope": "Kimga",
+      "scopeAll": "Oʻsha paytdagi barcha faol volontyorlarga",
+      "scopeSelected": "Tanlangan volontyorlarga",
+      "total": "Jami",
+      "skipped": "Chetda qoldi",
+      "skippedValue": "{count} ta tanlangan hisob endi mukofot ola olmasdi",
+      "recipientsTitle": "Kimlar oldi",
+      "noMatches": "Bu qidiruvga hech kim mos kelmadi.",
+      "revokedTitle": "Qaytarib olingan",
+      "revokedDescription": "{date} · {by} tomonidan qaytarib olingan. XP va soatlar barcha volontyorlar yozuvidan olib tashlandi.",
+      "countLabel": "volontyor"
+    },
+    "revoke": {
+      "title": "Qaytarib olish",
+      "description": "Bu XP va soatlarni olgan har bir volontyordan olib tashlaydi. Xatoni tuzatish uchun; mukofot tarixda qoladi.",
+      "trigger": "Mukofotni qaytarib olish",
+      "dialogTitle": "Bu mukofot qaytarib olinsinmi?",
+      "dialogDescription": "{recipients} ta volontyorning har biridan {amounts} olib tashlanadi. Mukofot tarixda «Qaytarib olingan» belgisi bilan qoladi.",
+      "submit": "Qaytarib olish",
+      "pending": "Qaytarib olinmoqda…",
+      "success": "Mukofot qaytarib olindi"
+    },
+    "composer": {
+      "who": "Kim oladi",
+      "scopeLabel": "Kim oladi",
+      "scopeSelected": "Tanlangan volontyorlar",
+      "scopeAll": "Hammasi",
+      "everyoneTitle": "Faol volontyorlar: {count}",
+      "everyoneHelp": "Tasdiqlagan paytingizda faol volontyor hisobi bor har bir kishi. Sizning hisobingiz kirmaydi, keyin qoʻshilganlar esa mukofot olmaydi.",
+      "selected": "Tanlangan: {count}",
+      "selectPage": "Shu sahifadagi hammasi",
+      "selectMatching": "Barcha natijalarni tanlash ({count})",
+      "selecting": "Tanlanmoqda…",
+      "selectionTruncated": "Faqat dastlabki 10 000 tasi tanlandi.",
+      "clear": "Tozalash",
+      "remove": "Olib tashlash: {name}",
+      "more": "yana {count} ta",
+      "noMatches": "Bu qidiruvga mos volontyor yoʻq.",
+      "noVolunteers": "Hali faol volontyorlar yoʻq.",
+      "currentXp": "{value} XP",
+      "what": "Har biri nima oladi",
+      "xp": "XP",
+      "hours": "Soat",
+      "amountHelp": "Faqat bittasini berish uchun ikkinchisini boʻsh qoldiring. Bu yerda berilgan soatlar oʻz-oʻzidan XP qoʻshmaydi.",
+      "reason": "Sabab",
+      "reasonHelp": "Har bir volontyor yozuvida koʻrinadi va audit tarixida saqlanadi.",
+      "summaryRecipients": "Volontyorlar",
+      "summaryEach": "Har biriga",
+      "summaryTotal": "Jami",
+      "xpValue": "+{value} XP",
+      "hoursValue": "+{value} soat",
+      "review": "Mukofotni tekshirish",
+      "reviewHint": "Keyingi qadamda tasdiqlamaguningizcha hech narsa oʻzgarmaydi.",
+      "confirmTitle": "Mukofot berilsinmi?",
+      "confirmDescription": "Tasdiqlashingiz bilan mukofot har bir volontyor yozuviga qoʻshiladi. Keyinroq uni mukofot sahifasidan qaytarib olish mumkin.",
+      "everyoneSummary": "Barcha faol volontyorlar",
+      "confirm": "Mukofot berish",
+      "pending": "Berilmoqda…",
+      "cancel": "Bekor qilish",
+      "close": "Yopish",
+      "successTitle": "Mukofot berildi",
+      "successBody": "Volontyorlar yozuvi, reytingdagi oʻrni va profili buni allaqachon hisobga oldi.",
+      "skipped": "Hisobi endi mukofot ololmagani uchun chetda qoldi: {count}",
+      "viewAward": "Mukofotni ochish",
+      "newAward": "Yana mukofot berish",
+      "toast": "Mukofot berildi",
+      "error": "Mukofotni berib boʻlmadi. Qayta urinib koʻring."
+    },
+    "errors": {
+      "adjustmentEmpty": "XP, soat yoki ikkalasini kiriting.",
+      "amountInvalid": "XP butun son, soat esa koʻpi bilan ikki xonali kasr boʻlsin.",
+      "amountTooLarge": "Bu bitta mukofot uchun juda koʻp: har biriga 100 000 XP va 999 soatgacha.",
+      "reasonRequired": "Sababini yozing.",
+      "reasonTooLong": "Sabab 500 belgidan qisqa boʻlsin.",
+      "bulkAwardSelectionInvalid": "Kamida bitta volontyorni tanlang yoki «Hammasi»ga oʻting.",
+      "bulkAwardInputInvalid": "Miqdorlar, sabab va oluvchilarni tekshiring.",
+      "bulkAwardNoRecipients": "Tanlanganlardan hech kim endi mukofot ololmaydi. Sahifani yangilab, qaytadan tanlang.",
+      "bulkAwardSubmissionConflict": "Bu mukofot boshqa maʼlumotlar bilan allaqachon berilgan. Mukofotlar tarixini tekshiring.",
+      "bulkAwardNotFound": "Bu mukofot topilmadi.",
+      "progressBelowZero": "Qaytarib olinsa, keyingi tuzatish sababli kimdadir soat noldan kam boʻlib qoladi. Avval oʻsha volontyor yozuvini tuzating.",
+      "selectAllFailed": "Natijalarni tanlab boʻlmadi. Qayta urinib koʻring.",
+      "sessionExpired": "Sessiya tugadi. Qaytadan kiring."
     }
   }
 }
