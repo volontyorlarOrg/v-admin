@@ -215,6 +215,33 @@ export const endpoints = {
     path: "/admin/users/{id}/progress-adjustments",
     contract: "published",
   },
+  bulkAwards: { method: "GET", path: "/admin/bulk-awards", contract: "published" },
+  createBulkAward: {
+    method: "POST",
+    path: "/admin/bulk-awards",
+    contract: "published",
+  },
+  bulkAwardVolunteers: {
+    method: "GET",
+    path: "/admin/bulk-awards/volunteers",
+    contract: "published",
+  },
+  bulkAwardEligibleIds: {
+    method: "GET",
+    path: "/admin/bulk-awards/volunteers/ids",
+    contract: "published",
+  },
+  bulkAward: { method: "GET", path: "/admin/bulk-awards/{id}", contract: "published" },
+  bulkAwardRecipients: {
+    method: "GET",
+    path: "/admin/bulk-awards/{id}/recipients",
+    contract: "published",
+  },
+  revokeBulkAward: {
+    method: "POST",
+    path: "/admin/bulk-awards/{id}/revoke",
+    contract: "published",
+  },
   createPastEvent: {
     method: "POST",
     path: "/admin/users/{id}/past-events",

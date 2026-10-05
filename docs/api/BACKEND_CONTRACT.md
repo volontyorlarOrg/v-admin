@@ -229,6 +229,18 @@ administrator sees follows from that:
   (`progressBelowZero`) or that touches the administrator's own account
   (`ownProgressNotAdjustable`). XP and hours are independent: added hours do
   not add hour XP. Each change is audited as `user.progress.adjusted`.
+- **Many volunteers can get the same XP and hours at once.** `/bulk-awards`
+  reads `GET /admin/bulk-awards/volunteers` (eligible volunteers with their
+  current XP, plus `eligibleTotal`) and `GET /admin/bulk-awards` (history).
+  "Choose all results" calls `GET /admin/bulk-awards/volunteers/ids?q=`.
+  `POST /admin/bulk-awards` takes `{ submissionId, scope, userIds?, xp, hours,
+  reason }` and answers `201` with the applied award, `recipients` and
+  `skipped` — there is no queue and no waiting state. `/bulk-awards/[id]` reads
+  `GET /admin/bulk-awards/{id}` and `/recipients`, and `POST
+  /admin/bulk-awards/{id}/revoke` takes the award back (`progressBelowZero` if
+  a later correction depends on it). Each ledger row in the volunteer's
+  adjustments register carries `bulkAwardId`, which links back to the award.
+  Audited as `bulk_award.created` and `bulk_award.revoked`.
 - **Administrators can add past events from an existing organization.** The
   volunteer page reads `pastEvents` from `GET /admin/users/:id`. The create,
   update and remove endpoints under `/admin/users/{id}/past-events` require an

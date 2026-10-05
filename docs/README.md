@@ -2,21 +2,22 @@
 
 Use this file to route a question to the smallest source that answers it.
 
-| Task                                                                                              | Read                                                                                   |
-| ------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| What the product is, and what an administrator does                                               | [`../PRODUCT.md`](../PRODUCT.md)                                                       |
-| The design system as applied to an operational portal                                             | [`../DESIGN.md`](../DESIGN.md)                                                         |
-| Blog writing flow and public/admin layout concepts                                               | [`../../v-web/docs/plans/BLOG_IMPLEMENTATION_PLAN.md`](../../v-web/docs/plans/BLOG_IMPLEMENTATION_PLAN.md) |
-| Routes, rendering, module ownership, the two-portal split                                         | [`architecture/ARCHITECTURE.md`](architecture/ARCHITECTURE.md)                         |
-| Today: what waits on an administrator, in what order, and how a decision leaves it                | [`architecture/TODAY.md`](architecture/TODAY.md)                                       |
-| Insights statistics, sources, completeness limits and chart rules                                 | [`architecture/INSIGHTS.md`](architecture/INSIGHTS.md)                                 |
-| The country ground: geometry, placement, motion                                                   | [`architecture/GROUND.md`](architecture/GROUND.md)                                     |
-| **The backend contract** — generated types, the endpoint registry, what "awaiting contract" means | [`api/BACKEND_CONTRACT.md`](api/BACKEND_CONTRACT.md)                                   |
-| Sessions, cookies, headers, secrets, password handling                                            | [`security/SECURITY.md`](security/SECURITY.md)                                         |
-| Setup, commands, environment, ports, CI, deployment                                               | [`operations/DEVELOPMENT_AND_DEPLOYMENT.md`](operations/DEVELOPMENT_AND_DEPLOYMENT.md) |
-| Adding a section, an endpoint, copy, a form, a state                                              | [`operations/EXTENDING.md`](operations/EXTENDING.md)                                   |
-| Why there is no administrator creation and no impersonation                                       | [`../PRODUCT.md`](../PRODUCT.md#two-things-this-portal-will-not-do)                    |
-| A non-obvious decision, discovery or gotcha                                                       | [`../.agent-memory/README.md`](../.agent-memory/README.md)                             |
+| Task                                                                                              | Read                                                                                                       |
+| ------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| What the product is, and what an administrator does                                               | [`../PRODUCT.md`](../PRODUCT.md)                                                                           |
+| The design system as applied to an operational portal                                             | [`../DESIGN.md`](../DESIGN.md)                                                                             |
+| Blog writing flow and public/admin layout concepts                                                | [`../../v-web/docs/plans/BLOG_IMPLEMENTATION_PLAN.md`](../../v-web/docs/plans/BLOG_IMPLEMENTATION_PLAN.md) |
+| Routes, rendering, module ownership, the two-portal split                                         | [`architecture/ARCHITECTURE.md`](architecture/ARCHITECTURE.md)                                             |
+| Today: what waits on an administrator, in what order, and how a decision leaves it                | [`architecture/TODAY.md`](architecture/TODAY.md)                                                           |
+| Insights statistics, sources, completeness limits and chart rules                                 | [`architecture/INSIGHTS.md`](architecture/INSIGHTS.md)                                                     |
+| The country ground: geometry, placement, motion                                                   | [`architecture/GROUND.md`](architecture/GROUND.md)                                                         |
+| **The backend contract** — generated types, the endpoint registry, what "awaiting contract" means | [`api/BACKEND_CONTRACT.md`](api/BACKEND_CONTRACT.md)                                                       |
+| Sessions, cookies, headers, secrets, password handling                                            | [`security/SECURITY.md`](security/SECURITY.md)                                                             |
+| Setup, commands, environment, ports, CI, deployment                                               | [`operations/DEVELOPMENT_AND_DEPLOYMENT.md`](operations/DEVELOPMENT_AND_DEPLOYMENT.md)                     |
+| Adding a section, an endpoint, copy, a form, a state                                              | [`operations/EXTENDING.md`](operations/EXTENDING.md)                                                       |
+| Why there is no administrator creation and no impersonation                                       | [`../PRODUCT.md`](../PRODUCT.md#two-things-this-portal-will-not-do)                                        |
+| A non-obvious decision, discovery or gotcha                                                       | [`../.agent-memory/README.md`](../.agent-memory/README.md)                                                 |
+| Bulk hours/XP awards, local review and resolved decisions                                         | [`operations/BULK_AWARDS_REVIEW.md`](operations/BULK_AWARDS_REVIEW.md)                                     |
 
 ## Source-of-truth order
 

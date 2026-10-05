@@ -401,6 +401,7 @@ export const progressAdjustmentRecordSchema = z.object({
   reason: z.string(),
   createdAt: isoDate,
   createdBy: optional(z.object({ id, displayName: optional(z.string()) })),
+  bulkAwardId: optional(z.uuid()),
 });
 
 export type ProgressAdjustmentRecord = z.infer<typeof progressAdjustmentRecordSchema>;
