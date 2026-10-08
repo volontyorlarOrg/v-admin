@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+@media (width < 64rem) {
+  body:has(#overview) [data-slot="country-ground"] > :is(svg, canvas) {
+    display: none;
+  }
+}
+
 @theme {
   --color-paper: #f5f8fb;
   --color-surface: #ffffff;

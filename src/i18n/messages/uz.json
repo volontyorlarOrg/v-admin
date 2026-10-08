@@ -36,7 +36,7 @@
   },
   "nav": {
     "label": "Portal boʻlimlari",
-    "dashboard": "Bugun",
+    "dashboard": "Boshqaruv paneli",
     "vacancies": "Vakansiyalar",
     "applications": "Arizalar",
     "users": "Volontyorlar",
@@ -103,7 +103,8 @@
       "list": "Roʻyxat yuklanmoqda…",
       "panel": "Yuklanmoqda…",
       "figures": "Koʻrsatkichlar yuklanmoqda…",
-      "queue": "Sizni kutayotgan ishlar yuklanmoqda…"
+      "queue": "Sizni kutayotgan ishlar yuklanmoqda…",
+      "dashboard": "Boshqaruv paneli yuklanmoqda…"
     },
     "passwordChangeRequired": {
       "title": "Avval parolni oʻzgartiring",
@@ -2011,6 +2012,93 @@
       "progressBelowZero": "Qaytarib olinsa, keyingi tuzatish sababli kimdadir soat noldan kam boʻlib qoladi. Avval oʻsha volontyor yozuvini tuzating.",
       "selectAllFailed": "Natijalarni tanlab boʻlmadi. Qayta urinib koʻring.",
       "sessionExpired": "Sessiya tugadi. Qaytadan kiring."
+    }
+  },
+  "dashboardHome": {
+    "title": "Boshqaruv paneli",
+    "description": "Platforma oʻsishi, arizalar va koʻngillilar hissasini kuzating, soʻng kutilayotgan vazifalarni bajaring.",
+    "overview": {
+      "title": "Platforma koʻrsatkichlari",
+      "description": "Barcha vaqt · hozir eʼlon qilingan vakansiyalar",
+      "volunteers": "Koʻngillilar",
+      "publishedVacancies": "Eʼlon qilingan vakansiyalar",
+      "applications": "Yuborilgan arizalar",
+      "attended": "Koʻngillilar ishtiroki",
+      "confirmedHours": "Tasdiqlangan soatlar"
+    },
+    "needsAction": "Eʼtibor talab qiladi",
+    "sections": "Panel boʻlimlari",
+    "moreBreakdowns": "Boshqa koʻrsatkichlar",
+    "loadingOperations": "Vazifalar yuklanmoqda",
+    "analytics": "Tahlil",
+    "period": "Tahlil davri",
+    "days": "Oxirgi {days} kun",
+    "range": "{from} – {to} · Toshkent vaqti",
+    "timeZone": "Toshkent vaqti",
+    "partialDay": "Bugun hali tugamagan. Taqqoslashda oldingi davrning ayni vaqti hisobga olinadi.",
+    "inPeriod": "Tanlangan davr",
+    "allTime": "Barcha yuborilgan arizalarning hozir qabul qilingan ulushi",
+    "currentState": "Barcha sanalar boʻyicha joriy navbat",
+    "comparison": "Oldingi {days} kunda {previous} ta roʻyxatdan oʻtish",
+    "chartHint": "Kunni koʻrish uchun kursorni olib boring, grafikni bosing yoki oʻq tugmalaridan foydalaning.",
+    "viewData": "Kunlik maʼlumotlarni koʻrish",
+    "date": "Sana",
+    "categories": {
+      "growth": "Foydalanuvchilar oʻsishi",
+      "applications": "Arizalar",
+      "impact": "Koʻngillilar hissasi"
+    },
+    "growth": {
+      "average": "Kunlik roʻyxatdan oʻtishlar",
+      "averageCaption": "Har bir kalendar kun uchun oʻrtacha",
+      "change": "Roʻyxatdan oʻtish oʻsishi",
+      "noBaseline": "Oldingi davrda roʻyxatdan oʻtishlar yoʻq",
+      "activation": "Roʻyxatdan oʻtishdan arizagacha",
+      "activationCaption": "{signups} ta yangi koʻngillidan {activated} tasi bugungacha ariza yuborgan",
+      "joins": "Yangi roʻyxatdan oʻtishlar"
+    },
+    "applications": {
+      "submitted": "Yuborilgan arizalar",
+      "average": "Kunlik arizalar",
+      "accepted": "Qabul qilinganlar ulushi",
+      "waiting": "Koʻrib chiqish kutilmoqda",
+      "pipelineCaption": "Barcha sanalar boʻyicha joriy sonlar. Bu konversiya bosqichlari emas, ish holatlaridir."
+    },
+    "impact": {
+      "attended": "Tasdiqlangan ishtiroklar",
+      "hours": "Tasdiqlangan soatlar",
+      "rate": "Ishtirok darajasi",
+      "rateCaption": "Qatnashganlar ÷ (qatnashganlar + kelmaganlar)",
+      "awaiting": "Tasdiqlash kutilmoqda",
+      "awaitingCaption": "Ishtirok darajasiga kiritilmaydi",
+      "outcomes": "Ishtirok natijalari",
+      "outcomesCaption": "Tanlangan davrda boshlangan koʻngillilik tadbirlari. Har bir ishtirok yozuvi bir marta hisoblanadi."
+    },
+    "outcomes": {
+      "attended": "Qatnashgan",
+      "noShow": "Kelmagan",
+      "excused": "Uzrli sabab",
+      "cancelled": "Bekor qilingan",
+      "awaiting": "Tasdiqlash kutilmoqda"
+    },
+    "charts": {
+      "volunteers": {
+        "title": "Koʻngillilar soni oʻsishi",
+        "description": "Roʻyxatdan oʻtish sanasi boʻyicha birlashtirilmagan hisoblarning jamlanma soni."
+      },
+      "applications": {
+        "title": "Kunlik arizalar",
+        "description": "Yuborilgan kun boʻyicha arizalar, keyin qaytarib olingan yoki yopilganlari ham hisoblanadi."
+      },
+      "confirmedHours": {
+        "title": "Kunlik tasdiqlangan soatlar",
+        "description": "Tadbir boshlangan kun boʻyicha tekshirilgan soatlar. Keyingi tuzatishlar sonlarni yangilaydi."
+      },
+      "empty": "Bu davrda faoliyat qayd etilmagan.",
+      "joins": {
+        "title": "Kunlik foydalanuvchi roʻyxatdan oʻtishlari",
+        "description": "Yangi koʻngilli hisoblari. Birlashtirilgan takroriy hisoblar chiqarib tashlangan."
+      }
     }
   }
 }
