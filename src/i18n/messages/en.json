@@ -36,7 +36,7 @@
   },
   "nav": {
     "label": "Portal sections",
-    "dashboard": "Today",
+    "dashboard": "Dashboard",
     "vacancies": "Vacancies",
     "applications": "Applications",
     "users": "Volunteers",
@@ -103,7 +103,8 @@
       "list": "Loading the list…",
       "panel": "Loading…",
       "figures": "Loading the figures…",
-      "queue": "Loading what waits on you…"
+      "queue": "Loading what waits on you…",
+      "dashboard": "Loading dashboard…"
     },
     "passwordChangeRequired": {
       "title": "Change your password first",
@@ -2011,6 +2012,93 @@
       "progressBelowZero": "Taking it back would leave someone below zero hours because of a later correction. Fix that volunteer's record first.",
       "selectAllFailed": "Couldn't choose the results. Try again.",
       "sessionExpired": "Your session ended. Sign in again."
+    }
+  },
+  "dashboardHome": {
+    "title": "Dashboard",
+    "description": "Track platform growth, applications and volunteer impact, then handle the work waiting on you.",
+    "overview": {
+      "title": "Platform overview",
+      "description": "All-time totals · current published vacancies",
+      "volunteers": "Volunteers",
+      "publishedVacancies": "Published vacancies",
+      "applications": "Applications sent",
+      "attended": "Volunteer attendances",
+      "confirmedHours": "Confirmed hours"
+    },
+    "needsAction": "Needs action",
+    "sections": "Dashboard sections",
+    "moreBreakdowns": "More breakdowns",
+    "loadingOperations": "Loading operations",
+    "analytics": "Analytics",
+    "period": "Analytics period",
+    "days": "Last {days} days",
+    "range": "{from} – {to} · Tashkent time",
+    "timeZone": "Tashkent time",
+    "partialDay": "Today is still in progress. Comparisons use the same time of day in the previous period.",
+    "inPeriod": "Selected period",
+    "allTime": "Share of all sent applications currently accepted",
+    "currentState": "Current queue, across all dates",
+    "comparison": "{previous} signups in the preceding {days} days",
+    "chartHint": "Hover, tap or use the arrow keys to inspect a day.",
+    "viewData": "View daily data",
+    "date": "Date",
+    "categories": {
+      "growth": "User growth",
+      "applications": "Applications",
+      "impact": "Volunteer impact"
+    },
+    "growth": {
+      "average": "Signups per day",
+      "averageCaption": "Average per calendar day",
+      "change": "Signup growth rate",
+      "noBaseline": "No signups in the previous period",
+      "activation": "Signup-to-application rate",
+      "activationCaption": "{activated} of {signups} new volunteers applied by today",
+      "joins": "New signups"
+    },
+    "applications": {
+      "submitted": "Applications submitted",
+      "average": "Applications per day",
+      "accepted": "Accepted share",
+      "waiting": "Awaiting review",
+      "pipelineCaption": "Current counts across all dates; these are operational states, not a conversion funnel."
+    },
+    "impact": {
+      "attended": "Confirmed attendances",
+      "hours": "Confirmed hours",
+      "rate": "Attendance rate",
+      "rateCaption": "Attended ÷ (attended + no-show)",
+      "awaiting": "Awaiting confirmation",
+      "awaitingCaption": "Excluded from the attendance rate",
+      "outcomes": "Attendance outcomes",
+      "outcomesCaption": "Volunteering events starting in the selected period. Each attendance record counts once."
+    },
+    "outcomes": {
+      "attended": "Attended",
+      "noShow": "No-show",
+      "excused": "Excused",
+      "cancelled": "Cancelled",
+      "awaiting": "Awaiting confirmation"
+    },
+    "charts": {
+      "volunteers": {
+        "title": "Volunteer base growth",
+        "description": "Cumulative surviving volunteer accounts by signup date."
+      },
+      "applications": {
+        "title": "Applications per day",
+        "description": "Sent applications by submission day, including those later withdrawn or closed."
+      },
+      "confirmedHours": {
+        "title": "Confirmed hours per day",
+        "description": "Verified volunteering hours by event start day. Later corrections update these totals."
+      },
+      "empty": "No activity recorded in this period.",
+      "joins": {
+        "title": "User signups per day",
+        "description": "New volunteer accounts. Merged duplicate accounts are excluded."
+      }
     }
   }
 }

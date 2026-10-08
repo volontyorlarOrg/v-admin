@@ -146,10 +146,10 @@ components:
 
 The portal is the institution's register. Every vacancy, application and roll
 call arrives as an entry and leaves with a decision stamped on it. An
-administrator sees what waits on them, decides it in the row, and watches it
-move into "Cleared today". The system refuses the KPI-card dashboard and the
-monochrome inbox: work is a queue of entries on ruled sheets, and numbers are
-printed where they belong, not arranged as tiles.
+administrator sees platform totals and categorized trends on Dashboard, then
+what waits on them, decides it in the row, and watches it move into "Cleared
+today". Totals share one overview sheet; analytics use ruled metric bands and
+chart sheets; operational work stays a queue of entries on ruled sheets.
 
 It is the family's ink on a navy-shelled desk. The brand, the logo, the two
 colour roles and the working typeface come from `../v-web` and `../v-app`; the
@@ -269,9 +269,9 @@ tabular figures so the column lines up.
 A fixed navy rail of 15rem on the left from the large breakpoint; below it the
 rail becomes a drawer behind a menu button in a white header, and the content
 takes the width. The rail holds the stacked inverse lockup and five destinations
-in two groups: Today, Vacancies, Applications, Volunteers, and Organizations.
+in two groups: Dashboard, Vacancies, Applications, Volunteers, and Organizations.
 Vacancies and Applications show waiting counts. Attendance is
-linked from Today and each vacancy record; Insights from Today; Audit history
+linked from Dashboard and each vacancy record; Insights from Dashboard; Audit history
 from My activity. At its foot are My activity, Change password, language,
 theme, and Sign out.
 
@@ -304,7 +304,9 @@ pointer-inert WebGL line terrain of the fourteen regions (outlines from Natural
 Earth, public domain, via `v-web`). Its ruled field fades out laterally and with
 depth; the country is fitted into the page header's ground window with a camera
 view offset, so the same pose is drawn at every size, and it glides to the new
-window when a page changes. On phones, where the header has no free band, it
+window when a page changes. On Dashboard below 64rem, its WebGL canvas and SVG
+fallback are hidden so the overview and analytics keep clear text; the paper
+wash remains. On other phone surfaces, where the header has no free band, it
 rests at the bottom of the first viewport. It drifts slowly, leans gently toward
 a fine pointer, stills on any pointer, key, wheel or touch and resumes after
 2.6 seconds, stops while the tab is hidden, caps itself at 30 frames a second
@@ -393,24 +395,34 @@ volunteer earned, muted for a closure. A seal pressed in the last few seconds
 lands with a short press (520ms; a fade under reduced motion). Seals stamp an
 approved vacancy's header and every entry in "Cleared today".
 
-### Totals Line
+### Platform Overview
 
-A ledger foot under the Today register: a small title and a run of serif figures
-with their words ("5 volunteers · 2 live vacancies · …"), confirmed hours in
-orange, and a link to Insights.
+A shared ledger sheet directly under Dashboard's page header: volunteers,
+published vacancies, sent applications, attended volunteering and confirmed
+hours, each with a serif figure and an Onest label. The figures use two columns
+on phones, three from the small breakpoint and five from the extra-large
+breakpoint. Confirmed hours stay orange. The category links beneath it lead to
+User growth, Applications, Volunteer impact and the secondary Insights page.
 
 ### Charts
 
-Charts live on Insights, never on Today. Every mark comes from a real count and
-nothing is interpolated, smoothed or padded; a zero draws no bar and an empty
-chart says so. A source too large to read in full is not drawn at all. Time is
-bucketed by Tashkent day, at most thirty buckets, and one bucket is a column,
-never a line. Comparisons are horizontal bars in one hue with the value at the
-row end, a ratio is a meter on its own lighter track, ordered states are a
-stacked bar, change over time is columns on a hairline baseline. Length carries
-the value, hue never doubles for it, and only an ordered set gets the
-`chart-strong` / `chart-mid` / `chart-soft` ramp. Chart marks are the one place
-the solid-fill tokens do not apply.
+Dashboard groups charts into User growth, Applications and Volunteer impact.
+Its range links offer 30 or 90 Tashkent days, defaulting to 30. Daily signups and
+applications are columns; cumulative volunteers and confirmed attendance hours
+are straight lines through the daily values, with hours in the person tone.
+Pointer inspection and Left/Right, Home and End reveal a day's value; every
+trend has an expandable daily-value table. Current application pipeline and
+period attendance outcomes use horizontal bars.
+
+Every mark comes from a real value and nothing is estimated, smoothed or
+padded; a zero draws no bar and an all-zero range says so. Insights keeps its
+secondary breakdowns and thirty-bucket limit, including a joining line across
+multiple days and a column for one day; a source too large to read in full is
+not drawn there. Comparisons use one hue with the value at the row end, ratios
+use meters on lighter tracks, and ordered part-to-whole states use stacked
+bars. Length carries the value, hue never doubles for it, and only an ordered
+set gets the `chart-strong` / `chart-mid` / `chart-soft` ramp. Chart marks are
+the one place the solid-fill tokens do not apply.
 
 ## Do's and Don'ts
 
@@ -431,8 +443,8 @@ the solid-fill tokens do not apply.
 ### Don't:
 
 - **Don't** put an eyebrow or kicker above a heading; the heading carries itself.
-- **Don't** arrange numbers as a row of KPI cards on Today; print them as the
-  totals line, and chart them on Insights.
+- **Don't** split Dashboard's overview into separate KPI boxes; its totals share
+  one sheet, and category metrics use ruled bands beside the charts.
 - **Don't** nest a box inside a sheet, or draw a coloured stripe on one side of
   it; a state is a chip, a decision is a slip.
 - **Don't** use orange for identity, caution or a vacancy's state.

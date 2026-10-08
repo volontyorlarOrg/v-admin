@@ -798,6 +798,102 @@ function progressOf(volunteerId) {
   };
 }
 
+function analyticsFor(days) {
+  const now = Date.now();
+  const offset = 5 * 3_600_000;
+  const today = Math.floor((now + offset) / DAY) * DAY - offset;
+  const from = today - (days - 1) * DAY;
+  const previousFrom = from - days * DAY;
+  const previousTo = now - days * DAY;
+  const volunteers = state.users.filter(
+    (user) => user.roles.includes("volunteer") && !user.mergedIntoUserId,
+  );
+  const within = (date, start, end) =>
+    date && Date.parse(date) >= start && Date.parse(date) < end;
+  const signups = volunteers.filter((user) => within(user.createdAt, from, now));
+  const previousSignups = volunteers.filter((user) =>
+    within(user.createdAt, previousFrom, previousTo),
+  ).length;
+  let base = volunteers.filter((user) => Date.parse(user.createdAt) < from).length;
+  const daily = Array.from({ length: days }, (_, index) => {
+    const start = from + index * DAY;
+    const end = Math.min(start + DAY, now);
+    const joins = volunteers.filter((user) =>
+      within(user.createdAt, start, end),
+    ).length;
+    base += joins;
+    const attendance = state.applications.flatMap((application) => {
+      const vacancy = state.vacancies.find(
+        (item) => item.id === application.opportunityId,
+      );
+      return vacancy?.kind === "volunteering" &&
+        within(vacancy.startsAt, start, end) &&
+        application.attendance
+        ? [application.attendance]
+        : [];
+    });
+    return {
+      date: new Date(start).toISOString(),
+      signups: joins,
+      volunteers: base,
+      applications: state.applications.filter((application) =>
+        within(application.submittedAt, start, end),
+      ).length,
+      attended: attendance.filter((item) => item.outcome === "attended").length,
+      noShow: attendance.filter((item) => item.outcome === "no_show").length,
+      excused: attendance.filter((item) => item.outcome === "excused").length,
+      cancelled: attendance.filter((item) => item.outcome === "cancelled").length,
+      awaiting: attendance.filter((item) => item.outcome === "awaiting_confirmation")
+        .length,
+      confirmedHours: attendance
+        .filter((item) => item.outcome === "attended")
+        .reduce((sum, item) => sum + Number(item.confirmedHours ?? 0), 0),
+    };
+  });
+  const sum = (key) => daily.reduce((total, day) => total + day[key], 0);
+  return {
+    range: {
+      from: new Date(from).toISOString(),
+      to: new Date(now).toISOString(),
+      days,
+      timeZone: "Asia/Tashkent",
+    },
+    previous: {
+      from: new Date(previousFrom).toISOString(),
+      to: new Date(previousTo).toISOString(),
+      signups: previousSignups,
+      applications: state.applications.filter((item) =>
+        within(item.submittedAt, previousFrom, previousTo),
+      ).length,
+    },
+    summary: {
+      signups: signups.length,
+      signupAverage: signups.length / days,
+      signupChange:
+        previousSignups > 0
+          ? (signups.length - previousSignups) / previousSignups
+          : signups.length === 0
+            ? 0
+            : null,
+      activatedSignups: signups.filter((user) =>
+        state.applications.some(
+          (application) =>
+            application.volunteerId === user.id &&
+            within(application.submittedAt, Date.parse(user.createdAt), now),
+        ),
+      ).length,
+      applications: sum("applications"),
+      attended: sum("attended"),
+      noShow: sum("noShow"),
+      excused: sum("excused"),
+      cancelled: sum("cancelled"),
+      awaiting: sum("awaiting"),
+      confirmedHours: sum("confirmedHours"),
+    },
+    daily,
+  };
+}
+
 function statisticsFor(user) {
   const vacancies = ownedVacancies(user);
   const applications = ownedApplications(user);
@@ -1045,6 +1141,13 @@ const server = createServer(async (request, response) => {
     return send(response, 403, { code: "forbidden" });
   }
   if (admin && !isAdmin(actor)) return send(response, 403, { code: "forbidden" });
+
+  if (path === "/admin/analytics" && method === "GET") {
+    const days = Number(url.searchParams.get("days") ?? 30);
+    if (![30, 90].includes(days))
+      return send(response, 422, { code: "validationFailed" });
+    return send(response, 200, analyticsFor(days));
+  }
 
   if (path === "/staff/statistics" || path === "/admin/statistics") {
     return send(response, 200, statisticsFor(actor));

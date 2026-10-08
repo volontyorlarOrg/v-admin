@@ -516,6 +516,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/checkpoints": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List all milestones, recording reached checkpoints without awarding XP */
+        get: operations["CheckpointsController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/checkpoints/{key}/claim": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Claim a reached milestone reward once. Repeated claims return the original reward. */
+        post: operations["CheckpointsController_claim"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/profile": {
         parameters: {
             query?: never;
@@ -1790,6 +1824,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/analytics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get daily volunteer growth, applications and impact in Tashkent time */
+        get: operations["AdminAnalyticsController_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/essays": {
         parameters: {
             query?: never;
@@ -2668,6 +2719,80 @@ export interface components {
             /** @default true */
             publicProfileEnabled: boolean;
         };
+        CheckpointDto: {
+            /**
+             * @description Stable checkpoint key. Clients translate it and ignore keys they do not know.
+             * @example profile
+             */
+            key: string;
+            /**
+             * @example start
+             * @enum {string}
+             */
+            group: "start";
+            /** @example 1 */
+            target: number;
+            /**
+             * @description Progress toward the target, capped at the target. Hours may be fractional.
+             * @example 1
+             */
+            progress: number;
+            /**
+             * @description XP the reward pays when claimed; the amount actually paid once claimed.
+             * @example 50
+             */
+            xp: number;
+            /**
+             * Format: date-time
+             * @example 2026-10-07T09:30:00.000Z
+             */
+            completedAt: string | null;
+            /** Format: date-time */
+            claimedAt: string | null;
+            /** @enum {string} */
+            rewardState: "locked" | "ready" | "claimed" | "exhausted";
+            /** @example 1000 */
+            rewardLimit: number | null;
+            /** @description Places left: the limit minus the rewards claimed so far. */
+            rewardsRemaining: number | null;
+            /** @description This account holds one of the limited places, which a claim takes. */
+            rewardReserved: boolean;
+        };
+        CheckpointListDto: {
+            /** @description The launch gate permits claims. */
+            claimingEnabled: boolean;
+            items: components["schemas"]["CheckpointDto"][];
+            /** @example 1 */
+            completed: number;
+            /** @example 0 */
+            claimed: number;
+            /** @example 1 */
+            total: number;
+            /**
+             * @description XP this account has claimed from current rewards. Removed milestones no longer count.
+             * @example 0
+             */
+            xpEarned: number;
+            /**
+             * @description XP every current reward pays together.
+             * @example 50
+             */
+            xpAvailable: number;
+            /**
+             * @description XP from reached, unclaimed rewards while places remain.
+             * @example 50
+             */
+            xpClaimable: number;
+        };
+        ClaimCheckpointBodyDto: Record<string, never>;
+        CheckpointClaimDto: {
+            /** @example profile */
+            key: string;
+            /** @example 50 */
+            xp: number;
+            /** Format: date-time */
+            claimedAt: string;
+        };
         UpdateProfileDto: {
             fullName: string;
             /** @default  */
@@ -3161,6 +3286,56 @@ export interface components {
         RemovedManualPastEventDto: {
             /** Format: uuid */
             id: string;
+        };
+        AnalyticsRangeDto: {
+            /** Format: date-time */
+            from: string;
+            /** Format: date-time */
+            to: string;
+            /** @enum {number} */
+            days: 30 | 90;
+            /** @enum {string} */
+            timeZone: "Asia/Tashkent";
+        };
+        AnalyticsComparisonDto: {
+            /** Format: date-time */
+            from: string;
+            /** Format: date-time */
+            to: string;
+            signups: number;
+            applications: number;
+        };
+        AnalyticsSummaryDto: {
+            signups: number;
+            signupAverage: number;
+            signupChange: number | null;
+            activatedSignups: number;
+            applications: number;
+            attended: number;
+            noShow: number;
+            excused: number;
+            cancelled: number;
+            awaiting: number;
+            confirmedHours: number;
+        };
+        AnalyticsDayDto: {
+            /** Format: date-time */
+            date: string;
+            signups: number;
+            volunteers: number;
+            applications: number;
+            attended: number;
+            noShow: number;
+            excused: number;
+            cancelled: number;
+            awaiting: number;
+            confirmedHours: number;
+        };
+        AdminAnalyticsResponseDto: {
+            range: components["schemas"]["AnalyticsRangeDto"];
+            previous: components["schemas"]["AnalyticsComparisonDto"];
+            summary: components["schemas"]["AnalyticsSummaryDto"];
+            daily: components["schemas"]["AnalyticsDayDto"][];
         };
         SaveEssayDto: {
             title?: string;
@@ -5678,6 +5853,155 @@ export interface operations {
                 content?: never;
             };
             /** @description Authentication or an upstream dependency is unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CheckpointsController_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CheckpointListDto"];
+                };
+            };
+            /** @description Missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Authenticated account cannot perform this operation */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Request rate limit exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Authentication or an upstream dependency is unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CheckpointsController_claim: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: "profile";
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ClaimCheckpointBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CheckpointClaimDto"];
+                };
+            };
+            /** @description Malformed request body */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Authenticated account cannot perform this operation */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Requested resource was not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description checkpointNotReached: the checkpoint has not been reached. checkpointPhotoRequired: a profile photo is required for an unclaimed profile reward. checkpointRewardExhausted: all 1,000 profile rewards are claimed. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Request body exceeds the configured limit */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description validation: unknown checkpoint key. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Request rate limit exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description checkpointClaimsUnavailable: claiming has not opened yet. */
             503: {
                 headers: {
                     [name: string]: unknown;
@@ -12334,6 +12658,69 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Authenticated account cannot perform this operation */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Request validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Request rate limit exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Authentication or an upstream dependency is unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminAnalyticsController_get: {
+        parameters: {
+            query?: {
+                days?: 30 | 90;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminAnalyticsResponseDto"];
+                };
             };
             /** @description Missing or invalid credentials */
             401: {

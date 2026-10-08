@@ -1,10 +1,10 @@
 # Insights
 
-`/insights` holds the charts. Today, where an administrator lands, is a
-queue (see [`TODAY.md`](TODAY.md)) and prints only a totals line that links
-here. Insights visualizes only values returned by the published administrator
-API or values derived from complete administrator lists. It does not estimate,
-smooth, project or pad data.
+`/insights` keeps secondary operational breakdowns. The main
+[Dashboard](TODAY.md) now owns categorized analytics and the 30/90-day selector,
+using server aggregates from `/admin/analytics`. Insights retains its existing
+sources and completeness limits below. Both surfaces visualize published data
+without estimating, smoothing, projecting or padding it.
 
 ## Sources
 

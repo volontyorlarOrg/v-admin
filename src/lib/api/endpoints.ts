@@ -22,6 +22,7 @@ export const endpoints = {
   currentUser: { method: "GET", path: "/me", contract: "published" },
 
   statistics: { method: "GET", path: "/admin/statistics", contract: "published" },
+  analytics: { method: "GET", path: "/admin/analytics", contract: "published" },
   audit: { method: "GET", path: "/admin/audit", contract: "published" },
   blogPosts: { method: "GET", path: "/admin/blog", contract: "published" },
   createBlogPost: { method: "POST", path: "/admin/blog", contract: "published" },

@@ -8,7 +8,7 @@ Use this file to route a question to the smallest source that answers it.
 | The design system as applied to an operational portal                                             | [`../DESIGN.md`](../DESIGN.md)                                                                             |
 | Blog writing flow and public/admin layout concepts                                                | [`../../v-web/docs/plans/BLOG_IMPLEMENTATION_PLAN.md`](../../v-web/docs/plans/BLOG_IMPLEMENTATION_PLAN.md) |
 | Routes, rendering, module ownership, the two-portal split                                         | [`architecture/ARCHITECTURE.md`](architecture/ARCHITECTURE.md)                                             |
-| Today: what waits on an administrator, in what order, and how a decision leaves it                | [`architecture/TODAY.md`](architecture/TODAY.md)                                                           |
+| Dashboard overview, categorized analytics, time ranges and operational decisions                  | [`architecture/TODAY.md`](architecture/TODAY.md)                                                           |
 | Insights statistics, sources, completeness limits and chart rules                                 | [`architecture/INSIGHTS.md`](architecture/INSIGHTS.md)                                                     |
 | The country ground: geometry, placement, motion                                                   | [`architecture/GROUND.md`](architecture/GROUND.md)                                                         |
 | **The backend contract** — generated types, the endpoint registry, what "awaiting contract" means | [`api/BACKEND_CONTRACT.md`](api/BACKEND_CONTRACT.md)                                                       |

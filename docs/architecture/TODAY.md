@@ -1,12 +1,48 @@
-# Today
+# Dashboard
 
-`/dashboard` is where an administrator lands, and it is a queue, not a report:
-one register sheet of what waits on them, each entry carrying its own decision,
-then what they cleared today, then the operation's totals in one line. The
-charts live on [Insights](INSIGHTS.md).
+`/dashboard` is the administrator's landing page, labelled Dashboard in the
+page title and navigation. Platform overview puts the volunteer, currently
+published and unarchived vacancy, all-time sent application, attended volunteering
+and confirmed-hour totals first. Categorized analytics follows, then the
+operational register. “Needs action” jumps directly to that register.
 
-Every rule below is a pure function in `src/lib/queue/today.ts`, tested beside
-it; the page only renders what those functions return.
+The analytics range defaults to 30 days and offers 30 or 90 days in the URL
+(`?days=90`). Invalid ranges fall back to 30. Categories are User growth,
+Applications and Volunteer impact. The range applies to signup, submission and
+volunteering event series; operational pipeline and overview are explicitly
+all-time/current-state counts. [Insights](INSIGHTS.md) retains secondary
+breakdowns. The new aggregate source is `GET /admin/analytics?days=30|90`.
+
+`src/lib/statistics/analytics.ts` validates the response and derives chart data;
+`DashboardAnalytics` renders it. `TrendChart` supports pointer inspection, arrow
+keys, Home/End and an expandable table with every daily value. Zero days remain
+zero, including all-zero ranges. Growth compares the preceding equal-duration
+window; a zero baseline is shown without an infinite percentage. New-volunteer
+activation means a signup in this range has submitted at least one application
+by now. Attendance rate is attended / (attended + no-show); unresolved, cancelled
+and excused records are excluded. Hours are confirmed volunteering attendance
+hours, grouped by the event start day. Progress adjustments are not attendance.
+
+User growth shows daily signups as columns and cumulative volunteer counts as
+a straight daily-value line, alongside signup totals, average per day, change
+and activation. Applications shows submission columns and the current pipeline;
+its accepted share uses all-time counts and its waiting count is current state.
+Volunteer impact shows confirmed-hour lines and horizontal outcome bars, with
+period attended counts, hours, resolved attendance rate and awaiting records.
+
+The overview is one sheet with two columns on phones, three from the small
+breakpoint and five from the extra-large breakpoint. Category metrics use ruled
+bands, and charts pair into two columns from the extra-large breakpoint. On
+Dashboard below 64rem the country-ground canvas and SVG fallback are hidden to
+keep text clear; the paper wash remains, and desktop retains the header terrain.
+
+Days follow Asia/Tashkent and include today's partial day. Aggregates are read
+in one repeatable-read database transaction; no personal user rows or frontend
+pagination ceiling are involved. Totals, analytics and the queue each retain
+independent failure states.
+
+The operational rules below remain pure functions in `src/lib/queue/today.ts`,
+tested beside them; `DashboardQueue` renders what those functions return.
 
 ## What waits
 
@@ -34,7 +70,6 @@ seconds presses its seal, so the one just made visibly lands.
 
 ## The operation
 
-`/admin/statistics` supplies the totals line — volunteers, live vacancies,
+`/admin/statistics` supplies the top overview — volunteers, published vacancies,
 applications sent, events attended and confirmed hours — and the waiting counts
-on the rail. If statistics fail, the queue still renders; only the line and the
-counts are missing.
+on the rail. If statistics fail, the queue still renders; the overview shows its error and the rail counts are missing.

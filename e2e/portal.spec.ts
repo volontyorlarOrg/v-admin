@@ -135,7 +135,9 @@ test.describe("sign-in", () => {
     page,
   }) => {
     await signedIn(page);
-    await expect(page.getByRole("heading", { level: 1, name: "Today" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { level: 1, name: "Dashboard" }),
+    ).toBeVisible();
     await expect(
       page.getByRole("heading", { level: 2, name: "Waiting on you" }),
     ).toBeVisible();
