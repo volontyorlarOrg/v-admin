@@ -4,6 +4,7 @@ Use this file to route a question to the smallest source that answers it.
 
 | Task                                                                                              | Read                                                                                                       |
 | ------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| New to the codebase: how all six repositories fit together, end to end                            | [`../../v-backend/docs/architecture/SYSTEM_GUIDE.md`](../../v-backend/docs/architecture/SYSTEM_GUIDE.md)   |
 | What the product is, and what an administrator does                                               | [`../PRODUCT.md`](../PRODUCT.md)                                                                           |
 | The design system as applied to an operational portal                                             | [`../DESIGN.md`](../DESIGN.md)                                                                             |
 | Blog writing flow and public/admin layout concepts                                                | [`../../v-web/docs/plans/BLOG_IMPLEMENTATION_PLAN.md`](../../v-web/docs/plans/BLOG_IMPLEMENTATION_PLAN.md) |
