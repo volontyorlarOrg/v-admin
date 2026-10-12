@@ -96,7 +96,7 @@ src/lib/map/                    the country's geometry for the ground
 src/app/[locale]/(auth)/login/  the one public screen
 src/app/[locale]/(portal)/      dashboard (Today), insights,
                                 vacancies[/new|/id|/id/edit], applications[/id],
-                                users[/id], attendance, activity,
+                                users[/id], past-events, attendance, activity,
                                 coordinators[/new|/id], organizations, audit,
                                 account/change-password
 src/components/                 ui · portal chrome · states · forms · domain forms
