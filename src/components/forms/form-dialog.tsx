@@ -73,7 +73,14 @@ export function FormDialog({
   blockedNotice?: ReactNode;
 }) {
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
-  const [result, dispatch] = useActionState(action, idleResult);
+  const [result, dispatch] = useActionState(
+    async (previous: ActionResult, formData: FormData) => {
+      const outcome = await action(previous, formData);
+      if (outcome.status === "ok") toast.success(labels.success);
+      return outcome;
+    },
+    idleResult,
+  );
   const [seen, setSeen] = useState(result);
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -85,10 +92,7 @@ export function FormDialog({
 
   if (result !== seen) {
     setSeen(result);
-    if (result.status === "ok") {
-      setOpen(false);
-      toast.success(labels.success);
-    }
+    if (result.status === "ok") setOpen(false);
   }
 
   useEffect(() => {

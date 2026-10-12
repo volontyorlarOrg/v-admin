@@ -342,7 +342,101 @@ function reset() {
     ],
     progressAdjustments: [],
     bulkAwards: [],
-    manualPastEvents: [],
+    manualPastEvents: [
+      {
+        id: "00000000-0000-4000-8000-000000000903",
+        submissionId: "00000000-0000-4000-8000-000000000913",
+        volunteerId: "00000000-0000-4000-8000-000000000202",
+        title: "Summer reading club",
+        organizationId: "00000000-0000-4000-8000-000000000301",
+        organization: "Chilonzor Reading Corners",
+        eventDate: "2025-07-12",
+        hours: 2,
+        xpAwarded: 20,
+        countsTowardProgress: true,
+        createdAt: at(-40),
+      },
+      {
+        id: "00000000-0000-4000-8000-000000000901",
+        submissionId: "00000000-0000-4000-8000-000000000911",
+        volunteerId: "00000000-0000-4000-8000-000000000204",
+        title: "Autumn book fair",
+        organizationId: "00000000-0000-4000-8000-000000000301",
+        organization: "Chilonzor Reading Corners",
+        eventDate: "2025-10-04",
+        hours: 3,
+        xpAwarded: 30,
+        countsTowardProgress: true,
+        createdAt: at(-30),
+      },
+      {
+        id: "00000000-0000-4000-8000-000000000902",
+        submissionId: "00000000-0000-4000-8000-000000000912",
+        volunteerId: "00000000-0000-4000-8000-000000000205",
+        title: "Tree planting day",
+        organizationId: "00000000-0000-4000-8000-000000000302",
+        organization: "Green Corridor Group",
+        eventDate: "2025-11-08",
+        hours: 2,
+        xpAwarded: 20,
+        countsTowardProgress: true,
+        createdAt: at(-28),
+      },
+    ],
+    pastEventRequests: [
+      {
+        id: "00000000-0000-4000-8000-000000000951",
+        kind: "create",
+        status: "pending",
+        title: "Library clean-up",
+        eventDate: "2025-09-13",
+        hours: 4,
+        xpAwarded: 80,
+        note: "Helped re-shelve the children's section.",
+        adjusted: false,
+        reviewNote: null,
+        reviewedAt: null,
+        createdAt: at(-3),
+        volunteerId: "00000000-0000-4000-8000-000000000202",
+        organizationId: "00000000-0000-4000-8000-000000000301",
+        eventId: null,
+      },
+      {
+        id: "00000000-0000-4000-8000-000000000952",
+        kind: "update",
+        status: "pending",
+        title: "Autumn book fair",
+        eventDate: "2025-10-04",
+        hours: 5,
+        xpAwarded: 50,
+        note: "Stayed for the evening shift too.",
+        adjusted: false,
+        reviewNote: null,
+        reviewedAt: null,
+        createdAt: at(-2),
+        volunteerId: "00000000-0000-4000-8000-000000000204",
+        organizationId: "00000000-0000-4000-8000-000000000301",
+        eventId: "00000000-0000-4000-8000-000000000901",
+      },
+      {
+        id: "00000000-0000-4000-8000-000000000953",
+        kind: "remove",
+        status: "pending",
+        title: null,
+        eventDate: null,
+        hours: null,
+        xpAwarded: null,
+        note: "Entered for the wrong volunteer.",
+        adjusted: false,
+        reviewNote: null,
+        reviewedAt: null,
+        createdAt: at(-1),
+        volunteerId: "00000000-0000-4000-8000-000000000205",
+        organizationId: "00000000-0000-4000-8000-000000000302",
+        eventId: "00000000-0000-4000-8000-000000000902",
+      },
+    ],
+    removedPastEvents: [],
     sheets: {},
     instructions: {},
     sessions: new Map(),
@@ -941,6 +1035,9 @@ function statisticsFor(user) {
         (sum, a) => sum + Number(a.confirmedHours ?? 0),
         0,
       ),
+      pastEventRequests: isAdmin(user)
+        ? state.pastEventRequests.filter((item) => item.status === "pending").length
+        : 0,
       ...(isAdmin(user)
         ? {
             volunteers: state.users.filter((u) => u.roles.includes("volunteer")).length,
@@ -1869,6 +1966,168 @@ const server = createServer(async (request, response) => {
           ownedApplications(actor).some((a) => a.volunteerId === item.id),
         );
     return send(response, 200, directory(reachable.map(publicUser), url));
+  }
+
+  const requestMatch =
+    /^\/admin\/past-event-requests(?:\/([^/]+)\/(approve|reject))?$/.exec(path);
+  if (requestMatch) {
+    if (!isAdmin(actor)) return send(response, 403, { code: "forbidden" });
+    const [, requestId, decision] = requestMatch;
+    const recordedEvent = (eventId) => {
+      const live = state.manualPastEvents.find((item) => item.id === eventId);
+      const event = live ?? state.removedPastEvents.find((item) => item.id === eventId);
+      return event
+        ? {
+            id: event.id,
+            title: event.title,
+            eventDate: event.eventDate,
+            hours: event.hours,
+            xpAwarded: event.xpAwarded,
+            countsTowardProgress: event.countsTowardProgress,
+            live: Boolean(live),
+          }
+        : null;
+    };
+    const view = (item) => {
+      const volunteerUser = userById(item.volunteerId);
+      const organization = state.organizations.find(
+        (candidate) => candidate.id === item.organizationId,
+      );
+      const attended = state.applications.filter(
+        (application) =>
+          application.volunteerId === item.volunteerId &&
+          application.attendance?.outcome === "attended" &&
+          state.vacancies.find((vacancy) => vacancy.id === application.opportunityId)
+            ?.organizationId === item.organizationId,
+      );
+      return {
+        id: item.id,
+        kind: item.kind,
+        status: item.status,
+        title: item.title,
+        eventDate: item.eventDate,
+        hours: item.hours,
+        xpAwarded: item.xpAwarded,
+        note: item.note,
+        adjusted: item.adjusted,
+        reviewNote: item.reviewNote,
+        createdAt: item.createdAt,
+        reviewedAt: item.reviewedAt,
+        organization: { id: organization.id, name: organization.name },
+        volunteer: {
+          id: volunteerUser.id,
+          displayName: volunteerUser.displayName,
+          username: volunteerUser.username ?? "",
+          avatarUrl: null,
+        },
+        event: item.eventId ? recordedEvent(item.eventId) : null,
+        participation: {
+          attendedEvents: attended.length,
+          attendedHours: attended.reduce(
+            (sum, application) =>
+              sum + Number(application.attendance?.confirmedHours ?? 0),
+            0,
+          ),
+          pastEvents: state.manualPastEvents.filter(
+            (event) =>
+              event.volunteerId === item.volunteerId &&
+              event.organizationId === item.organizationId,
+          ).length,
+        },
+      };
+    };
+
+    if (!requestId && method === "GET") {
+      const status = url.searchParams.get("status") ?? "pending";
+      const matching = state.pastEventRequests
+        .filter((item) => item.status === status)
+        .sort((left, right) => left.createdAt.localeCompare(right.createdAt));
+      return send(response, 200, {
+        items: matching.map(view),
+        page: 1,
+        pageSize: 25,
+        total: matching.length,
+        pending: state.pastEventRequests.filter((item) => item.status === "pending")
+          .length,
+      });
+    }
+
+    const item = state.pastEventRequests.find(
+      (candidate) => candidate.id === requestId,
+    );
+    if (!item || method !== "POST") {
+      return send(response, 404, { code: "pastEventRequestNotFound" });
+    }
+    if (item.status !== "pending") {
+      return send(response, 409, { code: "pastEventRequestNotPending" });
+    }
+    const reviewedAt = new Date().toISOString();
+    if (decision === "reject") {
+      if (typeof body.note !== "string" || !body.note.trim()) {
+        return send(response, 422, {
+          code: "validationFailed",
+          errors: { note: ["note should not be empty"] },
+        });
+      }
+      Object.assign(item, {
+        status: "rejected",
+        reviewNote: body.note.trim(),
+        reviewedAt,
+      });
+      record("past_event_request.rejected", "PastEventRequest", item.id, actor.id);
+      return send(response, 200, view(item));
+    }
+
+    const hours = body.hours ?? item.hours ?? 0;
+    const xpAwarded = body.xpAwarded ?? item.xpAwarded ?? 0;
+    const organization = state.organizations.find(
+      (candidate) => candidate.id === item.organizationId,
+    );
+    if (item.kind === "create") {
+      const created = {
+        id: randomUUID(),
+        submissionId: item.id,
+        volunteerId: item.volunteerId,
+        title: item.title,
+        organizationId: item.organizationId,
+        organization: organization.name,
+        eventDate: item.eventDate,
+        hours,
+        xpAwarded,
+        countsTowardProgress: true,
+        createdAt: reviewedAt,
+      };
+      state.manualPastEvents.push(created);
+      item.eventId = created.id;
+    } else {
+      const event = state.manualPastEvents.find(
+        (candidate) => candidate.id === item.eventId,
+      );
+      if (!event) return send(response, 409, { code: "pastEventGone" });
+      if (item.kind === "remove") {
+        state.removedPastEvents.push(event);
+        state.manualPastEvents = state.manualPastEvents.filter(
+          (candidate) => candidate.id !== event.id,
+        );
+      } else {
+        Object.assign(event, {
+          title: item.title,
+          eventDate: item.eventDate,
+          hours,
+          xpAwarded,
+        });
+      }
+    }
+    const adjusted =
+      item.kind !== "remove" && (hours !== item.hours || xpAwarded !== item.xpAwarded);
+    Object.assign(item, {
+      status: "approved",
+      reviewedAt,
+      adjusted,
+      ...(item.kind === "remove" ? {} : { hours, xpAwarded }),
+    });
+    record("past_event_request.approved", "PastEventRequest", item.id, actor.id);
+    return send(response, 200, view(item));
   }
 
   const pastEventMatch = /^\/admin\/users\/([^/]+)\/past-events(?:\/([^/]+))?$/.exec(
