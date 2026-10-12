@@ -51,10 +51,12 @@
       "pendingApproval": "waiting for approval",
       "changesRequested": "returned for changes",
       "pendingReview": "applications to decide",
-      "attendanceDue": "volunteers to record"
+      "attendanceDue": "volunteers to record",
+      "pastEventRequests": "past event proposals to decide"
     },
     "blog": "Blog",
-    "bulkAwards": "Bulk awards"
+    "bulkAwards": "Bulk awards",
+    "pastEvents": "Past events"
   },
   "auth": {
     "metaTitle": "Sign in",
@@ -2099,6 +2101,76 @@
         "title": "User signups per day",
         "description": "New volunteer accounts. Merged duplicate accounts are excluded."
       }
+    }
+  },
+  "pastEventRequests": {
+    "title": "Past events",
+    "description": "Organizations propose past events, hours and XP for volunteers who took part with them. Nothing reaches a volunteer's profile or XP until you approve it here.",
+    "filter": "Proposals by status",
+    "countLabel": "proposals",
+    "listTitle": {
+      "pending": "Waiting for your decision",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "cancelled": "Withdrawn by the organization"
+    },
+    "status": {
+      "pending": "Waiting",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "cancelled": "Withdrawn"
+    },
+    "kind": {
+      "create": "New past event",
+      "update": "Correction",
+      "remove": "Removal"
+    },
+    "empty": {
+      "pending": "Nothing is waiting",
+      "pendingDescription": "A proposal appears here when an organization adds, corrects or removes a past event for one of its participants.",
+      "approved": "No proposal has been approved yet",
+      "rejected": "No proposal has been rejected",
+      "cancelled": "No proposal has been withdrawn"
+    },
+    "fields": {
+      "title": "Name",
+      "eventDate": "Date",
+      "hours": "Hours",
+      "xpAwarded": "XP"
+    },
+    "facts": {
+      "hours": "{value} h",
+      "xp": "{value} XP"
+    },
+    "change": "{field}: {from} → {to}",
+    "evidence": "With this organization: {attended, plural, one {# attended event} other {# attended events}} ({hours} h verified), {pastEvents, plural, one {# past event} other {# past events}}.",
+    "note": "Organization: {note}",
+    "reviewNote": "Your reason: {note}",
+    "adjusted": "Approved with corrected hours or XP.",
+    "sent": "Sent {when}",
+    "review": {
+      "approve": "Approve",
+      "approveDescription": "The event is written to the volunteer's activity and their XP is recalculated. Correct the hours or XP first if the proposal is off.",
+      "approveRemovalDescription": "The event leaves the volunteer's activity and its hours and XP are taken back.",
+      "approveSuccess": "Approved. The volunteer's record is updated.",
+      "reject": "Reject",
+      "rejectDescription": "The volunteer's record stays as it is. The organization sees your reason.",
+      "rejectSuccess": "Rejected.",
+      "hours": "Hours",
+      "xp": "XP",
+      "amountsHelp": "These are the organization's figures. What you leave here is what counts.",
+      "reason": "Reason",
+      "reasonHelp": "Shown to the organization."
+    },
+    "errors": {
+      "hoursAmount": "Enter hours from 0 to 999, with at most two decimals.",
+      "xpAmount": "Enter a whole number of XP from 0 to 100,000.",
+      "requestNotFound": "That proposal no longer exists.",
+      "notPending": "This proposal has already been decided or withdrawn.",
+      "incomplete": "This proposal is missing its name or date. Reject it and ask for a new one.",
+      "notParticipant": "This volunteer no longer has a verified event with the organization, so the proposal cannot be approved.",
+      "eventGone": "The event this proposal refers to has been removed. Reject the proposal.",
+      "uncreditedXp": "This event is kept as history only, so it cannot carry XP."
     }
   }
 }

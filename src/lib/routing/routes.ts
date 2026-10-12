@@ -11,6 +11,7 @@ export const ROUTE_KEYS = [
   "applications",
   "users",
   "bulkAwards",
+  "pastEvents",
   "attendance",
   "activity",
   "coordinators",
@@ -33,6 +34,7 @@ export const NAV_COUNTS = [
   "changesRequested",
   "pendingReview",
   "attendanceDue",
+  "pastEventRequests",
 ] as const;
 
 export type NavCount = (typeof NAV_COUNTS)[number];
@@ -147,6 +149,16 @@ export const appRoutes: readonly AppRoute[] = [
     inNav: true,
     group: "work",
     icon: "award",
+  },
+  {
+    key: "pastEvents",
+    path: "/past-events",
+    area: "portal",
+    guard: "session",
+    inNav: true,
+    group: "work",
+    count: "pastEventRequests",
+    icon: "calendar-check",
   },
   {
     key: "activity",

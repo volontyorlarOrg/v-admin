@@ -258,6 +258,21 @@ export const endpoints = {
     path: "/admin/users/{id}/past-events/{eventId}",
     contract: "published",
   },
+  pastEventRequests: {
+    method: "GET",
+    path: "/admin/past-event-requests",
+    contract: "published",
+  },
+  approvePastEventRequest: {
+    method: "POST",
+    path: "/admin/past-event-requests/{id}/approve",
+    contract: "published",
+  },
+  rejectPastEventRequest: {
+    method: "POST",
+    path: "/admin/past-event-requests/{id}/reject",
+    contract: "published",
+  },
 
   coordinators: { method: "GET", path: "/admin/coordinators", contract: "published" },
   createCoordinator: {
