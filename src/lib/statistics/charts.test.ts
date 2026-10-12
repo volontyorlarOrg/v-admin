@@ -23,6 +23,7 @@ function totals(overrides: Partial<Totals> = {}): Totals {
     attendanceDue: 0,
     attended: 0,
     confirmedHours: 0,
+    pastEventRequests: 0,
     ...overrides,
   };
 }

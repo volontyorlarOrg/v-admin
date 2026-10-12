@@ -491,6 +491,7 @@ export const statisticsSchema = z.object({
     attendanceDue: z.number().int().default(0),
     attended: z.number().int().default(0),
     confirmedHours: z.number().default(0),
+    pastEventRequests: z.number().int().default(0),
     volunteers: optional(z.number().int()),
     coordinators: optional(
       z.object({

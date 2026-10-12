@@ -51,10 +51,12 @@
       "pendingApproval": "tasdiqlashni kutmoqda",
       "changesRequested": "tuzatish uchun qaytarilgan",
       "pendingReview": "qaror kutayotgan ariza",
-      "attendanceDue": "koʻngillining davomati belgilanmagan"
+      "attendanceDue": "koʻngillining davomati belgilanmagan",
+      "pastEventRequests": "oʻtgan tadbir taklifi qaror kutmoqda"
     },
     "blog": "Blog",
-    "bulkAwards": "Ommaviy mukofotlash"
+    "bulkAwards": "Ommaviy mukofotlash",
+    "pastEvents": "Oʻtgan tadbirlar"
   },
   "auth": {
     "metaTitle": "Kirish",
@@ -2099,6 +2101,76 @@
         "title": "Kunlik foydalanuvchi roʻyxatdan oʻtishlari",
         "description": "Yangi koʻngilli hisoblari. Birlashtirilgan takroriy hisoblar chiqarib tashlangan."
       }
+    }
+  },
+  "pastEventRequests": {
+    "title": "Oʻtgan tadbirlar",
+    "description": "Tashkilotlar oʻzlari bilan qatnashgan volontyorlar uchun oʻtgan tadbir, soat va XP taklif qiladi. Siz shu yerda tasdiqlamaguningizcha volontyor profili va XP ga hech narsa qoʻshilmaydi.",
+    "filter": "Holat boʻyicha takliflar",
+    "countLabel": "taklif",
+    "listTitle": {
+      "pending": "Qaroringizni kutmoqda",
+      "approved": "Tasdiqlangan",
+      "rejected": "Rad etilgan",
+      "cancelled": "Tashkilot qaytarib olgan"
+    },
+    "status": {
+      "pending": "Kutmoqda",
+      "approved": "Tasdiqlangan",
+      "rejected": "Rad etilgan",
+      "cancelled": "Qaytarib olingan"
+    },
+    "kind": {
+      "create": "Yangi oʻtgan tadbir",
+      "update": "Tuzatish",
+      "remove": "Olib tashlash"
+    },
+    "empty": {
+      "pending": "Kutayotgan taklif yoʻq",
+      "pendingDescription": "Tashkilot oʻz ishtirokchisi uchun oʻtgan tadbirni qoʻshsa, tuzatsa yoki olib tashlasa, taklif shu yerda paydo boʻladi.",
+      "approved": "Hali tasdiqlangan taklif yoʻq",
+      "rejected": "Rad etilgan taklif yoʻq",
+      "cancelled": "Qaytarib olingan taklif yoʻq"
+    },
+    "fields": {
+      "title": "Nomi",
+      "eventDate": "Sana",
+      "hours": "Soat",
+      "xpAwarded": "XP"
+    },
+    "facts": {
+      "hours": "{value} soat",
+      "xp": "{value} XP"
+    },
+    "change": "{field}: {from} → {to}",
+    "evidence": "Shu tashkilot bilan: {attended, plural, one {# ta qatnashgan tadbir} other {# ta qatnashgan tadbir}} ({hours} soat tasdiqlangan), {pastEvents, plural, one {# ta oʻtgan tadbir} other {# ta oʻtgan tadbir}}.",
+    "note": "Tashkilot: {note}",
+    "reviewNote": "Sizning sababingiz: {note}",
+    "adjusted": "Soat yoki XP tuzatilib tasdiqlangan.",
+    "sent": "Yuborilgan: {when}",
+    "review": {
+      "approve": "Tasdiqlash",
+      "approveDescription": "Tadbir volontyor faoliyatiga yoziladi va XP qayta hisoblanadi. Taklif notoʻgʻri boʻlsa, avval soat yoki XP ni tuzating.",
+      "approveRemovalDescription": "Tadbir volontyor faoliyatidan olib tashlanadi, uning soati va XP si qaytarib olinadi.",
+      "approveSuccess": "Tasdiqlandi. Volontyor yozuvi yangilandi.",
+      "reject": "Rad etish",
+      "rejectDescription": "Volontyor yozuvi oʻzgarishsiz qoladi. Tashkilot sababingizni koʻradi.",
+      "rejectSuccess": "Rad etildi.",
+      "hours": "Soat",
+      "xp": "XP",
+      "amountsHelp": "Bular tashkilot koʻrsatgan raqamlar. Bu yerda qoldirganingiz hisobga olinadi.",
+      "reason": "Sabab",
+      "reasonHelp": "Tashkilotga koʻrsatiladi."
+    },
+    "errors": {
+      "hoursAmount": "0 dan 999 gacha soat kiriting, koʻpi bilan ikki kasr xonasi.",
+      "xpAmount": "0 dan 100 000 gacha butun XP kiriting.",
+      "requestNotFound": "Bu taklif endi mavjud emas.",
+      "notPending": "Bu taklif boʻyicha qaror qabul qilingan yoki u qaytarib olingan.",
+      "incomplete": "Bu taklifda nom yoki sana yoʻq. Uni rad eting va yangisini soʻrang.",
+      "notParticipant": "Bu volontyorning tashkilot bilan tasdiqlangan tadbiri qolmagan, shuning uchun taklifni tasdiqlab boʻlmaydi.",
+      "eventGone": "Bu taklif tegishli boʻlgan tadbir olib tashlangan. Taklifni rad eting.",
+      "uncreditedXp": "Bu tadbir faqat tarix sifatida saqlanadi, shuning uchun unga XP berilmaydi."
     }
   }
 }
