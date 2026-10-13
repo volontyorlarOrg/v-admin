@@ -536,6 +536,7 @@
       "fullName": "Full name",
       "bio": "Bio",
       "region": "Region",
+      "hometownRegion": "Hometown region",
       "city": "City or district",
       "school": "School",
       "gradeYear": "Year or grade",

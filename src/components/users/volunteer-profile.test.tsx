@@ -58,6 +58,7 @@ describe("VolunteerProfile", () => {
         username: "dilnoza_reads",
         bio: "I read to younger pupils.",
         region: "tashkent-city",
+        hometownRegion: "samarkand",
         city: "Chilonzor",
         gradeYear: "10",
         languages: ["uz", "en"],
@@ -70,6 +71,8 @@ describe("VolunteerProfile", () => {
     expect(screen.getByText("@dilnoza_reads")).toBeInTheDocument();
     expect(screen.getByText("I read to younger pupils.")).toBeInTheDocument();
     expect(screen.getByText("region:tashkent-city")).toBeInTheDocument();
+    expect(screen.getByText("label:hometownRegion")).toBeInTheDocument();
+    expect(screen.getByText("region:samarkand")).toBeInTheDocument();
     expect(screen.getByText("language:uz, language:en")).toBeInTheDocument();
     expect(screen.queryByText("label:phone")).toBeNull();
     expect(screen.getByRole("link", { name: "@dilnoza_k" })).toHaveAttribute(

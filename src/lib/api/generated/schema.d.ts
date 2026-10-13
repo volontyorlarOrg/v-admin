@@ -2973,6 +2973,11 @@ export interface components {
             gradeYear: string;
             /** @enum {string|null} */
             region?: "andijan" | "bukhara" | "fergana" | "jizzakh" | "kashkadarya" | "khorezm" | "namangan" | "navoiy" | "samarkand" | "sirdaryo" | "surkhandarya" | "tashkent-region" | "tashkent-city" | "karakalpakstan" | null;
+            /**
+             * @description Where the volunteer is from. Optional, and separate from `region`, which is where they live now.
+             * @enum {string|null}
+             */
+            hometownRegion?: "andijan" | "bukhara" | "fergana" | "jizzakh" | "kashkadarya" | "khorezm" | "namangan" | "navoiy" | "samarkand" | "sirdaryo" | "surkhandarya" | "tashkent-region" | "tashkent-city" | "karakalpakstan" | null;
             /** @default  */
             city: string;
             /** @default [] */
@@ -3002,7 +3007,7 @@ export interface components {
             /** @default [] */
             links: string[];
             /** @description Optional parts kept off the profile others see. Omit to keep the stored choice. */
-            hiddenFields?: ("region" | "city" | "school" | "gradeYear" | "languages" | "phone" | "telegram" | "instagram" | "linkedin" | "links" | "joined" | "activity")[];
+            hiddenFields?: ("region" | "hometownRegion" | "city" | "school" | "gradeYear" | "languages" | "phone" | "telegram" | "instagram" | "linkedin" | "links" | "joined" | "activity")[];
         };
         CreateOrganizationDto: {
             name: string;
@@ -3951,6 +3956,8 @@ export interface components {
             bio: string;
             /** @enum {string|null} */
             region?: "andijan" | "bukhara" | "fergana" | "jizzakh" | "kashkadarya" | "khorezm" | "namangan" | "navoiy" | "samarkand" | "sirdaryo" | "surkhandarya" | "tashkent-region" | "tashkent-city" | "karakalpakstan" | null;
+            /** @enum {string|null} */
+            hometownRegion?: "andijan" | "bukhara" | "fergana" | "jizzakh" | "kashkadarya" | "khorezm" | "namangan" | "navoiy" | "samarkand" | "sirdaryo" | "surkhandarya" | "tashkent-region" | "tashkent-city" | "karakalpakstan" | null;
             /** @example Tashkent */
             city: string;
             /** @example School 110 */
