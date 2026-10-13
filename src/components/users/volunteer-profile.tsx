@@ -17,6 +17,7 @@ export const PROFILE_FIELD_KEYS = [
   "fullName",
   "bio",
   "region",
+  "hometownRegion",
   "city",
   "school",
   "gradeYear",
@@ -81,6 +82,10 @@ export function VolunteerProfile({
 
   const rows: Array<[ProfileFieldKey, ReactNode]> = [
     ["region", profile.region ? regionName(profile.region) : null],
+    [
+      "hometownRegion",
+      profile.hometownRegion ? regionName(profile.hometownRegion) : null,
+    ],
     ["city", profile.city?.trim() || null],
     ["school", profile.school?.trim() || null],
     ["gradeYear", profile.gradeYear?.trim() || null],

@@ -76,7 +76,7 @@ export async function deskApplicants(
             return [];
           }
           const text =
-            key === "region" && typeof value === "string"
+            (key === "region" || key === "hometownRegion") && typeof value === "string"
               ? isRegion(value)
                 ? vocabulary(`regions.${value}`)
                 : value

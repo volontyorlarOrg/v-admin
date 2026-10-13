@@ -309,6 +309,7 @@ export const profileSnapshotSchema = z.object({
   fullName: optional(z.string()),
   bio: optional(z.string()),
   region: optional(z.string()),
+  hometownRegion: optional(z.string()),
   city: optional(z.string()),
   school: optional(z.string()),
   gradeYear: optional(z.string()),
