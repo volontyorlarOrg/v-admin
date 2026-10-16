@@ -448,6 +448,9 @@ test.describe("past events proposed by organizations", () => {
       "With this organization: 0 attended events (0 h verified), 1 past event.",
     );
     await expect(proposal).toContainText("Helped re-shelve the children's section.");
+    await expect(proposal).toContainText(
+      "Participant in an organization’s historical event. Earlier participation on the platform is not required.",
+    );
     await expect(
       proposal.getByRole("link", { name: "Sardor Toshmatov" }),
     ).toHaveAttribute("href", SARDOR);
@@ -461,6 +464,7 @@ test.describe("past events proposed by organizations", () => {
     ).toBeVisible();
     await expect(dialog(page).getByLabel("XP")).toHaveValue("100001");
     await dialog(page).getByLabel("XP").fill("60");
+    await dialog(page).getByLabel("Hours").fill("3.33");
     await dialog(page).getByRole("button", { name: "Approve" }).click();
     await expect(toast(page)).toHaveCount(1);
     await expect(toast(page)).toContainText(
@@ -473,7 +477,7 @@ test.describe("past events proposed by organizations", () => {
     await expect(page).toHaveURL(/\/en\/past-events\?status=approved$/);
     const approved = page.getByRole("region", { name: "Approved" });
     await expect(approved.getByText("Library clean-up")).toBeVisible();
-    await expect(approved.getByText("4 h · 60 XP")).toBeVisible();
+    await expect(approved.getByText("3.33 h · 60 XP")).toBeVisible();
     await expect(
       approved.getByText("Approved with corrected hours or XP."),
     ).toBeVisible();
@@ -483,7 +487,7 @@ test.describe("past events proposed by organizations", () => {
       has: page.getByRole("heading", { level: 2, name: "Past events" }),
     });
     await expect(events.getByText("Library clean-up")).toBeVisible();
-    await expect(events.getByText("4 h · 60 XP")).toBeVisible();
+    await expect(events.getByText("3.33 h · 60 XP")).toBeVisible();
   });
 
   test("a correction shows only what changes and a rejection needs a reason the organization can read", async ({
