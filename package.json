@@ -20,7 +20,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "check": "npm run lint && npm run typecheck && npm run test"
+    "check": "npm run lint && npm run typecheck && npm run test",
+    "security:audit": "node scripts/audit-dependencies.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",
@@ -33,7 +34,7 @@
     "clsx": "^2.1.1",
     "jose": "^6.2.11",
     "lucide-react": "^1.39.0",
-    "next": "16.3.4",
+    "next": "16.3.8",
     "next-intl": "^4.14.2",
     "openapi-fetch": "^0.17.0",
     "radix-ui": "^1.6.7",
@@ -57,12 +58,11 @@
     "@types/react-dom": "^19",
     "@types/three": "^0.185.4",
     "eslint": "^9",
-    "eslint-config-next": "16.3.4",
+    "eslint-config-next": "16.3.8",
     "jsdom": "^28.0.1",
     "openapi-typescript": "^7.13.0",
     "prettier": "^3.9.6",
     "prettier-plugin-tailwindcss": "^0.8.1",
-    "shadcn": "^4.21.0",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.1.11"
