@@ -1,4 +1,9 @@
 export const AUDIT_ACTIONS = [
+  "past_event_roster.submitted",
+  "past_event_request.submitted",
+  "past_event_request.approved",
+  "past_event_request.rejected",
+  "past_event_request.cancelled",
   "application.submitted",
   "application.under_review",
   "application.accepted",

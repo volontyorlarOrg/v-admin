@@ -15,7 +15,8 @@ export type AuditSubjectKind =
   | "organization"
   | "attendance"
   | "account"
-  | "bulkAward";
+  | "bulkAward"
+  | "pastEvent";
 
 export type AuditSubject = { kind: AuditSubjectKind; href: string | null };
 
@@ -25,6 +26,9 @@ export function subjectOf(
 ): AuditSubject {
   const type = event.entityType.toLowerCase();
   const id = event.entityId;
+
+  if (type === "pasteventroster" || type === "pasteventrequest")
+    return { kind: "pastEvent", href: navHref("pastEvents") };
 
   if (type === "opportunity") return { kind: "vacancy", href: vacancyHref(id) };
   if (type === "bulkaward")

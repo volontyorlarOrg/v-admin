@@ -101,7 +101,7 @@ export function ApproveRequestDialog({
                     inputMode="decimal"
                     min={0}
                     max={999}
-                    step={0.25}
+                    step={0.01}
                     required
                     defaultValue={typedValues(result).hours ?? amounts.hours}
                     aria-invalid={Boolean(error("hours")) || undefined}

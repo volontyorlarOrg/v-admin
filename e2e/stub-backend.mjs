@@ -386,6 +386,7 @@ function reset() {
     pastEventRequests: [
       {
         id: "00000000-0000-4000-8000-000000000951",
+        rosterId: "00000000-0000-4000-8000-000000000961",
         kind: "create",
         status: "pending",
         title: "Library clean-up",
@@ -2002,6 +2003,7 @@ const server = createServer(async (request, response) => {
       );
       return {
         id: item.id,
+        rosterId: item.rosterId ?? null,
         kind: item.kind,
         status: item.status,
         title: item.title,

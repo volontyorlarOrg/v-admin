@@ -25,6 +25,7 @@ const recordedEventSchema = z.object({
 
 export const pastEventRequestSchema = z.object({
   id: z.string().min(1),
+  rosterId: nullable(z.string()),
   kind: z.enum(PAST_EVENT_REQUEST_KINDS),
   status: z.enum(PAST_EVENT_REQUEST_STATUSES),
   title: nullable(z.string()),
