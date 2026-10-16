@@ -1052,7 +1052,8 @@
       "organization": "Tashkilot",
       "attendance": "Davomat yozuvi",
       "account": "Hisob",
-      "bulkAward": "Ommaviy mukofot"
+      "bulkAward": "Ommaviy mukofot",
+      "pastEvent": "Oʻtgan tadbir"
     },
     "details": {
       "closedByArchive": "Vakansiya arxivlanganda yopildi",
@@ -1087,7 +1088,12 @@
       "user_avatar_removed": "Rasm olib tashlandi",
       "user_progress_adjusted": "XP va soatlar oʻzgartirildi",
       "bulk_award_created": "Ommaviy mukofot berildi",
-      "bulk_award_revoked": "Ommaviy mukofot qaytarib olindi"
+      "bulk_award_revoked": "Ommaviy mukofot qaytarib olindi",
+      "past_event_roster_submitted": "Oʻtgan tadbir yuborildi",
+      "past_event_request_submitted": "Oʻtgan tadbir taklifi yuborildi",
+      "past_event_request_approved": "Oʻtgan tadbir taklifi tasdiqlandi",
+      "past_event_request_rejected": "Oʻtgan tadbir taklifi rad etildi",
+      "past_event_request_cancelled": "Oʻtgan tadbir taklifi qaytarib olindi"
     }
   },
   "vocabulary": {
@@ -2171,7 +2177,10 @@
       "incomplete": "Bu taklifda nom yoki sana yoʻq. Uni rad eting va yangisini soʻrang.",
       "notParticipant": "Bu volontyorning tashkilot bilan tasdiqlangan tadbiri qolmagan, shuning uchun taklifni tasdiqlab boʻlmaydi.",
       "eventGone": "Bu taklif tegishli boʻlgan tadbir olib tashlangan. Taklifni rad eting.",
-      "uncreditedXp": "Bu tadbir faqat tarix sifatida saqlanadi, shuning uchun unga XP berilmaydi."
-    }
+      "uncreditedXp": "Bu tadbir faqat tarix sifatida saqlanadi, shuning uchun unga XP berilmaydi.",
+      "volunteerUnavailable": "Volontyor hisobi endi faol emas yoki talabga mos kelmaydi. Taklifni rad eting yoki tashkilotdan hisobni tekshirishni soʻrang.",
+      "rosterDuplicate": "Bu volontyor keyin birlashtirilgan hisob orqali ushbu tadbir uchun natija olgan. Takroriy taklifni rad eting."
+    },
+    "rosterParticipant": "Tashkilotning oʻtgan tadbiri qatnashchisi. Platformada avval qatnashgan boʻlishi shart emas."
   }
 }

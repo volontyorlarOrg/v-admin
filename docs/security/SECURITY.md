@@ -86,3 +86,20 @@ address, never a credential.
 never gain a `NEXT_PUBLIC_` prefix. The only public variable is
 `NEXT_PUBLIC_PORTAL_URL`, an origin. `.env.example` documents both without
 holding a value; real values live in `.env.local`, which is not tracked.
+
+## Dependency checks
+
+CI runs `npm run security:audit` during verification and in a separate pull-request
+job. Both audit the complete lockfile without requiring GitHub Advanced Security.
+`npm audit --omit=dev --audit-level=high` checks the production dependency tree
+separately. Next.js and its ESLint configuration are pinned together at 16.3.8;
+the unused shadcn generator is removed, while checked-in UI components remain.
+
+The audit follows the volunteer application's temporary exception for
+[GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm), which has
+no patched `braces` release. Until 2026-11-07 UTC, only that advisory and its
+development-only ESLint chain (`braces`, `micromatch`, `fast-glob`,
+`@next/eslint-plugin-next`, `eslint-config-next`) are accepted. Lint patterns are
+local project configuration, not user input. A runtime occurrence, another high
+or critical advisory, an audit failure, or expiry fails CI. Upgrade the lint chain
+when a compatible fix is released; do not extend the exception automatically.

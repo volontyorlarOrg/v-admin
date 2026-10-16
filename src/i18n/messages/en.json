@@ -1052,7 +1052,8 @@
       "organization": "Organization",
       "attendance": "Attendance record",
       "account": "Account",
-      "bulkAward": "Bulk award"
+      "bulkAward": "Bulk award",
+      "pastEvent": "Past event"
     },
     "details": {
       "closedByArchive": "Closed when the vacancy was archived",
@@ -1087,7 +1088,12 @@
       "user_avatar_removed": "Photo removed",
       "user_progress_adjusted": "XP and hours adjusted",
       "bulk_award_created": "Bulk award given",
-      "bulk_award_revoked": "Bulk award taken back"
+      "bulk_award_revoked": "Bulk award taken back",
+      "past_event_roster_submitted": "Historical event submitted",
+      "past_event_request_submitted": "Past event proposal submitted",
+      "past_event_request_approved": "Past event proposal approved",
+      "past_event_request_rejected": "Past event proposal rejected",
+      "past_event_request_cancelled": "Past event proposal withdrawn"
     }
   },
   "vocabulary": {
@@ -2171,7 +2177,10 @@
       "incomplete": "This proposal is missing its name or date. Reject it and ask for a new one.",
       "notParticipant": "This volunteer no longer has a verified event with the organization, so the proposal cannot be approved.",
       "eventGone": "The event this proposal refers to has been removed. Reject the proposal.",
-      "uncreditedXp": "This event is kept as history only, so it cannot carry XP."
-    }
+      "uncreditedXp": "This event is kept as history only, so it cannot carry XP.",
+      "volunteerUnavailable": "This volunteer’s account is no longer active or eligible. Reject the proposal or ask the organization to check the account.",
+      "rosterDuplicate": "This volunteer already received credit for this event through an account that was later merged. Reject this duplicate proposal."
+    },
+    "rosterParticipant": "Participant in an organization’s historical event. Earlier participation on the platform is not required."
   }
 }
