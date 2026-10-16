@@ -115,6 +115,8 @@ export default async function PastEventRequestsPage({
       volunteerNotParticipant: t("errors.notParticipant"),
       pastEventGone: t("errors.eventGone"),
       pastEventUncreditedXp: t("errors.uncreditedXp"),
+      pastEventVolunteerNotFound: t("errors.volunteerUnavailable"),
+      pastEventRosterDuplicate: t("errors.rosterDuplicate"),
     },
   };
 
@@ -223,6 +225,11 @@ export default async function PastEventRequestsPage({
                               hours: format.number(evidence.attendedHours),
                               pastEvents: evidence.pastEvents,
                             })}
+                          </p>
+                        ) : null}
+                        {request.rosterId ? (
+                          <p className="mt-2 text-sm leading-relaxed text-ink-muted">
+                            {t("rosterParticipant")}
                           </p>
                         ) : null}
                         {request.note ? (
