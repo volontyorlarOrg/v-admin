@@ -66,3 +66,25 @@ export async function rejectPastEventRequestAction(
     values,
   );
 }
+
+export async function decidePastEventAction(
+  _previous: ActionResult,
+  formData: FormData,
+): Promise<ActionResult> {
+  const id = stringField(formData, "eventId");
+  if (!id) return failedResult("pastEventRosterNotFound");
+  if (stringField(formData, "decision") === "approve") {
+    return settled(await write("approvePastEvent", { params: { id }, body: {} }));
+  }
+  const values = { note: stringField(formData, "note") };
+  const parsed = rejectionSchema.safeParse(values);
+  if (!parsed.success)
+    return settled(
+      failedResult("validationFailed", fieldErrorsOf(parsed.error)),
+      values,
+    );
+  return settled(
+    await write("rejectPastEvent", { params: { id }, body: parsed.data }),
+    values,
+  );
+}

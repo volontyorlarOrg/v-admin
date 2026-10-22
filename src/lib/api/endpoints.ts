@@ -258,6 +258,26 @@ export const endpoints = {
     path: "/admin/users/{id}/past-events/{eventId}",
     contract: "published",
   },
+  pastEvents: {
+    method: "GET",
+    path: "/admin/past-events",
+    contract: "published",
+  },
+  pastEvent: {
+    method: "GET",
+    path: "/admin/past-events/{id}",
+    contract: "published",
+  },
+  approvePastEvent: {
+    method: "POST",
+    path: "/admin/past-events/{id}/approve",
+    contract: "published",
+  },
+  rejectPastEvent: {
+    method: "POST",
+    path: "/admin/past-events/{id}/reject",
+    contract: "published",
+  },
   pastEventRequests: {
     method: "GET",
     path: "/admin/past-event-requests",

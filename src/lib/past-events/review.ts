@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import type { PastEventRequest } from "@/lib/past-events/schemas";
+import type { PastEventRequest, PastEventSummary } from "@/lib/past-events/schemas";
 
 export const REVIEW_NOTE_MAX = 500;
 
@@ -47,4 +47,40 @@ export function requestChanges(request: PastEventRequest): RequestChange[] {
     const from = current[field];
     return to === null || to === from ? [] : [{ field, from, to }];
   });
+}
+
+export type PastEventState =
+  "waiting" | "approved" | "partlyApproved" | "rejected" | "withdrawn";
+
+export function pastEventState(
+  event: Pick<PastEventSummary, "participants" | "pending" | "approved" | "rejected">,
+): PastEventState {
+  if (event.pending > 0) return "waiting";
+  if (event.approved > 0)
+    return event.approved === event.participants ? "approved" : "partlyApproved";
+  return event.rejected > 0 ? "rejected" : "withdrawn";
+}
+
+export function waitingTotals(requests: readonly PastEventRequest[]) {
+  const waiting = requests.filter((request) => request.status === "pending");
+  return {
+    people: waiting.length,
+    hours:
+      Math.round(
+        waiting.reduce((sum, request) => sum + (request.hours ?? 0), 0) * 100,
+      ) / 100,
+    xp: waiting.reduce((sum, request) => sum + (request.xpAwarded ?? 0), 0),
+  };
+}
+
+export function waitingFirst(
+  requests: readonly PastEventRequest[],
+): PastEventRequest[] {
+  const name = (request: PastEventRequest) =>
+    request.volunteer.displayName ?? request.volunteer.username;
+  return [...requests].sort(
+    (left, right) =>
+      Number(right.status === "pending") - Number(left.status === "pending") ||
+      name(left).localeCompare(name(right)),
+  );
 }

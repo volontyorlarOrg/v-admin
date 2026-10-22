@@ -52,7 +52,7 @@
       "changesRequested": "tuzatish uchun qaytarilgan",
       "pendingReview": "qaror kutayotgan ariza",
       "attendanceDue": "koʻngillining davomati belgilanmagan",
-      "pastEventRequests": "oʻtgan tadbir taklifi qaror kutmoqda"
+      "pastEventRequests": "hal qilinadigan oʻtgan tadbir"
     },
     "blog": "Blog",
     "bulkAwards": "Ommaviy mukofotlash",
@@ -2112,14 +2112,55 @@
   },
   "pastEventRequests": {
     "title": "Oʻtgan tadbirlar",
-    "description": "Tashkilotlar oʻzlari bilan qatnashgan volontyorlar uchun oʻtgan tadbir, soat va XP taklif qiladi. Siz shu yerda tasdiqlamaguningizcha volontyor profili va XP ga hech narsa qoʻshilmaydi.",
-    "filter": "Holat boʻyicha takliflar",
-    "countLabel": "taklif",
-    "listTitle": {
-      "pending": "Qaroringizni kutmoqda",
-      "approved": "Tasdiqlangan",
-      "rejected": "Rad etilgan",
-      "cancelled": "Tashkilot qaytarib olgan"
+    "description": "Tashkilotlar allaqachon oʻtgan tadbirlarni unda qatnashgan volontyorlar bilan birga qayd etadi. Tadbirni oching va hammani birdaniga tasdiqlang yoki har bir kishi boʻyicha alohida qaror qiling. Siz tasdiqlamaguningizcha volontyorga hech narsa yetib bormaydi.",
+    "views": {
+      "label": "Tadbirlar holati boʻyicha",
+      "waiting": "Kutmoqda",
+      "reviewed": "Koʻrib chiqilgan"
+    },
+    "events": {
+      "title": {
+        "waiting": "Qaroringizni kutmoqda",
+        "reviewed": "Koʻrib chiqilgan"
+      },
+      "countLabel": "tadbir",
+      "search": "Tadbir yoki tashkilot boʻyicha qidirish",
+      "people": "{count, plural, one {# ishtirokchi} other {# ishtirokchi}}",
+      "state": {
+        "waiting": "{count} ta kutmoqda",
+        "approved": "Tasdiqlangan",
+        "partlyApproved": "Qisman tasdiqlangan",
+        "rejected": "Rad etilgan",
+        "withdrawn": "Qaytarib olingan"
+      },
+      "empty": {
+        "waiting": "Kutayotgan tadbir yoʻq",
+        "waitingDescription": "Tashkilot oʻtgan tadbirni qayd etishi bilan u shu yerda paydo boʻladi.",
+        "reviewed": "Hali koʻrib chiqilgan tadbir yoʻq",
+        "noMatches": "Bu qidiruvga mos tadbir yoʻq"
+      }
+    },
+    "changes": {
+      "title": "Tuzatish va olib tashlashlar",
+      "countLabel": "taklif",
+      "description": "Tashkilot bitta volontyorning qayd etilgan oʻtgan tadbiriga taklif qilgan oʻzgarishlar. Har birini alohida hal qiling."
+    },
+    "event": {
+      "record": "Oʻtgan tadbir",
+      "note": "Tashkilotning izohi",
+      "participants": "Ishtirokchilar",
+      "countLabel": "ishtirokchi",
+      "decision": "Kutayotganlarning hammasi uchun qaror",
+      "decideHelp": "Hammani tashkilot taklif qilgan soat va XP bilan tasdiqlang yoki quyida har bir kishi boʻyicha alohida qaror qiling — masalan, kimningdir soatini tuzatish uchun.",
+      "approveAll": "Hammasini tasdiqlash ({count})",
+      "approveRemaining": "Qolganlarini tasdiqlash ({count})",
+      "approveAllPrompt": "{count, plural, one {# ishtirokchi} other {# ishtirokchi}} tasdiqlansinmi — jami {hours} soat va {xp} XP?",
+      "approveAllSuccess": "Tasdiqlandi. {count, plural, one {# volontyor yozuvi} other {# volontyor yozuvi}} yangilandi.",
+      "rejectAll": "Hammasini rad etish ({count})",
+      "rejectRemaining": "Qolganlarini rad etish ({count})",
+      "rejectAllHelp": "Tashkilotga koʻrsatiladi. Hali kutayotgan har bir kishi shu sabab bilan rad etiladi.",
+      "rejectAllSuccess": "Kutayotganlarning hammasi rad etildi.",
+      "published": "Tasdiqlangach, tadbir har bir ishtirokchining tarixida koʻrinadi va volontyor ilovasidagi Avvalgi imkoniyatlar boʻlimida chiqadi."
     },
     "status": {
       "pending": "Kutmoqda",
@@ -2131,13 +2172,6 @@
       "create": "Yangi oʻtgan tadbir",
       "update": "Tuzatish",
       "remove": "Olib tashlash"
-    },
-    "empty": {
-      "pending": "Kutayotgan taklif yoʻq",
-      "pendingDescription": "Tashkilot oʻz ishtirokchisi uchun oʻtgan tadbirni qoʻshsa, tuzatsa yoki olib tashlasa, taklif shu yerda paydo boʻladi.",
-      "approved": "Hali tasdiqlangan taklif yoʻq",
-      "rejected": "Rad etilgan taklif yoʻq",
-      "cancelled": "Qaytarib olingan taklif yoʻq"
     },
     "fields": {
       "title": "Nomi",
@@ -2179,8 +2213,11 @@
       "eventGone": "Bu taklif tegishli boʻlgan tadbir olib tashlangan. Taklifni rad eting.",
       "uncreditedXp": "Bu tadbir faqat tarix sifatida saqlanadi, shuning uchun unga XP berilmaydi.",
       "volunteerUnavailable": "Volontyor hisobi endi faol emas yoki talabga mos kelmaydi. Taklifni rad eting yoki tashkilotdan hisobni tekshirishni soʻrang.",
-      "rosterDuplicate": "Bu volontyor keyin birlashtirilgan hisob orqali ushbu tadbir uchun natija olgan. Takroriy taklifni rad eting."
-    },
-    "rosterParticipant": "Tashkilotning oʻtgan tadbiri qatnashchisi. Platformada avval qatnashgan boʻlishi shart emas."
+      "rosterDuplicate": "Bu volontyor keyin birlashtirilgan hisob orqali ushbu tadbir uchun natija olgan. Takroriy taklifni rad eting.",
+      "rosterDecided": "Bu tadbirda kutayotgan hech kim qolmadi.",
+      "rosterNotFound": "Bu tadbir endi mavjud emas.",
+      "eventVolunteerUnavailable": "Ishtirokchilardan birining hisobi endi faol emas, shuning uchun hech kim tasdiqlanmadi. Quyida oʻsha ishtirokchini rad eting, keyin qolganlarini tasdiqlang.",
+      "eventRosterDuplicate": "Ikki ishtirokchi endi bitta birlashtirilgan hisob, shuning uchun hech kim tasdiqlanmadi. Quyida takrorini rad eting, keyin qolganlarini tasdiqlang."
+    }
   }
 }
