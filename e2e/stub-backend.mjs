@@ -383,7 +383,35 @@ function reset() {
         createdAt: at(-28),
       },
     ],
+    pastEventRosters: [
+      {
+        id: "00000000-0000-4000-8000-000000000961",
+        title: "Library clean-up",
+        eventDate: "2025-09-13",
+        note: "Two shifts, morning and afternoon.",
+        createdAt: at(-3),
+        organizationId: "00000000-0000-4000-8000-000000000301",
+      },
+    ],
     pastEventRequests: [
+      {
+        id: "00000000-0000-4000-8000-000000000954",
+        rosterId: "00000000-0000-4000-8000-000000000961",
+        kind: "create",
+        status: "pending",
+        title: "Library clean-up",
+        eventDate: "2025-09-13",
+        hours: 2.5,
+        xpAwarded: 40,
+        note: "Two shifts, morning and afternoon.",
+        adjusted: false,
+        reviewNote: null,
+        reviewedAt: null,
+        createdAt: at(-3),
+        volunteerId: "00000000-0000-4000-8000-000000000203",
+        organizationId: "00000000-0000-4000-8000-000000000301",
+        eventId: null,
+      },
       {
         id: "00000000-0000-4000-8000-000000000951",
         rosterId: "00000000-0000-4000-8000-000000000961",
@@ -832,6 +860,150 @@ function publicUser(user) {
     : rest;
 }
 
+function recordedPastEvent(eventId) {
+  const live = state.manualPastEvents.find((item) => item.id === eventId);
+  const event = live ?? state.removedPastEvents.find((item) => item.id === eventId);
+  return event
+    ? {
+        id: event.id,
+        title: event.title,
+        eventDate: event.eventDate,
+        hours: event.hours,
+        xpAwarded: event.xpAwarded,
+        countsTowardProgress: event.countsTowardProgress,
+        live: Boolean(live),
+      }
+    : null;
+}
+
+function pastEventRequestView(item) {
+  const volunteerUser = userById(item.volunteerId);
+  const organization = state.organizations.find(
+    (candidate) => candidate.id === item.organizationId,
+  );
+  const attended = state.applications.filter(
+    (application) =>
+      application.volunteerId === item.volunteerId &&
+      application.attendance?.outcome === "attended" &&
+      state.vacancies.find((vacancy) => vacancy.id === application.opportunityId)
+        ?.organizationId === item.organizationId,
+  );
+  return {
+    id: item.id,
+    rosterId: item.rosterId ?? null,
+    kind: item.kind,
+    status: item.status,
+    title: item.title,
+    eventDate: item.eventDate,
+    hours: item.hours,
+    xpAwarded: item.xpAwarded,
+    note: item.note,
+    adjusted: item.adjusted,
+    reviewNote: item.reviewNote,
+    createdAt: item.createdAt,
+    reviewedAt: item.reviewedAt,
+    organization: { id: organization.id, name: organization.name },
+    volunteer: {
+      id: volunteerUser.id,
+      displayName: volunteerUser.displayName,
+      username: volunteerUser.username ?? "",
+      avatarUrl: null,
+    },
+    event: item.eventId ? recordedPastEvent(item.eventId) : null,
+    participation: {
+      attendedEvents: attended.length,
+      attendedHours: attended.reduce(
+        (sum, application) => sum + Number(application.attendance?.confirmedHours ?? 0),
+        0,
+      ),
+      pastEvents: state.manualPastEvents.filter(
+        (event) =>
+          event.volunteerId === item.volunteerId &&
+          event.organizationId === item.organizationId,
+      ).length,
+    },
+  };
+}
+
+function approvePastEventRequest(item, body) {
+  const reviewedAt = new Date().toISOString();
+  const hours = body.hours ?? item.hours ?? 0;
+  const xpAwarded = body.xpAwarded ?? item.xpAwarded ?? 0;
+  const organization = state.organizations.find(
+    (candidate) => candidate.id === item.organizationId,
+  );
+  if (item.kind === "create") {
+    const created = {
+      id: randomUUID(),
+      submissionId: item.id,
+      volunteerId: item.volunteerId,
+      title: item.title,
+      organizationId: item.organizationId,
+      organization: organization.name,
+      eventDate: item.eventDate,
+      hours,
+      xpAwarded,
+      countsTowardProgress: true,
+      createdAt: reviewedAt,
+    };
+    state.manualPastEvents.push(created);
+    item.eventId = created.id;
+  } else {
+    const event = state.manualPastEvents.find(
+      (candidate) => candidate.id === item.eventId,
+    );
+    if (!event) return "pastEventGone";
+    if (item.kind === "remove") {
+      state.removedPastEvents.push(event);
+      state.manualPastEvents = state.manualPastEvents.filter(
+        (candidate) => candidate.id !== event.id,
+      );
+    } else {
+      Object.assign(event, {
+        title: item.title,
+        eventDate: item.eventDate,
+        hours,
+        xpAwarded,
+      });
+    }
+  }
+  const adjusted =
+    item.kind !== "remove" && (hours !== item.hours || xpAwarded !== item.xpAwarded);
+  Object.assign(item, {
+    status: "approved",
+    reviewedAt,
+    adjusted,
+    ...(item.kind === "remove" ? {} : { hours, xpAwarded }),
+  });
+  return null;
+}
+
+function rosterMembers(roster) {
+  return state.pastEventRequests.filter((item) => item.rosterId === roster.id);
+}
+
+function pastEventView(roster, detail = false) {
+  const members = rosterMembers(roster);
+  const count = (status) => members.filter((item) => item.status === status).length;
+  const organization = state.organizations.find(
+    (candidate) => candidate.id === roster.organizationId,
+  );
+  return {
+    id: roster.id,
+    title: roster.title,
+    eventDate: roster.eventDate,
+    note: roster.note,
+    createdAt: roster.createdAt,
+    organization: { id: organization.id, name: organization.name },
+    participants: members.length,
+    pending: count("pending"),
+    approved: count("approved"),
+    rejected: count("rejected"),
+    cancelled: count("cancelled"),
+    ...(detail ? { requests: members.map(pastEventRequestView) } : {}),
+  };
+}
+
 function record(action, entityType, entityId, actorUserId) {
   state.audit.unshift({
     id: randomUUID(),
@@ -1037,7 +1209,12 @@ function statisticsFor(user) {
         0,
       ),
       pastEventRequests: isAdmin(user)
-        ? state.pastEventRequests.filter((item) => item.status === "pending").length
+        ? state.pastEventRosters.filter((roster) =>
+            rosterMembers(roster).some((item) => item.status === "pending"),
+          ).length +
+          state.pastEventRequests.filter(
+            (item) => item.status === "pending" && !item.rosterId,
+          ).length
         : 0,
       ...(isAdmin(user)
         ? {
@@ -1969,88 +2146,79 @@ const server = createServer(async (request, response) => {
     return send(response, 200, directory(reachable.map(publicUser), url));
   }
 
+  const eventMatch = /^\/admin\/past-events(?:\/([^/]+)(?:\/(approve|reject))?)?$/.exec(
+    path,
+  );
+  if (eventMatch) {
+    if (!isAdmin(actor)) return send(response, 403, { code: "forbidden" });
+    const [, eventId, decision] = eventMatch;
+    if (!eventId && method === "GET") {
+      const view = url.searchParams.get("view") ?? "waiting";
+      const q = (url.searchParams.get("q") ?? "").trim().toLowerCase();
+      const waiting = (roster) =>
+        rosterMembers(roster).some((item) => item.status === "pending");
+      const matching = state.pastEventRosters
+        .filter((roster) => (view === "waiting" ? waiting(roster) : !waiting(roster)))
+        .filter((roster) => !q || roster.title.toLowerCase().includes(q));
+      return send(response, 200, {
+        items: matching.map((roster) => pastEventView(roster)),
+        page: 1,
+        pageSize: 25,
+        total: matching.length,
+        waiting: state.pastEventRosters.filter(waiting).length,
+      });
+    }
+    const roster = state.pastEventRosters.find((candidate) => candidate.id === eventId);
+    if (!roster) return send(response, 404, { code: "pastEventRosterNotFound" });
+    if (!decision && method === "GET") {
+      return send(response, 200, pastEventView(roster, true));
+    }
+    if (method !== "POST") return send(response, 404, { code: "notFound" });
+    const waiting = rosterMembers(roster).filter((item) => item.status === "pending");
+    if (!waiting.length) return send(response, 409, { code: "pastEventRosterDecided" });
+    const reviewedAt = new Date().toISOString();
+    if (decision === "reject") {
+      if (typeof body.note !== "string" || !body.note.trim()) {
+        return send(response, 422, {
+          code: "validationFailed",
+          errors: { note: ["note should not be empty"] },
+        });
+      }
+      for (const item of waiting) {
+        Object.assign(item, {
+          status: "rejected",
+          reviewNote: body.note.trim(),
+          reviewedAt,
+        });
+        record("past_event_request.rejected", "PastEventRequest", item.id, actor.id);
+      }
+      return send(response, 200, pastEventView(roster, true));
+    }
+    for (const item of waiting) {
+      approvePastEventRequest(item, {});
+      record("past_event_request.approved", "PastEventRequest", item.id, actor.id);
+    }
+    return send(response, 200, pastEventView(roster, true));
+  }
+
   const requestMatch =
     /^\/admin\/past-event-requests(?:\/([^/]+)\/(approve|reject))?$/.exec(path);
   if (requestMatch) {
     if (!isAdmin(actor)) return send(response, 403, { code: "forbidden" });
     const [, requestId, decision] = requestMatch;
-    const recordedEvent = (eventId) => {
-      const live = state.manualPastEvents.find((item) => item.id === eventId);
-      const event = live ?? state.removedPastEvents.find((item) => item.id === eventId);
-      return event
-        ? {
-            id: event.id,
-            title: event.title,
-            eventDate: event.eventDate,
-            hours: event.hours,
-            xpAwarded: event.xpAwarded,
-            countsTowardProgress: event.countsTowardProgress,
-            live: Boolean(live),
-          }
-        : null;
-    };
-    const view = (item) => {
-      const volunteerUser = userById(item.volunteerId);
-      const organization = state.organizations.find(
-        (candidate) => candidate.id === item.organizationId,
-      );
-      const attended = state.applications.filter(
-        (application) =>
-          application.volunteerId === item.volunteerId &&
-          application.attendance?.outcome === "attended" &&
-          state.vacancies.find((vacancy) => vacancy.id === application.opportunityId)
-            ?.organizationId === item.organizationId,
-      );
-      return {
-        id: item.id,
-        rosterId: item.rosterId ?? null,
-        kind: item.kind,
-        status: item.status,
-        title: item.title,
-        eventDate: item.eventDate,
-        hours: item.hours,
-        xpAwarded: item.xpAwarded,
-        note: item.note,
-        adjusted: item.adjusted,
-        reviewNote: item.reviewNote,
-        createdAt: item.createdAt,
-        reviewedAt: item.reviewedAt,
-        organization: { id: organization.id, name: organization.name },
-        volunteer: {
-          id: volunteerUser.id,
-          displayName: volunteerUser.displayName,
-          username: volunteerUser.username ?? "",
-          avatarUrl: null,
-        },
-        event: item.eventId ? recordedEvent(item.eventId) : null,
-        participation: {
-          attendedEvents: attended.length,
-          attendedHours: attended.reduce(
-            (sum, application) =>
-              sum + Number(application.attendance?.confirmedHours ?? 0),
-            0,
-          ),
-          pastEvents: state.manualPastEvents.filter(
-            (event) =>
-              event.volunteerId === item.volunteerId &&
-              event.organizationId === item.organizationId,
-          ).length,
-        },
-      };
-    };
-
     if (!requestId && method === "GET") {
       const status = url.searchParams.get("status") ?? "pending";
       const matching = state.pastEventRequests
-        .filter((item) => item.status === status)
+        .filter((item) => item.status === status && !item.rosterId)
         .sort((left, right) => left.createdAt.localeCompare(right.createdAt));
       return send(response, 200, {
-        items: matching.map(view),
+        items: matching.map(pastEventRequestView),
         page: 1,
         pageSize: 25,
         total: matching.length,
-        pending: state.pastEventRequests.filter((item) => item.status === "pending")
-          .length,
+        pending: state.pastEventRequests.filter(
+          (item) => item.status === "pending" && !item.rosterId,
+        ).length,
       });
     }
 
@@ -2077,59 +2245,13 @@ const server = createServer(async (request, response) => {
         reviewedAt,
       });
       record("past_event_request.rejected", "PastEventRequest", item.id, actor.id);
-      return send(response, 200, view(item));
+      return send(response, 200, pastEventRequestView(item));
     }
 
-    const hours = body.hours ?? item.hours ?? 0;
-    const xpAwarded = body.xpAwarded ?? item.xpAwarded ?? 0;
-    const organization = state.organizations.find(
-      (candidate) => candidate.id === item.organizationId,
-    );
-    if (item.kind === "create") {
-      const created = {
-        id: randomUUID(),
-        submissionId: item.id,
-        volunteerId: item.volunteerId,
-        title: item.title,
-        organizationId: item.organizationId,
-        organization: organization.name,
-        eventDate: item.eventDate,
-        hours,
-        xpAwarded,
-        countsTowardProgress: true,
-        createdAt: reviewedAt,
-      };
-      state.manualPastEvents.push(created);
-      item.eventId = created.id;
-    } else {
-      const event = state.manualPastEvents.find(
-        (candidate) => candidate.id === item.eventId,
-      );
-      if (!event) return send(response, 409, { code: "pastEventGone" });
-      if (item.kind === "remove") {
-        state.removedPastEvents.push(event);
-        state.manualPastEvents = state.manualPastEvents.filter(
-          (candidate) => candidate.id !== event.id,
-        );
-      } else {
-        Object.assign(event, {
-          title: item.title,
-          eventDate: item.eventDate,
-          hours,
-          xpAwarded,
-        });
-      }
-    }
-    const adjusted =
-      item.kind !== "remove" && (hours !== item.hours || xpAwarded !== item.xpAwarded);
-    Object.assign(item, {
-      status: "approved",
-      reviewedAt,
-      adjusted,
-      ...(item.kind === "remove" ? {} : { hours, xpAwarded }),
-    });
+    const failure = approvePastEventRequest(item, body);
+    if (failure) return send(response, 409, { code: failure });
     record("past_event_request.approved", "PastEventRequest", item.id, actor.id);
-    return send(response, 200, view(item));
+    return send(response, 200, pastEventRequestView(item));
   }
 
   const pastEventMatch = /^\/admin\/users\/([^/]+)\/past-events(?:\/([^/]+))?$/.exec(
