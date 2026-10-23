@@ -74,7 +74,7 @@ export function ApproveRequestDialog({
       fieldLabels={{ hours: labels.hours, xpAwarded: labels.xp }}
       idFor={fieldId}
       labels={dialogLabels(labels, {
-        title: labels.approve,
+        title: `${labels.approve} — ${subject}`,
         description: amounts
           ? labels.approveDescription
           : labels.approveRemovalDescription,
@@ -158,7 +158,7 @@ export function RejectRequestDialog({
       fieldLabels={{ note: labels.reason }}
       idFor={fieldId}
       labels={dialogLabels(labels, {
-        title: labels.reject,
+        title: `${labels.reject} — ${subject}`,
         description: labels.rejectDescription,
         submit: labels.reject,
         success: labels.rejectSuccess,

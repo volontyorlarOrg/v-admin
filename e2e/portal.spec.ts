@@ -419,15 +419,21 @@ test.describe("manually added past events", () => {
 });
 
 test.describe("past events proposed by organizations", () => {
+  const SARDOR = "/en/users/00000000-0000-4000-8000-000000000202";
+  const EVENT = "/en/past-events/00000000-0000-4000-8000-000000000961";
+  const everyone = (page: Page) =>
+    page.getByRole("group", {
+      name: "Decision for everyone waiting: Library clean-up",
+    });
+
   test.beforeEach(async ({ page }) => {
     await resetBackend(page);
     await signedIn(page);
   });
 
-  test("nothing reaches a volunteer until the proposal is approved, with the figures the administrator left", async ({
+  test("an event waits as one row, and opening it lets the administrator decide one person and approve the rest at once", async ({
     page,
   }) => {
-    const SARDOR = "/en/users/00000000-0000-4000-8000-000000000202";
     await page.goto(SARDOR);
     await expect(page.getByText("Library clean-up")).toHaveCount(0);
 
@@ -435,52 +441,67 @@ test.describe("past events proposed by organizations", () => {
     await expect(
       page.getByRole("heading", { level: 1, name: "Past events" }),
     ).toBeVisible();
-    const queue = page.getByRole("region", { name: "Waiting for your decision" });
-    await expect(queue.locator("ol > li")).toHaveCount(3);
-
-    const proposal = queue
-      .getByRole("listitem")
+    const waiting = page.getByRole("region", { name: "Waiting for your decision" });
+    await expect(waiting.locator(":scope > ul > li")).toHaveCount(1);
+    const row = waiting
+      .locator(":scope > ul > li")
       .filter({ hasText: "Library clean-up" });
-    await expect(proposal).toContainText("New past event");
-    await expect(proposal).toContainText("Chilonzor Reading Corners");
-    await expect(proposal).toContainText("4 h · 80 XP");
-    await expect(proposal).toContainText(
-      "With this organization: 0 attended events (0 h verified), 1 past event.",
-    );
-    await expect(proposal).toContainText("Helped re-shelve the children's section.");
-    await expect(proposal).toContainText(
-      "Participant in an organization’s historical event. Earlier participation on the platform is not required.",
-    );
+    await expect(row).toContainText("Chilonzor Reading Corners");
+    await expect(row).toContainText("2 participants");
+    await expect(row).toContainText("2 waiting");
     await expect(
-      proposal.getByRole("link", { name: "Sardor Toshmatov" }),
+      page.getByRole("link", { name: "Waiting 1", exact: true }),
+    ).toHaveAttribute("aria-current", "page");
+
+    await row.getByRole("link", { name: "Library clean-up" }).click();
+    await expect(page).toHaveURL(new RegExp(`${EVENT}$`));
+    await expect(
+      page.getByRole("heading", { level: 1, name: "Library clean-up" }),
+    ).toBeVisible();
+    await expect(page.getByText("Two shifts, morning and afternoon.")).toBeVisible();
+    const people = page.getByRole("region", { name: "Participants" });
+    await expect(people.locator("ul > li")).toHaveCount(2);
+    const sardor = people.locator("ul > li").filter({ hasText: "Sardor Toshmatov" });
+    await expect(sardor).toContainText("4 h · 80 XP");
+    await expect(
+      sardor.getByRole("link", { name: "Sardor Toshmatov" }),
     ).toHaveAttribute("href", SARDOR);
 
-    await proposal.getByRole("button", { name: /^Approve/ }).click();
+    await sardor.getByRole("button", { name: /^Approve/ }).click();
     await expect(dialog(page).getByLabel("Hours")).toHaveValue("4");
     await dialog(page).getByLabel("XP").fill("100001");
     await dialog(page).getByRole("button", { name: "Approve" }).click();
     await expect(
       dialog(page).getByText("Enter a whole number of XP from 0 to 100,000."),
     ).toBeVisible();
-    await expect(dialog(page).getByLabel("XP")).toHaveValue("100001");
     await dialog(page).getByLabel("XP").fill("60");
     await dialog(page).getByLabel("Hours").fill("3.33");
     await dialog(page).getByRole("button", { name: "Approve" }).click();
-    await expect(toast(page)).toHaveCount(1);
     await expect(toast(page)).toContainText(
       "Approved. The volunteer's record is updated.",
     );
-    await expect(queue.locator("ol > li")).toHaveCount(2);
-    await expect(queue.getByText("Library clean-up")).toHaveCount(0);
+    await expect(sardor).toContainText("3.33 h · 60 XP");
+    await expect(sardor).toContainText("Approved with corrected hours or XP.");
 
-    await page.getByRole("link", { name: "Approved", exact: true }).click();
-    await expect(page).toHaveURL(/\/en\/past-events\?status=approved$/);
-    const approved = page.getByRole("region", { name: "Approved" });
-    await expect(approved.getByText("Library clean-up")).toBeVisible();
-    await expect(approved.getByText("3.33 h · 60 XP")).toBeVisible();
+    await everyone(page).getByRole("button", { name: "Approve remaining (1)" }).click();
     await expect(
-      approved.getByText("Approved with corrected hours or XP."),
+      everyone(page).getByText("Approve 1 participant — 2.5 h and 40 XP in total?"),
     ).toBeVisible();
+    await everyone(page).getByRole("button", { name: "Approve remaining (1)" }).click();
+    await expect(
+      toast(page).filter({ hasText: "Approved. 1 volunteer's record is updated." }),
+    ).toBeVisible();
+    await expect(everyone(page)).toHaveCount(0);
+    await expect(people.getByText("Approved", { exact: true })).toHaveCount(2);
+
+    await page.goto("/en/past-events");
+    await expect(page.getByText("No event is waiting")).toBeVisible();
+    await page.getByRole("link", { name: "Reviewed", exact: true }).click();
+    await expect(page).toHaveURL(/\/en\/past-events\?view=reviewed$/);
+    const reviewed = page.getByRole("region", { name: "Reviewed" });
+    await expect(
+      reviewed.locator(":scope > ul > li").filter({ hasText: "Library clean-up" }),
+    ).toContainText("Approved");
 
     await page.goto(SARDOR);
     const events = page.locator("section").filter({
@@ -490,11 +511,36 @@ test.describe("past events proposed by organizations", () => {
     await expect(events.getByText("3.33 h · 60 XP")).toBeVisible();
   });
 
+  test("rejecting a whole event needs one reason, which every waiting participant gets", async ({
+    page,
+  }) => {
+    await page.goto(EVENT);
+    await everyone(page).getByRole("button", { name: "Reject all (2)" }).click();
+    await page.getByRole("button", { name: "Reject all (2)" }).click();
+    await expect(page.getByText("Fill this in.")).toBeVisible();
+    await page.getByLabel("Reason").fill("This event was not run by the organization.");
+    await page.getByRole("button", { name: "Reject all (2)" }).click();
+    await expect(toast(page)).toContainText("Everyone who was waiting is rejected.");
+
+    const people = page.getByRole("region", { name: "Participants" });
+    await expect(people.getByText("Rejected", { exact: true })).toHaveCount(2);
+    await expect(
+      people.getByText("Your reason: This event was not run by the organization."),
+    ).toHaveCount(2);
+    await expect(
+      page.getByRole("heading", { level: 1, name: "Library clean-up" }),
+    ).toBeVisible();
+
+    await page.goto(SARDOR);
+    await expect(page.getByText("Library clean-up")).toHaveCount(0);
+  });
+
   test("a correction shows only what changes and a rejection needs a reason the organization can read", async ({
     page,
   }) => {
     await page.goto("/en/past-events");
-    const queue = page.getByRole("region", { name: "Waiting for your decision" });
+    const queue = page.getByRole("region", { name: "Corrections and removals" });
+    await expect(queue.locator("ol > li")).toHaveCount(2);
 
     const correction = queue
       .getByRole("listitem")
@@ -515,14 +561,7 @@ test.describe("past events proposed by organizations", () => {
     await dialog(page).getByRole("button", { name: "Reject" }).click();
     await expect(toast(page)).toHaveCount(1);
     await expect(toast(page)).toContainText("Rejected.");
-    await expect(queue.locator("ol > li")).toHaveCount(2);
-
-    await page.getByRole("link", { name: "Rejected", exact: true }).click();
-    const rejected = page.getByRole("region", { name: "Rejected" });
-    await expect(rejected.getByText("Tree planting day")).toBeVisible();
-    await expect(
-      rejected.getByText("Your reason: The volunteer did attend."),
-    ).toBeVisible();
+    await expect(queue.locator("ol > li")).toHaveCount(1);
 
     await page.goto("/en/users/00000000-0000-4000-8000-000000000205");
     await expect(page.getByText("Tree planting day")).toBeVisible();

@@ -48,15 +48,21 @@ XP and hours adjustment on the volunteer record
 (`src/components/users/progress-adjustment-form.tsx`,
 `src/lib/users/progress*.ts`).
 
-**Past events** (`/past-events`, `src/lib/past-events/`,
-`src/components/past-events/review-dialogs.tsx`) is `v-admin` only as well. It
-is the queue of what organizations propose for their participants: a new past
-event, a correction or a removal. Each row shows the volunteer, the
-organization, what would change and how the volunteer took part with that
-organization, and is approved, with the hours and XP the administrator leaves
-in the dialog, or rejected with a reason the organization reads. Approval is
-the moment the event and its XP reach the volunteer. The sidebar counts what
-is waiting from `totals.pastEventRequests`.
+**Past events** (`/past-events`, `/past-events/[id]`, `src/lib/past-events/`,
+`src/components/past-events/review-dialogs.tsx`) is `v-admin` only as well. An
+organization's past event arrives as **one row** in the Waiting tab — name,
+organization, date, how many took part and how many still wait — and moves to
+Reviewed once nobody waits. Its page lists every participant, waiting ones
+first. One `InlineDecision` decides everyone still waiting: "Approve all"
+confirms with the total hours and XP it will credit and approves all or none;
+"Reject all" needs one reason, which each of them gets. Each waiting row also
+has its own approve dialog, where the hours and XP can be corrected, and reject
+dialog. Corrections and removals of one volunteer's recorded past event are a
+second register on the Waiting tab, decided one at a time with the same
+dialogs. Approval is the moment the event and its XP reach the volunteer. The
+sidebar counts events and corrections waiting from
+`totals.pastEventRequests`. See
+[`docs/operations/HISTORICAL_EVENT_ROSTERS.md`](../operations/HISTORICAL_EVENT_ROSTERS.md).
 
 `FormDialog` raises its success toast from the action itself, not from a
 render, so the confirmation appears exactly once and survives the row that

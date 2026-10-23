@@ -253,6 +253,10 @@ export function userHref(id: string): string {
   return `${navHref("users")}/${encodeURIComponent(id)}`;
 }
 
+export function pastEventHref(id: string): string {
+  return `${navHref("pastEvents")}/${encodeURIComponent(id)}`;
+}
+
 export function coordinatorHref(id: string): string {
   return `${navHref("coordinators")}/${encodeURIComponent(id)}`;
 }

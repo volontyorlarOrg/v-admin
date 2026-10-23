@@ -65,3 +65,38 @@ export const pastEventRequestPageSchema = z.object({
 });
 
 export type PastEventRequestPage = z.infer<typeof pastEventRequestPageSchema>;
+
+export const PAST_EVENT_VIEWS = ["waiting", "reviewed"] as const;
+export type PastEventView = (typeof PAST_EVENT_VIEWS)[number];
+
+export const pastEventSummarySchema = z.object({
+  id: z.string().min(1),
+  title: z.string(),
+  eventDate: z.string(),
+  note: nullable(z.string()),
+  createdAt: z.string().min(1),
+  organization: z.object({ id: z.string().min(1), name: z.string() }),
+  participants: z.number().int().default(0),
+  pending: z.number().int().default(0),
+  approved: z.number().int().default(0),
+  rejected: z.number().int().default(0),
+  cancelled: z.number().int().default(0),
+});
+
+export type PastEventSummary = z.infer<typeof pastEventSummarySchema>;
+
+export const pastEventPageSchema = z.object({
+  items: z.array(pastEventSummarySchema),
+  page: z.number().int().default(1),
+  pageSize: z.number().int().default(25),
+  total: z.number().int().default(0),
+  waiting: z.number().int().default(0),
+});
+
+export type PastEventPage = z.infer<typeof pastEventPageSchema>;
+
+export const pastEventSchema = pastEventSummarySchema.extend({
+  requests: z.array(pastEventRequestSchema),
+});
+
+export type PastEvent = z.infer<typeof pastEventSchema>;
