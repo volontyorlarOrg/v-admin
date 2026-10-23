@@ -19,7 +19,9 @@ events** as one row in the Waiting tab. Open it to see everyone on it.
   hours and XP so a wrong figure can be corrected first; the row then says the
   amounts were corrected.
 
-Decisions already made stay on the page with their badge and reason. The event
+Decisions already made stay on the page with their badge and reason. An
+organization can add a forgotten volunteer to an event later; the newcomer
+waits like the others and the event returns to the Waiting tab. The event
 moves to the Reviewed tab once nobody waits, with one state: approved, partly
 approved, rejected or withdrawn.
 
