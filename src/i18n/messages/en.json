@@ -52,7 +52,7 @@
       "changesRequested": "returned for changes",
       "pendingReview": "applications to decide",
       "attendanceDue": "volunteers to record",
-      "pastEventRequests": "past event proposals to decide"
+      "pastEventRequests": "past events to decide"
     },
     "blog": "Blog",
     "bulkAwards": "Bulk awards",
@@ -2112,14 +2112,55 @@
   },
   "pastEventRequests": {
     "title": "Past events",
-    "description": "Organizations propose past events, hours and XP for volunteers who took part with them. Nothing reaches a volunteer's profile or XP until you approve it here.",
-    "filter": "Proposals by status",
-    "countLabel": "proposals",
-    "listTitle": {
-      "pending": "Waiting for your decision",
-      "approved": "Approved",
-      "rejected": "Rejected",
-      "cancelled": "Withdrawn by the organization"
+    "description": "Organizations record events that already happened, with the volunteers who took part. Open an event to approve everyone at once or decide person by person. Nothing reaches a volunteer until you approve it.",
+    "views": {
+      "label": "Events by state",
+      "waiting": "Waiting",
+      "reviewed": "Reviewed"
+    },
+    "events": {
+      "title": {
+        "waiting": "Waiting for your decision",
+        "reviewed": "Reviewed"
+      },
+      "countLabel": "events",
+      "search": "Search by event or organization",
+      "people": "{count, plural, one {# participant} other {# participants}}",
+      "state": {
+        "waiting": "{count} waiting",
+        "approved": "Approved",
+        "partlyApproved": "Partly approved",
+        "rejected": "Rejected",
+        "withdrawn": "Withdrawn"
+      },
+      "empty": {
+        "waiting": "No event is waiting",
+        "waitingDescription": "An event appears here as soon as an organization records one that already happened.",
+        "reviewed": "No event has been reviewed yet",
+        "noMatches": "No event matches this search"
+      }
+    },
+    "changes": {
+      "title": "Corrections and removals",
+      "countLabel": "proposals",
+      "description": "Changes an organization proposed to one volunteer's recorded past event. Decide each on its own."
+    },
+    "event": {
+      "record": "Past event",
+      "note": "Note from the organization",
+      "participants": "Participants",
+      "countLabel": "participants",
+      "decision": "Decision for everyone waiting",
+      "decideHelp": "Approve everyone with the hours and XP the organization proposed, or decide one person at a time below — for instance to correct someone's hours.",
+      "approveAll": "Approve all ({count})",
+      "approveRemaining": "Approve remaining ({count})",
+      "approveAllPrompt": "Approve {count, plural, one {# participant} other {# participants}} — {hours} h and {xp} XP in total?",
+      "approveAllSuccess": "Approved. {count, plural, one {# volunteer's record is} other {# volunteers' records are}} updated.",
+      "rejectAll": "Reject all ({count})",
+      "rejectRemaining": "Reject remaining ({count})",
+      "rejectAllHelp": "Shown to the organization. Everyone still waiting is rejected with this reason.",
+      "rejectAllSuccess": "Everyone who was waiting is rejected.",
+      "published": "Once approved, the event is in each participant's history and is listed under Past opportunities in the volunteer app."
     },
     "status": {
       "pending": "Waiting",
@@ -2131,13 +2172,6 @@
       "create": "New past event",
       "update": "Correction",
       "remove": "Removal"
-    },
-    "empty": {
-      "pending": "Nothing is waiting",
-      "pendingDescription": "A proposal appears here when an organization adds, corrects or removes a past event for one of its participants.",
-      "approved": "No proposal has been approved yet",
-      "rejected": "No proposal has been rejected",
-      "cancelled": "No proposal has been withdrawn"
     },
     "fields": {
       "title": "Name",
@@ -2179,8 +2213,11 @@
       "eventGone": "The event this proposal refers to has been removed. Reject the proposal.",
       "uncreditedXp": "This event is kept as history only, so it cannot carry XP.",
       "volunteerUnavailable": "This volunteer’s account is no longer active or eligible. Reject the proposal or ask the organization to check the account.",
-      "rosterDuplicate": "This volunteer already received credit for this event through an account that was later merged. Reject this duplicate proposal."
-    },
-    "rosterParticipant": "Participant in an organization’s historical event. Earlier participation on the platform is not required."
+      "rosterDuplicate": "This volunteer already received credit for this event through an account that was later merged. Reject this duplicate proposal.",
+      "rosterDecided": "Nobody on this event is waiting any more.",
+      "rosterNotFound": "That event no longer exists.",
+      "eventVolunteerUnavailable": "One participant's account is no longer active, so nobody was approved. Reject that participant below, then approve the rest.",
+      "eventRosterDuplicate": "Two participants are now one merged account, so nobody was approved. Reject the duplicate below, then approve the rest."
+    }
   }
 }
