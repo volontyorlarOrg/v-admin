@@ -215,7 +215,10 @@ export function AttendanceDesk({
   function finish(note: string) {
     setFinishError(null);
     startTransition(async () => {
-      const result = await finishAttendanceAction(vacancyId, { entries: changes, note });
+      const result = await finishAttendanceAction(vacancyId, {
+        entries: changes,
+        note,
+      });
       if (!result.ok) {
         if (result.code === "attendanceIncomplete" && result.problems?.length) {
           setFinishError(

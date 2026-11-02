@@ -13,7 +13,7 @@ export const AWARD_HISTORY_PAGE_SIZE = 10;
 export function loadAwardVolunteers(q: string, page: number) {
   return read("bulkAwardVolunteers", {
     schema: awardVolunteersSchema,
-    query: { ...(q ? { q } : {}), page, pageSize: AWARD_VOLUNTEER_PAGE_SIZE },
+    query: { q, page, pageSize: AWARD_VOLUNTEER_PAGE_SIZE },
   });
 }
 
@@ -32,6 +32,6 @@ export function loadAwardRecipients(id: string, q: string, page: number) {
   return read("bulkAwardRecipients", {
     schema: awardRecipientsSchema,
     params: { id },
-    query: { ...(q ? { q } : {}), page, pageSize: AWARD_VOLUNTEER_PAGE_SIZE },
+    query: { q, page, pageSize: AWARD_VOLUNTEER_PAGE_SIZE },
   });
 }

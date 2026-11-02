@@ -32,6 +32,36 @@ export function optional<T extends z.ZodTypeAny>(schema: T) {
 const isoDate = z.string().min(1);
 const id = z.string().min(1);
 
+export function listOf<T extends z.ZodTypeAny>(item: T) {
+  return z
+    .union([z.array(item), z.object({ items: z.array(item) })])
+    .transform((value): z.output<T>[] => (Array.isArray(value) ? value : value.items));
+}
+
+export function pageSchema<T extends z.ZodTypeAny>(item: T) {
+  return z.object({
+    items: z.array(item),
+    page: z.number().int().default(1),
+    pageSize: z.number().int().default(25),
+    total: z.number().int().default(0),
+  });
+}
+
+export function pageOf<T extends z.ZodTypeAny>(item: T) {
+  return z.union([z.array(item), pageSchema(item)]).transform((value) =>
+    Array.isArray(value)
+      ? {
+          items: value as z.output<T>[],
+          page: 1,
+          pageSize: value.length,
+          total: value.length,
+        }
+      : { ...value, items: value.items as z.output<T>[] },
+  );
+}
+
+export const imageUploadSchema = z.object({ imageUrl: z.url() });
+
 export const blogLocaleSchema = z.enum(["uz", "ru", "en"]);
 export const blogTranslationSchema = z.object({
   locale: blogLocaleSchema,
@@ -152,12 +182,7 @@ export type OrganizationAccount = z.infer<typeof organizationAccountSchema>;
 
 export const organizationAccountListSchema = z.array(organizationAccountSchema);
 
-export const organizationListSchema = z
-  .union([
-    z.array(organizationSchema),
-    z.object({ items: z.array(organizationSchema) }),
-  ])
-  .transform((value) => (Array.isArray(value) ? value : value.items));
+export const organizationListSchema = listOf(organizationSchema);
 
 const questionOptionSchema = z
   .object({ value: z.string(), label: z.string().optional() })
@@ -244,9 +269,7 @@ export const vacancySchema = z.object({
 
 export type Vacancy = z.infer<typeof vacancySchema>;
 
-export const vacancyListSchema = z
-  .union([z.array(vacancySchema), z.object({ items: z.array(vacancySchema) })])
-  .transform((value) => (Array.isArray(value) ? value : value.items));
+export const vacancyListSchema = listOf(vacancySchema);
 
 export const attendanceSchema = z.object({
   id,
@@ -367,9 +390,7 @@ function sentOnly(applications: Application[]): Application[] {
   return applications.filter((application) => isSent(application.status));
 }
 
-export const applicationListSchema = z
-  .union([z.array(applicationSchema), z.object({ items: z.array(applicationSchema) })])
-  .transform((value) => sentOnly(Array.isArray(value) ? value : value.items));
+export const applicationListSchema = listOf(applicationSchema).transform(sentOnly);
 
 export const passwordStateSchema = z.object({
   passwordChangedAt: optional(isoDate),
@@ -452,15 +473,6 @@ export const userDetailSchema = z.object({
 
 export type UserDetail = z.infer<typeof userDetailSchema>;
 
-export function pageSchema<T extends z.ZodTypeAny>(item: T) {
-  return z.object({
-    items: z.array(item),
-    page: z.number().int().default(1),
-    pageSize: z.number().int().default(25),
-    total: z.number().int().default(0),
-  });
-}
-
 export const auditEventSchema = z.object({
   id,
   action: z.string(),
@@ -473,9 +485,11 @@ export const auditEventSchema = z.object({
 
 export type AuditEvent = z.infer<typeof auditEventSchema>;
 
-export const auditListSchema = z
-  .union([z.array(auditEventSchema), z.object({ items: z.array(auditEventSchema) })])
-  .transform((value) => (Array.isArray(value) ? value : value.items));
+export const auditListSchema = listOf(auditEventSchema);
+
+export const auditPageSchema = pageOf(auditEventSchema);
+
+export type AuditPage = z.infer<typeof auditPageSchema>;
 
 export const statisticsSchema = z.object({
   scope: z.enum(["own", "global"]).default("own"),

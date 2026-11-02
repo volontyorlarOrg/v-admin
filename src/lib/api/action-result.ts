@@ -1,4 +1,5 @@
-import { isApiError, type FieldErrors } from "@/lib/api/errors";
+import type { Endpoint } from "@/lib/api/endpoints";
+import { isApiError, isSessionOver, type FieldErrors } from "@/lib/api/errors";
 
 export type ActionResult =
   | { status: "idle" }
@@ -31,4 +32,22 @@ export function resultFromError(error: unknown): ActionResult {
     return failedResult(error.backendCode ?? error.code, error.fieldErrors);
   }
   return failedResult("server");
+}
+
+export function writeFailure(
+  error: unknown,
+  endpoint: Pick<Endpoint, "contract">,
+): ActionResult {
+  if (isSessionOver(error)) return failedResult("sessionExpired");
+
+  if (
+    isApiError(error) &&
+    (error.code === "notFound" || error.code === "unavailable") &&
+    error.backendCode === null &&
+    endpoint.contract !== "published"
+  ) {
+    return failedResult("awaitingContract");
+  }
+
+  return resultFromError(error);
 }

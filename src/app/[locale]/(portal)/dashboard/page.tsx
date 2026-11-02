@@ -1,9 +1,10 @@
 import { Suspense } from "react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
+
+import { DashboardDesk } from "@/components/dashboard/desk";
+import { DashboardOverview } from "@/components/dashboard/overview";
 import { DashboardAnalytics } from "@/components/statistics/dashboard-analytics";
-import { DashboardOverview } from "@/components/statistics/dashboard-overview";
-import { DashboardQueue } from "@/components/statistics/dashboard-queue";
 import { PageHeader } from "@/components/states/page-header";
 import { QueueSkeleton } from "@/components/states/skeletons";
 import { buttonClass } from "@/components/ui/button";
@@ -30,54 +31,71 @@ export default async function DashboardPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const days = analyticsDays(await searchParams);
-  const [t, statistics, analytics] = await Promise.all([
+  const [t, nav, statistics, analytics] = await Promise.all([
     getTranslations("dashboardHome"),
+    getTranslations("nav"),
     loadStatistics(),
     loadAnalytics(days),
   ]);
+
+  const jumps = [
+    { href: "#operations", label: t("jump.operations") },
+    { href: "#activity", label: t("jump.activity") },
+    { href: "#growth", label: t("categories.growth") },
+    { href: "#application-analytics", label: t("categories.applications") },
+    { href: "#impact", label: t("categories.impact") },
+  ];
+
   return (
     <>
       <PageHeader
         title={t("title")}
         description={t("description")}
         actions={
-          <Link
-            href={`${navHref("dashboard")}#operations`}
-            className={buttonClass({ size: "sm", variant: "outline" })}
-          >
-            {t("needsAction")}
-          </Link>
+          <>
+            <Link
+              href={navHref("insights")}
+              className={buttonClass({ size: "sm", variant: "outline" })}
+            >
+              {nav("insights")}
+            </Link>
+            <Link
+              href={navHref("audit")}
+              className={buttonClass({ size: "sm", variant: "outline" })}
+            >
+              {nav("audit")}
+            </Link>
+          </>
         }
       />
-      <DashboardOverview statistics={statistics} />
+      <DashboardOverview
+        statistics={statistics}
+        figures={[
+          "volunteers",
+          "publishedVacancies",
+          "applications",
+          "attended",
+          "confirmedHours",
+        ]}
+      />
       <nav
         aria-label={t("sections")}
         className="flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold text-primary-ink"
       >
-        {[
-          { id: "growth", key: "growth" },
-          { id: "application-analytics", key: "applications" },
-          { id: "impact", key: "impact" },
-        ].map((section) => (
+        {jumps.map((jump) => (
           <a
-            key={section.id}
-            href={`#${section.id}`}
+            key={jump.href}
+            href={jump.href}
             className="min-h-8 content-center rounded-sm hover:underline"
           >
-            {t(`categories.${section.key}`)}
+            {jump.label}
           </a>
         ))}
-        <Link
-          href={navHref("insights")}
-          className="min-h-8 content-center rounded-sm hover:underline"
-        >
-          {t("moreBreakdowns")}
-        </Link>
       </nav>
-      <DashboardAnalytics analytics={analytics} statistics={statistics} days={days} />
       <Suspense fallback={<QueueSkeleton label={t("loadingOperations")} />}>
-        <DashboardQueue />
+        <DashboardDesk />
       </Suspense>
+      <DashboardAnalytics analytics={analytics} statistics={statistics} days={days} />
     </>
   );
 }
