@@ -44,7 +44,7 @@ import { loadOrganizations } from "@/lib/organizations/data.server";
 import { filterOrganizations } from "@/lib/organizations/filters";
 import { organizationDecisions } from "@/lib/queue/approval-decisions.server";
 import { decisionLabels } from "@/lib/queue/decisions.server";
-import { blockingOrganizations } from "@/lib/queue/today";
+import { blockingOrganizations } from "@/lib/queue/dashboard";
 import { navHref } from "@/lib/routing/routes";
 import { hrefWith, readOption, readParam } from "@/lib/routing/search-params";
 import { loadVacancies } from "@/lib/vacancies/data.server";

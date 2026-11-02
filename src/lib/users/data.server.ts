@@ -22,11 +22,7 @@ export function loadUsers(query: {
 }): Promise<Loaded<UserPage>> {
   return read("users", {
     schema: userPageSchema,
-    query: {
-      ...(query.q ? { q: query.q } : {}),
-      page: query.page,
-      pageSize: query.pageSize,
-    },
+    query,
   });
 }
 

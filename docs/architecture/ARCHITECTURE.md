@@ -37,8 +37,8 @@ three files:
   only an administrator has;
 - `src/lib/routing/routes.ts` — the section list.
 
-Beyond those, a file differs only where the work differs: the Today page (an
-administrator's approval queue against a coordinator's desk), the vacancy list
+Beyond those, a file differs only where the work differs: the dashboard (an
+administrator's approval queue against an organization's desk), the vacancy list
 and record (approving against sending for approval), the volunteer record (a
 coordinator never sees a volunteer's current profile), the activity page (the
 audit history against `/staff/activity`), the vacancy actions, the audit
@@ -77,7 +77,7 @@ accepted applicants, and an attendance desk. What only an administrator has is
 rows are flagged with a note, and the sheet is either returned for changes or
 verified, which is the moment hours and XP are awarded. An administrator's own
 roll call is applied directly (`verifyAttendance` with the rows). The results
-queue on Today and Attendance reads `GET /admin/attendance-sheets`. These
+queue on the dashboard and Attendance reads `GET /admin/attendance-sheets`. These
 screens have many counted strings, so they receive their copy through
 `ResultsCopy`, a scoped `NextIntlClientProvider` holding only the `results`
 namespace (plus application statuses and attendance outcomes), rather than as
@@ -99,6 +99,19 @@ A page therefore never sees an exception, only one of: `ready`, `awaitingContrac
 `denied`, `expired`, `passwordChangeRequired`, `missing`, `unconfigured`,
 `failed`. `LoadFailure` renders
 each of those, and a page renders the failure **and** whatever else it can.
+`firstFailure(...)` picks the failure a page must show from several loads, and
+`dataOr(loaded, fallback)` reads a load a page can do without.
+
+Every request carries an `X-Request-Id` the client generates, and a `failed`
+load keeps it, so the panel can quote a short reference that matches the
+server log line. A retryable failure (network, timeout, rate limit, `5xx`)
+offers "Try again", which re-renders the page with `router.refresh()`.
+
+`read()` is wrapped in React's `cache`, keyed by the endpoint, its schema and
+its parameters, so the layout, `generateMetadata`, the page and its sections
+can each ask for the same list in one render and the backend answers once.
+The session cookie is decrypted once per render the same way. Server Actions
+run outside that cache, so a read after a write always sees the write.
 
 `awaitingContract` is not dead code now that `v-backend` has published this
 contract: it is what the next unpublished operation will render, and the
@@ -121,6 +134,14 @@ password change the administrator requires _mid-session_ therefore arrives as a
 the screen explains it with a link to the password page. A requirement already
 true at sign-in is in the session payload, and still redirects.
 
+Every write — `write`, `writeReturning`, `writeMultipart`,
+`writeMultipartReturning` — goes through one internal `send()`, and every
+failure through `writeFailure` in `src/lib/api/action-result.ts`: a finished
+session becomes `sessionExpired`, an uncoded `404`/`501` on an unpublished
+endpoint becomes `awaitingContract`, and anything else keeps the backend's code
+and field errors. A multipart upload takes its method from the endpoint
+registry, like every other call, and is parsed by the schema it is given.
+
 Every write is a Server Action returning `ActionResult`
 (`idle` | `ok` | `error` with a code and field errors). Actions live in
 `src/lib/<domain>/actions.ts` and are the only files with `"use server"`, which
@@ -133,7 +154,10 @@ including the error catalog — as props, because the root layout gives
 
 A write takes one of three shapes. A decision about one record is an
 `InlineDecision` in its row, built from `src/lib/queue/decisions.server.ts`:
-it awaits the action, toasts on success and keeps a failure inline. A long form
+it awaits the action, toasts on success and keeps a failure inline. Decisions
+about a vacancy's applicants are the exception on the dashboard: they are
+staged and sent together on the vacancy's applications desk, so the dashboard
+groups them by vacancy and links there (see [`DASHBOARD.md`](DASHBOARD.md)). A long form
 is a page of its own that redirects to the record it created or changed. A write
 that needs protected focus — archiving, blocking, removing — is a `FormDialog`.
 
@@ -166,3 +190,31 @@ and says so in [`../api/BACKEND_CONTRACT.md`](../api/BACKEND_CONTRACT.md).
   `aria-hidden`, ignores the pointer for hit-testing, and fits the country into
   whichever `GroundWindow` the current screen registers (see
   [`GROUND.md`](GROUND.md)).
+
+## The audit timeline
+
+`AuditTimeline` (`src/components/audit/audit-timeline.tsx`) draws every audit
+list: the audit history, My activity, a coordinator's record and the
+dashboard's recent activity. Events are grouped under a heading per Tashkent
+day ("Today", "Yesterday", then the date), newest first, and each reads as one
+line of meaning:
+
+```text
+14:32  [icon]  Vacancy approved and published          [NA] Nodira Alimova
+               Vacancy · Winter clothing drive              Coordinator
+               (Accepted automatically)
+```
+
+- the family icon comes from the action's prefix (`auditFamilyOf` in
+  `src/lib/domain/audit-actions.ts`), which also groups the action filter;
+- the record is named from the audit directory and links to its page when it
+  has one;
+- the actor is "You", a named coordinator, organization or volunteer with their
+  role, "Another account" or "Not recorded" — never an id;
+- the details are the four metadata facts the portal understands.
+
+The directory (`src/lib/audit/directory.ts`, loaded by
+`directory.server.ts`) is built only from lists the portal already reads, and
+an empty one still renders every event. The audit history adds period presets
+(today, 7 and 30 days in Tashkent time) on top of the action, person and date
+filters, and the person filter lists coordinators and organizations.

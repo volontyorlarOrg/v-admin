@@ -2,7 +2,7 @@ import { ArrowRight } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
 
-import { AuditTable } from "@/components/audit/audit-table";
+import { AuditTimeline } from "@/components/audit/audit-timeline";
 import { Register, RegisterNote } from "@/components/register/register";
 import { LoadFailure } from "@/components/states/load-failure";
 import { PageHeader } from "@/components/states/page-header";
@@ -12,15 +12,13 @@ import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import { Link } from "@/i18n/navigation";
 import { failureOf, isReady } from "@/lib/api/load";
 import { loadAudit } from "@/lib/audit/data.server";
-import { actionNames, filterAudit } from "@/lib/audit/filters";
+import { loadAuditDirectory } from "@/lib/audit/directory.server";
 import { getSession } from "@/lib/auth/session.server";
-import { auditActionKey } from "@/lib/domain/audit-actions";
+import { auditActionGroups, auditActionKey } from "@/lib/domain/audit-actions";
 import { navHref } from "@/lib/routing/routes";
 import {
   DEFAULT_PAGE_SIZE,
-  MAX_PAGE_SIZE,
   hrefWith,
-  paginate,
   readPage,
   readParam,
 } from "@/lib/routing/search-params";
@@ -53,17 +51,21 @@ export default async function ActivityPage({
   const action = readParam(query, "action");
   const page = readPage(query);
 
-  const loaded = await loadAudit({
-    ...(session ? { actorUserId: session.userId } : {}),
-    page: 1,
-    pageSize: MAX_PAGE_SIZE,
-  });
+  const [loaded, directory] = await Promise.all([
+    session
+      ? loadAudit({
+          actorUserId: session.userId,
+          action: action || undefined,
+          page,
+          pageSize: DEFAULT_PAGE_SIZE,
+        })
+      : Promise.resolve({ state: "expired" } as const),
+    loadAuditDirectory(),
+  ]);
   const failure = failureOf(loaded);
-  const all = isReady(loaded)
+  const events = isReady(loaded)
     ? loaded.data.items.filter((event) => event.actorUserId === session?.userId)
     : [];
-  const filtered = filterAudit(all, { action });
-  const pageState = paginate(filtered, page, DEFAULT_PAGE_SIZE);
   const listPath = navHref("activity");
 
   const label = (name: string) => {
@@ -92,7 +94,7 @@ export default async function ActivityPage({
       {isReady(loaded) ? (
         <Register
           title={t("listTitle")}
-          count={filtered.length}
+          count={loaded.data.total}
           countLabel={audit("countLabel")}
           toolbar={
             <form
@@ -110,11 +112,20 @@ export default async function ActivityPage({
                   className="min-h-10 rounded-full text-sm"
                 >
                   <NativeSelectOption value="">{common("all")}</NativeSelectOption>
-                  {actionNames(all).map((name) => (
-                    <NativeSelectOption key={name} value={name}>
-                      {label(name)}
-                    </NativeSelectOption>
-                  ))}
+                  {auditActionGroups(events.map((event) => event.action)).map(
+                    (group) => (
+                      <optgroup
+                        key={group.family}
+                        label={audit(`families.${group.family}`)}
+                      >
+                        {group.actions.map((name) => (
+                          <NativeSelectOption key={name} value={name}>
+                            {label(name)}
+                          </NativeSelectOption>
+                        ))}
+                      </optgroup>
+                    ),
+                  )}
                 </NativeSelect>
               </label>
               <Button type="submit" size="sm">
@@ -131,23 +142,22 @@ export default async function ActivityPage({
             </form>
           }
         >
-          {pageState.items.length === 0 ? (
+          {events.length === 0 ? (
             <RegisterNote
-              title={all.length === 0 ? t("empty.title") : t("noMatches.title")}
-              description={
-                all.length === 0 ? t("empty.description") : t("noMatches.description")
-              }
+              title={action ? t("noMatches.title") : t("empty.title")}
+              description={action ? t("noMatches.description") : t("empty.description")}
             />
           ) : (
             <>
-              <AuditTable
-                events={pageState.items}
-                caption={t("table.caption")}
+              <AuditTimeline
+                id="activity"
+                events={events}
+                directory={directory}
                 showActor={false}
               />
               <Pagination
                 framed
-                state={pageState}
+                state={loaded.data}
                 hrefFor={(next) => hrefWith(listPath, { action, page: next })}
               />
             </>

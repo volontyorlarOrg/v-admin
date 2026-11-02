@@ -1,5 +1,5 @@
 import type { Application, Organization, Vacancy } from "@/lib/api/schemas";
-import { EVENT_TIME_ZONE } from "@/lib/datetime";
+import { isSameTashkentDay } from "@/lib/datetime";
 import {
   attendanceOpensAt,
   isAttendanceOpen,
@@ -9,23 +9,6 @@ import {
 } from "@/lib/vacancies/approval";
 
 export const FRESH_WITHIN_MS = 20_000;
-
-const DAY_KEY = new Intl.DateTimeFormat("en-CA", {
-  timeZone: EVENT_TIME_ZONE,
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit",
-});
-
-export function tashkentDay(value: Date | string): string {
-  return DAY_KEY.format(typeof value === "string" ? new Date(value) : value);
-}
-
-export function isSameTashkentDay(value: string | undefined, now: Date): boolean {
-  if (!value) return false;
-  const parsed = new Date(value);
-  return !Number.isNaN(parsed.getTime()) && tashkentDay(parsed) === tashkentDay(now);
-}
 
 export function isFresh(value: string | undefined, now: Date): boolean {
   if (!value) return false;
@@ -334,4 +317,140 @@ export function staffDesk(
   ).length;
 
   return { returned, drafts, inReview };
+}
+
+export type Runner = "administrators" | "coordinator" | "organization";
+
+export function runnerOf(
+  createdById: string | undefined,
+  roleOf: (userId: string | undefined) => string | null,
+): Runner {
+  const role = roleOf(createdById);
+  if (role === "organization") return "organization";
+  if (role === "coordinator") return "coordinator";
+  return "administrators";
+}
+
+export type VacancyApplications = {
+  vacancyId: string;
+  title: string;
+  vacancy: Vacancy | undefined;
+  waiting: number;
+  underReview: number;
+  staged: number;
+  oldestAt: string | undefined;
+};
+
+export function applicationsByVacancy(
+  entries: readonly ApplicationEntry[],
+): VacancyApplications[] {
+  const groups = new Map<string, VacancyApplications>();
+
+  for (const { application, vacancy } of entries) {
+    const sentAt = application.submittedAt ?? application.createdAt;
+    const group = groups.get(application.opportunityId) ?? {
+      vacancyId: application.opportunityId,
+      title:
+        vacancy?.title ?? application.opportunity?.title ?? application.opportunityId,
+      vacancy,
+      waiting: 0,
+      underReview: 0,
+      staged: 0,
+      oldestAt: undefined,
+    };
+    group.waiting += 1;
+    if (application.status === "under_review") group.underReview += 1;
+    if (application.stagedDecision) group.staged += 1;
+    if (time(sentAt) < time(group.oldestAt)) group.oldestAt = sentAt;
+    groups.set(application.opportunityId, group);
+  }
+
+  return [...groups.values()].sort((a, b) => time(a.oldestAt) - time(b.oldestAt));
+}
+
+export type OrganizerWork = {
+  vacancyId: string;
+  title: string;
+  createdById: string | undefined;
+  organizationId: string | undefined;
+  applications: VacancyApplications | undefined;
+  rollCall: RollCall | undefined;
+  since: number;
+};
+
+export function organizerWork(
+  groups: readonly VacancyApplications[],
+  rollCalls: readonly RollCall[],
+  vacancies: readonly Vacancy[],
+): OrganizerWork[] {
+  const byId = new Map(vacancies.map((vacancy) => [vacancy.id, vacancy]));
+  const work = new Map<string, OrganizerWork>();
+
+  const entry = (vacancyId: string, title: string): OrganizerWork => {
+    const existing = work.get(vacancyId);
+    if (existing) return existing;
+    const vacancy = byId.get(vacancyId);
+    const created: OrganizerWork = {
+      vacancyId,
+      title,
+      createdById: vacancy?.createdById,
+      organizationId: vacancy?.organizationId,
+      applications: undefined,
+      rollCall: undefined,
+      since: Number.POSITIVE_INFINITY,
+    };
+    work.set(vacancyId, created);
+    return created;
+  };
+
+  for (const group of groups) {
+    const item = entry(group.vacancyId, group.title);
+    item.applications = group;
+    item.since = Math.min(item.since, time(group.oldestAt));
+  }
+
+  for (const call of rollCalls) {
+    const item = entry(call.vacancyId, call.title);
+    item.rollCall = call;
+    item.since = Math.min(
+      item.since,
+      call.endedAt?.getTime() ?? Number.POSITIVE_INFINITY,
+    );
+  }
+
+  return [...work.values()].sort((a, b) => a.since - b.since);
+}
+
+export type ReturnedResults = { vacancy: Vacancy; returnedAt: string | undefined };
+
+export function resultsReturned(vacancies: readonly Vacancy[]): ReturnedResults[] {
+  return vacancies
+    .filter(
+      (vacancy) =>
+        !vacancy.archivedAt && vacancy.attendanceSheet?.status === "changes_requested",
+    )
+    .map((vacancy) => ({ vacancy, returnedAt: vacancy.updatedAt }))
+    .sort((a, b) => time(a.returnedAt) - time(b.returnedAt));
+}
+
+export type WithAdministrator = {
+  vacancies: number;
+  results: number;
+  pastEvents: number;
+};
+
+export function withAdministrator(
+  vacancies: readonly Vacancy[],
+  pastEvents: ReadonlyArray<{ pending: number }>,
+): WithAdministrator {
+  return {
+    vacancies: vacancies.filter(
+      (vacancy) => vacancyStateOf(vacancy) === "pending_review",
+    ).length,
+    results: vacancies.filter(
+      (vacancy) =>
+        !vacancy.archivedAt && vacancy.attendanceSheet?.status === "submitted",
+    ).length,
+    pastEvents: pastEvents.filter((event) => event.pending > 0).length,
+  };
 }

@@ -1,7 +1,14 @@
 import { describe, expect, it } from "vitest";
 
 import { ApiError } from "@/lib/api/errors";
-import { failureOf, loadedFromError, ready } from "@/lib/api/load";
+import {
+  dataOr,
+  failureOf,
+  firstFailure,
+  loadedFromError,
+  mapLoaded,
+  ready,
+} from "@/lib/api/load";
 
 describe("ready", () => {
   it("marks every successful load as real API data", () => {
@@ -120,5 +127,56 @@ describe("loadedFromError", () => {
       code: "server",
       retryable: false,
     });
+  });
+});
+
+describe("a failure keeps its request reference", () => {
+  it("carries the request id so the screen can quote it", () => {
+    expect(
+      loadedFromError(
+        new ApiError("server", { status: 500, requestId: "abc-123" }),
+        "currentUser",
+        true,
+      ),
+    ).toEqual({
+      state: "failed",
+      code: "server",
+      retryable: true,
+      requestId: "abc-123",
+    });
+  });
+});
+
+describe("firstFailure", () => {
+  it("is null when every load is ready", () => {
+    expect(firstFailure(ready(1), ready("two"))).toBeNull();
+  });
+
+  it("returns the first failure in the order given", () => {
+    expect(firstFailure(ready(1), { state: "denied" }, { state: "missing" })).toEqual({
+      state: "denied",
+    });
+  });
+});
+
+describe("dataOr", () => {
+  it("returns the data of a ready load", () => {
+    expect(dataOr(ready([1]), [])).toEqual([1]);
+  });
+
+  it("returns the fallback a page chose when the load failed", () => {
+    expect(dataOr({ state: "expired" }, null)).toBeNull();
+  });
+});
+
+describe("mapLoaded", () => {
+  it("reshapes ready data", () => {
+    expect(mapLoaded(ready([1, 2]), (items) => ({ items }))).toEqual(
+      ready({ items: [1, 2] }),
+    );
+  });
+
+  it("passes a failure through untouched", () => {
+    expect(mapLoaded({ state: "denied" }, () => "never")).toEqual({ state: "denied" });
   });
 });

@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 
 import { failedResult, type ActionResult } from "@/lib/api/action-result";
 import { write, writeMultipart, writeReturning } from "@/lib/api/gateway.server";
-import { vacancySchema } from "@/lib/api/schemas";
+import { imageUploadSchema, vacancySchema } from "@/lib/api/schemas";
 import { fieldErrorsOf, stringField } from "@/lib/auth/credentials";
 import { isLocale } from "@/i18n/routing";
 import { vacancyEditHref, vacancyHref } from "@/lib/routing/routes";
@@ -51,7 +51,7 @@ async function applyVacancyImage(
   if (image.file) {
     const body = new FormData();
     body.set("image", image.file);
-    return writeMultipart("uploadVacancyImage", { id }, body);
+    return writeMultipart("uploadVacancyImage", { id }, body, imageUploadSchema);
   }
   if (image.remove) return write("removeVacancyImage", { params: { id } });
   return { status: "ok" };

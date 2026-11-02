@@ -54,6 +54,10 @@ async function signedIn(page: Page) {
   await expect(page).toHaveURL(/\/en\/dashboard$/);
 }
 
+function daysFromNow(days: number): string {
+  return new Date(Date.now() + days * 86_400_000).toISOString().slice(0, 10);
+}
+
 async function fillVacancyDraft(
   page: Page,
   values: {
@@ -78,11 +82,11 @@ async function fillVacancyDraft(
   await page.getByLabel("Place", { exact: true }).fill("Central library");
   await page.getByLabel("Places", { exact: true }).fill("12");
   await page.getByLabel("Estimated hours").fill("4");
-  await page.getByLabel("Starts").fill("2026-11-01T09:00");
-  await page.getByLabel("Ends").fill("2026-11-01T13:00");
+  await page.getByLabel("Starts").fill(`${daysFromNow(30)}T09:00`);
+  await page.getByLabel("Ends").fill(`${daysFromNow(30)}T13:00`);
   await page
     .getByLabel("Applications close")
-    .fill(values.deadline ?? "2026-10-20T18:00");
+    .fill(values.deadline ?? `${daysFromNow(20)}T18:00`);
 }
 
 function formMessage(page: Page) {
@@ -107,6 +111,12 @@ function errorSummary(page: Page) {
 
 function decision(page: Page, subject: string) {
   return page.getByRole("group", { name: `Decision: ${subject}` });
+}
+
+function auditEntry(page: Page, action: string) {
+  return page
+    .locator('[data-slot="audit-entry"]')
+    .filter({ has: page.getByText(action, { exact: true }) });
 }
 
 function toast(page: Page) {
@@ -731,7 +741,7 @@ test.describe("the vacancy lifecycle", () => {
     await expect(page.getByRole("heading", { name: "Vacancy photo" })).toBeVisible();
   });
 
-  test("approves a vacancy from Today without opening it", async ({ page }) => {
+  test("approves a vacancy from the dashboard without opening it", async ({ page }) => {
     await signedIn(page);
 
     const choice = decision(page, "Winter clothing drive");
@@ -978,7 +988,7 @@ test.describe("the vacancy lifecycle", () => {
 
     await fillVacancyDraft(page, {
       title: "Late deadline",
-      deadline: "2026-11-05T18:00",
+      deadline: `${daysFromNow(40)}T18:00`,
     });
     await page.getByRole("button", { name: "Create the draft" }).click();
 
@@ -1462,10 +1472,8 @@ test.describe("activity", () => {
     await signedIn(page);
     await page.goto("/en/activity");
 
-    await expect(page.getByRole("cell", { name: "Coordinator created" })).toBeVisible();
-    await expect(
-      page.getByRole("cell", { name: "Vacancy published directly" }),
-    ).toHaveCount(0);
+    await expect(auditEntry(page, "Coordinator created")).toBeVisible();
+    await expect(auditEntry(page, "Vacancy published directly")).toHaveCount(0);
   });
 
   test("keeps its filters in the URL", async ({ page }) => {
@@ -1476,7 +1484,7 @@ test.describe("activity", () => {
     await page.getByRole("button", { name: "Apply" }).click();
 
     await expect(page).toHaveURL(/action=coordinator.created/);
-    await expect(page.getByRole("cell", { name: "Coordinator created" })).toBeVisible();
+    await expect(auditEntry(page, "Coordinator created")).toBeVisible();
   });
 });
 
@@ -1776,20 +1784,14 @@ test.describe("organizations and the audit history", () => {
     await signedIn(page);
     await page.goto("/en/audit");
 
-    await expect(
-      page.getByRole("cell", { name: "Vacancy published directly" }),
-    ).toBeVisible();
+    await expect(auditEntry(page, "Vacancy published directly")).toBeVisible();
 
     await page.getByLabel("Who").selectOption({ label: "Nodira Alimova" });
     await page.getByRole("button", { name: "Apply" }).click();
 
     await expect(page).toHaveURL(/actor=/);
-    await expect(
-      page.getByRole("cell", { name: "Vacancy published directly" }),
-    ).toBeVisible();
-    await expect(page.getByRole("cell", { name: "Coordinator created" })).toHaveCount(
-      0,
-    );
+    await expect(auditEntry(page, "Vacancy published directly")).toBeVisible();
+    await expect(auditEntry(page, "Coordinator created")).toHaveCount(0);
   });
 
   test("filters the audit history by action", async ({ page }) => {
@@ -1800,10 +1802,8 @@ test.describe("organizations and the audit history", () => {
     await page.getByRole("button", { name: "Apply" }).click();
 
     await expect(page).toHaveURL(/action=coordinator.created/);
-    await expect(page.getByRole("cell", { name: "Coordinator created" })).toBeVisible();
-    await expect(
-      page.getByRole("cell", { name: "Vacancy published directly" }),
-    ).toHaveCount(0);
+    await expect(auditEntry(page, "Coordinator created")).toBeVisible();
+    await expect(auditEntry(page, "Vacancy published directly")).toHaveCount(0);
   });
 
   test("offers the whole action vocabulary, not only what is on the page", async ({

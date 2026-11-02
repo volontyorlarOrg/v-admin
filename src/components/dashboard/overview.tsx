@@ -4,10 +4,17 @@ import { failureOf, isReady, type Loaded } from "@/lib/api/load";
 import type { Statistics } from "@/lib/api/schemas";
 import { cn } from "@/lib/utils";
 
+export type OverviewFigure = Exclude<
+  keyof Statistics["totals"],
+  "coordinators" | "pastEventRequests"
+>;
+
 export async function DashboardOverview({
   statistics,
+  figures,
 }: {
   statistics: Loaded<Statistics>;
+  figures: readonly OverviewFigure[];
 }) {
   const [t, format] = await Promise.all([
     getTranslations("dashboardHome"),
@@ -15,13 +22,6 @@ export async function DashboardOverview({
   ]);
   const failure = failureOf(statistics);
   const totals = isReady(statistics) ? statistics.data.totals : null;
-  const keys = [
-    "volunteers",
-    "publishedVacancies",
-    "applications",
-    "attended",
-    "confirmedHours",
-  ] as const;
   return (
     <section
       id="overview"
@@ -36,7 +36,7 @@ export async function DashboardOverview({
       </header>
       {totals ? (
         <dl className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5">
-          {keys.map((key) => (
+          {figures.map((key) => (
             <div key={key} className="min-w-0 px-5 py-5">
               <dt className="text-sm text-ink-muted">{t(`overview.${key}`)}</dt>
               <dd

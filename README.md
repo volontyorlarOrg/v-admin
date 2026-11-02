@@ -40,9 +40,11 @@ ignored `.env.local` for a standalone setup or fixture work.
 - **Sign-in only.** Email and password, no sign-up, no password recovery, and no
   control that creates an account — including an administrator account.
 - **A forced first password change** for any account the backend flags.
-- **Today** — what waits on the administrator: vacancies to approve,
-  organizations holding vacancies back, applications to decide and roll calls
-  due, each decided in its row; what they cleared today; the operation's totals.
+- **Dashboard** — the platform's totals; what waits on the administrator
+  (vacancies to approve, organizations holding vacancies back, results to
+  verify, past events, and applications and roll calls on vacancies they run);
+  what waits on organizations and coordinators; recent activity and what they
+  cleared today; then growth, application and impact analytics.
 - **Insights** — the charts: the application pipeline, publication and
   attendance shares, submissions and joins over time, and breakdowns by status,
   state, region and format.

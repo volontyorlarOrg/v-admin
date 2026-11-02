@@ -19,10 +19,7 @@ export function loadApplications(
 ): Promise<Loaded<Application[]>> {
   return read("applications", {
     schema: applicationListSchema,
-    query: {
-      ...(filters.status ? { status: filters.status } : {}),
-      ...(filters.vacancyId ? { opportunityId: filters.vacancyId } : {}),
-    },
+    query: { status: filters.status, opportunityId: filters.vacancyId },
   });
 }
 

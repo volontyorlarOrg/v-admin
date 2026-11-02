@@ -27,9 +27,5 @@ export default async function PortalLayout({
     redirect(`${localePath(locale as Locale, ENTRY_ROUTE)}?session=wrongRole`);
   }
 
-  return (
-    <PortalShell locale={locale as Locale}>
-      {children}
-    </PortalShell>
-  );
+  return <PortalShell locale={locale as Locale}>{children}</PortalShell>;
 }

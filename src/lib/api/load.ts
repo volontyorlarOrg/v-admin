@@ -9,7 +9,7 @@ export type Loaded<T> =
   | { state: "passwordChangeRequired" }
   | { state: "missing" }
   | { state: "unconfigured" }
-  | { state: "failed"; code: string; retryable: boolean };
+  | { state: "failed"; code: string; retryable: boolean; requestId?: string };
 
 export function ready<T>(data: T): Loaded<T> {
   return { state: "ready", data, source: "api" };
@@ -19,6 +19,25 @@ export function isReady<T>(
   loaded: Loaded<T>,
 ): loaded is { state: "ready"; data: T; source: "api" } {
   return loaded.state === "ready";
+}
+
+export type LoadFailureState = Exclude<Loaded<unknown>, { state: "ready" }>;
+
+export function firstFailure(
+  ...loads: ReadonlyArray<Loaded<unknown>>
+): LoadFailureState | null {
+  for (const loaded of loads) {
+    if (!isReady(loaded)) return loaded;
+  }
+  return null;
+}
+
+export function mapLoaded<T, U>(loaded: Loaded<T>, map: (data: T) => U): Loaded<U> {
+  return isReady(loaded) ? ready(map(loaded.data)) : (loaded as Loaded<U>);
+}
+
+export function dataOr<T, F>(loaded: Loaded<T>, fallback: F): T | F {
+  return isReady(loaded) ? loaded.data : fallback;
 }
 
 export function failureOf<T>(
@@ -61,5 +80,6 @@ export function loadedFromError<T>(
     state: "failed",
     code: apiError.backendCode ?? apiError.code,
     retryable: apiError.isRetryable,
+    ...(apiError.requestId ? { requestId: apiError.requestId } : {}),
   };
 }
