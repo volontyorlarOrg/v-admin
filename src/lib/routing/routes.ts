@@ -27,15 +27,14 @@ export type RouteArea = "auth" | "portal" | "account";
 
 export type RouteGuard = "guest" | "session";
 
-export const NAV_GROUPS = ["work", "office"] as const;
-
-export const NAV_COUNTS = [
-  "pendingApproval",
-  "changesRequested",
-  "pendingReview",
-  "attendanceDue",
-  "pastEventRequests",
+export const NAV_GROUPS = [
+  "overview",
+  "volunteering",
+  "participants",
+  "administration",
 ] as const;
+
+export const NAV_COUNTS = ["pendingApproval", "pastEventRequests"] as const;
 
 export type NavCount = (typeof NAV_COUNTS)[number];
 
@@ -67,7 +66,7 @@ export const appRoutes: readonly AppRoute[] = [
     area: "portal",
     guard: "session",
     inNav: true,
-    group: "work",
+    group: "overview",
     icon: "layout-dashboard",
   },
   {
@@ -75,7 +74,8 @@ export const appRoutes: readonly AppRoute[] = [
     path: "/insights",
     area: "portal",
     guard: "session",
-    inNav: false,
+    inNav: true,
+    group: "overview",
     icon: "chart-column",
   },
   {
@@ -84,7 +84,7 @@ export const appRoutes: readonly AppRoute[] = [
     area: "portal",
     guard: "session",
     inNav: true,
-    group: "work",
+    group: "volunteering",
     count: "pendingApproval",
     icon: "clipboard-list",
   },
@@ -102,7 +102,7 @@ export const appRoutes: readonly AppRoute[] = [
     area: "portal",
     guard: "session",
     inNav: true,
-    group: "work",
+    group: "administration",
     icon: "book-open",
   },
   {
@@ -119,8 +119,7 @@ export const appRoutes: readonly AppRoute[] = [
     area: "portal",
     guard: "session",
     inNav: true,
-    group: "work",
-    count: "pendingReview",
+    group: "volunteering",
     icon: "inbox",
   },
   {
@@ -128,9 +127,9 @@ export const appRoutes: readonly AppRoute[] = [
     path: "/attendance",
     area: "portal",
     guard: "session",
-    inNav: false,
-    count: "attendanceDue",
-    icon: "calendar-check",
+    inNav: true,
+    group: "volunteering",
+    icon: "clipboard-check",
   },
   {
     key: "users",
@@ -138,7 +137,7 @@ export const appRoutes: readonly AppRoute[] = [
     area: "portal",
     guard: "session",
     inNav: true,
-    group: "work",
+    group: "participants",
     icon: "users",
   },
   {
@@ -147,7 +146,7 @@ export const appRoutes: readonly AppRoute[] = [
     area: "portal",
     guard: "session",
     inNav: true,
-    group: "work",
+    group: "administration",
     icon: "award",
   },
   {
@@ -156,9 +155,9 @@ export const appRoutes: readonly AppRoute[] = [
     area: "portal",
     guard: "session",
     inNav: true,
-    group: "work",
+    group: "volunteering",
     count: "pastEventRequests",
-    icon: "calendar-check",
+    icon: "calendar-clock",
   },
   {
     key: "activity",
@@ -173,7 +172,8 @@ export const appRoutes: readonly AppRoute[] = [
     path: "/coordinators",
     area: "portal",
     guard: "session",
-    inNav: false,
+    inNav: true,
+    group: "participants",
     icon: "user-cog",
   },
   {
@@ -190,7 +190,7 @@ export const appRoutes: readonly AppRoute[] = [
     area: "portal",
     guard: "session",
     inNav: true,
-    group: "office",
+    group: "participants",
     icon: "building-2",
   },
   {
@@ -198,7 +198,8 @@ export const appRoutes: readonly AppRoute[] = [
     path: "/audit",
     area: "portal",
     guard: "session",
-    inNav: false,
+    inNav: true,
+    group: "administration",
     icon: "scroll-text",
   },
   {

@@ -10,17 +10,6 @@ export function toDate(value: string | null | undefined): Date | null {
   return Number.isNaN(parsed.getTime()) ? null : parsed;
 }
 
-const SEAL_DATE = new Intl.DateTimeFormat("ru-RU", {
-  timeZone: EVENT_TIME_ZONE,
-  day: "2-digit",
-  month: "2-digit",
-  year: "numeric",
-});
-
-export function sealDate(value: Date | string): string {
-  return SEAL_DATE.format(typeof value === "string" ? new Date(value) : value);
-}
-
 const DAY_KEY = new Intl.DateTimeFormat("en-CA", {
   timeZone: EVENT_TIME_ZONE,
   year: "numeric",
@@ -58,4 +47,19 @@ export function tashkentDayEnd(day: string): string | undefined {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) return undefined;
   const end = new Date(`${day}T23:59:59.999${TASHKENT_OFFSET}`);
   return Number.isNaN(end.getTime()) ? undefined : end.toISOString();
+}
+
+export type Waited = { unit: "hour" | "day" | "week"; value: number; days: number };
+
+export function waited(
+  since: string | Date | null | undefined,
+  now: Date,
+): Waited | null {
+  const start = since instanceof Date ? since : toDate(since ?? null);
+  if (!start || Number.isNaN(start.getTime())) return null;
+  const hours = Math.max(0, (now.getTime() - start.getTime()) / 3_600_000);
+  const days = hours / 24;
+  if (hours < 24) return { unit: "hour", value: Math.max(1, Math.floor(hours)), days };
+  if (days < 14) return { unit: "day", value: Math.floor(days), days };
+  return { unit: "week", value: Math.floor(days / 7), days };
 }

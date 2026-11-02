@@ -177,3 +177,38 @@ export function submissionTrend(
 export function joinTrend(users: readonly { createdAt: string }[]): Trend | null {
   return trendOf(users.map((user) => user.createdAt));
 }
+
+export type CoverageStep = 0 | 1 | 2 | 3 | 4 | 5;
+
+export type RegionCell = { key: Region; value: number; step: CoverageStep };
+
+export type RegionCoverage = {
+  cells: RegionCell[];
+  covered: number;
+  total: number;
+  peak: number;
+};
+
+export function regionCoverage(
+  vacancies: readonly { region: Region }[],
+): RegionCoverage {
+  const counted = tally({
+    items: vacancies,
+    order: REGIONS,
+    keyOf: (item) => item.region,
+  });
+  const peak = counted.reduce((highest, entry) => Math.max(highest, entry.value), 0);
+  const cells = counted.map((entry) => ({
+    ...entry,
+    step: (entry.value === 0 || peak === 0
+      ? 0
+      : Math.min(5, Math.max(1, Math.ceil((entry.value / peak) * 5)))) as CoverageStep,
+  }));
+
+  return {
+    cells,
+    covered: cells.filter((cell) => cell.value > 0).length,
+    total: REGIONS.length,
+    peak,
+  };
+}

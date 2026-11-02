@@ -5,6 +5,7 @@ const TYPE_SCALE = [
   "page",
   "page-compact",
   "figure-inline",
+  "station",
   "lead",
   "section",
   "label",

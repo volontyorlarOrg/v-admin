@@ -11,7 +11,6 @@ import {
 } from "@/components/portal/status-badge";
 import { Facts, type Fact } from "@/components/register/facts";
 import { InlineDecision } from "@/components/register/inline-decision";
-import { Seal } from "@/components/register/seal";
 import { LoadFailure } from "@/components/states/load-failure";
 import { PageHeader } from "@/components/states/page-header";
 import { StatePanel } from "@/components/states/state-panel";
@@ -26,7 +25,6 @@ import { failureOf, isReady } from "@/lib/api/load";
 import { reviewApplicationAction } from "@/lib/applications/actions";
 import { loadApplication } from "@/lib/applications/data.server";
 import { volunteerNameOf } from "@/lib/applications/filters";
-import { sealDate } from "@/lib/datetime";
 import { isRegion, isReviewable } from "@/lib/domain/vocabulary";
 import { applicationDecisions, decisionLabels } from "@/lib/queue/decisions.server";
 import { navHref, userHref, vacancyHref } from "@/lib/routing/routes";
@@ -47,12 +45,11 @@ export default async function ApplicationPage({
   const { locale, id } = await params;
   setRequestLocale(locale);
 
-  const [t, attendanceCopy, common, vocabulary, seal, format] = await Promise.all([
+  const [t, attendanceCopy, common, vocabulary, format] = await Promise.all([
     getTranslations("applications"),
     getTranslations("attendance"),
     getTranslations("common"),
     getTranslations("vocabulary"),
-    getTranslations("seal"),
     getFormatter(),
   ]);
   const languages = new Intl.DisplayNames([locale], { type: "language" });
@@ -194,23 +191,17 @@ export default async function ApplicationPage({
                 })}
               </span>
             ) : null}
+            {accepted && application.reviewedAt ? (
+              <span className="font-medium text-accent-ink">
+                {t("acceptedOn", {
+                  date: format.dateTime(new Date(application.reviewedAt), "date"),
+                })}
+              </span>
+            ) : null}
           </>
         }
         actions={
           <>
-            {accepted ? (
-              <Seal
-                word={seal("accepted")}
-                date={sealDate(application.reviewedAt as string)}
-                issuer={seal("issuer")}
-                tone="person"
-                size={76}
-                label={seal("label", {
-                  word: seal("accepted"),
-                  date: sealDate(application.reviewedAt as string),
-                })}
-              />
-            ) : null}
             <Link
               href={userHref(application.volunteerId)}
               className={buttonClass({ variant: "outline", size: "sm" })}
@@ -229,7 +220,7 @@ export default async function ApplicationPage({
           <div className="flex min-w-0 gap-3">
             <span
               aria-hidden="true"
-              className="grid size-9 shrink-0 place-items-center rounded-full bg-primary text-knockout"
+              className="grid size-9 shrink-0 place-items-center rounded-md bg-primary text-knockout"
             >
               <Stamp className="size-4" strokeWidth={2} />
             </span>

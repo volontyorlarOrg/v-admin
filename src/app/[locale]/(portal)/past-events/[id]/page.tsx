@@ -38,14 +38,14 @@ const EVENT_TONES: Record<PastEventState, StatusTone> = {
   waiting: "waiting",
   approved: "person",
   partlyApproved: "person",
-  rejected: "final",
+  rejected: "danger",
   withdrawn: "neutral",
 };
 
 const PERSON_TONES: Record<PastEventRequestStatus, StatusTone> = {
   pending: "waiting",
   approved: "person",
-  rejected: "final",
+  rejected: "danger",
   cancelled: "neutral",
 };
 

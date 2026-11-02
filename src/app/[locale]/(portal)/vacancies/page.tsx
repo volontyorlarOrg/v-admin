@@ -25,12 +25,11 @@ import {
 import { Link } from "@/i18n/navigation";
 import { failureOf, isReady } from "@/lib/api/load";
 import { loadApplications } from "@/lib/applications/data.server";
-import { loadCoordinators } from "@/lib/coordinators/data.server";
+import { loadAuditDirectory } from "@/lib/audit/directory.server";
 import { VACANCY_STATES, type VacancyState } from "@/lib/domain/vocabulary";
 import { navHref, vacancyHref } from "@/lib/routing/routes";
 import {
   DEFAULT_PAGE_SIZE,
-  MAX_PAGE_SIZE,
   hrefWith,
   paginate,
   readOption,
@@ -67,10 +66,11 @@ export default async function VacanciesPage({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const [t, common, vocabulary, format] = await Promise.all([
+  const [t, common, vocabulary, roles, format] = await Promise.all([
     getTranslations("vacancies"),
     getTranslations("common"),
     getTranslations("vocabulary"),
+    getTranslations("audit"),
     getFormatter(),
   ]);
 
@@ -79,11 +79,12 @@ export default async function VacanciesPage({
   const state = readOption(query, "state", VACANCY_STATES);
   const page = readPage(query);
 
-  const [loaded, applications, coordinators] = await Promise.all([
+  const [loaded, applications, directory] = await Promise.all([
     loadVacancies(),
     loadApplications(),
-    loadCoordinators({ page: 1, pageSize: MAX_PAGE_SIZE }),
+    loadAuditDirectory({ applications: false }),
   ]);
+  const now = new Date();
 
   const failure = failureOf(loaded);
   const all = isReady(loaded) ? loaded.data : [];
@@ -92,13 +93,20 @@ export default async function VacanciesPage({
   const pageState = paginate(filtered, page, DEFAULT_PAGE_SIZE);
   const listPath = navHref("vacancies");
 
-  const coordinatorNames = new Map(
-    isReady(coordinators)
-      ? coordinators.data.items.map((item) => [
-          item.id,
-          item.displayName ?? item.email ?? item.id,
-        ])
-      : [],
+  const runBy = (createdById: string | undefined) => {
+    if (!createdById) return null;
+    const person = directory.people.get(createdById);
+    return person
+      ? { name: person.name, role: roles(`roles.${person.role}`) }
+      : { name: roles("roles.administrator"), role: null };
+  };
+  const dated = (value: string) => (
+    <>
+      <span className="block">{format.dateTime(new Date(value), "day")}</span>
+      <span className="block text-xs text-ink-muted">
+        {format.relativeTime(new Date(value), now)}
+      </span>
+    </>
   );
 
   const load = new Map<string, { sent: number; waiting: number }>();
@@ -191,7 +199,7 @@ export default async function VacanciesPage({
                     <TableHead scope="col">{t("table.title")}</TableHead>
                     <TableHead scope="col">{t("table.state")}</TableHead>
                     <TableHead scope="col">{t("table.applications")}</TableHead>
-                    <TableHead scope="col">{t("table.coordinator")}</TableHead>
+                    <TableHead scope="col">{t("table.runner")}</TableHead>
                     <TableHead scope="col">{t("table.deadline")}</TableHead>
                     <TableHead scope="col">{t("table.starts")}</TableHead>
                   </TableRow>
@@ -201,6 +209,7 @@ export default async function VacanciesPage({
                     const current = vacancyStateOf(vacancy);
                     const status = vacancyStatus(current);
                     const counted = load.get(vacancy.id);
+                    const runner = runBy(vacancy.createdById);
                     return (
                       <TableRow key={vacancy.id}>
                         <TableCell className="max-w-[22rem]">
@@ -230,9 +239,11 @@ export default async function VacanciesPage({
                         <TableCell className="tabular whitespace-nowrap">
                           {counted ? (
                             <>
-                              {format.number(counted.sent)}
+                              <span className="block">
+                                {format.number(counted.sent)}
+                              </span>
                               {counted.waiting > 0 ? (
-                                <span className="ml-2 font-semibold text-primary-ink">
+                                <span className="mt-0.5 inline-flex h-5 items-center rounded-sm bg-warning-muted px-1.5 text-xs font-medium text-warning-ink">
                                   {t("table.waiting", { count: counted.waiting })}
                                 </span>
                               ) : null}
@@ -241,19 +252,25 @@ export default async function VacanciesPage({
                             <span className="text-ink-muted">—</span>
                           )}
                         </TableCell>
-                        <TableCell className="text-ink-muted">
-                          {(vacancy.createdById
-                            ? coordinatorNames.get(vacancy.createdById)
-                            : undefined) ?? common("notSet")}
-                        </TableCell>
-                        <TableCell className="tabular whitespace-nowrap">
-                          {format.dateTime(
-                            new Date(vacancy.applicationDeadline),
-                            "day",
+                        <TableCell>
+                          {runner ? (
+                            <>
+                              <span className="block text-ink">{runner.name}</span>
+                              {runner.role ? (
+                                <span className="block text-xs text-ink-muted">
+                                  {runner.role}
+                                </span>
+                              ) : null}
+                            </>
+                          ) : (
+                            <span className="text-ink-muted">{common("notSet")}</span>
                           )}
                         </TableCell>
                         <TableCell className="tabular whitespace-nowrap">
-                          {format.dateTime(new Date(vacancy.startsAt), "day")}
+                          {dated(vacancy.applicationDeadline)}
+                        </TableCell>
+                        <TableCell className="tabular whitespace-nowrap">
+                          {dated(vacancy.startsAt)}
                         </TableCell>
                       </TableRow>
                     );

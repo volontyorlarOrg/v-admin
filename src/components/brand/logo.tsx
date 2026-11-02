@@ -55,11 +55,13 @@ export function BrandLockup({
 
   if (stacked) {
     return (
-      <span className={cn("inline-flex min-w-0 flex-col items-start gap-2", className)}>
+      <span
+        className={cn("inline-flex min-w-0 flex-col items-start gap-1.5", className)}
+      >
         <span
           role="img"
           aria-label={name}
-          className="inline-flex shrink-0 items-start [--logo:2.65rem]"
+          className="inline-flex shrink-0 items-start [--logo:2.25rem]"
         >
           <BrandIcon className="size-(--logo)" />
           <BrandWordmark
@@ -71,7 +73,7 @@ export function BrandLockup({
         </span>
         <span
           className={cn(
-            "label-caps truncate",
+            "truncate column-label",
             inverse ? "text-shell-muted" : "text-ink-muted",
           )}
         >
@@ -86,7 +88,7 @@ export function BrandLockup({
       <span
         role="img"
         aria-label={name}
-        className="inline-flex shrink-0 items-start [--logo:2.65rem]"
+        className="inline-flex shrink-0 items-start [--logo:2.25rem]"
       >
         <BrandIcon className="size-(--logo)" />
         <BrandWordmark

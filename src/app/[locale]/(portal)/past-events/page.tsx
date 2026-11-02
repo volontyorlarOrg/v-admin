@@ -47,7 +47,7 @@ const TONES: Record<PastEventState, StatusTone> = {
   waiting: "waiting",
   approved: "person",
   partlyApproved: "person",
-  rejected: "final",
+  rejected: "danger",
   withdrawn: "neutral",
 };
 

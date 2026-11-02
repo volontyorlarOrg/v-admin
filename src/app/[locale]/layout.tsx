@@ -19,6 +19,7 @@ const sourceSerif = Source_Serif_4({
   weight: ["400"],
   variable: "--font-source-serif",
   display: "swap",
+  preload: false,
 });
 
 export function generateStaticParams() {
