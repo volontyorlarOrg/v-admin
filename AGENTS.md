@@ -11,9 +11,9 @@ It follows the codebase patterns of the volunteer application in `../v-app` —
 the same tokens and typeface, the same route registry, the same server-only API
 client and Zod-parsed responses, the same `ActionResult` envelope, the same
 documentation layout and verification loop. It does not carry its history, its
-volunteer routes, or its whiteboard ground; its own ground is the country
-terrain in [`docs/architecture/GROUND.md`](docs/architecture/GROUND.md). See
-[`DESIGN.md`](DESIGN.md).
+volunteer routes, or its whiteboard ground. Its visual system is "The Line":
+the volunteer journey drawn as one line of five stations, on a quiet working
+shell. See [`DESIGN.md`](DESIGN.md).
 
 ## The one thing to know first
 
@@ -56,9 +56,11 @@ three files: `src/lib/portal.ts`, `src/lib/api/endpoints.ts` and
 differs — the dashboard, the vacancy list and record, the volunteer record, activity,
 the vacancy actions, the audit subject links and the catalogs — and
 [`docs/architecture/ARCHITECTURE.md`](docs/architecture/ARCHITECTURE.md) lists
-them. Everything else, `src/components/` and the stylesheet included, is
-byte-identical. Keep it that way — a fix that belongs to both belongs in the
-shared shape, applied to both.
+them. Everything else, `src/components/` and the stylesheet included, was
+byte-identical until the November 2026 redesign, which landed here first: the
+tokens, the shell, the status chips, the queue rows and the charts now lead
+`v-staff`. Port them to `v-staff` to restore parity, and from then on keep it —
+a fix that belongs to both belongs in the shared shape, applied to both.
 
 ## Technology stack
 
@@ -92,7 +94,7 @@ src/lib/<domain>/               data.server.ts reads · actions.ts writes ·
                                 filters.ts / schema.ts / form.ts pure logic
 src/lib/routing/                the route registry and search-param helpers
 src/lib/queue/                  the dashboard's queue rules and the decision builders
-src/lib/map/                    the country's geometry for the ground
+src/lib/map/                    the fourteen regions' places on the tile map
 src/app/[locale]/(auth)/login/  the one public screen
 src/app/[locale]/(portal)/      dashboard, insights,
                                 vacancies[/new|/id|/id/edit], applications[/id],
@@ -162,8 +164,17 @@ docs/                           stable documentation
 - **Filters are a GET form and pagination is links**, so both work without
   JavaScript and can be shared. Read query state only through
   `src/lib/routing/search-params.ts`, which accepts only listed values.
-- **Two brand colours with one role each**, plus `danger` for destructive
-  confirmations. Semantic tokens only, never a literal hex.
+- **Two brand colours with one role each** — blue is the institution, orange is
+  what a volunteer earned — plus a state palette that only ever means a state:
+  amber waits on a decision, green is live, red is refused or destructive.
+  Semantic tokens only, never a literal hex.
+- **Every figure says what it counts.** A number carries its scope — now, all
+  time, or the selected period — and a period section never mixes in all-time or
+  current figures. A zero is drawn as a zero; a missing baseline is said, never
+  shown as 0 %.
+- **Only buttons fill.** A status is a tinted chip with an icon, a filter is a
+  soft selection, a count is a small tag. Nothing that is not an action wears the
+  solid action colour.
 - Preserve keyboard access, visible focus, one `h1` per page, reduced motion and
   responsive behaviour.
 - Update `/docs` when stable environment or architecture behaviour changes.

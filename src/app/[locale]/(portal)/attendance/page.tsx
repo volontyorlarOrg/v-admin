@@ -69,12 +69,8 @@ export default async function AttendancePage({
 
   const rows = (list: AttendanceGroup[], kind: "due" | "upcoming" | "recorded") => (
     <ol className="divide-y divide-border">
-      {list.map((group, index) => (
-        <QueueRow
-          key={group.vacancyId}
-          number={index + 1}
-          numberLabel={t("queue.number")}
-        >
+      {list.map((group) => (
+        <QueueRow key={group.vacancyId}>
           <QueueMain
             title={
               <Link
@@ -149,12 +145,8 @@ export default async function AttendancePage({
               description={t("sections.verifyDescription")}
             >
               <ol className="divide-y divide-border">
-                {toVerify.map((item, index) => (
-                  <QueueRow
-                    key={item.opportunityId}
-                    number={index + 1}
-                    numberLabel={t("queue.number")}
-                  >
+                {toVerify.map((item) => (
+                  <QueueRow key={item.opportunityId}>
                     <QueueMain
                       title={
                         <Link
@@ -174,7 +166,7 @@ export default async function AttendancePage({
                     <QueueSide>
                       <span>{t("queue.accepted", { count: item.volunteers })}</span>
                       {item.correction ? (
-                        <span className="font-semibold text-accent-ink">
+                        <span className="font-semibold text-warning-ink">
                           {t("queue.correction")}
                         </span>
                       ) : null}

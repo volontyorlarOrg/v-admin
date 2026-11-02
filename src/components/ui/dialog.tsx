@@ -68,7 +68,7 @@ function DialogContent({
         {children}
         <DialogPrimitive.Close
           data-slot="dialog-dismiss"
-          className="absolute top-4 right-4 rounded-full p-1.5 text-ink-muted transition-colors hover:bg-surface-sunk hover:text-ink"
+          className="absolute top-3.5 right-3.5 rounded-md p-1.5 text-ink-muted transition-colors hover:bg-surface-sunk hover:text-ink"
         >
           <X aria-hidden="true" className="size-4" />
           <span className="sr-only">{closeLabel}</span>
@@ -121,7 +121,7 @@ function DialogTitle({
   return (
     <DialogPrimitive.Title
       data-slot="dialog-title"
-      className={cn("display-face text-2xl leading-tight text-foreground", className)}
+      className={cn("text-lg leading-snug font-semibold text-foreground", className)}
       {...props}
     />
   );

@@ -103,7 +103,7 @@ export default async function UsersPage({
                   <TableRow className="hover:bg-transparent">
                     <TableHead scope="col">{t("table.name")}</TableHead>
                     <TableHead scope="col">{t("table.applications")}</TableHead>
-                    <TableHead scope="col">{t("table.accepted")}</TableHead>
+                    <TableHead scope="col">{t("table.attendanceRecords")}</TableHead>
                     <TableHead scope="col">{t("table.passwordLogin")}</TableHead>
                     <TableHead scope="col">{t("table.joined")}</TableHead>
                   </TableRow>

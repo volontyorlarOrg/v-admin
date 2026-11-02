@@ -49,14 +49,17 @@
     "insights": "Tahlil",
     "waiting": {
       "pendingApproval": "tasdiqlashni kutmoqda",
-      "changesRequested": "tuzatish uchun qaytarilgan",
-      "pendingReview": "qaror kutayotgan ariza",
-      "attendanceDue": "koʻngillining davomati belgilanmagan",
       "pastEventRequests": "hal qilinadigan oʻtgan tadbir"
     },
     "blog": "Blog",
     "bulkAwards": "Ommaviy mukofotlash",
-    "pastEvents": "Oʻtgan tadbirlar"
+    "pastEvents": "Oʻtgan tadbirlar",
+    "groups": {
+      "overview": "Umumiy koʻrinish",
+      "volunteering": "Volontyorlik",
+      "participants": "Ishtirokchilar",
+      "administration": "Boshqaruv"
+    }
   },
   "auth": {
     "metaTitle": "Kirish",
@@ -212,8 +215,7 @@
   },
   "dashboard": {
     "title": "Tahlil",
-    "description": "Butun loyiha boʻyicha raqamlar. Hammasi haqiqiy hisobdan olinadi, taxmin qilinmaydi.",
-    "range": "{from} — {to}",
+    "description": "Butun loyiha boʻyicha jami koʻrsatkichlar. Har bir panelda barcha vaqt yoki hozirgi holat hisoblangani koʻrsatilgan; kunlik dinamika boshqaruv panelida.",
     "figures": {
       "vacancies": "Vakansiyalar",
       "publishedVacancies": "Eʼlon qilingan",
@@ -228,7 +230,7 @@
     "charts": {
       "pipeline": {
         "title": "Arizalar yoʻli",
-        "description": "Har bir ish bosqichidagi joriy son."
+        "description": "Har bir chiziq — yuborilgan barcha arizalardagi ulush. Bular voronka bosqichlari emas, holatlar: bitta ariza bir nechtasida hisoblanishi mumkin."
       },
       "trend": {
         "title": "Yuborilgan arizalar",
@@ -247,7 +249,7 @@
       },
       "regions": {
         "title": "Vakansiyalar hududlar boʻyicha",
-        "description": "Faqat vakansiyasi bor hududlar koʻrsatilgan."
+        "description": "Yaratilgan barcha vakansiyalar oʻn toʻrt hudud xaritasida. Och rangli kataklar — hali vakansiyasi yoʻq hududlar."
       },
       "stages": {
         "title": "Vakansiyalar holati",
@@ -264,7 +266,7 @@
         "label": "Ishtirok tasdiqlangan"
       },
       "of": "{total} tadan {value} ta",
-      "empty": "Bu davrda hech narsa qayd etilmagan.",
+      "empty": "Hozircha hech narsa qayd etilmagan.",
       "shares": {
         "title": "Ulushlar",
         "description": "Eʼlon qilingan vakansiyalar va davomati tasdiqlangan qabul qilingan koʻngillilar ulushi."
@@ -275,7 +277,22 @@
       "active": "Faol",
       "blocked": "Bloklangan",
       "removed": "Olib tashlangan",
-      "description": "Barcha koordinator hisoblari holati boʻyicha."
+      "description": "Barcha koordinator hisoblari holati boʻyicha.",
+      "open": "Barcha koordinatorlar"
+    },
+    "scope": {
+      "allTime": "Barcha vaqt",
+      "now": "Hozir"
+    },
+    "regions": {
+      "tile": "{region}: {count, plural, other {# ta vakansiya}}",
+      "covered": "Kamida bitta vakansiyasi bor hududlar",
+      "coveredValue": "{total} tadan {covered} ta",
+      "none": "Hali vakansiya yoʻq",
+      "ranked": "Vakansiyalar soni boʻyicha",
+      "fewer": "Kamroq",
+      "more": "Koʻproq",
+      "zero": "Yoʻq"
     }
   },
   "vacancies": {
@@ -309,9 +326,9 @@
       "state": "Holat",
       "deadline": "Arizalar yopiladi",
       "starts": "Boshlanishi",
-      "coordinator": "Koordinator",
       "applications": "Arizalar",
-      "waiting": "{count} tasi qaror kutmoqda"
+      "waiting": "{count} tasi qaror kutmoqda",
+      "runner": "Masʼul"
     },
     "detail": {
       "description": "Tavsif",
@@ -459,7 +476,8 @@
     "kinds": {
       "volunteering": "Volontyorlik",
       "competition": "Tanlovlar"
-    }
+    },
+    "approvedOn": "{date} tasdiqlangan"
   },
   "applications": {
     "title": "Arizalar",
@@ -563,7 +581,8 @@
       "all": "Hammasi"
     },
     "sentOn": "{when} yuborilgan",
-    "listTitle": "Barcha arizalar"
+    "listTitle": "Barcha arizalar",
+    "acceptedOn": "{date} qabul qilingan"
   },
   "users": {
     "title": "Volontyorlar",
@@ -587,7 +606,7 @@
       "passwordLogin": "Parol bilan kirish",
       "joined": "Qoʻshilgan",
       "passwordChangedAt": "Parol oxirgi marta oʻzgartirilgan",
-      "accepted": "Qabul qilingan"
+      "attendanceRecords": "Davomat yozuvlari"
     },
     "detail": {
       "account": "Hisob",
@@ -1159,17 +1178,6 @@
       "automatic": "Avtomatik"
     }
   },
-  "seal": {
-    "issuer": "Volontyorlar",
-    "approved": "Tasdiqlandi",
-    "accepted": "Qabul qilindi",
-    "returned": "Qaytarildi",
-    "rejected": "Rad etildi",
-    "closed": "Yopildi",
-    "recorded": "Qayd etildi",
-    "clear": "Bajarildi",
-    "label": "{word} — {date}"
-  },
   "decisions": {
     "group": "Qaror",
     "cancel": "Bekor qilish",
@@ -1228,7 +1236,6 @@
     "dateline": "{date} · {count, plural, =0 {sizni hech narsa kutmayapti} other {sizni # ta ish kutmoqda}}",
     "listTitle": "Sizni kutmoqda",
     "waitingLabel": "kutmoqda",
-    "number": "Raqam",
     "approve": {
       "title": "Tasdiqlanadigan vakansiyalar",
       "countLabel": "vakansiya tasdiqlashni kutmoqda",
@@ -1280,11 +1287,6 @@
     "cleared": {
       "title": "Bugun hal qilingan",
       "countLabel": "bugungi qaror",
-      "vacancy": {
-        "approved": "Tasdiqlandi va eʼlon qilindi",
-        "changes_requested": "Tuzatish uchun qaytarildi",
-        "rejected": "Rad etildi"
-      },
       "application": "{decision} · {vacancy}",
       "decision": {
         "accepted": "Qabul qilindi",
@@ -1292,7 +1294,16 @@
         "closed": "Yopildi"
       },
       "rollCall": "Davomat qayd etildi: {attended} kishi keldi, {other} kishi sababli yoki bekor",
-      "empty": "Bugun qabul qilgan qarorlaringiz shu yerda muhr bilan paydo boʻladi."
+      "empty": "Bugun qabul qilgan qarorlaringiz shu yerda paydo boʻladi.",
+      "word": {
+        "approved": "Tasdiqlandi",
+        "returned": "Qaytarildi",
+        "rejected": "Rad etildi",
+        "accepted": "Qabul qilindi",
+        "notSelected": "Tanlanmadi",
+        "closed": "Yopildi",
+        "recorded": "Davomat qayd etildi"
+      }
     },
     "verify": {
       "title": "Tekshiriladigan natijalar",
@@ -1314,14 +1325,18 @@
     "organizers": {
       "title": "Tashkilotchilarni kutmoqda",
       "countLabel": "vakansiya oʻz tashkilotchisini kutmoqda",
-      "description": "Tashkilotlar va koordinatorlar oʻz portallarida hal qiladigan arizalar va davomat. Ish toʻxtab qolmasa, bu yerda sizdan hech narsa talab qilinmaydi.",
+      "description": "Tashkilotlar va koordinatorlar buni oʻz portallarida hal qiladi. Eng eskilari birinchi.",
       "runner": "Masʼul: {name}",
       "unknownRunner": "Masʼul: boshqa hisob",
       "applications": "{count, plural, other {# ta ariza kutmoqda}} · eng birinchisi {when}",
       "rollCall": "{count, plural, other {# ta volontyorni belgilash kerak}}",
       "open": "Ochish",
-      "more": "{count, plural, other {yana # ta vakansiya}}"
-    }
+      "more": "{count, plural, other {yana # ta vakansiya}}",
+      "empty": "Hech bir tashkilotchida ariza yoki davomat kutmayapti."
+    },
+    "age": "{age} kutmoqda",
+    "ageUnknown": "Kutish vaqti qayd etilmagan",
+    "datelineOldest": "{date} · eng uzoq kutayotgani {age}"
   },
   "blog": {
     "title": "Blog",
@@ -2074,29 +2089,14 @@
   },
   "dashboardHome": {
     "title": "Boshqaruv paneli",
-    "description": "Avval sizni kutayotgan ishlar, soʻng platforma koʻrsatkichlari, soʻnggi amallar va dinamika.",
-    "overview": {
-      "title": "Platforma koʻrsatkichlari",
-      "description": "Barcha vaqt · hozir eʼlon qilingan vakansiyalar",
-      "volunteers": "Koʻngillilar",
-      "publishedVacancies": "Eʼlon qilingan vakansiyalar",
-      "applications": "Yuborilgan arizalar",
-      "attended": "Koʻngillilar ishtiroki",
-      "confirmedHours": "Tasdiqlangan soatlar"
-    },
-    "sections": "Panel boʻlimlari",
+    "description": "Volontyor yoʻli qayerda turgani va navbat kimda ekanligi, keyin esa koʻrsatkichlar qanday oʻzgarayotgani.",
     "loadingOperations": "Vazifalar yuklanmoqda",
-    "analytics": "Tahlil",
+    "analytics": "Dinamika",
     "period": "Tahlil davri",
     "days": "Oxirgi {days} kun",
     "range": "{from} – {to} · Toshkent vaqti",
     "timeZone": "Toshkent vaqti",
     "partialDay": "Bugun hali tugamagan. Taqqoslashda oldingi davrning ayni vaqti hisobga olinadi.",
-    "inPeriod": "Tanlangan davr",
-    "allTime": "Barcha yuborilgan arizalarning hozir qabul qilingan ulushi",
-    "currentState": "Barcha sanalar boʻyicha joriy navbat",
-    "comparison": "Oldingi {days} kunda {previous} ta roʻyxatdan oʻtish",
-    "chartHint": "Kunni koʻrish uchun kursorni olib boring, grafikni bosing yoki oʻq tugmalaridan foydalaning.",
     "viewData": "Kunlik maʼlumotlarni koʻrish",
     "date": "Sana",
     "categories": {
@@ -2107,18 +2107,17 @@
     "growth": {
       "average": "Kunlik roʻyxatdan oʻtishlar",
       "averageCaption": "Har bir kalendar kun uchun oʻrtacha",
-      "change": "Roʻyxatdan oʻtish oʻsishi",
       "noBaseline": "Oldingi davrda roʻyxatdan oʻtishlar yoʻq",
       "activation": "Roʻyxatdan oʻtishdan arizagacha",
       "activationCaption": "{signups} ta yangi koʻngillidan {activated} tasi bugungacha ariza yuborgan",
-      "joins": "Yangi roʻyxatdan oʻtishlar"
+      "joins": "Yangi roʻyxatdan oʻtishlar",
+      "previous": "Roʻyxatdan oʻtganlar, oldingi davr"
     },
     "applications": {
       "submitted": "Yuborilgan arizalar",
       "average": "Kunlik arizalar",
-      "accepted": "Qabul qilinganlar ulushi",
-      "waiting": "Koʻrib chiqish kutilmoqda",
-      "pipelineCaption": "Barcha sanalar boʻyicha joriy sonlar. Bu konversiya bosqichlari emas, ish holatlaridir."
+      "previous": "Arizalar, oldingi davr",
+      "noBaseline": "Oldingi davrda arizalar boʻlmagan"
     },
     "impact": {
       "attended": "Tasdiqlangan ishtiroklar",
@@ -2156,10 +2155,13 @@
         "description": "Yangi koʻngilli hisoblari. Birlashtirilgan takroriy hisoblar chiqarib tashlangan."
       }
     },
-    "jump": {
-      "operations": "Sizni kutmoqda",
-      "activity": "Soʻnggi amallar"
-    }
+    "readout": {
+      "total": "Jami {total} · kunni koʻrish uchun ustiga olib boring yoki ← → tugmalaridan foydalaning",
+      "latest": "{date} holatiga {value} · kunni koʻrish uchun ustiga olib boring yoki ← → tugmalaridan foydalaning"
+    },
+    "versus": "oldingi {days} kunga nisbatan {change}",
+    "previousCaption": "Bu davrdan oldingi {days} kun",
+    "hoursValue": "{value} soat"
   },
   "pastEventRequests": {
     "title": "Oʻtgan tadbirlar",
@@ -2270,5 +2272,35 @@
       "eventVolunteerUnavailable": "Ishtirokchilardan birining hisobi endi faol emas, shuning uchun hech kim tasdiqlanmadi. Quyida oʻsha ishtirokchini rad eting, keyin qolganlarini tasdiqlang.",
       "eventRosterDuplicate": "Ikki ishtirokchi endi bitta birlashtirilgan hisob, shuning uchun hech kim tasdiqlanmadi. Quyida takrorini rad eting, keyin qolganlarini tasdiqlang."
     }
+  },
+  "journey": {
+    "title": "Volontyor yoʻli",
+    "volunteers": "{count, plural, other {# ta volontyorning hisobi bor}}",
+    "scope": {
+      "now": "hozir",
+      "allTime": "barcha vaqt"
+    },
+    "stations": {
+      "published": "Eʼlon qilingan vakansiyalar",
+      "applications": "Yuborilgan arizalar",
+      "accepted": "Qabul qilingan volontyorlar",
+      "attended": "Qatnashuvlar",
+      "hours": "Tasdiqlangan soatlar"
+    },
+    "owner": {
+      "you": "siz",
+      "organizers": "tashkilotchilar"
+    },
+    "waiting": {
+      "approve": "{count, plural, other {# ta vakansiya tasdiq kutmoqda}}",
+      "organizations": "{count, plural, other {# ta tashkilot tasdiq kutmoqda}}",
+      "returned": "{count, plural, other {# tasi tuzatishga qaytarilgan}}",
+      "decide": "{count, plural, other {# ta ariza qaror kutmoqda}}",
+      "results": "{count, plural, other {# ta natija tekshiruv kutmoqda}}",
+      "rollCalls": "{count, plural, other {# ta tadbirda davomat belgilanmagan}}",
+      "pastEvents": "{count, plural, other {oʻtgan tadbirlar boʻyicha # ta soʻrov}}"
+    },
+    "clear": "Hech narsa kutmayapti",
+    "hours": "{value} soat"
   }
 }

@@ -125,7 +125,7 @@ export function RewardsPanel({
               <dt className="min-w-0 flex-1 text-sm text-ink-muted">
                 {t(`fields.${field}`)}
               </dt>
-              <dd className="display-face tabular shrink-0 text-lg whitespace-nowrap text-ink">
+              <dd className="shrink-0 text-lg figure whitespace-nowrap text-ink">
                 {field === "xpNoShowPenalty"
                   ? t("penaltyValue", { value })
                   : field === "xpPerHour"

@@ -5,9 +5,9 @@ import { cn } from "@/lib/utils";
 export type StateTone = "neutral" | "notice" | "danger";
 
 const TONE: Record<StateTone, string> = {
-  neutral: "border-border bg-surface-sunk text-ink",
+  neutral: "border-border bg-surface text-ink",
   notice: "border-primary-muted bg-surface-soft text-ink",
-  danger: "border-danger/40 bg-danger-muted text-ink",
+  danger: "border-danger/35 bg-danger-muted text-ink",
 };
 
 export function StatePanel({
@@ -32,14 +32,14 @@ export function StatePanel({
       role={role}
       data-slot="state-panel"
       className={cn(
-        "flex flex-col items-start gap-3 rounded-xl border px-5 py-6 sm:flex-row sm:items-center",
+        "flex flex-col items-start gap-3 rounded-lg border px-4 py-4 sm:flex-row sm:items-center",
         TONE[tone],
         className,
       )}
     >
       {icon ? <span className="shrink-0 text-ink-muted">{icon}</span> : null}
       <div className="min-w-0 flex-1">
-        <p className="text-section font-semibold">{title}</p>
+        <p className="text-sm font-semibold">{title}</p>
         {description ? (
           <p className="mt-1 text-sm leading-relaxed text-ink-muted">{description}</p>
         ) : null}

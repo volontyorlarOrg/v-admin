@@ -16,7 +16,7 @@ export default function LocaleError({
   return (
     <div className="flex min-h-dvh items-center justify-center px-6">
       <main className="max-w-md text-center">
-        <h1 className="text-page-title text-ink">Something went wrong</h1>
+        <h1 className="text-page text-ink">Something went wrong</h1>
         <p className="mt-3 text-sm text-ink-muted">
           The page could not be rendered. Try again, and sign in once more if the
           problem continues.
@@ -24,7 +24,7 @@ export default function LocaleError({
         <button
           type="button"
           onClick={reset}
-          className="mt-6 inline-flex min-h-11 items-center rounded-full bg-action px-6 text-sm font-medium text-knockout"
+          className="mt-6 inline-flex min-h-10 items-center rounded-md bg-action px-4 text-sm font-semibold text-knockout"
         >
           Try again
         </button>

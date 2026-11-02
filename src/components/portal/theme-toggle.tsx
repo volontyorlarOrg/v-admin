@@ -27,10 +27,10 @@ export function ThemeToggle({
       aria-pressed={theme === "dark"}
       onClick={() => applyTheme(theme === "dark" ? "light" : "dark")}
       className={cn(
-        "flex size-10 shrink-0 items-center justify-center rounded-lg border transition-colors",
+        "flex size-9 shrink-0 items-center justify-center rounded-md border transition-colors duration-150",
         shell
-          ? "border-shell-line bg-shell-raised text-shell-muted hover:border-shell-muted hover:text-shell-ink"
-          : "border-border-control text-ink-muted hover:border-primary-ink hover:text-primary-ink",
+          ? "border-shell-line bg-surface text-shell-muted hover:border-border-control hover:text-shell-ink"
+          : "border-border-strong bg-surface text-ink-muted hover:border-border-control hover:text-ink",
         className,
       )}
     >

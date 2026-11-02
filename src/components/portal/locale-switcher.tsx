@@ -61,9 +61,9 @@ export function LocaleSwitcher({
         }}
         iconClassName={shell ? "text-shell-muted" : undefined}
         className={cn(
-          "min-h-10 w-full rounded-lg pl-9 text-sm",
+          "min-h-9 w-full rounded-md pl-9 text-sm",
           shell &&
-            "border-shell-line bg-shell-raised text-shell-ink hover:border-shell-muted [&_option]:bg-shell [&_option]:text-shell-ink",
+            "border-shell-line bg-surface text-shell-ink hover:border-border-control [&_option]:bg-surface [&_option]:text-ink",
         )}
       >
         {locales.map((locale) => (

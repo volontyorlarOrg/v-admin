@@ -1136,7 +1136,7 @@ export function BlogEditor({
                   href={`${blogHref(post.id)}?lang=${lang}`}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "inline-flex min-h-9 items-center gap-2 rounded-full px-3.5 text-sm font-semibold whitespace-nowrap transition-colors",
+                    "inline-flex min-h-9 items-center gap-2 rounded-md px-3.5 text-sm font-semibold whitespace-nowrap transition-colors",
                     active
                       ? "bg-action text-knockout"
                       : "text-ink-muted hover:bg-surface-sunk hover:text-ink",
@@ -1417,7 +1417,7 @@ export function BlogEditor({
                     href={liveUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex min-h-9 items-center gap-1.5 rounded-full px-3.5 text-sm font-semibold text-primary-ink hover:bg-surface-soft [&_svg]:size-4"
+                    className="inline-flex min-h-9 items-center gap-1.5 rounded-md px-3.5 text-sm font-semibold text-primary-ink hover:bg-surface-soft [&_svg]:size-4"
                   >
                     {labels.viewLive}
                     <ArrowUpRight aria-hidden="true" />
@@ -1462,7 +1462,7 @@ export function BlogEditor({
                 <label
                   title={labels.pictureHint}
                   className={cn(
-                    "inline-flex min-h-9 cursor-pointer items-center gap-2 rounded-full border border-border-control px-3.5 text-sm font-semibold text-ink transition-colors hover:border-primary-ink hover:bg-surface-soft hover:text-primary-ink has-focus-visible:outline-3 has-focus-visible:outline-offset-2 has-focus-visible:outline-primary-ink [&_svg]:size-4",
+                    "inline-flex min-h-9 cursor-pointer items-center gap-2 rounded-md border border-border-control px-3.5 text-sm font-semibold text-ink transition-colors hover:border-primary-ink hover:bg-surface-soft hover:text-primary-ink has-focus-visible:outline-3 has-focus-visible:outline-offset-2 has-focus-visible:outline-primary-ink [&_svg]:size-4",
                     archived ? "pointer-events-none opacity-55" : null,
                   )}
                 >
@@ -1661,7 +1661,7 @@ export function BlogEditor({
           >
             <summary className="flex min-h-12 cursor-pointer items-center justify-between gap-3 px-5 py-3.5 text-section text-ink">
               {labels.history}
-              <span className="tabular rounded-full bg-surface-sunk px-2 py-0.5 text-xs font-semibold text-ink-muted">
+              <span className="tabular rounded-sm bg-surface-sunk px-1.5 py-0.5 text-xs font-semibold text-ink-muted">
                 {entries.length}
               </span>
             </summary>

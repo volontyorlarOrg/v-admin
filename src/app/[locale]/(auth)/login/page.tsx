@@ -32,10 +32,10 @@ export default async function LoginPage({
   const configured = isAuthConfigured();
 
   return (
-    <div className="sheet rounded-[1.75rem] p-6 shadow-raised sm:p-8">
-      <div className="mb-6">
+    <div className="sheet p-6 sm:p-7">
+      <div className="mb-5">
         <h1 className="text-page-compact text-ink sm:text-page">{t("title")}</h1>
-        <p className="mt-2 text-sm leading-relaxed text-ink-muted">{t("subtitle")}</p>
+        <p className="mt-1.5 text-sm leading-relaxed text-ink-muted">{t("subtitle")}</p>
       </div>
 
       {status ? (

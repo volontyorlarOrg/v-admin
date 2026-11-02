@@ -18,9 +18,9 @@ export function Count({
   return (
     <span
       className={cn(
-        "tabular inline-flex min-w-6 items-center justify-center rounded-full px-2 py-0.5 text-xs font-semibold",
+        "tabular inline-flex h-5 min-w-5 items-center justify-center rounded-sm px-1.5 text-xs font-semibold",
         tone === "waiting"
-          ? "bg-surface-soft text-primary-ink"
+          ? "bg-warning-muted text-warning-ink"
           : "bg-surface-sunk text-ink-muted",
       )}
     >
@@ -62,7 +62,7 @@ export function Register({
       className={cn("min-w-0 overflow-hidden sheet", className)}
     >
       {title ? (
-        <header className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-border px-5 py-3.5">
+        <header className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 border-b border-border px-4 py-3">
           <h2 id={titleId} className="text-section text-ink">
             {title}
           </h2>
@@ -77,14 +77,12 @@ export function Register({
             <div className="ml-auto flex flex-wrap items-center gap-2">{actions}</div>
           ) : null}
           {description ? (
-            <p className="w-full text-sm leading-relaxed text-ink-muted">
-              {description}
-            </p>
+            <p className="w-full text-sm leading-snug text-ink-muted">{description}</p>
           ) : null}
         </header>
       ) : null}
       {toolbar ? (
-        <div className="flex flex-wrap items-center gap-3 border-b border-border px-5 py-3">
+        <div className="flex flex-wrap items-center gap-3 border-b border-border px-4 py-2.5">
           {toolbar}
         </div>
       ) : null}
@@ -110,17 +108,17 @@ export function RegisterTabs({
 }) {
   return (
     <nav aria-label={label} className="-mx-1 max-w-full overflow-x-auto">
-      <ul className="flex w-max items-center gap-1 px-1 py-0.5">
+      <ul className="flex w-max items-center gap-0.5 px-1 py-0.5">
         {items.map((item) => (
           <li key={item.key}>
             <Link
               href={item.href}
               aria-current={item.active ? "page" : undefined}
               className={cn(
-                "inline-flex min-h-9 items-center gap-2 rounded-full px-3.5 text-sm font-semibold whitespace-nowrap transition-colors",
+                "inline-flex min-h-8 items-center gap-1.5 rounded-md px-2.5 text-sm whitespace-nowrap transition-colors duration-150",
                 item.active
-                  ? "bg-action text-knockout"
-                  : "text-ink-muted hover:bg-surface-sunk hover:text-ink",
+                  ? "bg-surface-sunk font-semibold text-ink shadow-[inset_0_0_0_1px_var(--color-border-strong)]"
+                  : "font-medium text-ink-muted hover:bg-surface-sunk hover:text-ink",
               )}
             >
               {item.label}
@@ -128,7 +126,7 @@ export function RegisterTabs({
                 <span
                   className={cn(
                     "tabular text-xs",
-                    item.active ? "text-band-copy" : "text-ink-muted",
+                    item.active ? "text-ink-muted" : "text-ink-faint",
                   )}
                 >
                   {item.count}
@@ -199,7 +197,7 @@ export function RegisterNote({
   action?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-start gap-2 px-5 py-10 sm:items-center sm:text-center">
+    <div className="flex flex-col items-start gap-1.5 px-4 py-10 sm:items-center sm:text-center">
       <p className="text-section text-ink">{title}</p>
       {description ? (
         <p className="max-w-md text-sm leading-relaxed text-pretty text-ink-muted">
