@@ -1900,14 +1900,28 @@ test.describe("the dashboard charts", () => {
     await expect(joins).toContainText("volunteers between");
   });
 
-  test("keeps the background out of the accessibility tree and off the pointer", async ({
+  test("draws no decoration behind the screens and gives every region a readable count", async ({
     page,
   }) => {
     await signedIn(page);
+    await expect(page.locator("canvas")).toHaveCount(0);
 
-    const background = page.locator("canvas").locator("..");
-    await expect(background).toHaveAttribute("aria-hidden", "true");
-    await expect(background).toHaveCSS("pointer-events", "none");
+    await page.goto("/en/insights");
+    const regions = page
+      .locator("section")
+      .filter({ has: page.getByRole("heading", { name: "Vacancies by region" }) });
+    await expect(regions.getByText("Regions with at least one vacancy")).toBeVisible();
+    await expect(regions.getByText("1 of 14", { exact: true })).toBeVisible();
+    await expect(regions.getByText("No vacancy yet", { exact: true })).toBeVisible();
+
+    if ((page.viewportSize()?.width ?? 1280) >= 640) {
+      await expect(
+        regions.getByRole("listitem", { name: "Tashkent city: 6 vacancies" }),
+      ).toBeVisible();
+      await expect(
+        regions.getByRole("listitem", { name: "Karakalpakstan: 0 vacancies" }),
+      ).toBeVisible();
+    }
   });
 });
 

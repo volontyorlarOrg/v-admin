@@ -249,7 +249,7 @@
       },
       "regions": {
         "title": "Vacancies by region",
-        "description": "Every vacancy ever created, on a map of the fourteen regions. Pale tiles have no vacancy yet."
+        "description": "Every vacancy ever created, on a map of the fourteen regions. A tile with no blue has no vacancy yet."
       },
       "stages": {
         "title": "Vacancies by state",
