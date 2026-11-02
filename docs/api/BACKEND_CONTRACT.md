@@ -234,10 +234,10 @@ administrator sees follows from that:
   current XP, plus `eligibleTotal`) and `GET /admin/bulk-awards` (history).
   "Choose all results" calls `GET /admin/bulk-awards/volunteers/ids?q=`.
   `POST /admin/bulk-awards` takes `{ submissionId, scope, userIds?, xp, hours,
-  reason }` and answers `201` with the applied award, `recipients` and
+reason }` and answers `201` with the applied award, `recipients` and
   `skipped` — there is no queue and no waiting state. `/bulk-awards/[id]` reads
   `GET /admin/bulk-awards/{id}` and `/recipients`, and `POST
-  /admin/bulk-awards/{id}/revoke` takes the award back (`progressBelowZero` if
+/admin/bulk-awards/{id}/revoke` takes the award back (`progressBelowZero` if
   a later correction depends on it). Each ledger row in the volunteer's
   adjustments register carries `bulkAwardId`, which links back to the award.
   Audited as `bulk_award.created` and `bulk_award.revoked`.
@@ -282,7 +282,7 @@ administrator sees follows from that:
 
 - **The applications list names each application's vacancy but not its
   timing.** `opportunity` there carries only `id`, `slug` and `title`, so the
-  attendance page and Today read event times from the vacancies list, and a
+  attendance page and the dashboard read event times from the vacancies list, and a
   vacancy whose times are unknown is never called due.
 - **The applications list carries `answers`, `volunteer`, `opportunity` and
   `attendance`.** The roster renders an outcome only when the record is present
@@ -290,9 +290,21 @@ administrator sees follows from that:
   missing record means "awaiting confirmation".
 - **`GET /admin/audit` is filtered and paged by the API** — `actorUserId`,
   `action`, `entityType`, `from`, `to`, `page`, `pageSize`. The portal sends
-  those and pages on the envelope it gets back. `auditPageSchema` still accepts
-  the older bare array and normalises it to one page, so the screen works
-  against either deployment.
+  those and pages on the envelope it gets back; the audit history, My activity
+  (`actorUserId` = the signed-in administrator) and the dashboard's recent
+  activity all read it this way, and none pages an array in memory.
+  `auditPageSchema` (`pageOf(auditEventSchema)`) still accepts the older bare
+  array and normalises it to one page, so the screen works against either
+  deployment. `entityType` is not offered as a filter: the backend records it
+  with inconsistent casing (`Opportunity`, `application`).
+- **An audit event carries ids, not names.** The portal names the actor and the
+  record from lists it already reads — coordinators, organization accounts and
+  organizations, vacancies, and applications (which also name the volunteer
+  who sent them) — in `src/lib/audit/directory.ts`. An id none of those lists
+  holds is shown as "Another account" or as the record's kind, never guessed.
+  Of the event's `metadata`, only `outcome`, `automatic`, `reason` and
+  `reassignToCoordinatorId` on the actions that write them are read; anything
+  else stays unshown.
 - **The action filter cannot be built from one page of results.** The known
   vocabulary lives in `src/lib/domain/audit-actions.ts`, mirroring the
   `action` strings `v-backend` records, and the select shows that list plus any

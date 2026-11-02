@@ -53,7 +53,7 @@ portal (`../v-staff`), or the API, database, authorisation and audit
 lockfiles, cookies and secrets. What makes each one its portal is declared in
 three files: `src/lib/portal.ts`, `src/lib/api/endpoints.ts` and
 `src/lib/routing/routes.ts`. Beyond those, a file differs only where the work
-differs — Today, the vacancy list and record, the volunteer record, activity,
+differs — the dashboard, the vacancy list and record, the volunteer record, activity,
 the vacancy actions, the audit subject links and the catalogs — and
 [`docs/architecture/ARCHITECTURE.md`](docs/architecture/ARCHITECTURE.md) lists
 them. Everything else, `src/components/` and the stylesheet included, is
@@ -91,10 +91,10 @@ src/lib/api/                    server-only client, endpoint registry, schemas,
 src/lib/<domain>/               data.server.ts reads · actions.ts writes ·
                                 filters.ts / schema.ts / form.ts pure logic
 src/lib/routing/                the route registry and search-param helpers
-src/lib/queue/                  Today's queue rules and the decision builders
+src/lib/queue/                  the dashboard's queue rules and the decision builders
 src/lib/map/                    the country's geometry for the ground
 src/app/[locale]/(auth)/login/  the one public screen
-src/app/[locale]/(portal)/      dashboard (Today), insights,
+src/app/[locale]/(portal)/      dashboard, insights,
                                 vacancies[/new|/id|/id/edit], applications[/id],
                                 users[/id], past-events[/id], attendance, activity,
                                 coordinators[/new|/id], organizations, audit,
@@ -150,7 +150,9 @@ docs/                           stable documentation
 - **Backend data is never re-shaped in JSX.** Parse once with a schema; render
   the schema's output or a state panel.
 - **Decide in the row.** A decision about one record is an `InlineDecision`,
-  on the queue row and on the record's page; a long form is a page of its own;
+  on the queue row and on the record's page — except a vacancy's applicants,
+  which are staged and sent together on its applications desk, so the dashboard
+  groups them by vacancy; a long form is a page of its own;
   `FormDialog` is only for what needs protected focus, such as archiving. See
   [`docs/operations/EXTENDING.md`](docs/operations/EXTENDING.md).
 - **Every list ships loading, empty, no-matches and failure; every write ships

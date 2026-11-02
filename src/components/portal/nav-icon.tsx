@@ -12,7 +12,6 @@ import {
   LogIn,
   Plus,
   ScrollText,
-  Stamp,
   UserCog,
   UserPlus,
   Users,
@@ -29,7 +28,7 @@ const ICONS: Record<string, LucideIcon> = {
   history: History,
   inbox: Inbox,
   "key-round": KeyRound,
-  "layout-dashboard": Stamp,
+  "layout-dashboard": LayoutDashboard,
   "log-in": LogIn,
   plus: Plus,
   "scroll-text": ScrollText,
@@ -47,6 +46,6 @@ export function NavIcon({
   className?: string;
   strokeWidth?: number;
 }) {
-  const Icon = ICONS[name] ?? LayoutDashboard;
+  const Icon = ICONS[name] ?? ScrollText;
   return <Icon aria-hidden="true" className={className} strokeWidth={strokeWidth} />;
 }

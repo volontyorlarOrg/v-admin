@@ -76,13 +76,27 @@ rejecting a vacancy) is an `InlineDecision` note, not a dialog.
 
 ## A queue section
 
-Today is one register sheet. A new kind of work that waits on someone is a
-`QueueSection` in it, fed by a pure function in `src/lib/queue/today.ts` with its
-test beside it: say what counts as waiting, in which order, and when it leaves.
+The dashboard's "Waiting on you" is one register sheet. A new kind of work that
+waits on the administrator is a `QueueSection` in it
+(`src/components/dashboard/desk.tsx`), fed by a pure function in
+`src/lib/queue/dashboard.ts` with its test beside it: say what counts as
+waiting, in which order, and when it leaves. Decide first whose work it is —
+work an organization or coordinator does in their own portal belongs under
+"Waiting on organizers" (`runnerOf`), never in the administrator's count.
 Rows are `QueueRow`s with an entry number, a `QueueMain`, a `QueueSide` for the
 facts that justify the decision, and the decision itself. A section's link to
 the full list sits in its header on the desk and at its foot on a phone. Add the
-count to the waiting total in the page's dateline.
+count to the waiting total in the dateline.
+
+## An audit action
+
+Add the string `v-backend` records to `AUDIT_ACTIONS` in
+`src/lib/domain/audit-actions.ts` (its family follows from its prefix), and its
+label under `audit.actions` with dots turned into underscores, in all three
+catalogs. An action the list does not know still appears — under "Other", with
+its raw name — so the history never hides an event. A new kind of record also
+needs a branch in `subjectOf` (`src/lib/audit/describe.ts`), and a name source
+in the audit directory if the portal already loads one.
 
 ## The ground
 
@@ -96,7 +110,10 @@ ground window, and never make the terrain respond to anything but the pointer.
 
 Every list needs loading, empty, no-matches, and failure. Every failure goes
 through `LoadFailure`, which covers awaiting-contract, denied, expired, missing,
-unconfigured and failed. Do not invent a seventh: add it to `Loaded` first.
+unconfigured and failed. Do not invent a seventh: add it to `Loaded` first. A
+`failed` load carries its request id, which `LoadFailure` quotes as a short
+reference, and a retryable one offers "Try again", which re-renders the page
+on the server.
 
 ## Verification
 

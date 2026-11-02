@@ -146,10 +146,12 @@ components:
 
 The portal is the institution's register. Every vacancy, application and roll
 call arrives as an entry and leaves with a decision stamped on it. An
-administrator sees platform totals and categorized trends on Dashboard, then
-what waits on them, decides it in the row, and watches it move into "Cleared
-today". Totals share one overview sheet; analytics use ruled metric bands and
-chart sheets; operational work stays a queue of entries on ruled sheets.
+administrator opens Dashboard on the platform's totals, then what waits on
+them, decides it in the row, and watches it move into "Cleared today"; what
+waits on organizations follows, then the recent audit trail, then the trends.
+Totals share one overview sheet; operational work stays a queue of entries on
+ruled sheets; the audit trail is a timeline of days; analytics use ruled
+metric bands and chart sheets.
 
 It is the family's ink on a navy-shelled desk. The brand, the logo, the two
 colour roles and the working typeface come from `../v-web` and `../v-app`; the
@@ -401,8 +403,20 @@ A shared ledger sheet directly under Dashboard's page header: volunteers,
 published vacancies, sent applications, attended volunteering and confirmed
 hours, each with a serif figure and an Onest label. The figures use two columns
 on phones, three from the small breakpoint and five from the extra-large
-breakpoint. Confirmed hours stay orange. The category links beneath it lead to
-User growth, Applications, Volunteer impact and the secondary Insights page.
+breakpoint. Confirmed hours stay orange. The jump links beneath it lead to
+Waiting on you, Recent activity, User growth, Applications and Volunteer
+impact; Insights and the audit history are the page header's actions.
+
+### Audit Timeline
+
+Every audit list is a timeline inside a register sheet: a tinted heading per
+Tashkent day (Today, Yesterday, then the weekday and date) with its count, then
+hairline rows of time (tabular), a round family icon on the soft sheet, the
+action in Onest semibold with the named record beneath it as a link, any detail
+as a muted pill, and on the desk the actor's avatar, name and role at the row's
+end. On a phone the icon drops and the actor moves under the record. The
+dashboard's recent activity is the compact form, with the actor folded into
+the record line.
 
 ### Charts
 
@@ -429,7 +443,8 @@ the one place the solid-fill tokens do not apply.
 ### Do:
 
 - **Do** put the decision in the row: Approve, Return, Reject, Accept, Verify and
-  Take roll call are reachable without opening the record.
+  Take roll call are reachable without opening the record. A vacancy's
+  applicants are the one group decided together, on its applications desk.
 - **Do** open long forms — a new vacancy, an edit — as their own page, with a
   sticky footer holding Cancel and the submit.
 - **Do** keep modals for what needs protected focus: archiving a vacancy,

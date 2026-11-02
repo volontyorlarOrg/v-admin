@@ -21,11 +21,7 @@ export function loadCoordinators(query: {
 }): Promise<Loaded<CoordinatorPage>> {
   return read("coordinators", {
     schema: coordinatorPageSchema,
-    query: {
-      ...(query.q ? { q: query.q } : {}),
-      page: query.page,
-      pageSize: query.pageSize,
-    },
+    query,
   });
 }
 

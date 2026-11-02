@@ -10,3 +10,4 @@ fact. Not a changelog, and not a place for anything the code already says.
 | [`resolved-attendance-stays.md`](resolved-attendance-stays.md)               | Why the attendance list keeps decided rows                 |
 | [`rotation-must-survive-a-redirect.md`](rotation-must-survive-a-redirect.md) | Why the proxy writes the session cookie on redirects too   |
 | [`form-reset-drops-chosen-files.md`](form-reset-drops-chosen-files.md)       | Why the photo field puts its file back after a failed save |
+| [`who-runs-a-vacancy.md`](who-runs-a-vacancy.md)                             | Why organization-run applications are not "waiting on you" |

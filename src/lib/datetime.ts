@@ -21,6 +21,31 @@ export function sealDate(value: Date | string): string {
   return SEAL_DATE.format(typeof value === "string" ? new Date(value) : value);
 }
 
+const DAY_KEY = new Intl.DateTimeFormat("en-CA", {
+  timeZone: EVENT_TIME_ZONE,
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
+
+export function tashkentDay(value: Date | string): string {
+  return DAY_KEY.format(typeof value === "string" ? new Date(value) : value);
+}
+
+export function isSameTashkentDay(value: string | undefined, now: Date): boolean {
+  if (!value) return false;
+  const parsed = new Date(value);
+  return !Number.isNaN(parsed.getTime()) && tashkentDay(parsed) === tashkentDay(now);
+}
+
+export function shiftDay(day: string, days: number): string {
+  const [year, month, date] = day.split("-").map(Number);
+  const shifted = new Date(
+    Date.UTC(year ?? 1970, (month ?? 1) - 1, (date ?? 1) + days),
+  );
+  return shifted.toISOString().slice(0, 10);
+}
+
 const TASHKENT_OFFSET = "+05:00";
 
 export function tashkentDayStart(day: string): string | undefined {

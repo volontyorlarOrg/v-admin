@@ -1,7 +1,7 @@
 # Insights
 
 `/insights` keeps secondary operational breakdowns. The main
-[Dashboard](TODAY.md) now owns categorized analytics and the 30/90-day selector,
+[Dashboard](DASHBOARD.md) now owns categorized analytics and the 30/90-day selector,
 using server aggregates from `/admin/analytics`. Insights retains its existing
 sources and completeness limits below. Both surfaces visualize published data
 without estimating, smoothing, projecting or padding it.

@@ -21,12 +21,7 @@ export function loadPastEvents(query: {
 }): Promise<Loaded<PastEventPage>> {
   return read("pastEvents", {
     schema: pastEventPageSchema,
-    query: {
-      view: query.view,
-      ...(query.q ? { q: query.q } : {}),
-      page: query.page,
-      pageSize: query.pageSize,
-    },
+    query,
   });
 }
 
@@ -41,6 +36,6 @@ export function loadPastEventRequests(query: {
 }): Promise<Loaded<PastEventRequestPage>> {
   return read("pastEventRequests", {
     schema: pastEventRequestPageSchema,
-    query: { status: query.status, page: query.page, pageSize: query.pageSize },
+    query,
   });
 }
