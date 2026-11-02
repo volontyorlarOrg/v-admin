@@ -31,29 +31,29 @@ export function MobileHeader({
       <DialogPrimitive.Root open={open} onOpenChange={setOpen}>
         <DialogPrimitive.Trigger
           aria-label={openLabel}
-          className="ml-auto flex size-11 items-center justify-center rounded-lg text-ink hover:bg-surface-sunk"
+          className="ml-auto flex size-11 items-center justify-center rounded-md text-ink hover:bg-surface-sunk"
         >
           <Menu aria-hidden="true" className="size-5" />
         </DialogPrimitive.Trigger>
         <DialogPrimitive.Portal>
-          <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-shell/55" />
+          <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-ink/30" />
           <DialogPrimitive.Content
             aria-describedby={undefined}
-            className="fixed inset-y-0 left-0 z-50 flex w-[min(20rem,88vw)] flex-col bg-shell shell-glow text-shell-ink outline-none [&_:focus-visible]:outline-shell-ink"
+            className="fixed inset-y-0 left-0 z-50 flex w-[min(19rem,88vw)] flex-col border-r border-shell-line bg-shell text-shell-ink shadow-raised outline-none"
           >
-            <div className="flex items-center justify-between gap-3 px-4 pt-4 pb-3">
+            <div className="flex items-center justify-between gap-3 px-4 pt-3 pb-2">
               <DialogPrimitive.Title className="sr-only">
                 {navLabel}
               </DialogPrimitive.Title>
               <div className="min-w-0">{drawerBrand}</div>
               <DialogPrimitive.Close
                 aria-label={closeLabel}
-                className="flex size-11 items-center justify-center rounded-lg text-shell-muted hover:bg-shell-raised hover:text-shell-ink"
+                className="flex size-11 items-center justify-center rounded-md text-shell-muted hover:bg-shell-raised hover:text-shell-ink"
               >
                 <X aria-hidden="true" className="size-5" />
               </DialogPrimitive.Close>
             </div>
-            <div className="flex-1 overflow-y-auto px-3 pb-3">
+            <div className="flex-1 overflow-y-auto px-3 pt-2 pb-4">
               <SidebarNav
                 groups={groups}
                 label={navLabel}

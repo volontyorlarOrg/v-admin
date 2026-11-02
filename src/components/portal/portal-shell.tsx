@@ -2,7 +2,6 @@ import { getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
 
 import { BrandLockup } from "@/components/brand/logo";
-import { CountryGround } from "@/components/portal/country-ground";
 import { MobileHeader } from "@/components/portal/mobile-header";
 import { SidebarFoot } from "@/components/portal/sidebar-foot";
 import { SidebarNav, type NavGroupItems } from "@/components/portal/sidebar-nav";
@@ -30,6 +29,7 @@ export async function PortalShell({
 
   const groups: NavGroupItems[] = NAV_GROUPS.map((group) => ({
     key: group,
+    label: nav(`groups.${group}`),
     items: navGroupRoutes(group).map((route) => ({
       key: route.key,
       href: route.path,
@@ -43,12 +43,13 @@ export async function PortalShell({
 
   const home = navHref(HOME_ROUTE);
   const foot = <SidebarFoot locale={locale} />;
+  const homeLabel = `${common("organizationName")} — ${nav(HOME_ROUTE)}`;
 
   return (
     <div className="flex min-h-full flex-1 flex-col lg:flex-row">
       <a
         href="#main"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-50 focus:rounded-lg focus:bg-action focus:px-4 focus:py-3 focus:text-sm focus:font-semibold focus:text-knockout"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-50 focus:rounded-md focus:bg-action focus:px-4 focus:py-3 focus:text-sm focus:font-semibold focus:text-knockout"
       >
         {common("skipToContent")}
       </a>
@@ -56,23 +57,22 @@ export async function PortalShell({
       <Toaster />
 
       <div className="hidden lg:block lg:w-(--sidebar-width) lg:shrink-0 lg:border-r lg:border-shell-line lg:bg-shell">
-        <aside className="sticky top-0 flex h-dvh flex-col text-shell-ink [&_:focus-visible]:outline-shell-ink">
-          <div className="shell-glow px-4 pt-5 pb-4">
+        <aside className="sticky top-0 flex h-dvh flex-col text-shell-ink">
+          <div className="px-4 pt-4 pb-3">
             <Link
               href={home}
-              className="-m-1 inline-flex max-w-full rounded-lg p-1"
-              aria-label={`${common("organizationName")} — ${nav(HOME_ROUTE)}`}
+              className="-m-1 inline-flex max-w-full rounded-md p-1"
+              aria-label={homeLabel}
             >
               <BrandLockup
                 name={common("organizationName")}
                 portal={common("portalName")}
-                tone="inverse"
                 stacked
               />
             </Link>
           </div>
 
-          <div className="flex-1 overflow-y-auto px-3 pt-1 pb-3">
+          <div className="flex-1 overflow-y-auto px-3 pt-2 pb-4">
             <SidebarNav groups={groups} label={nav("label")} />
           </div>
 
@@ -81,14 +81,12 @@ export async function PortalShell({
       </div>
 
       <div className="relative flex min-h-full min-w-0 flex-1 flex-col">
-        <CountryGround />
-
         <MobileHeader
           brand={
             <Link
               href={home}
-              className="-m-1 inline-flex min-w-0 rounded-lg p-1"
-              aria-label={`${common("organizationName")} — ${nav(HOME_ROUTE)}`}
+              className="-m-1 inline-flex min-w-0 rounded-md p-1"
+              aria-label={homeLabel}
             >
               <BrandLockup
                 name={common("organizationName")}
@@ -100,7 +98,6 @@ export async function PortalShell({
             <BrandLockup
               name={common("organizationName")}
               portal={common("portalName")}
-              tone="inverse"
               stacked
             />
           }
@@ -113,7 +110,7 @@ export async function PortalShell({
 
         <main
           id="main"
-          className="mx-auto flex w-full max-w-[80rem] flex-1 flex-col gap-5 px-4 py-5 sm:px-6 lg:px-8 lg:py-7"
+          className="mx-auto flex w-full max-w-[84rem] flex-1 flex-col gap-6 px-4 py-5 sm:px-6 lg:px-8 lg:py-7"
         >
           {children}
         </main>

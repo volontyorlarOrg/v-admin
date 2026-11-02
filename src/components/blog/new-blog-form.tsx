@@ -87,7 +87,7 @@ export function NewBlogForm({
             {BLOG_LOCALES.map((locale) => (
               <label
                 key={locale}
-                className="inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-full border border-border-control px-4 text-sm font-semibold text-ink transition-colors has-checked:border-action has-checked:bg-action has-checked:text-knockout has-focus-visible:outline-3 has-focus-visible:outline-offset-2 has-focus-visible:outline-primary-ink"
+                className="inline-flex min-h-9 cursor-pointer items-center gap-2 rounded-md border border-border-control px-4 text-sm font-semibold text-ink transition-colors has-checked:border-action has-checked:bg-action has-checked:text-knockout has-focus-visible:outline-3 has-focus-visible:outline-offset-2 has-focus-visible:outline-primary-ink"
               >
                 <input
                   type="radio"

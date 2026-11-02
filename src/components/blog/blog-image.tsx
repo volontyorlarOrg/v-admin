@@ -75,7 +75,7 @@ function BlogImageView({
   }
 
   const control =
-    "inline-flex size-9 items-center justify-center rounded-full text-ink transition-colors hover:bg-surface-soft hover:text-primary-ink [&_svg]:size-4";
+    "inline-flex size-9 items-center justify-center rounded-md text-ink transition-colors hover:bg-surface-soft hover:text-primary-ink [&_svg]:size-4";
 
   return (
     <NodeViewWrapper className="my-7" data-blog-image="">
@@ -99,7 +99,7 @@ function BlogImageView({
             />
           ) : null}
           {editable ? (
-            <div className="absolute top-2 right-2 flex gap-0.5 rounded-full border border-border bg-surface p-0.5 shadow-sheet">
+            <div className="absolute top-2 right-2 flex gap-0.5 rounded-lg border border-border bg-surface p-0.5 shadow-raised">
               <button
                 type="button"
                 className={control}

@@ -137,7 +137,7 @@ export async function AuditTimeline({
                     </time>
                     <span
                       aria-hidden="true"
-                      className="hidden size-8 items-center justify-center rounded-full bg-surface-soft text-primary-ink sm:flex"
+                      className="hidden size-8 items-center justify-center rounded-md bg-surface-soft text-primary-ink sm:flex"
                     >
                       <NavIcon name={AUDIT_FAMILY_ICONS[family]} className="size-4" />
                     </span>
@@ -173,7 +173,7 @@ export async function AuditTimeline({
                           {details.map((detail) => (
                             <span
                               key={detail}
-                              className="rounded-full bg-surface-sunk px-2 py-0.5 text-xs text-ink-muted"
+                              className="rounded-sm bg-surface-sunk px-1.5 py-0.5 text-xs text-ink-muted"
                             >
                               {detail}
                             </span>

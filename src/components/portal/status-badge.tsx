@@ -27,15 +27,14 @@ export type StatusTone =
   "draft" | "waiting" | "returned" | "live" | "final" | "person" | "neutral" | "danger";
 
 const TONES: Record<StatusTone, string> = {
-  draft: "border border-border-control text-ink-muted",
-  waiting: "bg-surface-soft text-primary-ink",
-  returned: "border border-primary-muted bg-surface text-primary-ink",
-  live: "bg-action text-knockout",
-  final:
-    "border border-dashed border-border-control text-ink-muted uppercase tracking-[0.08em]",
-  person: "border border-accent/55 bg-surface text-accent-ink",
-  neutral: "border border-border text-ink-muted",
-  danger: "border border-danger/50 bg-danger-muted text-danger-ink",
+  draft: "bg-surface-sunk text-ink-muted [&_svg]:text-ink-faint",
+  waiting: "bg-warning-muted text-warning-ink",
+  returned: "bg-surface-soft text-primary-ink",
+  live: "bg-success-muted text-success-ink",
+  final: "bg-surface-sunk text-ink-muted",
+  person: "bg-accent-muted text-accent-ink",
+  neutral: "bg-surface-sunk text-ink-muted",
+  danger: "bg-danger-muted text-danger-ink",
 };
 
 export type Status = { tone: StatusTone; icon: LucideIcon };
@@ -56,12 +55,14 @@ export function StatusBadge({
       data-slot="status"
       data-tone={tone}
       className={cn(
-        "inline-flex w-fit shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-xs leading-none font-semibold whitespace-nowrap",
+        "inline-flex h-5 w-fit shrink-0 items-center gap-1 rounded-sm px-1.5 text-xs leading-none font-medium whitespace-nowrap",
         TONES[tone],
         className,
       )}
     >
-      {Icon ? <Icon aria-hidden="true" className="size-3.5 shrink-0" /> : null}
+      {Icon ? (
+        <Icon aria-hidden="true" className="size-3.5 shrink-0" strokeWidth={2.25} />
+      ) : null}
       {label}
     </span>
   );
@@ -72,7 +73,7 @@ const VACANCY: Record<string, Status> = {
   pending_review: { tone: "waiting", icon: Hourglass },
   changes_requested: { tone: "returned", icon: Undo2 },
   approved: { tone: "live", icon: BadgeCheck },
-  rejected: { tone: "final", icon: Ban },
+  rejected: { tone: "danger", icon: Ban },
   archived: { tone: "final", icon: Archive },
 };
 
@@ -81,7 +82,7 @@ const APPLICATION: Record<string, Status> = {
   submitted: { tone: "waiting", icon: Inbox },
   under_review: { tone: "waiting", icon: Eye },
   accepted: { tone: "person", icon: CircleCheck },
-  rejected: { tone: "neutral", icon: CircleX },
+  rejected: { tone: "danger", icon: CircleX },
   withdrawn: { tone: "neutral", icon: Undo2 },
   closed: { tone: "final", icon: Lock },
 };
@@ -95,7 +96,7 @@ const ATTENDANCE: Record<string, Status> = {
 };
 
 const COORDINATOR: Record<string, Status> = {
-  active: { tone: "waiting", icon: CircleCheck },
+  active: { tone: "live", icon: CircleCheck },
   blocked: { tone: "danger", icon: Ban },
   removed: { tone: "final", icon: UserX },
 };
@@ -120,6 +121,6 @@ export function coordinatorStatus(status: string): Status {
 
 export function organizationStatus(verified: boolean): Status {
   return verified
-    ? { tone: "waiting", icon: ShieldCheck }
-    : { tone: "draft", icon: ShieldQuestion };
+    ? { tone: "live", icon: ShieldCheck }
+    : { tone: "waiting", icon: ShieldQuestion };
 }

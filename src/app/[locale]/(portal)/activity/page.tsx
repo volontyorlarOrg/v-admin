@@ -109,7 +109,7 @@ export default async function ActivityPage({
                 <NativeSelect
                   name="action"
                   defaultValue={action}
-                  className="min-h-10 rounded-full text-sm"
+                  className="min-h-9 rounded-md text-sm"
                 >
                   <NativeSelectOption value="">{common("all")}</NativeSelectOption>
                   {auditActionGroups(events.map((event) => event.action)).map(

@@ -22,7 +22,6 @@ import {
   isVacancyTab,
   type VacancyTab,
 } from "@/components/results/vacancy-tabs";
-import { Seal } from "@/components/register/seal";
 import { LoadFailure } from "@/components/states/load-failure";
 import { PageHeader } from "@/components/states/page-header";
 import { StatePanel } from "@/components/states/state-panel";
@@ -34,7 +33,6 @@ import { Link } from "@/i18n/navigation";
 import { failureOf, isReady } from "@/lib/api/load";
 import { loadApplications } from "@/lib/applications/data.server";
 import { loadCoordinators } from "@/lib/coordinators/data.server";
-import { sealDate } from "@/lib/datetime";
 import { SENT_APPLICATION_STATUSES, canArchive } from "@/lib/domain/vocabulary";
 import { vacancyDecisions } from "@/lib/queue/approval-decisions.server";
 import { decisionLabels } from "@/lib/queue/decisions.server";
@@ -85,7 +83,7 @@ export default async function VacancyPage({
   setRequestLocale(locale);
   const requestedTab = readParam(await searchParams, "tab");
 
-  const [t, results, applicationsCopy, vocabulary, errors, common, seal, format] =
+  const [t, results, applicationsCopy, vocabulary, errors, common, format] =
     await Promise.all([
       getTranslations("vacancies"),
       getTranslations("results"),
@@ -93,7 +91,6 @@ export default async function VacancyPage({
       getTranslations("vocabulary"),
       getTranslations("errors"),
       getTranslations("common"),
-      getTranslations("seal"),
       getFormatter(),
     ]);
 
@@ -332,6 +329,13 @@ export default async function VacancyPage({
               tone={status.tone}
               icon={status.icon}
             />
+            {approved && vacancy.approvalReviewedAt ? (
+              <span>
+                {t("approvedOn", {
+                  date: format.dateTime(new Date(vacancy.approvalReviewedAt), "date"),
+                })}
+              </span>
+            ) : null}
             {organization ? <span>{organization.name}</span> : null}
             <span className="inline-flex items-center gap-1.5">
               <CalendarDays aria-hidden="true" className="size-4" />
@@ -365,18 +369,6 @@ export default async function VacancyPage({
         }
         actions={
           <>
-            {approved ? (
-              <Seal
-                word={seal("approved")}
-                date={sealDate(vacancy.approvalReviewedAt as string)}
-                issuer={seal("issuer")}
-                label={seal("label", {
-                  word: seal("approved"),
-                  date: sealDate(vacancy.approvalReviewedAt as string),
-                })}
-                size={76}
-              />
-            ) : null}
             {canEditVacancy(vacancy) ? (
               <Link
                 href={vacancyEditHref(vacancy.id)}
@@ -434,7 +426,7 @@ export default async function VacancyPage({
             <div className="flex min-w-0 gap-3" id={readinessId}>
               <span
                 aria-hidden="true"
-                className="grid size-9 shrink-0 place-items-center rounded-full bg-primary text-knockout"
+                className="grid size-9 shrink-0 place-items-center rounded-md bg-primary text-knockout"
               >
                 <Stamp className="size-4" strokeWidth={2} />
               </span>
@@ -665,7 +657,7 @@ export default async function VacancyPage({
                             tone={chip.tone}
                             icon={chip.icon}
                           />
-                          <span className="display-face tabular text-figure-inline text-ink">
+                          <span className="text-figure-inline figure text-ink">
                             {format.number(entry.count)}
                           </span>
                         </li>

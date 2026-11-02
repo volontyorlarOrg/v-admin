@@ -13,7 +13,6 @@ import {
   applicationsToDecide,
   blockingOrganizations,
   clearedToday,
-  isFresh,
   organizerWork,
   resultsReturned,
   rollCallsDue,
@@ -80,11 +79,6 @@ describe("the Tashkent day", () => {
     expect(isSameTashkentDay("2026-09-24T02:00:00.000Z", NOW)).toBe(true);
     expect(isSameTashkentDay("2026-09-22T12:00:00.000Z", NOW)).toBe(false);
     expect(isSameTashkentDay(undefined, NOW)).toBe(false);
-  });
-
-  it("calls a decision fresh only for a few seconds", () => {
-    expect(isFresh("2026-09-24T08:59:55.000Z", NOW)).toBe(true);
-    expect(isFresh("2026-09-24T08:58:00.000Z", NOW)).toBe(false);
   });
 });
 

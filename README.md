@@ -40,14 +40,17 @@ ignored `.env.local` for a standalone setup or fixture work.
 - **Sign-in only.** Email and password, no sign-up, no password recovery, and no
   control that creates an account — including an administrator account.
 - **A forced first password change** for any account the backend flags.
-- **Dashboard** — the platform's totals; what waits on the administrator
-  (vacancies to approve, organizations holding vacancies back, results to
-  verify, past events, and applications and roll calls on vacancies they run);
-  what waits on organizations and coordinators; recent activity and what they
-  cleared today; then growth, application and impact analytics.
-- **Insights** — the charts: the application pipeline, publication and
-  attendance shares, submissions and joins over time, and breakdowns by status,
-  state, region and format.
+- **Dashboard** — the volunteer journey as one line of five stations, each with
+  its figure, its scope and what waits there and on whom; what waits on the
+  administrator, oldest first (vacancies to approve, organizations holding
+  vacancies back, results to verify, past events, and applications and roll
+  calls on vacancies they run); what waits on organizations and coordinators;
+  recent activity and what they decided today; then growth, application and
+  impact trends for 30 or 90 days, compared with the period before.
+- **Insights** — all-time and current breakdowns, every panel tagged with its
+  scope: vacancies on a tile map of the fourteen regions, where applications
+  stand, publication and attendance shares, submissions and joins over time,
+  and breakdowns by status, state and format.
 - **Coordinators** — create with a name, email and permanent password; block,
   unblock, soft-remove with reassignment of active vacancies; assign a
   replacement temporary password.

@@ -58,8 +58,9 @@ Client components receive their labels as props: the root layout gives
 
 A decision about one record — approve, return, reject, accept, send for
 approval, verify — is an `InlineDecision` in the row that shows the record, and
-the same component on the record's own page. Each option is a pill; an option
-with `confirm` swaps the pills for the question and one confirm, and an option
+the same component on the record's own page. Each option is a row button; an
+option with `confirm` swaps the buttons for the question and one confirm, and an
+option
 with `note` opens a textarea under the row, with its help text and a red error
 beside it when a required note is missing. Success is a toast that survives the
 revalidation, and the row leaves its queue; a failure stays inline. Build the
@@ -98,13 +99,23 @@ its raw name — so the history never hides an event. A new kind of record also
 needs a branch in `subjectOf` (`src/lib/audit/describe.ts`), and a name source
 in the audit directory if the portal already loads one.
 
-## The ground
+## A figure
 
-`PageHeader` already carries the ground window, the empty band where the
-country terrain is drawn. A screen without a page header — the sign-in page is
-the only one — renders a `GroundWindow` where the country should sit and sets
-`--ground-align-x` / `--ground-align-y` (0 to 1) on it. Never put text inside a
-ground window, and never make the terrain respond to anything but the pointer.
+A number on screen says what it counts. Give a panel its `scope` (`Panel`
+takes one: "All time" or "Now"), give a period figure the period's own range,
+and never put an all-time or current figure inside a section a period control
+scopes. Compare a period with the one before it through `change()` in
+`src/lib/statistics/scale.ts`, which returns nothing when there is no baseline —
+say so instead of printing 0 %. A queue row leads with how long the item has
+waited (`waited()` in `src/lib/datetime.ts`, drawn by `AgeLead`); a row with no
+recorded time shows a dash, never a guess.
+
+## A chart
+
+Follow the mark rules in [`DESIGN.md`](../../DESIGN.md#charts): one hue per
+series, columns no thicker than 24px, solid hairline grids, clean ticks from
+`linearScale()`, a zero drawn as nothing, part-to-whole as a segmented bar with
+its figures beside it, and a table view for every trend.
 
 ## A state
 

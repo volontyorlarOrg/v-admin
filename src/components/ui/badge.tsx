@@ -5,17 +5,16 @@ import { Slot } from "radix-ui";
 import { cn } from "@/lib/utils";
 
 const badgeVariants = cva(
-  "inline-flex w-fit shrink-0 items-center justify-center gap-1.5 rounded-full text-xs font-semibold [&_svg]:pointer-events-none [&_svg]:size-3.5",
+  "inline-flex h-5 w-fit shrink-0 items-center justify-center gap-1 rounded-sm px-1.5 text-xs font-medium whitespace-nowrap [&_svg]:pointer-events-none [&_svg]:size-3.5",
   {
     variants: {
       variant: {
-        default: "bg-action px-2.5 py-1 text-knockout",
-        neutral: "border border-input px-2.5 py-1 text-muted-foreground",
-        structure: "bg-surface-soft px-2.5 py-1 text-primary-ink",
-        returned: "border border-primary-muted bg-surface px-2.5 py-1 text-primary-ink",
-        achievement: "border border-accent/50 bg-surface px-2.5 py-1 text-accent-ink",
-        status:
-          "border border-dashed border-input px-3 py-1.5 tracking-[0.1em] text-muted-foreground uppercase",
+        default: "bg-surface-soft text-primary-ink",
+        neutral: "bg-surface-sunk text-ink-muted",
+        structure: "bg-surface-soft text-primary-ink",
+        returned: "bg-surface-soft text-primary-ink",
+        achievement: "bg-accent-muted text-accent-ink",
+        status: "bg-surface-sunk text-ink-muted",
       },
     },
     defaultVariants: {

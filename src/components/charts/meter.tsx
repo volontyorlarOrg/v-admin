@@ -6,7 +6,7 @@ const TRACK = {
 } as const;
 
 const FILL = {
-  neutral: "bg-chart-strong",
+  neutral: "bg-chart-mid",
   person: "bg-chart-person",
 } as const;
 
@@ -27,8 +27,8 @@ export function Meter({
 }) {
   return (
     <div className={cn("grid gap-2", className)}>
-      <p className="text-sm text-ink-muted">{label}</p>
-      <p className="display-face tabular text-figure-inline text-ink">{headline}</p>
+      <p className="text-[0.8125rem] text-ink-muted">{label}</p>
+      <p className="text-figure-inline figure text-ink">{headline}</p>
       <div className={cn("mt-1 h-2 rounded-r-[4px]", TRACK[tone])}>
         <div
           className={cn("h-full rounded-r-[4px]", FILL[tone])}

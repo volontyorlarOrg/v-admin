@@ -66,7 +66,7 @@ export function ApplicantDrawer({
                     total: position.total,
                   })}
                 </span>
-                <DialogPrimitive.Close className="rounded-full p-1.5 text-ink-muted transition-colors hover:bg-surface-sunk hover:text-ink">
+                <DialogPrimitive.Close className="rounded-md p-1.5 text-ink-muted transition-colors hover:bg-surface-sunk hover:text-ink">
                   <X aria-hidden="true" className="size-4" />
                   <span className="sr-only">{t("close")}</span>
                 </DialogPrimitive.Close>
@@ -81,7 +81,7 @@ export function ApplicantDrawer({
                     person
                   />
                   <div className="min-w-0">
-                    <p className="display-face truncate text-2xl leading-tight text-ink">
+                    <p className="truncate text-2xl leading-tight figure text-ink">
                       {applicant.name}
                     </p>
                     {applicant.username ? (

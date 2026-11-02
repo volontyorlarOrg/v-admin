@@ -145,7 +145,7 @@ export function VacancyImageField({
               name="image"
               type="file"
               accept="image/jpeg,image/png,image/webp"
-              className="py-2 text-sm text-ink-muted file:mr-3 file:cursor-pointer file:rounded-full file:border-0 file:bg-surface-soft file:px-3 file:py-1 file:text-sm file:font-medium file:text-ink"
+              className="py-2 text-sm text-ink-muted file:mr-3 file:cursor-pointer file:rounded-md file:border-0 file:bg-surface-soft file:px-3 file:py-1 file:text-sm file:font-medium file:text-ink"
               aria-invalid={Boolean(message) || undefined}
               aria-describedby={`${idPrefix}-image-help${message ? ` ${idPrefix}-image-error` : ""}`}
               onChange={choose}

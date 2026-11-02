@@ -12,7 +12,7 @@ export function Facts({ items, className }: { items: Fact[]; className?: string 
       {items.map((item) => (
         <div
           key={item.term}
-          className="grid gap-0.5 py-2.5 @md:grid-cols-[10rem_minmax(0,1fr)] @md:gap-4"
+          className="grid gap-0.5 py-2 @md:grid-cols-[10rem_minmax(0,1fr)] @md:gap-4"
         >
           <dt className="text-sm text-ink-muted">{item.term}</dt>
           <dd className="min-w-0 text-sm break-words text-ink">{item.value}</dd>
@@ -41,11 +41,11 @@ export function FigureRow({
       )}
     >
       {items.map((item) => (
-        <div key={item.label} className="bg-surface px-5 py-4">
-          <dt className="text-sm text-ink-muted">{item.label}</dt>
+        <div key={item.label} className="bg-surface px-4 py-3.5">
+          <dt className="text-[0.8125rem] text-ink-muted">{item.label}</dt>
           <dd
             className={cn(
-              "display-face tabular mt-1.5 text-figure-inline",
+              "mt-1 text-figure-inline figure",
               item.tone === "person" ? "text-accent-ink" : "text-ink",
             )}
           >

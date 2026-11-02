@@ -329,7 +329,7 @@ export default async function OrganizationsPage({
                               labels={accountLabels("issue")}
                               password
                               trigger={
-                                <Button type="button" variant="ghost" size="row">
+                                <Button type="button" variant="outline" size="row">
                                   {t("account.issue.trigger")}
                                 </Button>
                               }
@@ -343,7 +343,7 @@ export default async function OrganizationsPage({
                                 labels={accountLabels("replace")}
                                 password
                                 trigger={
-                                  <Button type="button" variant="ghost" size="row">
+                                  <Button type="button" variant="outline" size="row">
                                     {t("account.replace.trigger")}
                                   </Button>
                                 }
@@ -361,7 +361,7 @@ export default async function OrganizationsPage({
                                 password={false}
                                 danger={account.status === "active"}
                                 trigger={
-                                  <Button type="button" variant="ghost" size="row">
+                                  <Button type="button" variant="outline" size="row">
                                     {t(
                                       account.status === "active"
                                         ? "account.block.trigger"
@@ -393,7 +393,7 @@ export default async function OrganizationsPage({
                               verified: organization.verified,
                             }}
                             trigger={
-                              <Button type="button" variant="ghost" size="row">
+                              <Button type="button" variant="outline" size="row">
                                 {t("table.edit")}
                                 <span className="sr-only"> — {organization.name}</span>
                               </Button>

@@ -262,7 +262,7 @@ function ArticleRow({
                 role="listitem"
                 title={labels.languageStates[lang]}
                 className={cn(
-                  "inline-flex min-w-9 items-center justify-center rounded-full px-2 py-0.5 text-[0.6875rem] font-semibold uppercase",
+                  "inline-flex min-w-9 items-center justify-center rounded-sm px-1.5 py-0.5 text-[0.6875rem] font-semibold uppercase",
                   translation?.publishedRevisionId
                     ? "bg-action text-knockout"
                     : translation

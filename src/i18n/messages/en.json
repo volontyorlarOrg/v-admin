@@ -49,14 +49,17 @@
     "insights": "Insights",
     "waiting": {
       "pendingApproval": "waiting for approval",
-      "changesRequested": "returned for changes",
-      "pendingReview": "applications to decide",
-      "attendanceDue": "volunteers to record",
       "pastEventRequests": "past events to decide"
     },
     "blog": "Blog",
     "bulkAwards": "Bulk awards",
-    "pastEvents": "Past events"
+    "pastEvents": "Past events",
+    "groups": {
+      "overview": "Overview",
+      "volunteering": "Volunteering",
+      "participants": "Participants",
+      "administration": "Administration"
+    }
   },
   "auth": {
     "metaTitle": "Sign in",
@@ -212,8 +215,7 @@
   },
   "dashboard": {
     "title": "Insights",
-    "description": "Figures for the whole product, drawn from real counts and never estimated.",
-    "range": "{from} to {to}",
+    "description": "Totals for the whole product. Every panel says whether it counts all time or right now; day-by-day trends are on the Dashboard.",
     "figures": {
       "vacancies": "Vacancies",
       "publishedVacancies": "Published",
@@ -228,7 +230,7 @@
     "charts": {
       "pipeline": {
         "title": "Application pipeline",
-        "description": "Current counts at each operational checkpoint."
+        "description": "Each bar is a share of all applications ever sent. These are states, not funnel steps, so one application can count in more than one."
       },
       "trend": {
         "title": "Applications submitted",
@@ -247,7 +249,7 @@
       },
       "regions": {
         "title": "Vacancies by region",
-        "description": "Only the regions that have a vacancy are listed."
+        "description": "Every vacancy ever created, on a map of the fourteen regions. Pale tiles have no vacancy yet."
       },
       "stages": {
         "title": "Vacancies by state",
@@ -264,7 +266,7 @@
         "label": "Attendance confirmed"
       },
       "of": "{value} of {total}",
-      "empty": "Nothing has been recorded in this range yet.",
+      "empty": "Nothing has been recorded yet.",
       "shares": {
         "title": "Shares",
         "description": "How many vacancies went live, and how many accepted volunteers have their attendance confirmed."
@@ -275,7 +277,22 @@
       "active": "Active",
       "blocked": "Blocked",
       "removed": "Removed",
-      "description": "Every coordinator account, by state."
+      "description": "Every coordinator account, by state.",
+      "open": "All coordinators"
+    },
+    "scope": {
+      "allTime": "All time",
+      "now": "Now"
+    },
+    "regions": {
+      "tile": "{region}: {count, plural, one {# vacancy} other {# vacancies}}",
+      "covered": "Regions with at least one vacancy",
+      "coveredValue": "{covered} of {total}",
+      "none": "No vacancy yet",
+      "ranked": "By number of vacancies",
+      "fewer": "Fewer",
+      "more": "More",
+      "zero": "None"
     }
   },
   "vacancies": {
@@ -309,9 +326,9 @@
       "state": "State",
       "deadline": "Applications close",
       "starts": "Starts",
-      "coordinator": "Coordinator",
       "applications": "Applications",
-      "waiting": "{count} to decide"
+      "waiting": "{count} to decide",
+      "runner": "Run by"
     },
     "detail": {
       "description": "Description",
@@ -459,7 +476,8 @@
     "kinds": {
       "volunteering": "Volunteering",
       "competition": "Competitions"
-    }
+    },
+    "approvedOn": "Approved {date}"
   },
   "applications": {
     "title": "Applications",
@@ -563,7 +581,8 @@
       "all": "All"
     },
     "sentOn": "Sent {when}",
-    "listTitle": "Every application"
+    "listTitle": "Every application",
+    "acceptedOn": "Accepted {date}"
   },
   "users": {
     "title": "Volunteers",
@@ -587,7 +606,7 @@
       "passwordLogin": "Password sign-in",
       "joined": "Joined",
       "passwordChangedAt": "Password last changed",
-      "accepted": "Accepted"
+      "attendanceRecords": "Attendance records"
     },
     "detail": {
       "account": "Account",
@@ -1159,17 +1178,6 @@
       "automatic": "Automatically"
     }
   },
-  "seal": {
-    "issuer": "Volontyorlar",
-    "approved": "Approved",
-    "accepted": "Accepted",
-    "returned": "Returned",
-    "rejected": "Rejected",
-    "closed": "Closed",
-    "recorded": "Recorded",
-    "clear": "All clear",
-    "label": "{word} on {date}"
-  },
   "decisions": {
     "group": "Decision",
     "cancel": "Cancel",
@@ -1228,7 +1236,6 @@
     "dateline": "{date} · {count, plural, =0 {nothing waits on you} one {# thing waits on you} other {# things wait on you}}",
     "listTitle": "Waiting on you",
     "waitingLabel": "waiting",
-    "number": "Number",
     "approve": {
       "title": "Vacancies to approve",
       "countLabel": "vacancies waiting for approval",
@@ -1278,13 +1285,8 @@
       "description": "New vacancies, applications and roll calls appear here as they arrive."
     },
     "cleared": {
-      "title": "Cleared today",
+      "title": "Decided today",
       "countLabel": "decisions today",
-      "vacancy": {
-        "approved": "Approved and published",
-        "changes_requested": "Returned for changes",
-        "rejected": "Rejected"
-      },
       "application": "{decision} · {vacancy}",
       "decision": {
         "accepted": "Accepted",
@@ -1292,7 +1294,16 @@
         "closed": "Closed"
       },
       "rollCall": "Roll call recorded: {attended} attended, {other} excused or cancelled",
-      "empty": "Decisions you make today land here with a seal."
+      "empty": "Decisions you make today are listed here.",
+      "word": {
+        "approved": "Approved",
+        "returned": "Returned",
+        "rejected": "Rejected",
+        "accepted": "Accepted",
+        "notSelected": "Not selected",
+        "closed": "Closed",
+        "recorded": "Roll call recorded"
+      }
     },
     "verify": {
       "title": "Results to verify",
@@ -1314,14 +1325,18 @@
     "organizers": {
       "title": "Waiting on organizers",
       "countLabel": "vacancies waiting on their organizers",
-      "description": "Applications and roll calls that organizations and coordinators decide in their own portals. Nothing here needs you unless it stalls.",
+      "description": "Organizations and coordinators decide these in their own portals. Oldest first.",
       "runner": "Run by {name}",
       "unknownRunner": "Run by another account",
       "applications": "{count, plural, one {# application waits} other {# applications wait}} · oldest {when}",
       "rollCall": "{count, plural, one {# volunteer to record} other {# volunteers to record}}",
       "open": "Open",
-      "more": "{count, plural, one {and # more vacancy} other {and # more vacancies}}"
-    }
+      "more": "{count, plural, one {and # more vacancy} other {and # more vacancies}}",
+      "empty": "No organizer has applications or roll calls waiting."
+    },
+    "age": "Waiting {age}",
+    "ageUnknown": "Waiting time not recorded",
+    "datelineOldest": "{date} · oldest waiting {age}"
   },
   "blog": {
     "title": "Blog",
@@ -2074,29 +2089,14 @@
   },
   "dashboardHome": {
     "title": "Dashboard",
-    "description": "What waits on you first, then the platform's totals, what just happened and how the numbers are moving.",
-    "overview": {
-      "title": "Platform overview",
-      "description": "All-time totals · current published vacancies",
-      "volunteers": "Volunteers",
-      "publishedVacancies": "Published vacancies",
-      "applications": "Applications sent",
-      "attended": "Volunteer attendances",
-      "confirmedHours": "Confirmed hours"
-    },
-    "sections": "Dashboard sections",
+    "description": "Where the volunteer journey stands and whose move it is, then how the numbers are moving.",
     "loadingOperations": "Loading operations",
-    "analytics": "Analytics",
+    "analytics": "Trends",
     "period": "Analytics period",
     "days": "Last {days} days",
     "range": "{from} – {to} · Tashkent time",
     "timeZone": "Tashkent time",
     "partialDay": "Today is still in progress. Comparisons use the same time of day in the previous period.",
-    "inPeriod": "Selected period",
-    "allTime": "Share of all sent applications currently accepted",
-    "currentState": "Current queue, across all dates",
-    "comparison": "{previous} signups in the preceding {days} days",
-    "chartHint": "Hover, tap or use the arrow keys to inspect a day.",
     "viewData": "View daily data",
     "date": "Date",
     "categories": {
@@ -2107,18 +2107,17 @@
     "growth": {
       "average": "Signups per day",
       "averageCaption": "Average per calendar day",
-      "change": "Signup growth rate",
       "noBaseline": "No signups in the previous period",
       "activation": "Signup-to-application rate",
       "activationCaption": "{activated} of {signups} new volunteers applied by today",
-      "joins": "New signups"
+      "joins": "New signups",
+      "previous": "Signups, previous period"
     },
     "applications": {
       "submitted": "Applications submitted",
       "average": "Applications per day",
-      "accepted": "Accepted share",
-      "waiting": "Awaiting review",
-      "pipelineCaption": "Current counts across all dates; these are operational states, not a conversion funnel."
+      "previous": "Applications, previous period",
+      "noBaseline": "No applications in the previous period"
     },
     "impact": {
       "attended": "Confirmed attendances",
@@ -2156,10 +2155,13 @@
         "description": "New volunteer accounts. Merged duplicate accounts are excluded."
       }
     },
-    "jump": {
-      "operations": "Waiting on you",
-      "activity": "Recent activity"
-    }
+    "readout": {
+      "total": "{total} in total · point at a day or use ← → to read it",
+      "latest": "{value} on {date} · point at a day or use ← → to read it"
+    },
+    "versus": "{change} vs the previous {days} days",
+    "previousCaption": "The {days} days before this period",
+    "hoursValue": "{value} h"
   },
   "pastEventRequests": {
     "title": "Past events",
@@ -2270,5 +2272,35 @@
       "eventVolunteerUnavailable": "One participant's account is no longer active, so nobody was approved. Reject that participant below, then approve the rest.",
       "eventRosterDuplicate": "Two participants are now one merged account, so nobody was approved. Reject the duplicate below, then approve the rest."
     }
+  },
+  "journey": {
+    "title": "Volunteer journey",
+    "volunteers": "{count, plural, one {# volunteer has an account} other {# volunteers have accounts}}",
+    "scope": {
+      "now": "now",
+      "allTime": "all time"
+    },
+    "stations": {
+      "published": "Published vacancies",
+      "applications": "Applications sent",
+      "accepted": "Accepted volunteers",
+      "attended": "Attendances",
+      "hours": "Confirmed hours"
+    },
+    "owner": {
+      "you": "you",
+      "organizers": "organizers"
+    },
+    "waiting": {
+      "approve": "{count, plural, one {# vacancy to approve} other {# vacancies to approve}}",
+      "organizations": "{count, plural, one {# organization to verify} other {# organizations to verify}}",
+      "returned": "{count, plural, one {# returned for changes} other {# returned for changes}}",
+      "decide": "{count, plural, one {# application to decide} other {# applications to decide}}",
+      "results": "{count, plural, one {# result to verify} other {# results to verify}}",
+      "rollCalls": "{count, plural, one {# roll call due} other {# roll calls due}}",
+      "pastEvents": "{count, plural, one {# past-event item to review} other {# past-event items to review}}"
+    },
+    "clear": "Nothing waiting",
+    "hours": "{value} h"
   }
 }

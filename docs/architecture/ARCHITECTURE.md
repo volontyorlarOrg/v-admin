@@ -5,7 +5,7 @@
 Next.js 16 App Router, React 19, Server Components by default. Every screen is
 rendered on the server from `v-backend`; the client bundle holds forms, the
 inline decisions, the theme toggle, the locale switcher, the phone drawer, the
-confirmation dialog and the country ground, and nothing else.
+confirmation dialog and the trend charts, and nothing else.
 
 ```text
 src/proxy.ts                    locale routing, the session guard, session expiry,
@@ -186,10 +186,9 @@ and says so in [`../api/BACKEND_CONTRACT.md`](../api/BACKEND_CONTRACT.md).
 - Add a section by registering it in `src/lib/routing/routes.ts`: the rail, its
   groups and waiting counts, the phone drawer, the proxy's guard and the tests
   all read from it.
-- The shell renders the country ground once, behind every screen. It is
-  `aria-hidden`, ignores the pointer for hit-testing, and fits the country into
-  whichever `GroundWindow` the current screen registers (see
-  [`GROUND.md`](GROUND.md)).
+- The shell draws no decoration behind the screens. The fourteen regions appear
+  only where they carry data: the tile map on Insights
+  (`src/components/charts/region-map.tsx`, places in `src/lib/map/tiles.ts`).
 
 ## The audit timeline
 

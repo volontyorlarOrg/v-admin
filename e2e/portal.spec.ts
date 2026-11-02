@@ -750,7 +750,7 @@ test.describe("the vacancy lifecycle", () => {
 
     await expect(toast(page)).toContainText("is approved and published");
     const cleared = page.locator("section").filter({
-      has: page.getByRole("heading", { name: "Cleared today" }),
+      has: page.getByRole("heading", { name: "Decided today" }),
     });
     await expect(cleared).toContainText("Winter clothing drive");
   });

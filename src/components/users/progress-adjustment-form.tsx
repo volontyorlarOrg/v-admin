@@ -87,7 +87,7 @@ export function ProgressAdjustmentForm({
             {DIRECTIONS.map(({ value, icon: Icon }) => (
               <label
                 key={value}
-                className="flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-full border border-border bg-surface px-3 text-sm font-semibold text-ink-muted transition-colors hover:border-primary-ink has-checked:border-primary-ink has-checked:bg-surface-soft has-checked:text-ink has-focus-visible:outline-3 has-focus-visible:outline-offset-2 has-focus-visible:outline-primary-ink"
+                className="flex min-h-10 cursor-pointer items-center justify-center gap-2 rounded-md border border-border bg-surface px-3 text-sm font-semibold text-ink-muted transition-colors hover:border-primary-ink has-checked:border-primary-ink has-checked:bg-surface-soft has-checked:text-ink has-focus-visible:outline-3 has-focus-visible:outline-offset-2 has-focus-visible:outline-primary-ink"
               >
                 <input
                   type="radio"

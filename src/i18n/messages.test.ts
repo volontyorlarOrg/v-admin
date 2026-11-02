@@ -113,6 +113,36 @@ describe("message catalogs", () => {
     }
   });
 
+  it("names every rail group the route registry declares, in every locale", async () => {
+    const { NAV_GROUPS } = await import("@/lib/routing/routes");
+
+    for (const locale of locales) {
+      const keys = new Set(flatten(load(locale)));
+      for (const group of NAV_GROUPS) {
+        expect(keys.has(`nav.groups.${group}`), `${locale}: nav.groups.${group}`).toBe(
+          true,
+        );
+      }
+    }
+  });
+
+  it("names every journey station the dashboard draws, in every locale", () => {
+    for (const locale of locales) {
+      const keys = new Set(flatten(load(locale)));
+      for (const station of [
+        "published",
+        "applications",
+        "accepted",
+        "attended",
+        "hours",
+      ]) {
+        expect(keys.has(`journey.stations.${station}`), `${locale}: ${station}`).toBe(
+          true,
+        );
+      }
+    }
+  });
+
   it("has no sign-up or account-creation label anywhere in the catalog", () => {
     for (const locale of locales) {
       const forbidden = flatten(load(locale)).filter((key) =>

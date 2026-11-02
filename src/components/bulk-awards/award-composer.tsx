@@ -229,11 +229,11 @@ export function AwardComposer({
         <div className="border-b border-border px-5 py-4">
           <fieldset>
             <legend className="sr-only">{labels.scopeLabel}</legend>
-            <div className="grid grid-cols-2 gap-1 rounded-full bg-surface-sunk p-1">
+            <div className="grid grid-cols-2 gap-1 rounded-lg bg-surface-sunk p-1">
               {(["selected", "all"] as const).map((value) => (
                 <label
                   key={value}
-                  className="flex min-h-10 cursor-pointer items-center justify-center gap-2 rounded-full px-3 text-sm font-semibold text-ink-muted transition-colors hover:text-ink has-checked:bg-surface has-checked:text-ink has-checked:shadow-sm has-focus-visible:outline-3 has-focus-visible:outline-offset-2 has-focus-visible:outline-primary-ink"
+                  className="flex min-h-9 cursor-pointer items-center justify-center gap-2 rounded-md px-3 text-sm font-semibold text-ink-muted transition-colors hover:text-ink has-checked:bg-surface has-checked:text-ink has-checked:shadow-sm has-focus-visible:outline-3 has-focus-visible:outline-offset-2 has-focus-visible:outline-primary-ink"
                 >
                   <input
                     type="radio"
@@ -306,7 +306,7 @@ export function AwardComposer({
                           type="button"
                           onClick={() => update((draft) => draft.delete(id))}
                           aria-label={fill(labels.remove, { name: name ?? "" })}
-                          className="inline-flex min-h-8 max-w-[14rem] items-center gap-1.5 rounded-full border border-border bg-surface py-1 pr-2 pl-3 text-xs font-semibold text-ink transition-colors hover:border-danger/55 hover:text-danger-ink"
+                          className="inline-flex min-h-8 max-w-[14rem] items-center gap-1.5 rounded-md border border-border bg-surface py-1 pr-2 pl-3 text-xs font-semibold text-ink transition-colors hover:border-danger/55 hover:text-danger-ink"
                         >
                           <span className="truncate">{name}</span>
                           <X aria-hidden="true" className="size-3.5 shrink-0" />
@@ -615,9 +615,7 @@ function AmountFigures({
       {figures.map((figure) => (
         <div key={figure.label} className="bg-surface px-4 py-3">
           <dt className="text-xs text-ink-muted">{figure.label}</dt>
-          <dd className="display-face tabular mt-1 text-figure-inline text-ink">
-            {figure.value}
-          </dd>
+          <dd className="mt-1 text-figure-inline figure text-ink">{figure.value}</dd>
         </div>
       ))}
     </dl>
