@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  regionCoverage,
   applicationStatuses,
   submissionTrend,
   vacancyFormats,
@@ -129,5 +130,41 @@ describe("submissionTrend", () => {
     const trend = submissionTrend([{ submittedAt: "2026-03-01T20:00:00Z" }]);
 
     expect(trend?.from).toBe("2026-03-02T00:00:00.000Z");
+  });
+});
+
+describe("regionCoverage", () => {
+  it("keeps every region, counting a region with no vacancy as zero instead of dropping it", () => {
+    const coverage = regionCoverage([
+      { region: "tashkent-city" },
+      { region: "tashkent-city" },
+      { region: "fergana" },
+    ]);
+
+    expect(coverage.cells).toHaveLength(14);
+    expect(coverage.covered).toBe(2);
+    expect(coverage.total).toBe(14);
+    expect(coverage.cells.find((cell) => cell.key === "karakalpakstan")).toEqual({
+      key: "karakalpakstan",
+      value: 0,
+      step: 0,
+    });
+  });
+
+  it("shades by share of the busiest region, so the busiest is always the darkest step", () => {
+    const coverage = regionCoverage([
+      ...Array.from({ length: 10 }, () => ({ region: "samarkand" as const })),
+      { region: "bukhara" },
+    ]);
+
+    expect(coverage.peak).toBe(10);
+    expect(coverage.cells.find((cell) => cell.key === "samarkand")?.step).toBe(5);
+    expect(coverage.cells.find((cell) => cell.key === "bukhara")?.step).toBe(1);
+  });
+
+  it("draws an empty country without inventing a shade", () => {
+    const coverage = regionCoverage([]);
+    expect(coverage.covered).toBe(0);
+    expect(coverage.cells.every((cell) => cell.step === 0)).toBe(true);
   });
 });

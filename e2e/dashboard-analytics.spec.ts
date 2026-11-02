@@ -19,7 +19,7 @@ test.beforeEach(async ({ page }) => {
   await page.request.post(`${STUB}/__stub/reset`);
 });
 
-test("dashboard puts totals and the work that waits before activity and analytics", async ({
+test("dashboard leads with the volunteer journey, then the work that waits, then trends", async ({
   page,
 }) => {
   await signedIn(page);
@@ -28,7 +28,12 @@ test("dashboard puts totals and the work that waits before activity and analytic
     page.getByRole("heading", { level: 1, name: "Dashboard" }),
   ).toBeVisible();
   for (const name of [
-    "Platform overview",
+    "Volunteer journey",
+    "Waiting on you",
+    "Waiting on organizers",
+    "Decided today",
+    "Recent activity",
+    "Trends",
     "User growth",
     "Applications",
     "Volunteer impact",
@@ -37,26 +42,51 @@ test("dashboard puts totals and the work that waits before activity and analytic
     "Applications per day",
     "Confirmed hours per day",
     "Attendance outcomes",
-    "Waiting on you",
-    "Recent activity",
   ]) {
     await expect(page.getByRole("heading", { name, exact: true })).toBeVisible();
   }
   expect(
     await page
       .locator(
-        "#overview, #operations, #organizers, #activity, #growth, #application-analytics, #impact",
+        "#journey, #operations, #activity, #organizers, #cleared, #trends, #growth, #application-analytics, #impact",
       )
       .evaluateAll((sections) => sections.map((section) => section.id)),
   ).toEqual([
-    "overview",
+    "journey",
     "operations",
-    "organizers",
     "activity",
+    "organizers",
+    "cleared",
+    "trends",
     "growth",
     "application-analytics",
     "impact",
   ]);
+});
+
+test("labels every journey figure with its scope and says whose move each waiting item is", async ({
+  page,
+}) => {
+  await signedIn(page);
+  await page.goto("/en/dashboard");
+  const journey = page.locator("#journey");
+  for (const station of [
+    "Published vacancies",
+    "Applications sent",
+    "Accepted volunteers",
+    "Attendances",
+    "Confirmed hours",
+  ]) {
+    await expect(journey.getByText(station, { exact: true })).toBeVisible();
+  }
+  await expect(journey.getByText("now", { exact: true }).first()).toBeVisible();
+  await expect(journey.getByText("all time", { exact: true }).first()).toBeVisible();
+  await expect(
+    journey.getByRole("link", { name: /1 vacancy to approve · you/ }),
+  ).toBeVisible();
+  await expect(
+    journey.getByRole("link", { name: /3 applications to decide · organizers/ }),
+  ).toBeVisible();
 });
 
 test("switches between 30 and 90 complete daily buckets and exposes the chart data", async ({
@@ -97,8 +127,9 @@ test("keeps dashboard analytics visible when the operational queue fails", async
     page.getByRole("heading", { name: "User growth", exact: true }),
   ).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: "Platform overview", exact: true }),
+    page.getByRole("heading", { name: "Volunteer journey", exact: true }),
   ).toBeVisible();
+  await expect(page.locator("#journey").getByText("Nothing waiting")).toHaveCount(0);
   await expect(page.locator('[data-slot="state-panel"]')).toHaveCount(1);
 });
 
@@ -111,7 +142,7 @@ test("keeps totals and decisions visible when analytics is unavailable", async (
   });
   await page.goto("/en/dashboard");
   await expect(
-    page.getByRole("heading", { name: "Platform overview", exact: true }),
+    page.getByRole("heading", { name: "Volunteer journey", exact: true }),
   ).toBeVisible();
   await expect(
     page.getByRole("heading", { name: "Waiting on you", exact: true }),
@@ -183,10 +214,6 @@ for (const theme of ["light", "dark"] as const) {
       page.getByRole("heading", { name: "Attendance outcomes", exact: true }),
     ).toBeVisible();
     await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
-    if (testInfo.project.name.includes("mobile")) {
-      await expect(page.locator('[data-slot="country-ground"] > svg')).toBeHidden();
-      await expect(page.locator('[data-slot="country-ground"] > canvas')).toBeHidden();
-    }
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= window.innerWidth,

@@ -31,7 +31,7 @@ export function ColumnChart({
         </div>
         <ol
           className={cn(
-            "flex h-32 flex-1 items-end gap-[2px] border-b border-border",
+            "flex h-32 flex-1 items-end gap-[2px] border-b border-chart-axis",
             single && "justify-center",
           )}
         >
@@ -40,14 +40,14 @@ export function ColumnChart({
               key={column.key}
               title={`${column.label} · ${column.value}`}
               className={cn(
-                "flex h-full min-w-0 items-end",
-                single ? "w-16 shrink-0" : "flex-1",
+                "flex h-full min-w-0 items-end justify-center",
+                single ? "w-6 shrink-0" : "flex-1",
               )}
             >
               <span className="sr-only">{`${column.label} · ${column.value}`}</span>
               <span
                 aria-hidden="true"
-                className="w-full rounded-t-[4px] bg-chart-strong"
+                className="w-full max-w-6 rounded-t-[4px] bg-chart-mid"
                 style={{
                   blockSize:
                     column.share > 0 ? `${Math.max(column.share * 100, 3)}%` : "0%",

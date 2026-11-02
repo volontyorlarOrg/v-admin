@@ -143,7 +143,7 @@ export function VolunteerProfile({
       <div className="flex flex-wrap items-center gap-4">
         <Avatar name={identity.name} src={identity.avatarUrl} size="lg" person />
         <div className="min-w-0 flex-1">
-          <p className="display-face text-2xl break-words text-ink">{identity.name}</p>
+          <p className="text-2xl figure break-words text-ink">{identity.name}</p>
           {username ? (
             <p className="mt-0.5 text-sm break-all text-ink-muted">
               <span className="sr-only">{labels.fields.username}: </span>

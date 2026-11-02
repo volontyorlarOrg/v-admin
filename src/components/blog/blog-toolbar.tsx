@@ -55,7 +55,7 @@ type Tool = {
 };
 
 const button =
-  "inline-flex size-9 shrink-0 items-center justify-center rounded-full text-ink transition-colors hover:bg-surface-sunk disabled:pointer-events-none disabled:opacity-40 aria-pressed:bg-surface-soft aria-pressed:text-primary-ink [&_svg]:size-4";
+  "inline-flex size-9 shrink-0 items-center justify-center rounded-md text-ink transition-colors hover:bg-surface-sunk disabled:pointer-events-none disabled:opacity-40 aria-pressed:bg-surface-soft aria-pressed:text-primary-ink [&_svg]:size-4";
 
 export function syncSelection(editor: Editor | null) {
   if (!editor) return;
@@ -377,7 +377,7 @@ export function BlogToolbar({
       <label
         title={labels.pictureHint}
         className={cn(
-          "ml-auto inline-flex min-h-9 cursor-pointer items-center gap-2 rounded-full px-3.5 text-sm font-semibold text-primary-ink transition-colors hover:bg-surface-soft has-focus-visible:outline-3 has-focus-visible:outline-offset-2 has-focus-visible:outline-primary-ink [&_svg]:size-4",
+          "ml-auto inline-flex min-h-9 cursor-pointer items-center gap-2 rounded-md px-3.5 text-sm font-semibold text-primary-ink transition-colors hover:bg-surface-soft has-focus-visible:outline-3 has-focus-visible:outline-offset-2 has-focus-visible:outline-primary-ink [&_svg]:size-4",
           disabled ? "pointer-events-none opacity-40" : null,
         )}
       >

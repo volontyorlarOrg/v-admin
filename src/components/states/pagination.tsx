@@ -33,7 +33,7 @@ export async function Pagination({
       aria-label={t("pagination")}
       className={cn(
         "flex items-center justify-between gap-4",
-        framed ? "border-t border-border px-5 py-3" : "pt-2",
+        framed ? "border-t border-border px-4 py-2.5" : "pt-2",
       )}
     >
       <Link

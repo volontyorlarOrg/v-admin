@@ -56,7 +56,7 @@ export function LineChart({
             aria-hidden="true"
             viewBox="0 0 100 100"
             preserveAspectRatio="none"
-            className="absolute inset-0 size-full overflow-visible text-chart-strong"
+            className="absolute inset-0 size-full overflow-visible text-chart-mid"
           >
             {area ? <path d={area} fill="currentColor" fillOpacity="0.1" /> : null}
             <path
@@ -73,7 +73,7 @@ export function LineChart({
           {last ? (
             <span
               aria-hidden="true"
-              className="absolute size-2.5 -translate-y-1/2 rounded-full bg-chart-strong ring-2 ring-card"
+              className="absolute size-2.5 -translate-y-1/2 rounded-full bg-chart-mid ring-2 ring-card"
               style={{ insetInlineEnd: 0, insetBlockStart: `${last.y}%` }}
             />
           ) : null}
@@ -86,7 +86,7 @@ export function LineChart({
         </div>
       </div>
 
-      <div className="tabular ms-11 flex justify-between border-t border-border pt-2 text-xs text-ink-muted">
+      <div className="tabular ms-11 flex justify-between border-t border-chart-axis pt-2 text-xs text-ink-muted">
         <span>{from}</span>
         <span>{to}</span>
       </div>

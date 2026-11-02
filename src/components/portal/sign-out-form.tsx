@@ -21,9 +21,12 @@ export function SignOutForm({
         variant={tone === "shell" ? "shell" : "outline"}
         size="sm"
         pendingLabel={pendingLabel}
-        className={tone === "shell" ? "w-full px-3" : undefined}
+        className={tone === "shell" ? "min-h-9 w-full gap-2.5 px-2.5" : undefined}
       >
-        <LogOut aria-hidden="true" className="size-5" />
+        <LogOut
+          aria-hidden="true"
+          className={tone === "shell" ? "size-[1.125rem]" : "size-4"}
+        />
         {label}
       </SubmitButton>
     </form>

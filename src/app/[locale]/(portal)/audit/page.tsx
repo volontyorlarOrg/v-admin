@@ -130,7 +130,7 @@ export default async function AuditPage({
                   <NativeSelect
                     name="action"
                     defaultValue={action}
-                    className="min-h-10 rounded-full text-sm"
+                    className="min-h-9 rounded-md text-sm"
                   >
                     <NativeSelectOption value="">
                       {t("filters.everything")}
@@ -154,7 +154,7 @@ export default async function AuditPage({
                   <NativeSelect
                     name="actor"
                     defaultValue={actorParam}
-                    className="min-h-10 rounded-full text-sm"
+                    className="min-h-9 rounded-md text-sm"
                   >
                     <NativeSelectOption value="">
                       {t("filters.anyone")}

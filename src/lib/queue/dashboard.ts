@@ -8,14 +8,6 @@ import {
   type ApprovalRequirement,
 } from "@/lib/vacancies/approval";
 
-export const FRESH_WITHIN_MS = 20_000;
-
-export function isFresh(value: string | undefined, now: Date): boolean {
-  if (!value) return false;
-  const age = now.getTime() - Date.parse(value);
-  return age >= -FRESH_WITHIN_MS && age <= FRESH_WITHIN_MS;
-}
-
 function time(value: string | undefined): number {
   const parsed = value ? Date.parse(value) : Number.NaN;
   return Number.isNaN(parsed) ? Number.POSITIVE_INFINITY : parsed;

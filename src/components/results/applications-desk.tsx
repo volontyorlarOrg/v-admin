@@ -501,7 +501,7 @@ export function ApplicationsDesk({
                     aria-current={number === current ? "page" : undefined}
                     onClick={() => setPage(number)}
                     className={cn(
-                      "tabular grid size-9 place-items-center rounded-full text-sm font-semibold",
+                      "tabular grid size-9 place-items-center rounded-md text-sm font-semibold",
                       number === current
                         ? "bg-action text-knockout"
                         : "text-ink-muted hover:bg-surface-sunk hover:text-ink",

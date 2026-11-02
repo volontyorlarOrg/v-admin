@@ -3,10 +3,12 @@ import { describe, expect, it } from "vitest";
 import {
   ENTRY_ROUTE,
   HOME_ROUTE,
+  NAV_GROUPS,
   PASSWORD_ROUTE,
   appRoutes,
   getRoute,
   guardFor,
+  navGroupRoutes,
   isActivePath,
   localePath,
   navHref,
@@ -50,6 +52,26 @@ describe("the route registry", () => {
       expect(route.area, route.key).toBe("portal");
     }
     expect(navRoutes.length).toBeGreaterThan(3);
+  });
+
+  it("keeps every rail group to four destinations or fewer so it can be scanned at a glance", () => {
+    for (const group of NAV_GROUPS) {
+      const routes = navGroupRoutes(group);
+      expect(routes.length, group).toBeGreaterThan(0);
+      expect(routes.length, group).toBeLessThanOrEqual(4);
+    }
+  });
+
+  it("keeps coordinators, insights, attendance and audit history reachable from the rail, not buried in another page", () => {
+    const inRail = navRoutes.map((route) => route.key);
+    for (const key of ["coordinators", "insights", "attendance", "audit"] as const) {
+      expect(inRail, key).toContain(key);
+    }
+  });
+
+  it("badges only work an administrator moves, so the rail never counts an organizer's backlog as theirs", () => {
+    const badged = navRoutes.filter((route) => route.count).map((route) => route.key);
+    expect(badged).toEqual(["vacancies", "pastEvents"]);
   });
 
   it("keeps the account password page out of the navigation", () => {

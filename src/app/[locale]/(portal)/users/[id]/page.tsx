@@ -190,6 +190,7 @@ export default async function UserPage({ params }: PageProps<"/[locale]/users/[i
           {
             label: t("figures.accepted"),
             value: format.number(participation.accepted),
+            tone: "person",
           },
           {
             label: t("figures.attended"),
