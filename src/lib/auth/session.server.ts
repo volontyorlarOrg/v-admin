@@ -1,6 +1,7 @@
 import "server-only";
 
 import { cookies } from "next/headers";
+import { cache } from "react";
 import {
   SESSION_COOKIE_NAME,
   decryptSession,
@@ -9,9 +10,11 @@ import {
   type SessionPayload,
 } from "@/lib/auth/session";
 
+const decryptOnce = cache((value: string | undefined) => decryptSession(value));
+
 export async function getSession(): Promise<SessionPayload | null> {
   const store = await cookies();
-  return decryptSession(store.get(SESSION_COOKIE_NAME)?.value);
+  return decryptOnce(store.get(SESSION_COOKIE_NAME)?.value);
 }
 
 export async function writeSession(payload: SessionPayload): Promise<boolean> {

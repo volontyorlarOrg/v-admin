@@ -19,7 +19,7 @@ test.beforeEach(async ({ page }) => {
   await page.request.post(`${STUB}/__stub/reset`);
 });
 
-test("dashboard puts totals before categorized analytics and operations", async ({
+test("dashboard puts totals and the work that waits before activity and analytics", async ({
   page,
 }) => {
   await signedIn(page);
@@ -38,14 +38,25 @@ test("dashboard puts totals before categorized analytics and operations", async 
     "Confirmed hours per day",
     "Attendance outcomes",
     "Waiting on you",
+    "Recent activity",
   ]) {
     await expect(page.getByRole("heading", { name, exact: true })).toBeVisible();
   }
   expect(
     await page
-      .locator("#overview, #growth, #application-analytics, #impact, #operations")
+      .locator(
+        "#overview, #operations, #organizers, #activity, #growth, #application-analytics, #impact",
+      )
       .evaluateAll((sections) => sections.map((section) => section.id)),
-  ).toEqual(["overview", "growth", "application-analytics", "impact", "operations"]);
+  ).toEqual([
+    "overview",
+    "operations",
+    "organizers",
+    "activity",
+    "growth",
+    "application-analytics",
+    "impact",
+  ]);
 });
 
 test("switches between 30 and 90 complete daily buckets and exposes the chart data", async ({

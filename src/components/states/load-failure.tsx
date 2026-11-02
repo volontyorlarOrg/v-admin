@@ -10,14 +10,15 @@ import {
 import { getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
 
+import { RetryButton } from "@/components/states/retry-button";
 import { StatePanel } from "@/components/states/state-panel";
 import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
 import { endpoints } from "@/lib/api/endpoints";
-import type { Loaded } from "@/lib/api/load";
+import type { LoadFailureState } from "@/lib/api/load";
 import { ENTRY_ROUTE, PASSWORD_ROUTE, navHref } from "@/lib/routing/routes";
 
-type Failure = Exclude<Loaded<unknown>, { state: "ready" }>;
+type Failure = LoadFailureState;
 
 const ICONS: Record<Failure["state"], ReactNode> = {
   awaitingContract: <PlugZap aria-hidden="true" className="size-6" />,
@@ -119,6 +120,10 @@ export async function LoadFailure({ failure }: { failure: Failure }) {
     );
   }
 
+  const reason = errors.has(failure.code)
+    ? errors(failure.code)
+    : t("failed.description");
+
   return (
     <StatePanel
       role="alert"
@@ -126,7 +131,14 @@ export async function LoadFailure({ failure }: { failure: Failure }) {
       icon={ICONS.failed}
       title={t("failed.title")}
       description={
-        errors.has(failure.code) ? errors(failure.code) : t("failed.description")
+        failure.requestId
+          ? `${reason} ${t("failed.reference", { reference: failure.requestId.slice(0, 8) })}`
+          : reason
+      }
+      actions={
+        failure.retryable ? (
+          <RetryButton label={t("failed.retry")} pendingLabel={t("failed.retrying")} />
+        ) : undefined
       }
     />
   );

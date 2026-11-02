@@ -3,7 +3,7 @@ import { getFormatter, getTranslations, setRequestLocale } from "next-intl/serve
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
-import { AuditTable } from "@/components/audit/audit-table";
+import { AuditTimeline } from "@/components/audit/audit-timeline";
 import { RemoveCoordinator } from "@/components/coordinators/remove-coordinator";
 import { FormDialog } from "@/components/forms/form-dialog";
 import { Panel } from "@/components/portal/panel";
@@ -42,6 +42,7 @@ import {
   reassignmentCandidates,
   statusOf,
 } from "@/lib/coordinators/status";
+import { loadAuditDirectory } from "@/lib/audit/directory.server";
 import { MAX_PAGE_SIZE } from "@/lib/routing/search-params";
 import { navHref, vacancyHref } from "@/lib/routing/routes";
 import { passwordLoginState } from "@/lib/users/password-state";
@@ -75,7 +76,10 @@ export default async function CoordinatorPage({
   ]);
   const back = { href: navHref("coordinators"), label: t("title") };
 
-  const loaded = await loadCoordinator(id);
+  const [loaded, auditDirectory] = await Promise.all([
+    loadCoordinator(id),
+    loadAuditDirectory({ applications: false }),
+  ]);
   const failure = failureOf(loaded);
 
   if (failure) {
@@ -288,9 +292,10 @@ export default async function CoordinatorPage({
             {coordinator.auditLogs.length === 0 ? (
               <RegisterNote title={t("detail.noActivity")} />
             ) : (
-              <AuditTable
+              <AuditTimeline
+                id="coordinator-activity"
                 events={coordinator.auditLogs}
-                caption={t("detail.activity")}
+                directory={auditDirectory}
                 showActor={false}
               />
             )}

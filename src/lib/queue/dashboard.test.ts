@@ -7,17 +7,21 @@ import {
   type Application,
   type Vacancy,
 } from "@/lib/api/schemas";
+import { isSameTashkentDay, tashkentDay } from "@/lib/datetime";
 import {
+  applicationsByVacancy,
   applicationsToDecide,
   blockingOrganizations,
   clearedToday,
   isFresh,
-  isSameTashkentDay,
+  organizerWork,
+  resultsReturned,
   rollCallsDue,
+  runnerOf,
   staffDesk,
-  tashkentDay,
   vacanciesToApprove,
-} from "@/lib/queue/today";
+  withAdministrator,
+} from "@/lib/queue/dashboard";
 
 const NOW = new Date("2026-09-24T09:00:00.000Z");
 const ME = "admin-1";
@@ -295,5 +299,156 @@ describe("a coordinator's desk", () => {
     expect(desk.returned.map((row) => row.vacancy.id)).toEqual(["back"]);
     expect(desk.drafts.map((row) => row.vacancy.id)).toEqual(["draft"]);
     expect(desk.inReview).toBe(1);
+  });
+});
+
+describe("who runs a vacancy", () => {
+  const roles: Record<string, string> = {
+    "org-user": "organization",
+    coord: "coordinator",
+  };
+  const roleOf = (id: string | undefined) => (id ? (roles[id] ?? null) : null);
+
+  it("hands an organization's vacancy to the organization", () => {
+    expect(runnerOf("org-user", roleOf)).toBe("organization");
+  });
+
+  it("hands a coordinator's vacancy to the coordinator", () => {
+    expect(runnerOf("coord", roleOf)).toBe("coordinator");
+  });
+
+  it("keeps everything else with the administrators, including an unknown creator", () => {
+    expect(runnerOf("admin-1", roleOf)).toBe("administrators");
+    expect(runnerOf(undefined, roleOf)).toBe("administrators");
+  });
+});
+
+describe("applications grouped by vacancy", () => {
+  const library = vacancy({ id: "vacancy-1", approvalStatus: "approved" });
+  const park = vacancy({
+    id: "vacancy-2",
+    title: "Park day",
+    approvalStatus: "approved",
+  });
+
+  it("counts what waits per vacancy and puts the longest wait first", () => {
+    const groups = applicationsByVacancy(
+      applicationsToDecide(
+        [
+          application({ id: "a1", submittedAt: "2026-09-20T05:00:00.000Z" }),
+          application({
+            id: "a2",
+            status: "under_review",
+            stagedDecision: "accept",
+            submittedAt: "2026-09-18T05:00:00.000Z",
+          }),
+          application({
+            id: "a3",
+            opportunityId: "vacancy-2",
+            submittedAt: "2026-09-19T05:00:00.000Z",
+          }),
+        ],
+        [library, park],
+      ),
+    );
+
+    expect(
+      groups.map((group) => [
+        group.vacancyId,
+        group.title,
+        group.waiting,
+        group.underReview,
+        group.staged,
+        group.oldestAt,
+      ]),
+    ).toEqual([
+      ["vacancy-1", "Library day", 2, 1, 1, "2026-09-18T05:00:00.000Z"],
+      ["vacancy-2", "Park day", 1, 0, 0, "2026-09-19T05:00:00.000Z"],
+    ]);
+  });
+});
+
+describe("work waiting on organizers", () => {
+  it("joins a vacancy's applications and its roll call into one entry", () => {
+    const library = vacancy({ id: "vacancy-1", createdById: "org-user" });
+    const groups = applicationsByVacancy(
+      applicationsToDecide([application({ id: "a1" })], [library]),
+    );
+    const work = organizerWork(
+      groups,
+      [
+        {
+          vacancyId: "vacancy-1",
+          title: "Library day",
+          endedAt: new Date("2026-09-10T05:00:00.000Z"),
+          awaiting: 3,
+          resolved: 0,
+        },
+        {
+          vacancyId: "vacancy-9",
+          title: "River day",
+          endedAt: new Date("2026-09-01T05:00:00.000Z"),
+          awaiting: 1,
+          resolved: 2,
+        },
+      ],
+      [library],
+    );
+
+    expect(work.map((item) => item.vacancyId)).toEqual(["vacancy-9", "vacancy-1"]);
+    expect(work[1]).toMatchObject({
+      createdById: "org-user",
+      organizationId: "org-1",
+      applications: { waiting: 1 },
+      rollCall: { awaiting: 3 },
+    });
+  });
+});
+
+describe("results an administrator returned", () => {
+  it("lists returned sheets oldest first and ignores archived vacancies", () => {
+    const sheet = (status: string) => ({ attendanceSheet: { status } });
+    const returned = resultsReturned([
+      vacancy({
+        id: "v1",
+        updatedAt: "2026-09-22T05:00:00.000Z",
+        ...sheet("changes_requested"),
+      }),
+      vacancy({
+        id: "v2",
+        updatedAt: "2026-09-21T05:00:00.000Z",
+        ...sheet("changes_requested"),
+      }),
+      vacancy({ id: "v3", ...sheet("submitted") }),
+      vacancy({
+        id: "v4",
+        archivedAt: "2026-09-23T05:00:00.000Z",
+        ...sheet("changes_requested"),
+      }),
+    ]);
+    expect(returned.map((item) => item.vacancy.id)).toEqual(["v2", "v1"]);
+  });
+});
+
+describe("what is with the administrator", () => {
+  it("counts vacancies in review, submitted results and past events still waiting", () => {
+    expect(
+      withAdministrator(
+        [
+          vacancy({ id: "v1", approvalStatus: "pending_review" }),
+          vacancy({
+            id: "v2",
+            approvalStatus: "approved",
+            attendanceSheet: { status: "submitted" },
+          }),
+          vacancy({
+            id: "v3",
+            approvalStatus: "approved",
+            attendanceSheet: { status: "verified" },
+          }),
+        ],
+        [{ pending: 2 }, { pending: 0 }],
+      ),
+    ).toEqual({ vacancies: 1, results: 1, pastEvents: 1 });
   });
 });

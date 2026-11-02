@@ -99,7 +99,10 @@
     },
     "failed": {
       "title": "This did not load",
-      "description": "Something went wrong on the way to the API. Reload the page to try again."
+      "description": "Something went wrong on the way to the API. Reload the page to try again.",
+      "reference": "Reference: {reference}.",
+      "retry": "Try again",
+      "retrying": "Trying again…"
     },
     "loading": {
       "list": "Loading the list…",
@@ -327,7 +330,9 @@
       "attendance": "Attendance",
       "allDays": "{count, plural, =1 {Required on the day} other {All # days required}}",
       "someDays": "Volunteers can come on some of the days",
-      "question": "Application question"
+      "question": "Application question",
+      "sections": "Vacancy sections",
+      "results": "Attendance results"
     },
     "fields": {
       "title": "Title",
@@ -1004,7 +1009,7 @@
   },
   "audit": {
     "title": "Audit history",
-    "description": "Every recorded action, filtered by coordinator and by action.",
+    "description": "Who did what, and to which record — grouped by day and filtered by person, action and period.",
     "empty": {
       "title": "Nothing recorded yet",
       "description": "Actions appear here as coordinators and administrators work."
@@ -1021,7 +1026,8 @@
       "from": "From",
       "to": "To",
       "anyone": "Anyone",
-      "everything": "Every action"
+      "everything": "Every action",
+      "period": "Period"
     },
     "table": {
       "caption": "Recorded actions",
@@ -1042,7 +1048,10 @@
       "attendance": "Attendance",
       "coordinator": "Coordinators",
       "organization": "Organizations",
-      "user": "Accounts"
+      "user": "Accounts",
+      "pastEvent": "Past events",
+      "award": "XP and hours",
+      "other": "Other"
     },
     "subjects": {
       "vacancy": "Vacancy",
@@ -1089,11 +1098,38 @@
       "user_progress_adjusted": "XP and hours adjusted",
       "bulk_award_created": "Bulk award given",
       "bulk_award_revoked": "Bulk award taken back",
-      "past_event_roster_submitted": "Historical event submitted",
+      "past_event_roster_submitted": "Past event submitted",
       "past_event_request_submitted": "Past event proposal submitted",
       "past_event_request_approved": "Past event proposal approved",
       "past_event_request_rejected": "Past event proposal rejected",
-      "past_event_request_cancelled": "Past event proposal withdrawn"
+      "past_event_request_cancelled": "Past event proposal withdrawn",
+      "user_past_event_created": "Past event added to a volunteer",
+      "user_past_event_updated": "Volunteer's past event edited",
+      "user_past_event_removed": "Volunteer's past event removed"
+    },
+    "day": {
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "count": "{count, plural, one {# action} other {# actions}}"
+    },
+    "roles": {
+      "administrator": "Administrator",
+      "coordinator": "Coordinator",
+      "organization": "Organization",
+      "volunteer": "Volunteer"
+    },
+    "ranges": {
+      "any": "Any time",
+      "today": "Today",
+      "week": "Last 7 days",
+      "month": "Last 30 days"
+    },
+    "feed": {
+      "title": "Recent activity",
+      "description": "The latest recorded actions across the platform.",
+      "all": "Open the audit history",
+      "empty": "Nothing has been recorded yet.",
+      "countLabel": "recent actions"
     }
   },
   "vocabulary": {
@@ -1188,8 +1224,7 @@
       }
     }
   },
-  "today": {
-    "title": "Today",
+  "desk": {
     "dateline": "{date} · {count, plural, =0 {nothing waits on you} one {# thing waits on you} other {# things wait on you}}",
     "listTitle": "Waiting on you",
     "waitingLabel": "waiting",
@@ -1224,7 +1259,11 @@
       "essay": "Essay attached",
       "looking": "Under review",
       "incomplete": "Profile incomplete today",
-      "unnamed": "Unnamed volunteer"
+      "unnamed": "Unnamed volunteer",
+      "waiting": "{count, plural, one {# application waits} other {# applications wait}}",
+      "oldest": "Oldest sent {when}",
+      "staged": "{count, plural, one {# decision staged, not sent} other {# decisions staged, not sent}}",
+      "review": "Review applications"
     },
     "rollCalls": {
       "title": "Roll calls due",
@@ -1252,18 +1291,8 @@
         "rejected": "Not selected",
         "closed": "Closed"
       },
-      "rollCall": "Roll call recorded: {attended} attended, {other} excused or cancelled"
-    },
-    "operation": {
-      "title": "The operation",
-      "insights": "Open insights",
-      "line": {
-        "volunteers": "{count, plural, one {<n>#</n> volunteer} other {<n>#</n> volunteers}}",
-        "live": "{count, plural, one {<n>#</n> live vacancy} other {<n>#</n> live vacancies}}",
-        "applications": "{count, plural, one {<n>#</n> application sent} other {<n>#</n> applications sent}}",
-        "attended": "{count, plural, one {<n>#</n> event attended} other {<n>#</n> events attended}}",
-        "hours": "{count, plural, one {<n>#</n> hour confirmed} other {<n>#</n> hours confirmed}}"
-      }
+      "rollCall": "Roll call recorded: {attended} attended, {other} excused or cancelled",
+      "empty": "Decisions you make today land here with a seal."
     },
     "verify": {
       "title": "Results to verify",
@@ -1272,6 +1301,26 @@
       "correction": "Correction to verified results",
       "volunteers": "{count, plural, one {# volunteer} other {# volunteers}}",
       "open": "Verify"
+    },
+    "pastEvents": {
+      "title": "Past events to review",
+      "countLabel": "past events and corrections waiting",
+      "meta": "{organization} · {date}",
+      "waiting": "{waiting, plural, one {# participant waits} other {# participants wait}} of {total}",
+      "open": "Review",
+      "requests": "{count, plural, one {# correction or removal waits} other {# corrections and removals wait}}",
+      "requestsOpen": "Open past events"
+    },
+    "organizers": {
+      "title": "Waiting on organizers",
+      "countLabel": "vacancies waiting on their organizers",
+      "description": "Applications and roll calls that organizations and coordinators decide in their own portals. Nothing here needs you unless it stalls.",
+      "runner": "Run by {name}",
+      "unknownRunner": "Run by another account",
+      "applications": "{count, plural, one {# application waits} other {# applications wait}} · oldest {when}",
+      "rollCall": "{count, plural, one {# volunteer to record} other {# volunteers to record}}",
+      "open": "Open",
+      "more": "{count, plural, one {and # more vacancy} other {and # more vacancies}}"
     }
   },
   "blog": {
@@ -2025,7 +2074,7 @@
   },
   "dashboardHome": {
     "title": "Dashboard",
-    "description": "Track platform growth, applications and volunteer impact, then handle the work waiting on you.",
+    "description": "What waits on you first, then the platform's totals, what just happened and how the numbers are moving.",
     "overview": {
       "title": "Platform overview",
       "description": "All-time totals · current published vacancies",
@@ -2035,9 +2084,7 @@
       "attended": "Volunteer attendances",
       "confirmedHours": "Confirmed hours"
     },
-    "needsAction": "Needs action",
     "sections": "Dashboard sections",
-    "moreBreakdowns": "More breakdowns",
     "loadingOperations": "Loading operations",
     "analytics": "Analytics",
     "period": "Analytics period",
@@ -2108,6 +2155,10 @@
         "title": "User signups per day",
         "description": "New volunteer accounts. Merged duplicate accounts are excluded."
       }
+    },
+    "jump": {
+      "operations": "Waiting on you",
+      "activity": "Recent activity"
     }
   },
   "pastEventRequests": {

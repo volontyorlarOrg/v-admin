@@ -126,6 +126,17 @@ async function forwardedVisitor(): Promise<Record<string, string>> {
   }
 }
 
+function withRequestId(error: ApiError, requestId: string): ApiError {
+  if (error.requestId) return error;
+  return new ApiError(error.code, {
+    status: error.status,
+    message: error.message,
+    requestId,
+    cause: error.cause,
+    details: error.details,
+  });
+}
+
 function logFailure(method: string, path: string, error: ApiError) {
   console.error(
     `[api] ${method} ${path} -> ${error.code}` +
@@ -157,7 +168,9 @@ export async function api<TSchema extends z.ZodType | undefined = undefined>(
   }
 
   const request = clientFor(baseUrl).request as unknown as RawRequest;
+  const requestId = crypto.randomUUID();
   const outgoingHeaders = {
+    [REQUEST_ID_HEADER]: requestId,
     ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
     ...(await forwardedVisitor()),
   };
@@ -174,7 +187,7 @@ export async function api<TSchema extends z.ZodType | undefined = undefined>(
       fetch: (outgoing: Request) => fetch(outgoing, { cache: "no-store" }),
     }));
   } catch (cause) {
-    const error = classifyApiError(cause);
+    const error = withRequestId(classifyApiError(cause), requestId);
     logFailure(method, path, error);
     throw error;
   }
@@ -189,7 +202,7 @@ export async function api<TSchema extends z.ZodType | undefined = undefined>(
     const error = new ApiError("invalidResponse", {
       status: response.status,
       message: `Response from ${method} ${path} did not match its schema.`,
-      requestId: response.headers.get(REQUEST_ID_HEADER) ?? undefined,
+      requestId,
       cause: parsed.error,
     });
     logFailure(method, path, error);
@@ -207,60 +220,37 @@ export function authedApi<TSchema extends z.ZodType | undefined = undefined>(
   return api(path, { ...init, accessToken });
 }
 
-export async function authedMultipart(
-  path: ApiPath,
-  accessToken: string,
-  body: FormData,
-): Promise<void> {
-  const baseUrl = apiBaseUrl();
-  if (!baseUrl) throw new ApiError("notConfigured");
-  const requestId = crypto.randomUUID();
-  let response: Response;
-  try {
-    response = await fetch(new URL(path, `${baseUrl}/`), {
-      method: "PUT",
-      headers: {
-        Accept: "application/json",
-        Authorization: `Bearer ${accessToken}`,
-        [REQUEST_ID_HEADER]: requestId,
-        ...(await forwardedVisitor()),
-      },
-      body,
-      cache: "no-store",
-      signal: AbortSignal.timeout(DEFAULT_TIMEOUT_MS),
-    });
-  } catch (error) {
-    const classified = classifyApiError(error);
-    logFailure("PUT", path, classified);
-    throw classified;
-  }
-  const responseText = await response.text();
-  if (!response.ok) {
-    const error = new ApiError(codeForStatus(response.status), {
-      status: response.status,
-      requestId,
-      details: responseText ? parseJson(responseText) : null,
-    });
-    logFailure("PUT", path, error);
-    throw error;
-  }
-  const parsed = z.object({ imageUrl: z.url() }).safeParse(parseJson(responseText));
-  if (!parsed.success) throw new ApiError("invalidResponse", { requestId });
-}
+export type MultipartRequest<TSchema extends z.ZodType | undefined = undefined> = {
+  method?: "POST" | "PUT";
+  schema?: TSchema;
+  timeoutMs?: number;
+};
 
-export async function authedMultipartReturning<TSchema extends z.ZodType>(
+export async function authedMultipart<
+  TSchema extends z.ZodType | undefined = undefined,
+>(
   path: ApiPath,
   accessToken: string,
   body: FormData,
-  schema: TSchema,
-): Promise<z.infer<TSchema>> {
+  {
+    method = "PUT",
+    schema,
+    timeoutMs = DEFAULT_TIMEOUT_MS,
+  }: MultipartRequest<TSchema> = {},
+): Promise<ApiResult<TSchema>> {
   const baseUrl = apiBaseUrl();
-  if (!baseUrl) throw new ApiError("notConfigured");
+  if (!baseUrl) {
+    throw new ApiError("notConfigured", {
+      message: "VOLONTYORLAR_API_URL is not set.",
+    });
+  }
+
   const requestId = crypto.randomUUID();
   let response: Response;
+
   try {
     response = await fetch(new URL(path, `${baseUrl}/`), {
-      method: "POST",
+      method,
       headers: {
         Accept: "application/json",
         Authorization: `Bearer ${accessToken}`,
@@ -269,25 +259,42 @@ export async function authedMultipartReturning<TSchema extends z.ZodType>(
       },
       body,
       cache: "no-store",
-      signal: AbortSignal.timeout(DEFAULT_TIMEOUT_MS),
+      signal: AbortSignal.timeout(timeoutMs),
     });
-  } catch (error) {
-    const classified = classifyApiError(error);
-    logFailure("POST", path, classified);
-    throw classified;
+  } catch (cause) {
+    const error = withRequestId(classifyApiError(cause), requestId);
+    logFailure(method, path, error);
+    throw error;
   }
-  const payload = await response.text();
+
+  const text = await response.text();
+
   if (!response.ok) {
     const error = new ApiError(codeForStatus(response.status), {
       status: response.status,
       requestId,
-      details: payload ? parseJson(payload) : null,
+      details: text ? parseJson(text) : null,
     });
-    logFailure("POST", path, error);
+    logFailure(method, path, error);
     throw error;
   }
-  const parsed = schema.safeParse(parseJson(payload));
-  if (!parsed.success)
-    throw new ApiError("invalidResponse", { requestId, cause: parsed.error });
-  return parsed.data;
+
+  const payload = text ? parseJson(text) : null;
+
+  if (!schema) return payload as ApiResult<TSchema>;
+
+  const parsed = schema.safeParse(payload);
+
+  if (!parsed.success) {
+    const error = new ApiError("invalidResponse", {
+      status: response.status,
+      message: `Response from ${method} ${path} did not match its schema.`,
+      requestId,
+      cause: parsed.error,
+    });
+    logFailure(method, path, error);
+    throw error;
+  }
+
+  return parsed.data as ApiResult<TSchema>;
 }

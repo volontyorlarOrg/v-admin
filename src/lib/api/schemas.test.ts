@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { z } from "zod";
 
 import {
   apiRegion,
@@ -6,9 +7,12 @@ import {
   applicationSchema,
   attendanceSchema,
   auditEventSchema,
+  auditPageSchema,
   coordinatorSchema,
   directoryUserSchema,
+  listOf,
   organizationListSchema,
+  pageOf,
   pageSchema,
   statisticsSchema,
   userDetailSchema,
@@ -364,5 +368,54 @@ describe("apiRegion", () => {
 
   it("refuses a region that is neither", () => {
     expect(() => apiRegion.parse("atlantis")).toThrow();
+  });
+});
+
+describe("listOf", () => {
+  const schema = listOf(z.object({ id: z.string() }));
+
+  it("accepts a bare array", () => {
+    expect(schema.parse([{ id: "a" }])).toEqual([{ id: "a" }]);
+  });
+
+  it("unwraps an items envelope", () => {
+    expect(schema.parse({ items: [{ id: "a" }], total: 1 })).toEqual([{ id: "a" }]);
+  });
+
+  it("refuses anything else rather than guessing", () => {
+    expect(schema.safeParse({ data: [] }).success).toBe(false);
+  });
+});
+
+describe("pageOf", () => {
+  const schema = pageOf(z.object({ id: z.string() }));
+
+  it("keeps the envelope the API paged", () => {
+    expect(
+      schema.parse({ items: [{ id: "a" }], page: 2, pageSize: 1, total: 3 }),
+    ).toEqual({ items: [{ id: "a" }], page: 2, pageSize: 1, total: 3 });
+  });
+
+  it("reads a bare array from an older deployment as one whole page", () => {
+    expect(schema.parse([{ id: "a" }, { id: "b" }])).toEqual({
+      items: [{ id: "a" }, { id: "b" }],
+      page: 1,
+      pageSize: 2,
+      total: 2,
+    });
+  });
+});
+
+describe("auditPageSchema", () => {
+  it("parses the audit envelope and defaults what an event leaves out", () => {
+    const page = auditPageSchema.parse({
+      items: [
+        { id: "e1", action: "opportunity.approved", createdAt: "2026-11-02T09:00:00Z" },
+      ],
+      page: 1,
+      pageSize: 25,
+      total: 1,
+    });
+    expect(page.items[0]).toMatchObject({ entityType: "", entityId: "" });
   });
 });
