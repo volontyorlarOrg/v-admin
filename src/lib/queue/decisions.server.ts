@@ -40,6 +40,8 @@ export const DECISION_ERROR_CODES = [
   "attendanceAlreadyResolved",
   "opportunityArchived",
   "opportunityAtCapacity",
+  "reportChanged",
+  "reportNotFound",
 ] as const;
 
 export async function decisionLabels(): Promise<DecisionLabels> {

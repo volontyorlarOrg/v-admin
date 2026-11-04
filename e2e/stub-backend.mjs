@@ -1285,6 +1285,32 @@ const server = createServer(async (request, response) => {
     reset();
     return send(response, 200, { status: "reset" });
   }
+  if (path === "/__stub/reports" && method === "POST") {
+    const user = state.users.find((item) => item.roles.includes("volunteer"));
+    state.reports = [
+      {
+        id: "00000000-0000-4000-8000-000000000900",
+        description: "The profile save button does not finish.",
+        pagePath: "/profile/edit",
+        status: "open",
+        version: 1,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        resolvedAt: null,
+        resolvedBy: null,
+        reporter: {
+          id: user.id,
+          displayName: user.displayName,
+          username: user.username ?? "volunteer",
+        },
+      },
+    ];
+    return send(response, 200, { status: "ready" });
+  }
+  if (path === "/__stub/report-version" && method === "POST") {
+    state.reports[0].version += 1;
+    return send(response, 200, { status: "changed" });
+  }
 
   if (path === "/__stub/bulk-users" && method === "POST") {
     for (let index = 0; index < 30; index += 1) {
@@ -1416,6 +1442,45 @@ const server = createServer(async (request, response) => {
     return send(response, 403, { code: "forbidden" });
   }
   if (admin && !isAdmin(actor)) return send(response, 403, { code: "forbidden" });
+
+  if (path === "/admin/reports" && method === "GET") {
+    const status = url.searchParams.get("status");
+    const items = (state.reports ?? []).filter(
+      (item) => !status || item.status === status,
+    );
+    const page = Number(url.searchParams.get("page") ?? 1),
+      pageSize = Number(url.searchParams.get("pageSize") ?? 25);
+    return send(response, 200, {
+      items: items.slice((page - 1) * pageSize, page * pageSize),
+      total: items.length,
+      page,
+      pageSize,
+    });
+  }
+  const reportRoute = /^\/admin\/reports\/([^/]+)(\/status)?$/.exec(path);
+  if (reportRoute) {
+    const report = (state.reports ?? []).find((item) => item.id === reportRoute[1]);
+    if (!report) return send(response, 404, { code: "reportNotFound" });
+    if (method === "PATCH" && reportRoute[2]) {
+      if (report.version !== body.version)
+        return send(response, 409, { code: "reportChanged" });
+      Object.assign(report, {
+        status: body.status,
+        version: report.version + 1,
+        updatedAt: new Date().toISOString(),
+        resolvedAt: body.status === "resolved" ? new Date().toISOString() : null,
+        resolvedBy:
+          body.status === "resolved"
+            ? {
+                id: actor.id,
+                displayName: actor.displayName,
+                username: actor.username ?? "admin",
+              }
+            : null,
+      });
+    }
+    return send(response, 200, report);
+  }
 
   if (path === "/admin/analytics" && method === "GET") {
     const days = Number(url.searchParams.get("days") ?? 30);

@@ -59,7 +59,8 @@
       "volunteering": "Volontyorlik",
       "participants": "Ishtirokchilar",
       "administration": "Boshqaruv"
-    }
+    },
+    "reports": "Muammo xabarlari"
   },
   "auth": {
     "metaTitle": "Kirish",
@@ -211,7 +212,9 @@
     "xpAmount": "0 dan 100 000 gacha butun sondagi XP kiriting.",
     "hoursAmount": "Soatlarni 0 dan 999 gacha, koʻpi bilan ikki kasr xonasi bilan kiriting.",
     "competitionHoursNotAllowed": "Tanlov uchun volontyorlik soatlarini kiritib boʻlmaydi.",
-    "opportunityKindLocked": "Nashr yoki arizadan keyin turni oʻzgartirib boʻlmaydi."
+    "opportunityKindLocked": "Nashr yoki arizadan keyin turni oʻzgartirib boʻlmaydi.",
+    "reportChanged": "Boshqa administrator bu xabarni oʻzgartirdi. Qayta urinishdan oldin sahifani yangilang.",
+    "reportNotFound": "Bu xabar topilmadi."
   },
   "dashboard": {
     "title": "Tahlil",
@@ -1070,7 +1073,8 @@
       "user": "Hisoblar",
       "pastEvent": "Oʻtgan tadbirlar",
       "award": "XP va soatlar",
-      "other": "Boshqa"
+      "other": "Boshqa",
+      "report": "Muammo xabarlari"
     },
     "subjects": {
       "vacancy": "Vakansiya",
@@ -1081,7 +1085,8 @@
       "attendance": "Davomat yozuvi",
       "account": "Hisob",
       "bulkAward": "Ommaviy mukofot",
-      "pastEvent": "Oʻtgan tadbir"
+      "pastEvent": "Oʻtgan tadbir",
+      "report": "Muammo xabari"
     },
     "details": {
       "closedByArchive": "Vakansiya arxivlanganda yopildi",
@@ -1124,7 +1129,10 @@
       "past_event_request_cancelled": "Oʻtgan tadbir taklifi qaytarib olindi",
       "user_past_event_created": "Volontyorga oʻtgan tadbir qoʻshildi",
       "user_past_event_updated": "Volontyorning oʻtgan tadbiri tahrirlandi",
-      "user_past_event_removed": "Volontyorning oʻtgan tadbiri olib tashlandi"
+      "user_past_event_removed": "Volontyorning oʻtgan tadbiri olib tashlandi",
+      "report_submitted": "Muammo haqida xabar yuborildi",
+      "report_resolved": "Xabar hal qilindi",
+      "report_reopened": "Xabar qayta ochildi"
     },
     "day": {
       "today": "Bugun",
@@ -2302,5 +2310,40 @@
     },
     "clear": "Hech narsa kutmayapti",
     "hours": "{value} soat"
+  },
+  "reports": {
+    "title": "Muammo xabarlari",
+    "description": "Koʻngillilar yuborgan muammolar va ular yuz bergan sahifalar.",
+    "countLabel": "ta xabar",
+    "filterLabel": "Xabar holati",
+    "views": {
+      "open": "Ochiq",
+      "resolved": "Hal qilingan",
+      "all": "Barcha xabarlar"
+    },
+    "empty": {
+      "open": "Ochiq xabarlar yoʻq",
+      "resolved": "Hal qilingan xabarlar yoʻq",
+      "all": "Hali xabarlar yoʻq",
+      "description": "Koʻngillilar ilovasidan yuborilgan xabarlar shu yerda koʻrinadi."
+    },
+    "status": {
+      "open": "Ochiq",
+      "resolved": "Hal qilingan"
+    },
+    "viewReport": "Xabarni koʻrish",
+    "resolve": "Hal qilingan deb belgilash",
+    "reopen": "Qayta ochish",
+    "resolvedSuccess": "Xabar hal qilingan deb belgilandi.",
+    "reopenedSuccess": "Xabar qayta ochildi.",
+    "detailTitle": "Xabar tafsilotlari",
+    "details": "Xabar maʼlumotlari",
+    "reporter": "Yuborgan koʻngilli",
+    "submitted": "Yuborilgan vaqt",
+    "page": "Sahifa",
+    "resolved": "Hal qilingan vaqt",
+    "resolution": "{date} · {name}",
+    "unknownAdmin": "Administrator",
+    "problem": "Muammo tavsifi"
   }
 }

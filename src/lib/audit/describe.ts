@@ -4,6 +4,7 @@ import {
   applicationHref,
   coordinatorHref,
   navHref,
+  reportHref,
   userHref,
   vacancyHref,
 } from "@/lib/routing/routes";
@@ -17,7 +18,8 @@ export type AuditSubjectKind =
   | "attendance"
   | "account"
   | "bulkAward"
-  | "pastEvent";
+  | "pastEvent"
+  | "report";
 
 export type AuditSubject = { kind: AuditSubjectKind; href: string | null };
 
@@ -29,6 +31,7 @@ export function subjectOf(
 ): AuditSubject {
   const type = event.entityType.toLowerCase();
   const id = event.entityId;
+  if (type === "report") return { kind: "report", href: reportHref(id) };
 
   if (
     type === "pasteventroster" ||

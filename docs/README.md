@@ -1,5 +1,7 @@
 # Volontyorlar Administrator Portal Documentation
 
+Volunteer reporting: [`operations/REPORTS.md`](operations/REPORTS.md).
+
 Use this file to route a question to the smallest source that answers it.
 
 | Task                                                                                              | Read                                                                                                       |

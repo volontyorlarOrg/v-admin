@@ -1,4 +1,7 @@
 export const AUDIT_ACTIONS = [
+  "report.submitted",
+  "report.resolved",
+  "report.reopened",
   "opportunity.created",
   "opportunity.updated",
   "opportunity.submitted_for_approval",
@@ -40,6 +43,7 @@ export const AUDIT_ACTIONS = [
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];
 
 export const AUDIT_FAMILIES = [
+  "report",
   "opportunity",
   "application",
   "attendance",
@@ -54,6 +58,7 @@ export const AUDIT_FAMILIES = [
 export type AuditFamily = (typeof AUDIT_FAMILIES)[number];
 
 const FAMILY_PREFIXES: ReadonlyArray<readonly [string, AuditFamily]> = [
+  ["report.", "report"],
   ["opportunity.", "opportunity"],
   ["application.", "application"],
   ["attendance", "attendance"],
@@ -67,6 +72,7 @@ const FAMILY_PREFIXES: ReadonlyArray<readonly [string, AuditFamily]> = [
 ];
 
 export const AUDIT_FAMILY_ICONS: Record<AuditFamily, string> = {
+  report: "message-square-warning",
   opportunity: "clipboard-list",
   application: "inbox",
   attendance: "calendar-check",
