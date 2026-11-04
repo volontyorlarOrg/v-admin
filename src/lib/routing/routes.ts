@@ -18,6 +18,7 @@ export const ROUTE_KEYS = [
   "newCoordinator",
   "organizations",
   "audit",
+  "reports",
   "changePassword",
 ] as const;
 
@@ -203,6 +204,15 @@ export const appRoutes: readonly AppRoute[] = [
     icon: "scroll-text",
   },
   {
+    key: "reports",
+    path: "/reports",
+    area: "portal",
+    guard: "session",
+    inNav: true,
+    group: "administration",
+    icon: "message-square-warning",
+  },
+  {
     key: "changePassword",
     path: "/account/change-password",
     area: "account",
@@ -252,6 +262,10 @@ export function applicationHref(id: string): string {
 
 export function userHref(id: string): string {
   return `${navHref("users")}/${encodeURIComponent(id)}`;
+}
+
+export function reportHref(id: string): string {
+  return `${navHref("reports")}/${encodeURIComponent(id)}`;
 }
 
 export function pastEventHref(id: string): string {

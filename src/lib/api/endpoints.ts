@@ -20,6 +20,13 @@ export const endpoints = {
     contract: "published",
   },
   currentUser: { method: "GET", path: "/me", contract: "published" },
+  reports: { method: "GET", path: "/admin/reports", contract: "published" },
+  report: { method: "GET", path: "/admin/reports/{id}", contract: "published" },
+  updateReportStatus: {
+    method: "PATCH",
+    path: "/admin/reports/{id}/status",
+    contract: "published",
+  },
 
   statistics: { method: "GET", path: "/admin/statistics", contract: "published" },
   analytics: { method: "GET", path: "/admin/analytics", contract: "published" },

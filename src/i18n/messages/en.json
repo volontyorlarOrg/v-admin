@@ -59,7 +59,8 @@
       "volunteering": "Volunteering",
       "participants": "Participants",
       "administration": "Administration"
-    }
+    },
+    "reports": "Reports"
   },
   "auth": {
     "metaTitle": "Sign in",
@@ -211,7 +212,9 @@
     "xpAmount": "Enter a whole number of XP from 0 to 100,000.",
     "hoursAmount": "Enter hours from 0 to 999, with at most two decimals.",
     "competitionHoursNotAllowed": "Competition opportunities cannot include volunteer hours.",
-    "opportunityKindLocked": "The type cannot change after publication or application."
+    "opportunityKindLocked": "The type cannot change after publication or application.",
+    "reportChanged": "Another administrator changed this report. Reload the page before trying again.",
+    "reportNotFound": "This report could not be found."
   },
   "dashboard": {
     "title": "Insights",
@@ -1070,7 +1073,8 @@
       "user": "Accounts",
       "pastEvent": "Past events",
       "award": "XP and hours",
-      "other": "Other"
+      "other": "Other",
+      "report": "Reports"
     },
     "subjects": {
       "vacancy": "Vacancy",
@@ -1081,7 +1085,8 @@
       "attendance": "Attendance record",
       "account": "Account",
       "bulkAward": "Bulk award",
-      "pastEvent": "Past event"
+      "pastEvent": "Past event",
+      "report": "Report"
     },
     "details": {
       "closedByArchive": "Closed when the vacancy was archived",
@@ -1124,7 +1129,10 @@
       "past_event_request_cancelled": "Past event proposal withdrawn",
       "user_past_event_created": "Past event added to a volunteer",
       "user_past_event_updated": "Volunteer's past event edited",
-      "user_past_event_removed": "Volunteer's past event removed"
+      "user_past_event_removed": "Volunteer's past event removed",
+      "report_submitted": "Problem reported",
+      "report_resolved": "Report resolved",
+      "report_reopened": "Report reopened"
     },
     "day": {
       "today": "Today",
@@ -2302,5 +2310,40 @@
     },
     "clear": "Nothing waiting",
     "hours": "{value} h"
+  },
+  "reports": {
+    "title": "Reports",
+    "description": "Problems reported by volunteers, with the page where they happened.",
+    "countLabel": "reports",
+    "filterLabel": "Report status",
+    "views": {
+      "open": "Open",
+      "resolved": "Resolved",
+      "all": "All reports"
+    },
+    "empty": {
+      "open": "No open reports",
+      "resolved": "No resolved reports",
+      "all": "No reports yet",
+      "description": "Reports sent from the volunteer app will appear here."
+    },
+    "status": {
+      "open": "Open",
+      "resolved": "Resolved"
+    },
+    "viewReport": "View report",
+    "resolve": "Mark resolved",
+    "reopen": "Reopen report",
+    "resolvedSuccess": "Report marked resolved.",
+    "reopenedSuccess": "Report reopened.",
+    "detailTitle": "Report details",
+    "details": "Report information",
+    "reporter": "Reported by",
+    "submitted": "Submitted",
+    "page": "Page",
+    "resolved": "Resolved",
+    "resolution": "{date} · {name}",
+    "unknownAdmin": "Administrator",
+    "problem": "Problem description"
   }
 }
