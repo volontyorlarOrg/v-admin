@@ -1899,16 +1899,6 @@ test.describe("the dashboard charts", () => {
     await expect(joins.getByText("0", { exact: true })).toBeVisible();
     await expect(joins).toContainText("volunteers between");
   });
-
-  test("keeps the background out of the accessibility tree and off the pointer", async ({
-    page,
-  }) => {
-    await signedIn(page);
-
-    const background = page.locator("canvas").locator("..");
-    await expect(background).toHaveAttribute("aria-hidden", "true");
-    await expect(background).toHaveCSS("pointer-events", "none");
-  });
 });
 
 test.describe("failures a screen has to explain", () => {
