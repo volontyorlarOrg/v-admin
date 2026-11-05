@@ -76,7 +76,7 @@ function XpFigure({ value, muted }: { value: number | null; muted?: boolean }) {
         value === null || value === 0 || muted
           ? "text-ink-muted"
           : value > 0
-            ? "text-primary-ink"
+            ? "text-accent-ink"
             : "text-danger-ink",
       )}
     >
@@ -283,10 +283,10 @@ export function AttendanceDesk({
   return (
     <section aria-labelledby="sheet-title" className="flex min-w-0 flex-col gap-4">
       {view.status === "changes_requested" ? (
-        <div className="flex flex-col gap-3 rounded-xl border border-accent/40 bg-surface px-5 py-4 sm:flex-row sm:items-start">
+        <div className="flex flex-col gap-3 rounded-xl border border-primary-muted bg-surface-soft px-5 py-4 sm:flex-row sm:items-start">
           <span
             aria-hidden="true"
-            className="grid size-10 shrink-0 place-items-center rounded-full bg-accent text-knockout"
+            className="grid size-9 shrink-0 place-items-center rounded-md bg-surface text-primary-ink"
           >
             <Undo2 className="size-4.5" />
           </span>

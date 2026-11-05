@@ -19,15 +19,16 @@ administrator runs the operation: they create the coordinators, keep the
 organizations that vacancies are published under, see every vacancy,
 application, volunteer and attendance record, and read the audit history.
 
-## The four repositories
+## The repositories
 
-| Repository  | Audience       | Owns                                                    |
-| ----------- | -------------- | ------------------------------------------------------- |
-| `v-web`     | the public     | brand, positioning, SEO, legal pages                    |
-| `v-app`     | volunteers     | profile, applications, participation record             |
-| `v-staff`   | coordinators   | one coordinator's vacancies and applicants              |
-| `v-admin`   | administrators | **this portal**                                         |
-| `v-backend` | all four       | identity, sessions, data, and every rule that must hold |
+| Repository  | Audience       | Owns                                                     |
+| ----------- | -------------- | -------------------------------------------------------- |
+| `v-web`     | the public     | brand, positioning, SEO, legal pages                     |
+| `v-app`     | volunteers     | profile, applications, participation record              |
+| `v-staff`   | coordinators   | one coordinator's vacancies and applicants               |
+| `v-admin`   | administrators | **this portal**                                          |
+| `v-org`     | organizations  | one organization's vacancies, applicants and past events |
+| `v-backend` | all four       | identity, sessions, data, and every rule that must hold  |
 
 ## What an administrator does here
 

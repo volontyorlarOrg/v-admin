@@ -61,6 +61,8 @@ byte-identical until the November 2026 redesign, which landed here first: the
 tokens, the shell, the status chips, the queue rows and the charts now lead
 `v-staff`. Port them to `v-staff` to restore parity, and from then on keep it —
 a fix that belongs to both belongs in the shared shape, applied to both.
+`v-org` adopted the same system in November 2026, so a change to the tokens, the
+shell, the chips, the queue rows or the journey belongs there too.
 
 ## Technology stack
 

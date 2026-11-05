@@ -38,6 +38,19 @@ export const AUDIT_ACTIONS = [
   "user.username.changed",
   "user.avatar.updated",
   "user.avatar.removed",
+  "application.reopened",
+  "attendance.submitted",
+  "attendance.verified",
+  "attendance.changes_requested",
+  "opportunity.image.updated",
+  "opportunity.image.removed",
+  "opportunity.instructions_sent",
+  "past_event_roster.participants_added",
+  "organization.account.created",
+  "organization.account.password_replaced",
+  "user.checkpoint.claimed",
+  "user.checkpoints.reached",
+  "user.username.synchronized",
 ] as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];
