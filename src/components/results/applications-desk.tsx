@@ -437,10 +437,10 @@ export function ApplicationsDesk({
                               className="max-w-44"
                             />
                             {decision === "accept" || decision === "reject" ? (
-                              <span className="inline-flex items-center gap-1.5 text-xs whitespace-nowrap text-accent-ink">
+                              <span className="inline-flex items-center gap-1.5 text-xs whitespace-nowrap text-warning-ink">
                                 <span
                                   aria-hidden="true"
-                                  className="size-1.5 rounded-full bg-accent"
+                                  className="size-1.5 rounded-full bg-warning"
                                 />
                                 {t("notSent")}
                               </span>
