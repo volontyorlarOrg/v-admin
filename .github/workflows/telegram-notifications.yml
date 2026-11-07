@@ -22,8 +22,19 @@ jobs:
       TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
       TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
     steps:
+      - name: Validate Telegram configuration
+        shell: bash
+        run: |
+          if [ -z "$TELEGRAM_BOT_TOKEN" ]; then
+            echo "::error::Missing TELEGRAM_BOT_TOKEN. Add it in repository Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+          if [ -z "$TELEGRAM_CHAT_ID" ]; then
+            echo "::error::Missing TELEGRAM_CHAT_ID. Add it in repository Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+
       - name: Send notification
-        if: ${{ env.TELEGRAM_BOT_TOKEN != '' && env.TELEGRAM_CHAT_ID != '' }}
         shell: bash
         run: |
           python3 - <<'PY'
@@ -66,22 +77,34 @@ jobs:
               detail = "Manual notification test"
 
           message = f"GitHub update\nRepository: {repo}\nBy: {actor}\n{detail}\n{url}"
-          data = urllib.parse.urlencode({
-              "chat_id": os.environ["TELEGRAM_CHAT_ID"],
-              "text": message[:4096],
-              "disable_web_page_preview": "true",
-          }).encode("utf-8")
-          request = urllib.request.Request(
-              f"https://api.telegram.org/bot{os.environ['TELEGRAM_BOT_TOKEN']}/sendMessage",
-              data=data,
-              method="POST",
-          )
-          with urllib.request.urlopen(request, timeout=15) as response:
-              result = json.load(response)
-          if not result.get("ok"):
-              raise RuntimeError("Telegram rejected the message")
-          PY
+          # Supports either one chat ID or comma-separated private/group chat IDs.
+          chat_ids = [c.strip() for c in os.environ["TELEGRAM_CHAT_ID"].split(",") if c.strip()]
+          if not chat_ids:
+              raise SystemExit("No Telegram chat IDs configured")
 
-      - name: Explain missing configuration
-        if: ${{ env.TELEGRAM_BOT_TOKEN == '' || env.TELEGRAM_CHAT_ID == '' }}
-        run: echo "Add TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID as GitHub Actions secrets to enable notifications."
+          for chat_id in chat_ids:
+              data = urllib.parse.urlencode({
+                  "chat_id": chat_id,
+                  "text": message[:4096],
+                  "disable_web_page_preview": "true",
+              }).encode("utf-8")
+              request = urllib.request.Request(
+                  f"https://api.telegram.org/bot{os.environ['TELEGRAM_BOT_TOKEN']}/sendMessage",
+                  data=data,
+                  method="POST",
+              )
+              try:
+                  with urllib.request.urlopen(request, timeout=15) as response:
+                      result = json.load(response)
+              except urllib.error.HTTPError as exc:
+                  try:
+                      description = json.loads(exc.read().decode()).get("description", "Unknown error")
+                  except (ValueError, UnicodeDecodeError):
+                      description = "Unknown error"
+                  raise SystemExit(f"Telegram API error (HTTP {exc.code}): {description}") from None
+              except urllib.error.URLError:
+                  raise SystemExit("Cannot connect to Telegram API") from None
+              if not result.get("ok"):
+                  raise SystemExit("Telegram rejected the notification")
+              print("Telegram notification sent to configured chat.")
+          PY
