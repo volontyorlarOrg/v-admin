@@ -22,17 +22,22 @@ jobs:
       TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
       TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
       GITHUB_API_TOKEN: ${{ github.token }}
+      GITHUB_NOTIFIER_URL: ${{ vars.GITHUB_NOTIFIER_URL }}
+      GITHUB_NOTIFIER_SECRET: ${{ secrets.GITHUB_NOTIFIER_SECRET }}
     steps:
       - name: Validate Telegram configuration
         shell: bash
         run: |
-          if [ -z "$TELEGRAM_BOT_TOKEN" ]; then
-            echo "::error::Missing TELEGRAM_BOT_TOKEN. Add it in repository Settings > Secrets and variables > Actions."
-            exit 1
-          fi
-          if [ -z "$TELEGRAM_CHAT_ID" ]; then
-            echo "::error::Missing TELEGRAM_CHAT_ID. Add it in repository Settings > Secrets and variables > Actions."
-            exit 1
+          if [ -n "$GITHUB_NOTIFIER_URL" ] || [ -n "$GITHUB_NOTIFIER_SECRET" ]; then
+            if [ -z "$GITHUB_NOTIFIER_URL" ] || [ -z "$GITHUB_NOTIFIER_SECRET" ]; then
+              echo "::error::Set both GITHUB_NOTIFIER_URL and GITHUB_NOTIFIER_SECRET to enable subscriber broadcasting."
+              exit 1
+            fi
+          else
+            if [ -z "$TELEGRAM_BOT_TOKEN" ] || [ -z "$TELEGRAM_CHAT_ID" ]; then
+              echo "::error::Configure GITHUB_NOTIFIER_URL and GITHUB_NOTIFIER_SECRET for subscribers, or TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID for one chat."
+              exit 1
+            fi
           fi
 
       - name: Send notification
@@ -121,34 +126,67 @@ jobs:
 
           message = f"GitHub update\nRepository: {repo}\nTriggered by: {actor}\n{detail}\n{url}"
 
-          # Supports either one chat ID or comma-separated private/group chat IDs.
-          chat_ids = [c.strip() for c in os.environ["TELEGRAM_CHAT_ID"].split(",") if c.strip()]
-          if not chat_ids:
-              raise SystemExit("No Telegram chat IDs configured")
+          notifier_url = os.environ.get("GITHUB_NOTIFIER_URL", "").rstrip("/")
+          notifier_secret = os.environ.get("GITHUB_NOTIFIER_SECRET", "")
 
-          for chat_id in chat_ids:
-              data = urllib.parse.urlencode({
-                  "chat_id": chat_id,
-                  "text": message[:4096],
-                  "disable_web_page_preview": "true",
-              }).encode("utf-8")
-              request = urllib.request.Request(
-                  f"https://api.telegram.org/bot{os.environ['TELEGRAM_BOT_TOKEN']}/sendMessage",
-                  data=data,
+          if notifier_url and notifier_secret:
+              if not notifier_url.startswith("https://"):
+                  raise SystemExit("GITHUB_NOTIFIER_URL must be HTTPS")
+              broadcast_request = urllib.request.Request(
+                  notifier_url + "/integrations/github-notifier/broadcast",
+                  data=json.dumps({
+                      "repository": repo,
+                      "message": message[:3500],
+                  }).encode("utf-8"),
+                  headers={
+                      "Content-Type": "application/json",
+                      "x-github-notifier-secret": notifier_secret,
+                  },
                   method="POST",
               )
               try:
-                  with urllib.request.urlopen(request, timeout=15) as response:
+                  with urllib.request.urlopen(broadcast_request, timeout=30) as response:
                       result = json.load(response)
               except urllib.error.HTTPError as exc:
-                  try:
-                      description = json.loads(exc.read().decode()).get("description", "Unknown error")
-                  except (ValueError, UnicodeDecodeError):
-                      description = "Unknown error"
-                  raise SystemExit(f"Telegram API error (HTTP {exc.code}): {description}") from None
+                  raise SystemExit(
+                      f"Broadcast service error (HTTP {exc.code}). Check backend deployment and secret."
+                  ) from None
               except urllib.error.URLError:
-                  raise SystemExit("Cannot connect to Telegram API") from None
-              if not result.get("ok"):
-                  raise SystemExit("Telegram rejected the notification")
-              print("Telegram notification sent to configured chat.")
+                  raise SystemExit("Cannot reach subscriber broadcasting backend") from None
+              if result.get("failed"):
+                  raise SystemExit(
+                      f"Broadcast failed for {result['failed']} of {result['subscribers']} subscribers"
+                  )
+              print(f"Broadcast sent to {result.get('sent', 0)} subscribers")
+          else:
+              # Supports either one chat ID or comma-separated private/group chat IDs.
+              chat_ids = [c.strip() for c in os.environ["TELEGRAM_CHAT_ID"].split(",") if c.strip()]
+              if not chat_ids:
+                  raise SystemExit("No Telegram chat IDs configured")
+    
+              for chat_id in chat_ids:
+                  data = urllib.parse.urlencode({
+                      "chat_id": chat_id,
+                      "text": message[:4096],
+                      "disable_web_page_preview": "true",
+                  }).encode("utf-8")
+                  request = urllib.request.Request(
+                      f"https://api.telegram.org/bot{os.environ['TELEGRAM_BOT_TOKEN']}/sendMessage",
+                      data=data,
+                      method="POST",
+                  )
+                  try:
+                      with urllib.request.urlopen(request, timeout=15) as response:
+                          result = json.load(response)
+                  except urllib.error.HTTPError as exc:
+                      try:
+                          description = json.loads(exc.read().decode()).get("description", "Unknown error")
+                      except (ValueError, UnicodeDecodeError):
+                          description = "Unknown error"
+                      raise SystemExit(f"Telegram API error (HTTP {exc.code}): {description}") from None
+                  except urllib.error.URLError:
+                      raise SystemExit("Cannot connect to Telegram API") from None
+                  if not result.get("ok"):
+                      raise SystemExit("Telegram rejected the notification")
+                  print("Telegram notification sent to configured chat.")
           PY
