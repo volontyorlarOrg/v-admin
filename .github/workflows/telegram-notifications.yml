@@ -21,6 +21,7 @@ jobs:
     env:
       TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
       TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      GITHUB_API_TOKEN: ${{ github.token }}
     steps:
       - name: Validate Telegram configuration
         shell: bash
@@ -41,6 +42,7 @@ jobs:
           import json
           import os
           import urllib.parse
+          import urllib.error
           import urllib.request
 
           with open(os.environ["GITHUB_EVENT_PATH"], encoding="utf-8") as f:
@@ -53,11 +55,51 @@ jobs:
           url = event.get("repository", {}).get("html_url", "https://github.com/" + repo)
           detail = ""
 
-          if kind == "push":
-              branch = event.get("ref", "").removeprefix("refs/heads/")
-              n = len(event.get("commits", []))
-              detail = f"{n} commit(s) pushed to {branch}"
-              url = event.get("compare") or url
+          if kind in ("push", "workflow_dispatch"):
+              # On a manual run GITHUB_SHA is the latest commit on the selected branch.
+              # On a push, 'after' is the commit that was just pushed.
+              sha = (event.get("after") if kind == "push" else None) or os.environ["GITHUB_SHA"]
+              if sha == "0" * 40:
+                  raise SystemExit("No commit to report for this event")
+
+              commit_request = urllib.request.Request(
+                  f"https://api.github.com/repos/{repo}/commits/{sha}",
+                  headers={
+                      "Authorization": "Bearer " + os.environ["GITHUB_API_TOKEN"],
+                      "Accept": "application/vnd.github+json",
+                      "X-GitHub-Api-Version": "2022-11-28",
+                  },
+              )
+              try:
+                  with urllib.request.urlopen(commit_request, timeout=15) as response:
+                      commit = json.load(response)
+              except urllib.error.HTTPError as exc:
+                  raise SystemExit(
+                      f"Cannot load GitHub commit {sha[:7]} (HTTP {exc.code})"
+                  ) from None
+
+              branch = os.environ.get("GITHUB_REF_NAME", "unknown")
+              commit_message = commit["commit"]["message"].splitlines()[0]
+              author = (commit.get("author") or {}).get("login") or (
+                  commit.get("commit", {}).get("author", {}).get("name")
+              ) or actor
+              changed = [item["filename"] for item in commit.get("files", [])]
+              file_list = ", ".join(changed[:5])
+              if len(changed) > 5:
+                  file_list += f" (+{len(changed) - 5} more)"
+              if not file_list:
+                  file_list = "File list unavailable"
+
+              label = "Manual latest-commit check" if kind == "workflow_dispatch" else "New code push"
+              detail = (
+                  f"{label}\n"
+                  f"Branch: {branch}\n"
+                  f"Commit: {sha[:7]}\n"
+                  f"Author: {author}\n"
+                  f"Message: {commit_message}\n"
+                  f"Changed files: {file_list}"
+              )
+              url = commit.get("html_url") or f"https://github.com/{repo}/commit/{sha}"
           elif kind == "pull_request":
               pr = event["pull_request"]
               status = "merged" if action == "closed" and pr.get("merged") else action
@@ -72,11 +114,13 @@ jobs:
               detail = f"Release published: {release.get('tag_name', '')}"
               url = release["html_url"]
           elif kind in ("create", "delete"):
-              detail = f"{event.get('ref_type', 'ref')} {event.get('ref', '')} {kind}d"
+              verb = "created" if kind == "create" else "deleted"
+              detail = f"{event.get('ref_type', 'ref')} {event.get('ref', '')} {verb}"
           else:
-              detail = "Manual notification test"
+              detail = f"Repository event: {kind}"
 
-          message = f"GitHub update\nRepository: {repo}\nBy: {actor}\n{detail}\n{url}"
+          message = f"GitHub update\nRepository: {repo}\nTriggered by: {actor}\n{detail}\n{url}"
+
           # Supports either one chat ID or comma-separated private/group chat IDs.
           chat_ids = [c.strip() for c in os.environ["TELEGRAM_CHAT_ID"].split(",") if c.strip()]
           if not chat_ids:
