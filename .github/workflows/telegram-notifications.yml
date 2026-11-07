@@ -1,0 +1,87 @@
+name: Telegram repository notifications
+
+on:
+  push:
+  pull_request:
+    types: [opened, reopened, closed, ready_for_review]
+  issues:
+    types: [opened, reopened, closed]
+  release:
+    types: [published]
+  create:
+  delete:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    env:
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+    steps:
+      - name: Send notification
+        if: ${{ env.TELEGRAM_BOT_TOKEN != '' && env.TELEGRAM_CHAT_ID != '' }}
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import urllib.parse
+          import urllib.request
+
+          with open(os.environ["GITHUB_EVENT_PATH"], encoding="utf-8") as f:
+              event = json.load(f)
+
+          kind = os.environ["GITHUB_EVENT_NAME"]
+          action = event.get("action", "")
+          repo = os.environ["GITHUB_REPOSITORY"]
+          actor = os.environ["GITHUB_ACTOR"]
+          url = event.get("repository", {}).get("html_url", "https://github.com/" + repo)
+          detail = ""
+
+          if kind == "push":
+              branch = event.get("ref", "").removeprefix("refs/heads/")
+              n = len(event.get("commits", []))
+              detail = f"{n} commit(s) pushed to {branch}"
+              url = event.get("compare") or url
+          elif kind == "pull_request":
+              pr = event["pull_request"]
+              status = "merged" if action == "closed" and pr.get("merged") else action
+              detail = f"PR #{pr['number']} {status}: {pr['title']}"
+              url = pr["html_url"]
+          elif kind == "issues":
+              issue = event["issue"]
+              detail = f"Issue #{issue['number']} {action}: {issue['title']}"
+              url = issue["html_url"]
+          elif kind == "release":
+              release = event["release"]
+              detail = f"Release published: {release.get('tag_name', '')}"
+              url = release["html_url"]
+          elif kind in ("create", "delete"):
+              detail = f"{event.get('ref_type', 'ref')} {event.get('ref', '')} {kind}d"
+          else:
+              detail = "Manual notification test"
+
+          message = f"GitHub update\nRepository: {repo}\nBy: {actor}\n{detail}\n{url}"
+          data = urllib.parse.urlencode({
+              "chat_id": os.environ["TELEGRAM_CHAT_ID"],
+              "text": message[:4096],
+              "disable_web_page_preview": "true",
+          }).encode("utf-8")
+          request = urllib.request.Request(
+              f"https://api.telegram.org/bot{os.environ['TELEGRAM_BOT_TOKEN']}/sendMessage",
+              data=data,
+              method="POST",
+          )
+          with urllib.request.urlopen(request, timeout=15) as response:
+              result = json.load(response)
+          if not result.get("ok"):
+              raise RuntimeError("Telegram rejected the message")
+          PY
+
+      - name: Explain missing configuration
+        if: ${{ env.TELEGRAM_BOT_TOKEN == '' || env.TELEGRAM_CHAT_ID == '' }}
+        run: echo "Add TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID as GitHub Actions secrets to enable notifications."
