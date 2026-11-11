@@ -1482,6 +1482,40 @@ const server = createServer(async (request, response) => {
     return send(response, 200, report);
   }
 
+  if (path === "/admin/analytics/signups" && method === "GET") {
+    const days = state.users
+      .filter((user) => user.roles.includes("volunteer") && !user.mergedIntoUserId)
+      .map((user) =>
+        new Date(new Date(user.createdAt).getTime() + 5 * 60 * 60_000)
+          .toISOString()
+          .slice(0, 10),
+      )
+      .sort();
+    if (!days.length) return send(response, 200, { trend: null });
+    const from = Date.parse(`${days[0]}T00:00:00.000Z`);
+    const to = Date.parse(`${days.at(-1)}T00:00:00.000Z`);
+    const day = 86_400_000;
+    const span = Math.max(1, Math.ceil(((to - from) / day + 1) / 30));
+    const values = Array(Math.floor((to - from) / (span * day)) + 1).fill(0);
+    for (const date of days)
+      values[Math.floor((Date.parse(`${date}T00:00:00.000Z`) - from) / (span * day))] +=
+        1;
+    const peak = Math.max(...values);
+    return send(response, 200, {
+      trend: {
+        from: new Date(from).toISOString(),
+        to: new Date(to).toISOString(),
+        total: days.length,
+        peak,
+        buckets: values.map((value, index) => ({
+          start: new Date(from + index * span * day).toISOString(),
+          value,
+          share: value / peak,
+        })),
+      },
+    });
+  }
+
   if (path === "/admin/analytics" && method === "GET") {
     const days = Number(url.searchParams.get("days") ?? 30);
     if (![30, 90].includes(days))

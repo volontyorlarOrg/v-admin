@@ -29,6 +29,11 @@ export const endpoints = {
   },
 
   statistics: { method: "GET", path: "/admin/statistics", contract: "published" },
+  signupTrend: {
+    method: "GET",
+    path: "/admin/analytics/signups",
+    contract: "published",
+  },
   analytics: { method: "GET", path: "/admin/analytics", contract: "published" },
   audit: { method: "GET", path: "/admin/audit", contract: "published" },
   blogPosts: { method: "GET", path: "/admin/blog", contract: "published" },
