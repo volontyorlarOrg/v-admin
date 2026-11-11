@@ -172,6 +172,47 @@ test("renders rates, trends and breakdowns from the admin data", async ({ page }
   await expect(page.getByText("Attendance confirmed", { exact: true })).toBeVisible();
 });
 
+test("loads the signup trend without reading the volunteer directory", async ({
+  page,
+}) => {
+  await signedIn(page);
+  await page.request.post(`${STUB}/__stub/break`, {
+    data: { path: "/admin/users", status: 503, code: "upstreamUnavailable" },
+  });
+  await page.goto("/en/insights");
+  const joins = page
+    .locator("section")
+    .filter({
+      has: page.getByRole("heading", { name: "Volunteers joining", exact: true }),
+    });
+  await expect(joins).toBeVisible();
+  await expect(joins.locator('[data-slot="state-panel"]')).toHaveCount(0);
+  await expect(joins.getByText(/\d+ volunteers? between/)).toBeVisible();
+});
+
+test("keeps other insights visible when the signup aggregate is unavailable", async ({
+  page,
+}) => {
+  await signedIn(page);
+  await page.request.post(`${STUB}/__stub/break`, {
+    data: {
+      path: "/admin/analytics/signups",
+      status: 503,
+      code: "upstreamUnavailable",
+    },
+  });
+  await page.goto("/en/insights");
+  const joins = page
+    .locator("section")
+    .filter({
+      has: page.getByRole("heading", { name: "Volunteers joining", exact: true }),
+    });
+  await expect(joins.locator('[data-slot="state-panel"]')).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Application pipeline", exact: true }),
+  ).toBeVisible();
+});
+
 test("draws a real zero as no bar", async ({ page }) => {
   await signedIn(page);
 

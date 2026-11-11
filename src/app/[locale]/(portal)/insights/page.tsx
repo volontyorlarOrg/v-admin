@@ -17,7 +17,6 @@ import { loadApplications } from "@/lib/applications/data.server";
 import { navHref } from "@/lib/routing/routes";
 import {
   applicationStatuses,
-  joinTrend,
   regionCoverage,
   submissionTrend,
   vacancyFormats,
@@ -33,7 +32,7 @@ import {
   type PipelineStageKey,
 } from "@/lib/statistics/charts";
 import { loadStatistics } from "@/lib/statistics/data.server";
-import { loadEveryUser } from "@/lib/users/data.server";
+import { loadSignupTrend } from "@/lib/statistics/signup-trend.server";
 import { loadVacancies } from "@/lib/vacancies/data.server";
 
 export const dynamic = "force-dynamic";
@@ -80,7 +79,7 @@ export default async function InsightsPage({
     loadStatistics(),
     loadVacancies(),
     loadApplications(),
-    loadEveryUser(),
+    loadSignupTrend(),
   ]);
 
   const header = <PageHeader title={t("title")} description={t("description")} />;
@@ -128,8 +127,7 @@ export default async function InsightsPage({
   const trend = applicationRows ? submissionTrend(applicationRows) : null;
   const statuses = applicationRows ? applicationStatuses(applicationRows) : [];
 
-  const scan = isReady(users) ? users.data : null;
-  const joins = scan?.complete ? joinTrend(scan.users) : null;
+  const joins = isReady(users) ? users.data.trend : null;
 
   const vacancyRows = isReady(vacancies) ? vacancies.data : null;
   const coverage = vacancyRows ? regionCoverage(vacancyRows) : null;
@@ -281,7 +279,7 @@ export default async function InsightsPage({
           </Panel>
         ) : null}
 
-        {scan ? (
+        {isReady(users) ? (
           <Panel
             title={t("charts.joins.title")}
             description={t("charts.joins.description")}
@@ -322,15 +320,8 @@ export default async function InsightsPage({
                   })}
                 </p>
               </div>
-            ) : scan.complete ? (
-              empty
             ) : (
-              <p className="text-[0.8125rem] text-ink-muted">
-                {t("charts.joins.partial", {
-                  shown: count(scan.users.length),
-                  total: count(scan.total),
-                })}
-              </p>
+              empty
             )}
           </Panel>
         ) : userFailure ? (

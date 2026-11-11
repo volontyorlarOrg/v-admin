@@ -1302,7 +1302,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Replace the answers in an application draft */
+        /** Save a draft or prepare a withdrawn application again */
         patch: operations["ApplicationsController_saveDraft"];
         trace?: never;
     };
@@ -1315,7 +1315,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Validate and submit an application draft */
+        /** Submit a draft or resubmit a withdrawn application */
         post: operations["ApplicationsController_submit"];
         delete?: never;
         options?: never;
@@ -1850,6 +1850,23 @@ export interface paths {
         };
         /** Get global administration statistics */
         get: operations["AdminManagementController_statistics"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/analytics/signups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get all-time volunteer signups in at most 30 Tashkent-day buckets */
+        get: operations["AdminAnalyticsController_signups"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3828,6 +3845,24 @@ export interface components {
         RemovedManualPastEventDto: {
             /** Format: uuid */
             id: string;
+        };
+        SignupTrendBucketDto: {
+            /** Format: date-time */
+            start: string;
+            value: number;
+            share: number;
+        };
+        SignupTrendDto: {
+            /** Format: date-time */
+            from: string;
+            /** Format: date-time */
+            to: string;
+            total: number;
+            peak: number;
+            buckets: components["schemas"]["SignupTrendBucketDto"][];
+        };
+        SignupTrendResponseDto: {
+            trend: components["schemas"]["SignupTrendDto"] | null;
         };
         AnalyticsRangeDto: {
             /** Format: date-time */
@@ -13636,6 +13671,60 @@ export interface operations {
             };
             /** @description Request validation failed */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Request rate limit exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Authentication or an upstream dependency is unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminAnalyticsController_signups: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SignupTrendResponseDto"];
+                };
+            };
+            /** @description Missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Authenticated account cannot perform this operation */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };
