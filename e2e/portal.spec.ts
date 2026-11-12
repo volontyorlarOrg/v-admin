@@ -304,6 +304,9 @@ test.describe("the session", () => {
     if ((page.viewportSize()?.width ?? 1280) < 1024) {
       await page.getByRole("button", { name: "Open the menu" }).click();
     }
+    await expect(
+      page.getByRole("link", { name: "Change password", exact: true }),
+    ).toHaveCount(0);
     await page.getByRole("button", { name: "Sign out" }).click();
 
     await expect(page).toHaveURL(/\/en\/login\?session=signedOut/);
@@ -323,13 +326,16 @@ test.describe("an administrator sees everything", () => {
     await expect(page.getByRole("row", { name: /City sports day/ })).toHaveCount(1);
   });
 
-  test("lists every application", async ({ page }) => {
+  test("removes the applications list and sidebar link", async ({ page }) => {
     await signedIn(page);
-    await page.goto("/en/applications");
-
-    const rows = page.getByRole("row");
-    await expect(rows.filter({ hasText: "Winter book drive" })).not.toHaveCount(0);
-    await expect(rows.filter({ hasText: "City sports day" })).not.toHaveCount(0);
+    await expect(
+      page
+        .getByRole("navigation", { name: "Portal sections" })
+        .first()
+        .getByRole("link", { name: "Applications", exact: true }),
+    ).toHaveCount(0);
+    const response = await page.goto("/en/applications");
+    expect(response?.status()).toBe(404);
   });
 
   test("opens a vacancy another coordinator created", async ({ page }) => {
@@ -923,14 +929,8 @@ test.describe("the vacancy lifecycle", () => {
     await dialog(page).getByRole("button", { name: "Archive", exact: true }).click();
     await expect(page.getByText("This vacancy is archived")).toBeVisible();
 
-    await page.goto("/en/applications?view=closed");
-    await expect(
-      page.getByRole("row").filter({ hasText: "Winter book drive" }),
-    ).not.toHaveCount(0);
-    await page.goto("/en/applications?view=waiting");
-    await expect(
-      page.getByRole("row").filter({ hasText: "Winter book drive" }),
-    ).toHaveCount(0);
+    await page.goto("/en/applications/00000000-0000-4000-8000-000000000601");
+    await expect(page.getByText("Closed", { exact: true }).first()).toBeVisible();
   });
 
   test("edits a draft on its own page and returns to the record", async ({ page }) => {
@@ -1028,16 +1028,6 @@ test.describe("the vacancy lifecycle", () => {
 });
 
 test.describe("review and attendance", () => {
-  test("leaves out applications a volunteer has not sent", async ({ page }) => {
-    await signedIn(page);
-    await page.goto("/en/applications");
-
-    const rows = page.getByRole("row");
-    await expect(rows.filter({ hasText: "Dilnoza Karimova" })).toHaveCount(1);
-    await expect(rows.filter({ hasText: "Jasur Qodirov" })).toHaveCount(0);
-    await expect(page.getByRole("option", { name: "Draft" })).toHaveCount(0);
-  });
-
   test("shows a profile-only application without an empty answers panel", async ({
     page,
   }) => {
@@ -1103,20 +1093,6 @@ test.describe("review and attendance", () => {
     await expect(toast(page)).toContainText("was accepted");
     await expect(page.getByText("See you on the day.")).toBeVisible();
     await expect(page.getByText("Accepted", { exact: true }).first()).toBeVisible();
-  });
-
-  test("decides an application from its row in the list", async ({ page }) => {
-    await signedIn(page);
-    await page.goto("/en/applications?view=waiting");
-
-    const row = page.getByRole("row").filter({ hasText: "City sports day" });
-    await row.getByRole("button", { name: "Accept" }).click();
-    await row.getByRole("button", { name: "Accept" }).click();
-
-    await expect(toast(page)).toContainText("was accepted");
-    await expect(
-      page.getByRole("row").filter({ hasText: "City sports day" }),
-    ).toHaveCount(0);
   });
 
   test("refuses to take back an acceptance once attendance is recorded", async ({
@@ -1509,12 +1485,7 @@ test.describe("every locale and the keyboard", () => {
   test("keeps one h1 per page and a labelled navigation", async ({ page }) => {
     await signedIn(page);
 
-    for (const path of [
-      "/en/dashboard",
-      "/en/vacancies",
-      "/en/applications",
-      "/en/users",
-    ]) {
+    for (const path of ["/en/dashboard", "/en/vacancies", "/en/users"]) {
       await page.goto(path);
       await expect(page.getByRole("heading", { level: 1 }), path).toHaveCount(1);
     }
