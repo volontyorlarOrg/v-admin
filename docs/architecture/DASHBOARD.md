@@ -69,8 +69,8 @@ approval is disabled until what it needs is in place, and the reason is the
 row's side line. **Applications are grouped by vacancy and decided on the
 vacancy's applications desk**, where decisions are staged and sent together —
 the same workflow an organization uses — rather than one by one from the
-dashboard. The applications list and an application's own page still decide a
-single application in its row.
+dashboard. Individual application pages remain available from related records.
+The dashboard links to vacancies for application review.
 
 ## Waiting on organizers
 

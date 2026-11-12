@@ -217,3 +217,6 @@ The directory (`src/lib/audit/directory.ts`, loaded by
 an empty one still renders every event. The audit history adds period presets
 (today, 7 and 30 days in Tashkent time) on top of the action, person and date
 filters, and the person filter lists coordinators and organizations.
+
+The standalone applications list is not available. Review applications on each
+vacancy; individual application records remain available from related records.

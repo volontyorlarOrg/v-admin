@@ -45,15 +45,17 @@ export default async function ApplicationPage({
   const { locale, id } = await params;
   setRequestLocale(locale);
 
-  const [t, attendanceCopy, common, vocabulary, format] = await Promise.all([
-    getTranslations("applications"),
-    getTranslations("attendance"),
-    getTranslations("common"),
-    getTranslations("vocabulary"),
-    getFormatter(),
-  ]);
+  const [t, attendanceCopy, common, vocabulary, format, vacanciesCopy] =
+    await Promise.all([
+      getTranslations("applications"),
+      getTranslations("attendance"),
+      getTranslations("common"),
+      getTranslations("vocabulary"),
+      getFormatter(),
+      getTranslations("vacancies"),
+    ]);
   const languages = new Intl.DisplayNames([locale], { type: "language" });
-  const back = { href: navHref("applications"), label: t("title") };
+  const back = { href: navHref("vacancies"), label: vacanciesCopy("title") };
 
   const loaded = await loadApplication(id);
   const failure = failureOf(loaded);
