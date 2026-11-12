@@ -5,6 +5,7 @@ import {
   HOME_ROUTE,
   NAV_GROUPS,
   PASSWORD_ROUTE,
+  ACCOUNT_ROUTES,
   appRoutes,
   getRoute,
   guardFor,
@@ -75,6 +76,7 @@ describe("the route registry", () => {
   });
 
   it("keeps the account password page out of the navigation", () => {
+    expect(ACCOUNT_ROUTES).not.toContain(PASSWORD_ROUTE);
     expect(getRoute(PASSWORD_ROUTE).inNav).toBe(false);
     expect(getRoute(PASSWORD_ROUTE).path).toBe("/account/change-password");
   });

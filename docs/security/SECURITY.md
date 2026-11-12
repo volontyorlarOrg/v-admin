@@ -103,3 +103,6 @@ development-only ESLint chain (`braces`, `micromatch`, `fast-glob`,
 local project configuration, not user input. A runtime occurrence, another high
 or critical advisory, an audit failure, or expiry fails CI. Upgrade the lint chain
 when a compatible fix is released; do not extend the exception automatically.
+
+The password-change page is omitted from the account menu but remains available
+when a session or the API requires a password change.

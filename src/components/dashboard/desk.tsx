@@ -116,13 +116,13 @@ export async function DashboardDesk({
       applications: {
         value: figure(totals?.applications),
         scope: journey("scope.allTime"),
-        href: `${navHref("applications")}?view=all`,
+        href: navHref("vacancies"),
         tone: "institution" as const,
       },
       accepted: {
         value: figure(totals?.accepted),
         scope: journey("scope.now"),
-        href: `${navHref("applications")}?view=accepted`,
+        href: navHref("vacancies"),
         tone: "earned" as const,
       },
       attended: {
@@ -320,7 +320,7 @@ export async function DashboardDesk({
           key: "decide-theirs",
           count: sum(theirDecide),
           label: journey("waiting.decide", { count: sum(theirDecide) }),
-          href: `${navHref("applications")}?view=waiting`,
+          href: navHref("vacancies"),
           owner: "organizers",
         },
       ]),
@@ -630,7 +630,7 @@ export async function DashboardDesk({
                 countLabel={t("decide.countLabel")}
                 action={
                   <Link
-                    href={`${navHref("applications")}?view=waiting`}
+                    href={navHref("vacancies")}
                     className={linkClass}
                   >
                     {t("decide.all")}

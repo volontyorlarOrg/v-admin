@@ -119,7 +119,7 @@ export const appRoutes: readonly AppRoute[] = [
     path: "/applications",
     area: "portal",
     guard: "session",
-    inNav: true,
+    inNav: false,
     group: "volunteering",
     icon: "inbox",
   },
@@ -228,7 +228,7 @@ export const PASSWORD_ROUTE: RouteKey = "changePassword";
 
 export const navRoutes = appRoutes.filter((route) => route.inNav);
 
-export const ACCOUNT_ROUTES: readonly RouteKey[] = ["activity", "changePassword"];
+export const ACCOUNT_ROUTES: readonly RouteKey[] = ["activity"];
 
 export function navGroupRoutes(group: NavGroup): AppRoute[] {
   return navRoutes.filter((route) => route.group === group);
