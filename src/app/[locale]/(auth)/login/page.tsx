@@ -5,6 +5,7 @@ import { LoginForm } from "@/components/auth/login-form";
 import { FormMessage } from "@/components/forms/form-message";
 import { isAuthConfigured } from "@/lib/auth/config";
 import { isSessionStatus, safeReturnPath } from "@/lib/auth/session";
+import { PolicyLinks } from "@/components/legal/policy-links";
 
 export const dynamic = "force-dynamic";
 
@@ -87,6 +88,7 @@ export default async function LoginPage({
       <p className="mt-6 border-t border-border pt-5 text-sm leading-relaxed text-ink-muted">
         {t("accessNotice")}
       </p>
+      <PolicyLinks locale={locale} />
     </div>
   );
 }

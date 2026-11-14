@@ -60,7 +60,8 @@
       "participants": "Participants",
       "administration": "Administration"
     },
-    "reports": "Reports"
+    "reports": "Reports",
+    "legal": "Data requests"
   },
   "auth": {
     "metaTitle": "Sign in",
@@ -2370,5 +2371,36 @@
     "resolution": "{date} · {name}",
     "unknownAdmin": "Administrator",
     "problem": "Problem description"
+  },
+  "policy": {
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Use"
+  },
+  "legal": {
+    "title": "Data requests",
+    "description": "Requests volunteers send from Settings → Privacy. Do the work first, then record what you did: the volunteer reads your answer in the app.",
+    "open": "Open requests",
+    "countLabel": "requests",
+    "empty": "No open requests",
+    "emptyDescription": "A request appears here as soon as a volunteer sends one.",
+    "kinds": {
+      "access": "Copy of their data",
+      "correction": "Correction",
+      "review": "Review of an automatic decision",
+      "erasure": "Delete account and data",
+      "withdrawal": "Withdraw consent"
+    },
+    "deadlines": {
+      "access": "Answer within 10 days (Article 22).",
+      "correction": "Correct within 3 days (Article 11).",
+      "review": "Written answer within 10 days (Article 24).",
+      "erasure": "Consent is already withdrawn. Delete within 30 days.",
+      "withdrawal": "Consent is already withdrawn. Delete within 30 days unless they consent again."
+    },
+    "answer": "Record answer",
+    "answerLabel": "What was done",
+    "answerHelp": "The volunteer reads this in the app. Say what you actually did, or why you refused.",
+    "answerSubmit": "Save answer",
+    "answered": "Answer saved."
   }
 }

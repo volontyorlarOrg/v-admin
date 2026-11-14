@@ -60,7 +60,8 @@
       "participants": "Ishtirokchilar",
       "administration": "Boshqaruv"
     },
-    "reports": "Muammo xabarlari"
+    "reports": "Muammo xabarlari",
+    "legal": "Maʼlumot soʻrovlari"
   },
   "auth": {
     "metaTitle": "Kirish",
@@ -2370,5 +2371,36 @@
     "resolution": "{date} · {name}",
     "unknownAdmin": "Administrator",
     "problem": "Muammo tavsifi"
+  },
+  "policy": {
+    "privacy": "Maxfiylik siyosati",
+    "terms": "Foydalanish shartlari"
+  },
+  "legal": {
+    "title": "Maʼlumot soʻrovlari",
+    "description": "Volontyorlar Sozlamalar → Maxfiylik boʻlimidan yuboradigan soʻrovlar. Avval ishni bajaring, keyin nima qilinganini yozing: volontyor javobingizni ilovada oʻqiydi.",
+    "open": "Ochiq soʻrovlar",
+    "countLabel": "ta soʻrov",
+    "empty": "Ochiq soʻrov yoʻq",
+    "emptyDescription": "Volontyor soʻrov yuborishi bilan u shu yerda chiqadi.",
+    "kinds": {
+      "access": "Maʼlumotlar nusxasi",
+      "correction": "Tuzatish",
+      "review": "Avtomatik qarorni qayta koʻrib chiqish",
+      "erasure": "Hisob va maʼlumotlarni oʻchirish",
+      "withdrawal": "Rozilikni qaytarib olish"
+    },
+    "deadlines": {
+      "access": "10 kun ichida javob bering (22-modda).",
+      "correction": "3 kun ichida tuzating (11-modda).",
+      "review": "10 kun ichida yozma javob bering (24-modda).",
+      "erasure": "Rozilik allaqachon qaytarib olingan. 30 kun ichida oʻchiring.",
+      "withdrawal": "Rozilik allaqachon qaytarib olingan. Volontyor yana rozilik bermasa, 30 kun ichida oʻchiring."
+    },
+    "answer": "Javobni yozish",
+    "answerLabel": "Nima qilindi",
+    "answerHelp": "Volontyor buni ilovada oʻqiydi. Haqiqatda nima qilganingizni yoki nega rad etganingizni yozing.",
+    "answerSubmit": "Javobni saqlash",
+    "answered": "Javob saqlandi."
   }
 }
