@@ -44,3 +44,13 @@ Unknowns stay explicit. They are not filled with an assumed contract, hostname
 or claim. The endpoint registry is the same discipline applied to the API: an
 operation this portal calls is marked `published`, `announced` or `requested`,
 and a test keeps those labels honest.
+
+## Personal data requests
+
+`/[locale]/legal` lists the open data requests volunteers send from the app,
+oldest first, with who sent each one and the legal deadline for its kind. An
+administrator records what was actually done; the volunteer reads that answer
+in the app. The procedure and deadlines are in
+[`../v-backend/docs/operations/DATA_RIGHTS_AND_CONSENT.md`](../../v-backend/docs/operations/DATA_RIGHTS_AND_CONSENT.md).
+The sign-in page links to the Privacy Policy and Terms on the marketing site
+when `NEXT_PUBLIC_MARKETING_URL` is set.

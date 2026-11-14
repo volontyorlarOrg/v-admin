@@ -19,6 +19,7 @@ export const ROUTE_KEYS = [
   "organizations",
   "audit",
   "reports",
+  "legal",
   "changePassword",
 ] as const;
 
@@ -211,6 +212,15 @@ export const appRoutes: readonly AppRoute[] = [
     inNav: true,
     group: "administration",
     icon: "message-square-warning",
+  },
+  {
+    key: "legal",
+    path: "/legal",
+    area: "portal",
+    guard: "session",
+    inNav: true,
+    group: "participants",
+    icon: "shield-check",
   },
   {
     key: "changePassword",

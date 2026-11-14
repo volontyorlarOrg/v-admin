@@ -27,6 +27,16 @@ export const endpoints = {
     path: "/admin/reports/{id}/status",
     contract: "published",
   },
+  legalRequests: {
+    method: "GET",
+    path: "/admin/legal/requests",
+    contract: "published",
+  },
+  resolveLegalRequest: {
+    method: "PUT",
+    path: "/admin/legal/requests/{id}",
+    contract: "published",
+  },
 
   statistics: { method: "GET", path: "/admin/statistics", contract: "published" },
   signupTrend: {

@@ -1443,6 +1443,44 @@ const server = createServer(async (request, response) => {
   }
   if (admin && !isAdmin(actor)) return send(response, 403, { code: "forbidden" });
 
+  state.legalRequests ??= [
+    {
+      id: "00000000-0000-4000-8000-000000000091",
+      kind: "access",
+      message: "Please send me a copy of my data.",
+      status: "open",
+      resolution: null,
+      createdAt: "2026-11-14T08:00:00.000Z",
+      resolvedAt: null,
+      requester: {
+        id: "00000000-0000-4000-8000-000000000092",
+        displayName: "Dilnoza Karimova",
+        username: "dilnoza",
+        email: "dilnoza@example.test",
+      },
+    },
+  ];
+  if (path === "/admin/legal/requests" && method === "GET")
+    return send(response, 200, {
+      items: state.legalRequests.filter((item) => item.status === "open"),
+    });
+  const legalResolution = /^\/admin\/legal\/requests\/([^/]+)$/.exec(path);
+  if (legalResolution && method === "PUT") {
+    const item = state.legalRequests.find(
+      (request) => request.id === legalResolution[1],
+    );
+    if (!item || item.status !== "open")
+      return send(response, 404, { code: "legalRequestNotFound" });
+    if (typeof body.resolution !== "string" || !body.resolution.trim())
+      return send(response, 422, { code: "validationFailed" });
+    Object.assign(item, {
+      status: "resolved",
+      resolution: body.resolution.trim(),
+      resolvedAt: new Date().toISOString(),
+    });
+    return send(response, 200, { id: item.id, status: "resolved" });
+  }
+
   if (path === "/admin/reports" && method === "GET") {
     const status = url.searchParams.get("status");
     const items = (state.reports ?? []).filter(
