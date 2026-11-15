@@ -130,7 +130,7 @@ export async function verifyAttendanceAction(
 export async function requestAttendanceChangesAction(
   vacancyId: string,
   note: string,
-  flags: Array<{ applicationId: string; note: string }>,
+  flags: Array<{ attendanceId: string; note: string }>,
 ): Promise<CallResult<AttendanceSheet>> {
   return settled(
     await call("requestAttendanceChanges", {

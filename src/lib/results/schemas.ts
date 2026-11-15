@@ -31,7 +31,8 @@ export const sheetValuesSchema = z.object({
 export type SheetValues = z.infer<typeof sheetValuesSchema>;
 
 export const sheetRowSchema = z.object({
-  applicationId: z.string(),
+  applicationId: z.string().nullable(),
+  manuallyAdded: z.boolean(),
   attendanceId: z.string(),
   submittedAt: z.string().nullable(),
   volunteer: z.object({
@@ -80,6 +81,7 @@ export const attendanceSheetSchema = z.object({
   started: z.boolean(),
   ended: z.boolean(),
   requiresVerification: z.boolean(),
+  canVerify: z.boolean().default(true),
   editable: z.boolean(),
   rows: z.array(sheetRowSchema),
   history: z.array(sheetEventSchema),
