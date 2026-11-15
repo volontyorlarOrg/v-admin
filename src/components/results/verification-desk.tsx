@@ -92,7 +92,7 @@ function VerificationDesk({
   const [flags, setFlags] = useState<Record<string, string>>(() =>
     Object.fromEntries(
       sheet.rows.flatMap((row) =>
-        row.reviewNote ? [[row.applicationId, row.reviewNote]] : [],
+        row.reviewNote ? [[row.attendanceId, row.reviewNote]] : [],
       ),
     ),
   );
@@ -113,7 +113,7 @@ function VerificationDesk({
     (event) => event.action === "correction_submitted",
   )?.note;
   const nameOf = (id: string) => {
-    const row = sheet.rows.find((item) => item.applicationId === id);
+    const row = sheet.rows.find((item) => item.attendanceId === id);
     return row?.volunteer.displayName?.trim() || row?.volunteer.username || id;
   };
   const placements = {
@@ -135,7 +135,7 @@ function VerificationDesk({
       const result = await requestAttendanceChangesAction(
         vacancyId,
         note,
-        flagged.map(([applicationId, text]) => ({ applicationId, note: text.trim() })),
+        flagged.map(([attendanceId, text]) => ({ attendanceId, note: text.trim() })),
       );
       if (!result.ok) {
         setError(failure(result.code));
@@ -236,8 +236,8 @@ function VerificationDesk({
             <tbody className="block md:table-row-group">
               {sheet.rows.map((row) => {
                 const values = currentValues(row);
-                const name = nameOf(row.applicationId);
-                const flag = flags[row.applicationId];
+                const name = nameOf(row.attendanceId);
+                const flag = flags[row.attendanceId];
                 const isFlagged = flag !== undefined;
                 const changed =
                   differsFromVerified(row) &&
@@ -245,7 +245,7 @@ function VerificationDesk({
                 const chip = attendanceStatus(values.outcome);
                 return (
                   <tr
-                    key={row.applicationId}
+                    key={row.attendanceId}
                     className={cn(
                       "grid grid-cols-1 gap-y-2 border-b border-border px-5 py-3 last:border-0 md:table-row md:px-0 md:py-0",
                       isFlagged && "bg-danger-muted/50",
@@ -266,6 +266,11 @@ function VerificationDesk({
                           <span className="block truncate text-xs text-ink-muted">
                             @{row.volunteer.username}
                           </span>
+                          {row.manuallyAdded ? (
+                            <span className="block text-xs text-ink-muted">
+                              {sheetCopy("manuallyAdded")}
+                            </span>
+                          ) : null}
                         </span>
                       </span>
                       {isFlagged ? (
@@ -280,7 +285,7 @@ function VerificationDesk({
                             onChange={(event) =>
                               setFlags((state) => ({
                                 ...state,
-                                [row.applicationId]: event.target.value,
+                                [row.attendanceId]: event.target.value,
                               }))
                             }
                             className={cn(
@@ -373,8 +378,8 @@ function VerificationDesk({
                         onClick={() =>
                           setFlags((state) => {
                             const next = { ...state };
-                            if (isFlagged) delete next[row.applicationId];
-                            else next[row.applicationId] = "";
+                            if (isFlagged) delete next[row.attendanceId];
+                            else next[row.attendanceId] = "";
                             return next;
                           })
                         }
