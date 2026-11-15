@@ -1115,7 +1115,7 @@ test.describe("review and attendance", () => {
     await expect(page.getByRole("group", { name: /^Decision: / })).toHaveCount(0);
   });
 
-  test("lists only ended events as due and links straight to the roll call", async ({
+  test("lists events ready for attendance and links straight to the roll call", async ({
     page,
   }) => {
     await signedIn(page);
@@ -1177,14 +1177,16 @@ test.describe("review and attendance", () => {
     await expect(toast(page)).toContainText("Results applied");
   });
 
-  test("keeps attendance shut until the event has started", async ({ page }) => {
+  test("keeps attendance shut more than one hour before the event starts", async ({
+    page,
+  }) => {
     await signedIn(page);
     await page.goto(
       "/en/vacancies/00000000-0000-4000-8000-000000000402?tab=attendance",
     );
 
     await expect(
-      page.getByText("Attendance opens when the event starts"),
+      page.getByText("Attendance opens one hour before the event starts"),
     ).toBeVisible();
     await expect(page.getByRole("button", { name: "Review and apply" })).toHaveCount(0);
   });
@@ -1930,4 +1932,66 @@ test.describe("failures a screen has to explain", () => {
 
     await page.request.post(`${STUB}/__stub/break`, { data: { path: null } });
   });
+});
+
+test("saves attendance and hours within one hour before the event starts", async ({
+  page,
+}) => {
+  await signedIn(page);
+  const vacancyId = "00000000-0000-4000-8000-000000000401";
+  const attendanceUrl = `/en/vacancies/${vacancyId}?tab=attendance`;
+  await page.request.post(`${STUB}/__stub/attendance-timing`, {
+    data: { vacancyId, minutesUntilStart: 61 },
+  });
+  await page.goto(attendanceUrl);
+  await expect(
+    page.getByText("Attendance opens one hour before the event starts"),
+  ).toBeVisible();
+  await expect(page.getByRole("button", { name: "Save draft" })).toHaveCount(0);
+
+  await page.request.post(`${STUB}/__stub/attendance-timing`, {
+    data: { vacancyId, minutesUntilStart: 30 },
+  });
+  await page.goto("/en/attendance");
+  const due = page.locator("#due");
+  await due.locator(`a[href$="${vacancyId}?tab=attendance"]`).click();
+  await page.goto(`/en/vacancies/${vacancyId}`);
+  await page
+    .getByLabel("Attendance of Sardor Toshmatov")
+    .filter({ visible: true })
+    .selectOption("attended");
+  await page
+    .getByLabel("Hours worked by Sardor Toshmatov")
+    .filter({ visible: true })
+    .fill("4");
+  await page.getByRole("button", { name: "Save draft" }).click();
+  await expect(page.getByText("Draft saved.", { exact: true }).first()).toBeVisible();
+  await expect(page.getByRole("button", { name: "Review and apply" })).toBeDisabled();
+  await page.reload();
+  await expect(
+    page.getByLabel("Attendance of Sardor Toshmatov").filter({ visible: true }),
+  ).toHaveValue("attended");
+  await expect(
+    page.getByLabel("Hours worked by Sardor Toshmatov").filter({ visible: true }),
+  ).toHaveValue("4");
+  for (const theme of ["light", "dark"]) {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page
+      .context()
+      .addCookies([{ name: "theme", value: theme, url: new URL(page.url()).origin }]);
+    await page.reload();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+    await expect(
+      page.getByLabel("Hours worked by Sardor Toshmatov").filter({ visible: true }),
+    ).toHaveValue("4");
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= window.innerWidth,
+      ),
+    ).toBe(true);
+    await page.screenshot({
+      path: test.info().outputPath(`early-attendance-${theme}.png`),
+      fullPage: true,
+    });
+  }
 });

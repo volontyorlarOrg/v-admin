@@ -52,8 +52,9 @@ Telegram group link — go to accepted volunteers from the organization's desk.
 
 ## Attendance and results
 
-After the event ends the organization records attendance as a draft and submits
-it. A submitted sheet is **Results to verify** here. Verifying it is the moment
+Attendance and hour entry open one hour before the event starts in both portals.
+The organization saves a draft and submits it after the event ends. Administrators
+can also prepare drafts early, but applying results still waits for the event to end. A submitted sheet is **Results to verify** here. Verifying it is the moment
 hours and XP reach the volunteers; returning it flags rows with notes, which the
 organization corrects and resubmits. Corrections to verified results take the
 same route and re-score only the rows that changed.
