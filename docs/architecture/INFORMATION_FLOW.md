@@ -81,3 +81,9 @@ Every write above is recorded by `v-backend` with its actor. The organization
 reads its own actions from `GET /org/activity`; this portal reads everyone's
 from `GET /admin/audit`, and names an organization's account after its
 organization (see [`ARCHITECTURE.md`](ARCHITECTURE.md#the-audit-timeline)).
+
+## Manual attendance additions
+
+An organization can add a registered participant to attendance without creating an application. The attendance and verification desks label them Manually added and address edits and review flags by attendance ID. Their hours and XP remain uncredited until verification. Verified results must be reopened as a correction before additions, with a correction reason on resubmission. Existing no-show results stay unchanged. See `v-backend/docs/architecture/MANUAL_ATTENDANCE.md`.
+
+Organization-created drafts await submission before the admin can verify them; `canVerify` controls the apply button and its explanation. The backend rechecks this state in the verification transaction.

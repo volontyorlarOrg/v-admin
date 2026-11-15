@@ -1995,3 +1995,21 @@ test("saves attendance and hours within one hour before the event starts", async
     });
   }
 });
+
+test("waits for the organizer submission before an administrator can apply a draft", async ({
+  page,
+}) => {
+  await page.request.post(`${STUB}/__stub/unsubmitted-org-sheet`, {
+    data: { vacancyId: "00000000-0000-4000-8000-000000000401" },
+  });
+  await signedIn(page);
+  await page.goto("/en/vacancies/00000000-0000-4000-8000-000000000401?tab=attendance");
+  await expect(
+    page.getByText(
+      "Waiting for the organizer to submit these results for verification.",
+    ),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Review and apply", exact: true }),
+  ).toBeDisabled();
+});
