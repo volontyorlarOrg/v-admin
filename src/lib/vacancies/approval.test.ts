@@ -9,6 +9,8 @@ import {
   canRejectVacancy,
   canRequestVacancyChanges,
   canSubmitForApproval,
+  eventEndsAt,
+  hasEventEnded,
   hasMeetingCredentials,
   isAttendanceOpen,
   missingForApproval,
@@ -173,19 +175,56 @@ describe("hasMeetingCredentials", () => {
   });
 });
 
-describe("when attendance opens", () => {
+describe("when the event ends", () => {
   it("opens when the event ends", () => {
-    expect(attendanceOpensAt(ready)?.toISOString()).toBe("2026-10-01T15:00:00.000Z");
+    expect(eventEndsAt(ready)?.toISOString()).toBe("2026-10-01T15:00:00.000Z");
   });
 
   it("falls back to the start for a legacy record with no end", () => {
-    expect(attendanceOpensAt({ startsAt: ready.startsAt })?.toISOString()).toBe(
+    expect(eventEndsAt({ startsAt: ready.startsAt })?.toISOString()).toBe(
       "2026-10-01T09:00:00.000Z",
     );
   });
 
   it("stays shut until that moment has passed", () => {
-    expect(isAttendanceOpen(ready, new Date("2026-10-01T14:59:00.000Z"))).toBe(false);
-    expect(isAttendanceOpen(ready, new Date("2026-10-01T15:00:00.000Z"))).toBe(true);
+    expect(hasEventEnded(ready, new Date("2026-10-01T14:59:00.000Z"))).toBe(false);
+    expect(hasEventEnded(ready, new Date("2026-10-01T15:00:00.000Z"))).toBe(true);
+  });
+});
+
+describe("when attendance recording opens", () => {
+  const scheduled = {
+    startsAt: "2026-10-01T09:00:00.000Z",
+    endsAt: "2026-10-01T15:00:00.000Z",
+  };
+
+  it("opens exactly one hour before the start, regardless of the end time", () => {
+    expect(attendanceOpensAt(scheduled)?.toISOString()).toBe(
+      "2026-10-01T08:00:00.000Z",
+    );
+    expect(attendanceOpensAt({ startsAt: scheduled.startsAt })?.toISOString()).toBe(
+      "2026-10-01T08:00:00.000Z",
+    );
+    expect(isAttendanceOpen(scheduled, new Date("2026-10-01T07:59:59.999Z"))).toBe(
+      false,
+    );
+    expect(isAttendanceOpen(scheduled, new Date("2026-10-01T08:00:00.000Z"))).toBe(
+      true,
+    );
+    expect(isAttendanceOpen(scheduled, new Date("2026-10-01T08:30:00.000Z"))).toBe(
+      true,
+    );
+    expect(hasEventEnded(scheduled, new Date("2026-10-01T08:30:00.000Z"))).toBe(false);
+  });
+
+  it("uses the same moment across time zones and midnight", () => {
+    expect(
+      attendanceOpensAt({ startsAt: "2026-10-02T00:30:00+05:00" })?.toISOString(),
+    ).toBe("2026-10-01T18:30:00.000Z");
+  });
+
+  it("keeps recording closed when the start is unknown", () => {
+    expect(attendanceOpensAt({ startsAt: "", endsAt: scheduled.endsAt })).toBeNull();
+    expect(isAttendanceOpen({ startsAt: "invalid" }, new Date())).toBe(false);
   });
 });
