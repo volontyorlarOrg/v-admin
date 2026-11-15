@@ -53,6 +53,7 @@ import {
   canApproveVacancy,
   canEditVacancy,
   canPublishVacancy,
+  isAttendanceOpen,
   missingForApproval,
   vacancyStateOf,
 } from "@/lib/vacancies/approval";
@@ -151,14 +152,14 @@ export default async function VacancyPage({
       application.status === "submitted" || application.status === "under_review",
   );
   const published = state === "approved" || state === "archived";
-  const started = new Date(vacancy.startsAt) <= now;
+  const attendanceOpen = isAttendanceOpen(vacancy, now);
   const tab: VacancyTab = isVacancyTab(requestedTab)
     ? requestedTab
     : vacancy.attendanceSheet?.status === "submitted"
       ? "attendance"
       : !published
         ? "details"
-        : started && accepted.length > 0
+        : attendanceOpen && accepted.length > 0
           ? "attendance"
           : "applications";
   const tabHref = (value: VacancyTab) => `${vacancyHref(vacancy.id)}?tab=${value}`;

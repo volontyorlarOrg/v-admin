@@ -147,9 +147,8 @@ export function attendanceOpensAt(vacancy: {
   startsAt: string;
   endsAt?: string | undefined;
 }): Date | null {
-  const source = isMoment(vacancy.endsAt) ? vacancy.endsAt : vacancy.startsAt;
-  if (!isMoment(source)) return null;
-  return new Date(source as string);
+  if (!isMoment(vacancy.startsAt)) return null;
+  return new Date(Date.parse(vacancy.startsAt) - 60 * 60 * 1000);
 }
 
 export function isAttendanceOpen(
@@ -158,4 +157,21 @@ export function isAttendanceOpen(
 ): boolean {
   const opensAt = attendanceOpensAt(vacancy);
   return opensAt !== null && now.getTime() >= opensAt.getTime();
+}
+
+export function eventEndsAt(vacancy: {
+  startsAt: string;
+  endsAt?: string | undefined;
+}): Date | null {
+  const source = isMoment(vacancy.endsAt) ? vacancy.endsAt : vacancy.startsAt;
+  if (!isMoment(source)) return null;
+  return new Date(source as string);
+}
+
+export function hasEventEnded(
+  vacancy: { startsAt: string; endsAt?: string | undefined },
+  now: Date,
+): boolean {
+  const endsAt = eventEndsAt(vacancy);
+  return endsAt !== null && now.getTime() >= endsAt.getTime();
 }
