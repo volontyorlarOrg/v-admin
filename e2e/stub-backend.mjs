@@ -526,12 +526,12 @@ function sheetView(item) {
     reviewedAt: sheet?.reviewedAt ?? null,
     reviewNote: sheet?.reviewNote ?? null,
     verifiedAt: sheet?.verifiedAt ?? null,
-    opensAt: item.startsAt,
+    opensAt: new Date(Date.parse(item.startsAt) - 60 * 60 * 1000).toISOString(),
     submittableAt: item.endsAt ?? item.startsAt,
     started: Date.now() >= Date.parse(item.startsAt),
     ended: Date.now() >= attendanceOpensAt(item),
     requiresVerification: false,
-    editable: Date.now() >= Date.parse(item.startsAt),
+    editable: Date.now() >= Date.parse(item.startsAt) - 60 * 60 * 1000,
     rows: accepted.map((candidate) => {
       const person = userById(candidate.volunteerId);
       const attendance = candidate.attendance;
@@ -1285,6 +1285,16 @@ const server = createServer(async (request, response) => {
     reset();
     return send(response, 200, { status: "reset" });
   }
+  if (path === "/__stub/attendance-timing" && method === "POST") {
+    const item = state.vacancies.find((candidate) => candidate.id === body.vacancyId);
+    if (!item) return send(response, 404, { code: "opportunityNotFound" });
+    item.startsAt = new Date(
+      Date.now() + body.minutesUntilStart * 60 * 1000,
+    ).toISOString();
+    item.endsAt = new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString();
+    return send(response, 200, item);
+  }
+
   if (path === "/__stub/reports" && method === "POST") {
     const user = state.users.find((item) => item.roles.includes("volunteer"));
     state.reports = [
@@ -1670,6 +1680,9 @@ const server = createServer(async (request, response) => {
       return send(response, 200, sheetView(item));
     }
     if (verb === "attendance-sheet" && method === "PUT") {
+      if (Date.now() < Date.parse(item.startsAt) - 60 * 60 * 1000) {
+        return send(response, 409, { code: "attendanceNotOpen" });
+      }
       if (!writeDraft(item, body.entries ?? [])) {
         return send(response, 404, { code: "attendanceNotFound" });
       }

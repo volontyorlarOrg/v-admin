@@ -722,10 +722,10 @@
   },
   "attendance": {
     "title": "Ishtirok",
-    "description": "Har bir tadbir tugagach, kim kelganini belgilang. Volontyorlar soat va XPni faqat belgilangan davomatdan oladi.",
+    "description": "Har bir tadbir boshlanishidan bir soat oldin davomat va soatlarni kiriting. Soat va XP natijalar tasdiqlangach hisobga olinadi.",
     "empty": {
       "title": "Belgilanadigan davomat yoʻq",
-      "description": "Qabul qilingan volontyorlari bor tadbir tugagach, uning davomati shu yerda paydo boʻladi."
+      "description": "Qabul qilingan volontyorlari bor tadbirlar davomati boshlanishidan bir soat oldin shu yerda paydo boʻladi."
     },
     "table": {
       "volunteer": "Volontyor",
@@ -752,12 +752,12 @@
     "resolved": "{when} da hal qilingan",
     "queue": {
       "waiting": "{count, plural, other {# koʻngillini tasdiqlash kerak}}",
-      "opensAt": "Tadbir tugagach, {when} da ochiladi.",
-      "opensUnknown": "Tadbir tugagach ochiladi.",
+      "opensAt": "Tadbir boshlanishidan bir soat oldin, {when} da ochiladi.",
+      "opensUnknown": "Tadbir boshlanishidan bir soat oldin ochiladi.",
       "resolvedCount": "{count, plural, other {# koʻngilli allaqachon tasdiqlangan}}",
       "take": "Davomatni belgilash",
       "view": "Ochish",
-      "ended": "{when} tugagan",
+      "opened": "Davomat {when} ochildi",
       "accepted": "{count, plural, other {# koʻngilli qabul qilingan}}",
       "number": "Raqam",
       "verify": "Tekshirish",
@@ -790,10 +790,10 @@
     "sections": {
       "due": "Davomat belgilanishi kerak",
       "dueLabel": "kutmoqda",
-      "dueDescription": "Tugagan, lekin hali belgilanmagan volontyorlari bor tadbirlar.",
+      "dueDescription": "Davomati ochilgan, lekin hali belgilanmagan volontyorlari bor tadbirlar.",
       "upcoming": "Oldinda",
       "upcomingLabel": "oldinda",
-      "upcomingDescription": "Har bir davomat oʻz tadbiri tugagach ochiladi.",
+      "upcomingDescription": "Har bir davomat tadbir boshlanishidan bir soat oldin ochiladi.",
       "recorded": "Belgilangan",
       "recordedLabel": "belgilangan",
       "verify": "Tekshiriladigan natijalar",
@@ -1828,7 +1828,7 @@
         "description": "Davomat siz qabul qilgan arizachilar uchun belgilanadi."
       },
       "notOpen": {
-        "title": "Davomat tadbir boshlanganda ochiladi",
+        "title": "Davomat tadbir boshlanishidan bir soat oldin ochiladi",
         "description": "{count, plural, other {Qabul qilingan # ta volontyorni {when} dan belgilash mumkin.}}"
       },
       "awaiting": {
