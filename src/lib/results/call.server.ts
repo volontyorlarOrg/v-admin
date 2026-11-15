@@ -11,7 +11,7 @@ export type CallFailure = {
   ok: false;
   code: string;
   applicationIds?: string[];
-  problems?: Array<{ applicationId: string; reason: string }>;
+  problems?: Array<{ attendanceId: string; reason: string }>;
   fields?: Record<string, string[]>;
 };
 
@@ -31,9 +31,9 @@ function failureFrom(error: unknown): CallFailure {
     ? details.problems.flatMap((item) =>
         item &&
         typeof item === "object" &&
-        typeof (item as { applicationId?: unknown }).applicationId === "string" &&
+        typeof (item as { attendanceId?: unknown }).attendanceId === "string" &&
         typeof (item as { reason?: unknown }).reason === "string"
-          ? [item as { applicationId: string; reason: string }]
+          ? [item as { attendanceId: string; reason: string }]
           : [],
       )
     : undefined;
