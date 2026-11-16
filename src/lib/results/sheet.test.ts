@@ -25,6 +25,7 @@ const RULES: XpRules = {
 function sheetRow(overrides: Partial<SheetRow> = {}): SheetRow {
   return {
     applicationId: "application",
+    manuallyAdded: false,
     attendanceId: "attendance",
     submittedAt: null,
     volunteer: { id: "v", displayName: "Rano", username: "rano.k", avatarUrl: null },
@@ -44,7 +45,7 @@ function sheetRow(overrides: Partial<SheetRow> = {}): SheetRow {
 
 function row(overrides: Partial<EditableRow> = {}): EditableRow {
   return {
-    applicationId: "application",
+    attendanceId: "attendance",
     outcome: "attended",
     hours: "12",
     placement: null,
@@ -116,7 +117,7 @@ describe("attendance sheet rows", () => {
 
   it("sends hours only for attended volunteering and a placement only for competitions", () => {
     expect(toEntry(row({ placement: "winner" }), "volunteering")).toEqual({
-      applicationId: "application",
+      attendanceId: "attendance",
       outcome: "attended",
       hours: 12,
       placement: null,
@@ -127,7 +128,7 @@ describe("attendance sheet rows", () => {
       placement: "attendee",
     });
     expect(toEntry(row({ outcome: null }), "volunteering")).toEqual({
-      applicationId: "application",
+      attendanceId: "attendance",
       outcome: null,
     });
   });
@@ -135,16 +136,16 @@ describe("attendance sheet rows", () => {
   it("sends only the rows that changed", () => {
     const saved = [
       row(),
-      row({ applicationId: "other", outcome: "excused", hours: "" }),
+      row({ attendanceId: "other", outcome: "excused", hours: "" }),
     ];
     const edited = [
       row({ hours: "12 " }),
-      row({ applicationId: "other", outcome: "no_show", hours: "" }),
+      row({ attendanceId: "other", outcome: "no_show", hours: "" }),
     ];
 
     expect(changedEntries(edited, saved, "volunteering")).toEqual([
       {
-        applicationId: "other",
+        attendanceId: "other",
         outcome: "no_show",
         hours: null,
         placement: null,

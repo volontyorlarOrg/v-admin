@@ -1,8 +1,8 @@
 import type { Application, Organization, Vacancy } from "@/lib/api/schemas";
 import { isSameTashkentDay } from "@/lib/datetime";
 import {
-  attendanceOpensAt,
-  isAttendanceOpen,
+  eventEndsAt,
+  hasEventEnded,
   missingForApproval,
   vacancyStateOf,
   type ApprovalRequirement,
@@ -149,7 +149,7 @@ export function rollCallsDue(
       startsAt: application.opportunity?.startsAt ?? "",
       endsAt: application.opportunity?.endsAt,
     };
-    if (!timing.startsAt || !isAttendanceOpen(timing, now)) continue;
+    if (!timing.startsAt || !hasEventEnded(timing, now)) continue;
     const sheet = vacancy?.attendanceSheet;
     if (sheet?.status === "submitted") continue;
     if (sheet?.status === "verified" && !sheet.correction) continue;
@@ -158,7 +158,7 @@ export function rollCallsDue(
       vacancyId: application.opportunityId,
       title:
         vacancy?.title ?? application.opportunity?.title ?? application.opportunityId,
-      endedAt: attendanceOpensAt(timing),
+      endedAt: eventEndsAt(timing),
       awaiting: 0,
       resolved: 0,
     };

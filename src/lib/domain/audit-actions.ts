@@ -17,6 +17,7 @@ export const AUDIT_ACTIONS = [
   "application.closed",
   "application.withdrawn",
   "attendance.resolved",
+  "attendance.volunteer_added",
   "past_event_roster.submitted",
   "past_event_request.submitted",
   "past_event_request.approved",
