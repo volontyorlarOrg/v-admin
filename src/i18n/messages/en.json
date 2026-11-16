@@ -1743,6 +1743,13 @@
       "title": "{count, plural, one {# accepted volunteer} other {# accepted volunteers}}",
       "titleCompetition": "{count, plural, one {# participant} other {# participants}}",
       "caption": "Attendance of accepted volunteers",
+      "search": "Search by name or username",
+      "matches": "Showing {count} of {total}",
+      "selectMatches": "Select every matching volunteer",
+      "noMatches": "No volunteers match this search.",
+      "clearSearch": "Clear search",
+      "viewProfile": "View profile",
+      "profileFor": "View profile of {name} (opens in a new tab)",
       "status": {
         "draft": "Draft",
         "submitted": "Awaiting verification",

@@ -50,6 +50,16 @@ export function editableRow(row: SheetRow): EditableRow {
   };
 }
 
+export function matchesSheetVolunteer(row: SheetRow, query: string): boolean {
+  const search = query.trim().toLocaleLowerCase().replace(/^@/, "");
+  return (
+    !search ||
+    `${row.volunteer.displayName ?? ""} ${row.volunteer.username}`
+      .toLocaleLowerCase()
+      .includes(search)
+  );
+}
+
 export function parseHours(text: string): number | null {
   const trimmed = text.trim().replace(",", ".");
   if (!trimmed) return null;
