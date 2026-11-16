@@ -5,6 +5,7 @@ import {
   changedEntries,
   differsFromVerified,
   editableRow,
+  matchesSheetVolunteer,
   parseHours,
   previewXp,
   rowProblem,
@@ -52,6 +53,41 @@ function row(overrides: Partial<EditableRow> = {}): EditableRow {
     ...overrides,
   };
 }
+
+describe("attendance volunteer search", () => {
+  it("matches names and usernames without case, surrounding spaces or a leading at sign", () => {
+    const volunteer = sheetRow();
+    expect(matchesSheetVolunteer(volunteer, "  RANO  ")).toBe(true);
+    expect(matchesSheetVolunteer(volunteer, "@RANO.K")).toBe(true);
+    expect(matchesSheetVolunteer(volunteer, "missing")).toBe(false);
+    expect(matchesSheetVolunteer(volunteer, "   ")).toBe(true);
+  });
+
+  it("finds a volunteer by username when their display name is missing", () => {
+    const volunteer = sheetRow({
+      volunteer: { id: "v", displayName: null, username: "rano.k", avatarUrl: null },
+    });
+    expect(matchesSheetVolunteer(volunteer, "@rano.k")).toBe(true);
+    expect(matchesSheetVolunteer(volunteer, "Rano Karimova")).toBe(false);
+  });
+
+  it("matches inside one field, not across the name and the username", () => {
+    const volunteer = sheetRow({
+      volunteer: { id: "v", displayName: "Rano Karimova", username: "rano.k", avatarUrl: null },
+    });
+    expect(matchesSheetVolunteer(volunteer, "rano   karimova")).toBe(true);
+    expect(matchesSheetVolunteer(volunteer, "karimova rano")).toBe(false);
+  });
+
+  it("ignores the Uzbek apostrophe marks, typed or not", () => {
+    const volunteer = sheetRow({
+      volunteer: { id: "v", displayName: "Gʻayrat Oʻktamov", username: "gayrat", avatarUrl: null },
+    });
+    expect(matchesSheetVolunteer(volunteer, "g'ayrat")).toBe(true);
+    expect(matchesSheetVolunteer(volunteer, "O’ktamov")).toBe(true);
+    expect(matchesSheetVolunteer(volunteer, "gayrat oktamov")).toBe(true);
+  });
+});
 
 describe("attendance sheet rows", () => {
   it("starts from the draft and falls back to the verified result", () => {
