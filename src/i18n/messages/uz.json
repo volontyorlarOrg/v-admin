@@ -1743,6 +1743,13 @@
       "title": "{count, plural, other {# ta qabul qilingan volontyor}}",
       "titleCompetition": "{count, plural, other {# ta ishtirokchi}}",
       "caption": "Qabul qilingan volontyorlar davomati",
+      "search": "Ism yoki foydalanuvchi nomi boʻyicha qidirish",
+      "matches": "{total} tadan {count} tasi koʻrsatilmoqda",
+      "selectMatches": "Topilgan barcha volontyorlarni tanlash",
+      "noMatches": "Qidiruvga mos volontyorlar topilmadi.",
+      "clearSearch": "Qidiruvni tozalash",
+      "viewProfile": "Profilni koʻrish",
+      "profileFor": "{name} profilini koʻrish (yangi varaqda ochiladi)",
       "status": {
         "draft": "Qoralama",
         "submitted": "Tekshiruvda",

@@ -52,6 +52,13 @@ Telegram group link — go to accepted volunteers from the organization's desk.
 
 ## Attendance and results
 
+The attendance desk searches accepted volunteers by name or username in page
+memory, preserving unsaved results and keeping names out of the URL. Changing
+the search clears checkbox selection; select-all and bulk edits apply only to
+the visible matches. Totals, validation, saving and submission always cover the
+full sheet. Each row opens the application's submitted profile in a new tab so
+the roll call stays open.
+
 After the event ends the organization records attendance as a draft and submits
 it. A submitted sheet is **Results to verify** here. Verifying it is the moment
 hours and XP reach the volunteers; returning it flags rows with notes, which the
