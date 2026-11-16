@@ -52,15 +52,17 @@ Telegram group link — go to accepted volunteers from the organization's desk.
 
 ## Attendance and results
 
-The attendance desk searches accepted volunteers by name or username in page
-memory, preserving unsaved results and keeping names out of the URL. Changing
-the search clears checkbox selection; select-all and bulk edits apply only to
-the visible matches. Totals, validation, saving and submission always cover the
-full sheet. Each row opens the application's submitted profile in a new tab so
-the roll call stays open.
+The attendance desk searches volunteers by name or username in page memory,
+preserving unsaved results and keeping names out of the URL. Changing the search
+clears checkbox selection; select-all and bulk edits apply only to the visible
+matches. Totals, validation, saving and submission always cover the full sheet.
+Each row opens the volunteer's profile in a new tab so the roll call stays open:
+the submitted application profile, or the user record for a manually added
+volunteer who has no application.
 
-After the event ends the organization records attendance as a draft and submits
-it. A submitted sheet is **Results to verify** here. Verifying it is the moment
+Attendance and hour entry open one hour before the event starts in both portals.
+The organization saves a draft and submits it after the event ends. Administrators
+can also prepare drafts early, but applying results still waits for the event to end. A submitted sheet is **Results to verify** here. Verifying it is the moment
 hours and XP reach the volunteers; returning it flags rows with notes, which the
 organization corrects and resubmits. Corrections to verified results take the
 same route and re-score only the rows that changed.
@@ -87,3 +89,9 @@ Every write above is recorded by `v-backend` with its actor. The organization
 reads its own actions from `GET /org/activity`; this portal reads everyone's
 from `GET /admin/audit`, and names an organization's account after its
 organization (see [`ARCHITECTURE.md`](ARCHITECTURE.md#the-audit-timeline)).
+
+## Manual attendance additions
+
+An organization can add a registered participant to attendance without creating an application. The attendance and verification desks label them Manually added and address edits and review flags by attendance ID. Their hours and XP remain uncredited until verification. Verified results must be reopened as a correction before additions, with a correction reason on resubmission. Existing no-show results stay unchanged. See `v-backend/docs/architecture/MANUAL_ATTENDANCE.md`.
+
+Organization-created drafts await submission before the admin can verify them; `canVerify` controls the apply button and its explanation. The backend rechecks this state in the verification transaction.

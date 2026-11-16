@@ -526,18 +526,20 @@ function sheetView(item) {
     reviewedAt: sheet?.reviewedAt ?? null,
     reviewNote: sheet?.reviewNote ?? null,
     verifiedAt: sheet?.verifiedAt ?? null,
-    opensAt: item.startsAt,
+    opensAt: new Date(Date.parse(item.startsAt) - 60 * 60 * 1000).toISOString(),
     submittableAt: item.endsAt ?? item.startsAt,
     started: Date.now() >= Date.parse(item.startsAt),
     ended: Date.now() >= attendanceOpensAt(item),
     requiresVerification: false,
-    editable: Date.now() >= Date.parse(item.startsAt),
+    editable: Date.now() >= Date.parse(item.startsAt) - 60 * 60 * 1000,
+    canVerify: !item.requiresResultsSubmission || sheet?.status === "submitted",
     rows: accepted.map((candidate) => {
       const person = userById(candidate.volunteerId);
       const attendance = candidate.attendance;
       return {
         applicationId: candidate.id,
         attendanceId: attendance.id,
+        manuallyAdded: false,
         submittedAt: candidate.submittedAt,
         volunteer: {
           id: candidate.volunteerId,
@@ -560,8 +562,10 @@ function sheetView(item) {
 
 function writeDraft(item, entries) {
   for (const entry of entries) {
-    const target = acceptedWithAttendance(item).find(
-      (candidate) => candidate.id === entry.applicationId,
+    const target = acceptedWithAttendance(item).find((candidate) =>
+      entry.attendanceId
+        ? candidate.attendance?.id === entry.attendanceId
+        : candidate.id === entry.applicationId,
     );
     if (!target) return false;
     target.attendance.draft =
@@ -1285,6 +1289,16 @@ const server = createServer(async (request, response) => {
     reset();
     return send(response, 200, { status: "reset" });
   }
+  if (path === "/__stub/attendance-timing" && method === "POST") {
+    const item = state.vacancies.find((candidate) => candidate.id === body.vacancyId);
+    if (!item) return send(response, 404, { code: "opportunityNotFound" });
+    item.startsAt = new Date(
+      Date.now() + body.minutesUntilStart * 60 * 1000,
+    ).toISOString();
+    item.endsAt = new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString();
+    return send(response, 200, item);
+  }
+
   if (path === "/__stub/reports" && method === "POST") {
     const user = state.users.find((item) => item.roles.includes("volunteer"));
     state.reports = [
@@ -1327,6 +1341,11 @@ const server = createServer(async (request, response) => {
     return send(response, 200, { status: "ready" });
   }
 
+  if (path === "/__stub/unsubmitted-org-sheet" && method === "POST") {
+    const item = state.vacancies.find((candidate) => candidate.id === body.vacancyId);
+    item.requiresResultsSubmission = true;
+    return send(response, 200, sheetView(item));
+  }
   if (path === "/__stub/submit-sheet" && method === "POST") {
     const item = state.vacancies.find((candidate) => candidate.id === body.vacancyId);
     if (!item) return send(response, 404, { code: "opportunityNotFound" });
@@ -1670,12 +1689,17 @@ const server = createServer(async (request, response) => {
       return send(response, 200, sheetView(item));
     }
     if (verb === "attendance-sheet" && method === "PUT") {
+      if (Date.now() < Date.parse(item.startsAt) - 60 * 60 * 1000) {
+        return send(response, 409, { code: "attendanceNotOpen" });
+      }
       if (!writeDraft(item, body.entries ?? [])) {
         return send(response, 404, { code: "attendanceNotFound" });
       }
       return send(response, 200, sheetView(item));
     }
     if (verb === "attendance-sheet/verify" && method === "POST") {
+      if (!sheetView(item).canVerify)
+        return send(response, 409, { code: "attendanceSheetNotSubmitted" });
       if (Date.now() < attendanceOpensAt(item)) {
         return send(response, 409, { code: "attendanceNotOpen" });
       }
@@ -1741,8 +1765,11 @@ const server = createServer(async (request, response) => {
       }
       for (const candidate of acceptedWithAttendance(item)) {
         candidate.attendance.reviewNote =
-          (body.flags ?? []).find((flag) => flag.applicationId === candidate.id)
-            ?.note ?? null;
+          (body.flags ?? []).find((flag) =>
+            flag.attendanceId
+              ? flag.attendanceId === candidate.attendance?.id
+              : flag.applicationId === candidate.id,
+          )?.note ?? null;
       }
       const sheet = sheetEvent(item, "changes_requested", body.note, actor);
       Object.assign(sheet, {

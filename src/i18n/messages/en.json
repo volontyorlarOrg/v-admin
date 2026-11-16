@@ -215,7 +215,8 @@
     "competitionHoursNotAllowed": "Competition opportunities cannot include volunteer hours.",
     "opportunityKindLocked": "The type cannot change after publication or application.",
     "reportChanged": "Another administrator changed this report. Reload the page before trying again.",
-    "reportNotFound": "This report could not be found."
+    "reportNotFound": "This report could not be found.",
+    "attendanceVolunteerAlreadyAdded": "This volunteer is already in attendance. Review their result on the Attendance tab."
   },
   "dashboard": {
     "title": "Insights",
@@ -722,10 +723,10 @@
   },
   "attendance": {
     "title": "Attendance",
-    "description": "Record who turned up once each event ends. Volunteers earn their hours and XP only from recorded attendance.",
+    "description": "Record attendance and hours from one hour before each event starts. Hours and XP count only after results are verified.",
     "empty": {
       "title": "No roll call is due",
-      "description": "When an event with accepted volunteers ends, its roll call appears here."
+      "description": "Roll calls appear here from one hour before events with accepted volunteers start."
     },
     "table": {
       "volunteer": "Volunteer",
@@ -752,12 +753,12 @@
     "resolved": "Resolved {when}",
     "queue": {
       "waiting": "{count, plural, one {# volunteer to confirm} other {# volunteers to confirm}}",
-      "opensAt": "Opens {when}, once the event has ended.",
-      "opensUnknown": "Opens once the event has ended.",
+      "opensAt": "Opens {when}, one hour before the event starts.",
+      "opensUnknown": "Opens one hour before the event starts.",
       "resolvedCount": "{count, plural, one {# volunteer already confirmed} other {# volunteers already confirmed}}",
       "take": "Take roll call",
       "view": "Open",
-      "ended": "Ended {when}",
+      "opened": "Attendance opened {when}",
       "accepted": "{count, plural, one {# volunteer accepted} other {# volunteers accepted}}",
       "number": "Number",
       "verify": "Verify",
@@ -790,10 +791,10 @@
     "sections": {
       "due": "Roll calls due",
       "dueLabel": "due",
-      "dueDescription": "Events that have ended with volunteers still unrecorded.",
+      "dueDescription": "Events open for attendance with volunteers still unrecorded.",
       "upcoming": "Coming up",
       "upcomingLabel": "upcoming",
-      "upcomingDescription": "Each roll call opens when its event ends.",
+      "upcomingDescription": "Each roll call opens one hour before its event starts.",
       "recorded": "Recorded",
       "recordedLabel": "recorded",
       "verify": "Results to verify",
@@ -1158,7 +1159,8 @@
       "auth_google_link": "Google account linked",
       "auth_telegram_link": "Telegram account linked",
       "auth_account_merge_requested": "Account merge requested",
-      "auth_account_merge_completed": "Accounts merged"
+      "auth_account_merge_completed": "Accounts merged",
+      "attendance_volunteer_added": "Added a volunteer to attendance"
     },
     "day": {
       "today": "Today",
@@ -1740,9 +1742,9 @@
       }
     },
     "sheet": {
-      "title": "{count, plural, one {# accepted volunteer} other {# accepted volunteers}}",
+      "title": "{count, plural, one {# volunteer} other {# volunteers}}",
       "titleCompetition": "{count, plural, one {# participant} other {# participants}}",
-      "caption": "Attendance of accepted volunteers",
+      "caption": "Volunteer attendance",
       "search": "Search by name or username",
       "matches": "Showing {count} of {total}",
       "selectMatches": "Select every matching volunteer",
@@ -1828,14 +1830,15 @@
         "saved": "All changes saved.",
         "save": "Save draft",
         "submit": "Review and submit",
-        "apply": "Review and apply"
+        "apply": "Review and apply",
+        "awaitingSubmission": "Waiting for the organizer to submit these results for verification."
       },
       "empty": {
         "title": "No accepted volunteers",
         "description": "Attendance is recorded for the applicants you accept."
       },
       "notOpen": {
-        "title": "Attendance opens when the event starts",
+        "title": "Attendance opens one hour before the event starts",
         "description": "{count, plural, one {You can record the # accepted volunteer from {when}.} other {You can record the # accepted volunteers from {when}.}}"
       },
       "awaiting": {
@@ -1869,14 +1872,16 @@
           "correction_submitted": "Correction submitted",
           "changes_requested": "Changes requested",
           "verified": "Verified",
-          "applied": "Recorded by an administrator"
+          "applied": "Recorded by an administrator",
+          "volunteer_added": "Volunteer added manually"
         }
       },
       "savedToast": "Draft saved.",
       "discardedToast": "Correction cancelled.",
       "submittedToast": "Submitted for verification.",
       "appliedToast": "Results applied. Hours and XP were added.",
-      "incompleteNames": "Still to record: {names}."
+      "incompleteNames": "Still to record: {names}.",
+      "manuallyAdded": "Manually added"
     },
     "finish": {
       "titleSubmit": "Submit attendance for verification?",
@@ -1966,7 +1971,7 @@
       "telegramGroupLinkInvalid": "Use a Telegram link such as https://t.me/your_group.",
       "attendanceNotOpen": "Attendance is not open yet.",
       "attendanceSheetSubmitted": "These results are with an administrator and cannot be changed now.",
-      "attendanceSheetNotSubmitted": "These results have not been submitted.",
+      "attendanceSheetNotSubmitted": "The organizer must submit these results before they can be verified.",
       "attendanceNoChanges": "Nothing differs from the verified results.",
       "correctionReasonRequired": "Explain what changes and why.",
       "attendanceIncomplete": "Some rows still need an outcome or hours.",
@@ -1977,7 +1982,8 @@
       "duplicateAttendanceApplication": "A volunteer was listed twice.",
       "competitionHoursNotAllowed": "Competitions record outcomes, not hours.",
       "opportunityRewardsLocked": "Rewards are fixed once the vacancy is published.",
-      "opportunityNotEditable": "This vacancy cannot be edited now."
+      "opportunityNotEditable": "This vacancy cannot be edited now.",
+      "attendanceVolunteerAlreadyAdded": "This volunteer is already in attendance. Review their result on the Attendance tab."
     },
     "list": {
       "staged": "{decision} · not sent",

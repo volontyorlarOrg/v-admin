@@ -215,7 +215,8 @@
     "competitionHoursNotAllowed": "Tanlov uchun volontyorlik soatlarini kiritib boʻlmaydi.",
     "opportunityKindLocked": "Nashr yoki arizadan keyin turni oʻzgartirib boʻlmaydi.",
     "reportChanged": "Boshqa administrator bu xabarni oʻzgartirdi. Qayta urinishdan oldin sahifani yangilang.",
-    "reportNotFound": "Bu xabar topilmadi."
+    "reportNotFound": "Bu xabar topilmadi.",
+    "attendanceVolunteerAlreadyAdded": "Bu volontyor qatnashuv roʻyxatida mavjud. Natijasini Qatnashuv boʻlimida tekshiring."
   },
   "dashboard": {
     "title": "Tahlil",
@@ -722,10 +723,10 @@
   },
   "attendance": {
     "title": "Ishtirok",
-    "description": "Har bir tadbir tugagach, kim kelganini belgilang. Volontyorlar soat va XPni faqat belgilangan davomatdan oladi.",
+    "description": "Har bir tadbir boshlanishidan bir soat oldin davomat va soatlarni kiriting. Soat va XP natijalar tasdiqlangach hisobga olinadi.",
     "empty": {
       "title": "Belgilanadigan davomat yoʻq",
-      "description": "Qabul qilingan volontyorlari bor tadbir tugagach, uning davomati shu yerda paydo boʻladi."
+      "description": "Qabul qilingan volontyorlari bor tadbirlar davomati boshlanishidan bir soat oldin shu yerda paydo boʻladi."
     },
     "table": {
       "volunteer": "Volontyor",
@@ -752,12 +753,12 @@
     "resolved": "{when} da hal qilingan",
     "queue": {
       "waiting": "{count, plural, other {# koʻngillini tasdiqlash kerak}}",
-      "opensAt": "Tadbir tugagach, {when} da ochiladi.",
-      "opensUnknown": "Tadbir tugagach ochiladi.",
+      "opensAt": "Tadbir boshlanishidan bir soat oldin, {when} da ochiladi.",
+      "opensUnknown": "Tadbir boshlanishidan bir soat oldin ochiladi.",
       "resolvedCount": "{count, plural, other {# koʻngilli allaqachon tasdiqlangan}}",
       "take": "Davomatni belgilash",
       "view": "Ochish",
-      "ended": "{when} tugagan",
+      "opened": "Davomat {when} ochildi",
       "accepted": "{count, plural, other {# koʻngilli qabul qilingan}}",
       "number": "Raqam",
       "verify": "Tekshirish",
@@ -790,10 +791,10 @@
     "sections": {
       "due": "Davomat belgilanishi kerak",
       "dueLabel": "kutmoqda",
-      "dueDescription": "Tugagan, lekin hali belgilanmagan volontyorlari bor tadbirlar.",
+      "dueDescription": "Davomati ochilgan, lekin hali belgilanmagan volontyorlari bor tadbirlar.",
       "upcoming": "Oldinda",
       "upcomingLabel": "oldinda",
-      "upcomingDescription": "Har bir davomat oʻz tadbiri tugagach ochiladi.",
+      "upcomingDescription": "Har bir davomat tadbir boshlanishidan bir soat oldin ochiladi.",
       "recorded": "Belgilangan",
       "recordedLabel": "belgilangan",
       "verify": "Tekshiriladigan natijalar",
@@ -1158,7 +1159,8 @@
       "auth_google_link": "Google hisobi bogʻlandi",
       "auth_telegram_link": "Telegram hisobi bogʻlandi",
       "auth_account_merge_requested": "Hisoblarni birlashtirish soʻraldi",
-      "auth_account_merge_completed": "Hisoblar birlashtirildi"
+      "auth_account_merge_completed": "Hisoblar birlashtirildi",
+      "attendance_volunteer_added": "Qatnashuv roʻyxatiga volontyor qoʻshildi"
     },
     "day": {
       "today": "Bugun",
@@ -1740,9 +1742,9 @@
       }
     },
     "sheet": {
-      "title": "{count, plural, other {# ta qabul qilingan volontyor}}",
+      "title": "{count, plural, other {# ta volontyor}}",
       "titleCompetition": "{count, plural, other {# ta ishtirokchi}}",
-      "caption": "Qabul qilingan volontyorlar davomati",
+      "caption": "Volontyorlar davomati",
       "search": "Ism yoki foydalanuvchi nomi boʻyicha qidirish",
       "matches": "{total} tadan {count} tasi koʻrsatilmoqda",
       "selectMatches": "Topilgan barcha volontyorlarni tanlash",
@@ -1828,14 +1830,15 @@
         "saved": "Barcha oʻzgarishlar saqlandi.",
         "save": "Qoralamani saqlash",
         "submit": "Koʻrib chiqish va yuborish",
-        "apply": "Koʻrib chiqish va qoʻllash"
+        "apply": "Koʻrib chiqish va qoʻllash",
+        "awaitingSubmission": "Tashkilotchi natijalarni tekshiruvga yuborishi kutilmoqda."
       },
       "empty": {
         "title": "Qabul qilingan volontyor yoʻq",
         "description": "Davomat siz qabul qilgan arizachilar uchun belgilanadi."
       },
       "notOpen": {
-        "title": "Davomat tadbir boshlanganda ochiladi",
+        "title": "Davomat tadbir boshlanishidan bir soat oldin ochiladi",
         "description": "{count, plural, other {Qabul qilingan # ta volontyorni {when} dan belgilash mumkin.}}"
       },
       "awaiting": {
@@ -1869,14 +1872,16 @@
           "correction_submitted": "Tuzatish yuborildi",
           "changes_requested": "Tuzatish soʻraldi",
           "verified": "Tasdiqlandi",
-          "applied": "Administrator belgiladi"
+          "applied": "Administrator belgiladi",
+          "volunteer_added": "Volontyor qoʻlda qoʻshildi"
         }
       },
       "savedToast": "Qoralama saqlandi.",
       "discardedToast": "Tuzatish bekor qilindi.",
       "submittedToast": "Tekshiruvga yuborildi.",
       "appliedToast": "Natijalar qoʻllandi. Soat va XP qoʻshildi.",
-      "incompleteNames": "Hali belgilanmagan: {names}."
+      "incompleteNames": "Hali belgilanmagan: {names}.",
+      "manuallyAdded": "Qoʻlda qoʻshilgan"
     },
     "finish": {
       "titleSubmit": "Davomat tekshiruvga yuborilsinmi?",
@@ -1966,7 +1971,7 @@
       "telegramGroupLinkInvalid": "Telegram havolasini kiriting, masalan https://t.me/your_group.",
       "attendanceNotOpen": "Davomat hali ochilmagan.",
       "attendanceSheetSubmitted": "Natijalar administratorda, hozir ularni oʻzgartirib boʻlmaydi.",
-      "attendanceSheetNotSubmitted": "Bu natijalar yuborilmagan.",
+      "attendanceSheetNotSubmitted": "Tekshirishdan oldin tashkilotchi natijalarni yuborishi kerak.",
       "attendanceNoChanges": "Tasdiqlangan natijalardan hech qanday farq yoʻq.",
       "correctionReasonRequired": "Nima oʻzgarishi va sababini tushuntiring.",
       "attendanceIncomplete": "Baʼzi qatorlarda davomat yoki soat yoʻq.",
@@ -1977,7 +1982,8 @@
       "duplicateAttendanceApplication": "Volontyor ikki marta koʻrsatilgan.",
       "competitionHoursNotAllowed": "Tanlovlarda soat emas, natija belgilanadi.",
       "opportunityRewardsLocked": "Vakansiya eʼlon qilingach, mukofotlar oʻzgarmaydi.",
-      "opportunityNotEditable": "Hozir bu vakansiyani oʻzgartirib boʻlmaydi."
+      "opportunityNotEditable": "Hozir bu vakansiyani oʻzgartirib boʻlmaydi.",
+      "attendanceVolunteerAlreadyAdded": "Bu volontyor qatnashuv roʻyxatida mavjud. Natijasini Qatnashuv boʻlimida tekshiring."
     },
     "list": {
       "staged": "{decision} · yuborilmagan",

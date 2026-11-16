@@ -55,7 +55,7 @@ import {
   summarise,
   type EditableRow,
 } from "@/lib/results/sheet";
-import { applicationHref } from "@/lib/routing/routes";
+import { applicationHref, userHref } from "@/lib/routing/routes";
 import { cn } from "@/lib/utils";
 
 export type SheetDates = {
@@ -134,14 +134,14 @@ export function AttendanceDesk({
     [rows, kind, view.rules],
   );
   const byId = useMemo(
-    () => new Map(view.rows.map((row) => [row.applicationId, row])),
+    () => new Map(view.rows.map((row) => [row.attendanceId, row])),
     [view.rows],
   );
   const nameOf = (row: SheetRow | undefined) =>
     row?.volunteer.displayName?.trim() || row?.volunteer.username || "—";
   const problems: DialogProblem[] = rows.flatMap((row) => {
     const problem = rowProblem(row, kind);
-    return problem ? [{ name: nameOf(byId.get(row.applicationId)), problem }] : [];
+    return problem ? [{ name: nameOf(byId.get(row.attendanceId)), problem }] : [];
   });
   const placements = {
     winner: rows.filter(
@@ -168,7 +168,7 @@ export function AttendanceDesk({
 
   function update(ids: readonly string[], change: (row: EditableRow) => EditableRow) {
     setRows((state) =>
-      state.map((row) => (ids.includes(row.applicationId) ? change(row) : row)),
+      state.map((row) => (ids.includes(row.attendanceId) ? change(row) : row)),
     );
   }
 
@@ -230,7 +230,7 @@ export function AttendanceDesk({
           setFinishError(
             t("incompleteNames", {
               names: result.problems
-                .map((item) => nameOf(byId.get(item.applicationId)))
+                .map((item) => nameOf(byId.get(item.attendanceId)))
                 .join(", "),
             }),
           );
@@ -249,9 +249,9 @@ export function AttendanceDesk({
 
   const correction = view.correction || (view.status === "verified" && editing);
   const visibleRows = rows.filter((row) =>
-    matchesSheetVolunteer(byId.get(row.applicationId)!, query),
+    matchesSheetVolunteer(byId.get(row.attendanceId)!, query),
   );
-  const chosen = visibleRows.filter((row) => selected.has(row.applicationId));
+  const chosen = visibleRows.filter((row) => selected.has(row.attendanceId));
   const allChosen = visibleRows.length > 0 && chosen.length === visibleRows.length;
   const selectAllLabel = query.trim() ? t("selectMatches") : t("selectAll");
   const verifiedRows = view.rows.filter((row) => row.verified.outcome === "attended");
@@ -279,7 +279,7 @@ export function AttendanceDesk({
     );
   }
 
-  if (!view.started) {
+  if (!view.started && !view.editable) {
     return (
       <section className="sheet px-5 py-12 text-center">
         <p className="text-section text-ink">{t("notOpen.title")}</p>
@@ -566,7 +566,7 @@ export function AttendanceDesk({
               onChange={(event) =>
                 setSelected(
                   event.target.checked
-                    ? new Set(visibleRows.map((row) => row.applicationId))
+                    ? new Set(visibleRows.map((row) => row.attendanceId))
                     : new Set(),
                 )
               }
@@ -591,7 +591,7 @@ export function AttendanceDesk({
                       onChange={(event) =>
                         setSelected(
                           event.target.checked
-                            ? new Set(visibleRows.map((row) => row.applicationId))
+                            ? new Set(visibleRows.map((row) => row.attendanceId))
                             : new Set(),
                         )
                       }
@@ -647,7 +647,7 @@ export function AttendanceDesk({
                 </tr>
               ) : null}
               {visibleRows.map((row) => {
-                const source = byId.get(row.applicationId)!;
+                const source = byId.get(row.attendanceId)!;
                 const name = nameOf(source);
                 const problem = editing ? rowProblem(row, kind) : null;
                 const flagged = source.reviewNote;
@@ -665,7 +665,7 @@ export function AttendanceDesk({
                     : false;
                 return (
                   <tr
-                    key={row.applicationId}
+                    key={row.attendanceId}
                     data-flagged={flagged ? true : undefined}
                     className={cn(
                       "grid grid-cols-[2.75rem_minmax(0,1fr)] gap-y-2 border-b border-border py-3 last:border-0 md:table-row md:py-0",
@@ -678,11 +678,11 @@ export function AttendanceDesk({
                         <input
                           type="checkbox"
                           aria-label={t("select", { name })}
-                          checked={selected.has(row.applicationId)}
+                          checked={selected.has(row.attendanceId)}
                           onChange={(event) => {
                             const next = new Set(selected);
-                            if (event.target.checked) next.add(row.applicationId);
-                            else next.delete(row.applicationId);
+                            if (event.target.checked) next.add(row.attendanceId);
+                            else next.delete(row.attendanceId);
                             setSelected(next);
                           }}
                           className="mt-2.5 size-4 accent-action md:mt-0"
@@ -704,10 +704,20 @@ export function AttendanceDesk({
                           <span className="block truncate text-xs text-ink-muted">
                             @{source.volunteer.username}
                           </span>
+                          {source.manuallyAdded ? (
+                            <span className="block text-xs text-ink-muted">
+                              {t("manuallyAdded")}
+                            </span>
+                          ) : null}
                           <Link
-                            href={`${applicationHref(row.applicationId)}#profile`}
+                            href={
+                              source.applicationId
+                                ? `${applicationHref(source.applicationId)}#profile`
+                                : userHref(source.volunteer.id)
+                            }
                             target="_blank"
                             rel="noopener noreferrer"
+                            prefetch={false}
                             aria-label={t("profileFor", { name })}
                             className="inline-flex min-h-9 items-center gap-1.5 text-xs font-semibold text-primary-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                           >
@@ -734,7 +744,7 @@ export function AttendanceDesk({
                           value={row.outcome ?? ""}
                           onChange={(event) =>
                             setOutcome(
-                              [row.applicationId],
+                              [row.attendanceId],
                               (event.target.value || null) as SheetOutcome | null,
                             )
                           }
@@ -800,7 +810,7 @@ export function AttendanceDesk({
                               }
                               placeholder={attended ? t("hoursPlaceholder") : "—"}
                               onChange={(event) =>
-                                update([row.applicationId], (item) => ({
+                                update([row.attendanceId], (item) => ({
                                   ...item,
                                   hours: event.target.value,
                                 }))
@@ -827,7 +837,7 @@ export function AttendanceDesk({
                           value={attended ? (row.placement ?? "attendee") : ""}
                           disabled={!attended}
                           onChange={(event) =>
-                            update([row.applicationId], (item) => ({
+                            update([row.attendanceId], (item) => ({
                               ...item,
                               placement: event.target.value as Placement,
                             }))
@@ -868,17 +878,17 @@ export function AttendanceDesk({
                         <>
                           <label
                             className="sr-only"
-                            htmlFor={`note-${row.applicationId}`}
+                            htmlFor={`note-${row.attendanceId}`}
                           >
                             {t("noteFor", { name })}
                           </label>
                           <input
-                            id={`note-${row.applicationId}`}
+                            id={`note-${row.attendanceId}`}
                             value={row.note}
                             maxLength={300}
                             placeholder={t("notePlaceholder")}
                             onChange={(event) =>
-                              update([row.applicationId], (item) => ({
+                              update([row.attendanceId], (item) => ({
                                 ...item,
                                 note: event.target.value,
                               }))
@@ -957,11 +967,13 @@ export function AttendanceDesk({
                 ].join(" · ")}
               </span>
               <span className="mt-0.5 block text-xs">
-                {!view.ended
-                  ? t("footer.notEnded", { when: dates.submittable })
-                  : dirty
-                    ? t("footer.unsaved", { count: changes.length })
-                    : t("footer.saved")}
+                {!view.canVerify
+                  ? t("footer.awaitingSubmission")
+                  : !view.ended
+                    ? t("footer.notEnded", { when: dates.submittable })
+                    : dirty
+                      ? t("footer.unsaved", { count: changes.length })
+                      : t("footer.saved")}
               </span>
             </p>
             <span className="flex flex-wrap gap-2">
@@ -980,7 +992,7 @@ export function AttendanceDesk({
               <Button
                 type="button"
                 size="sm"
-                disabled={!view.ended || pending}
+                disabled={!view.ended || !view.canVerify || pending}
                 onClick={() => {
                   setFinishError(null);
                   setFinishing(true);
