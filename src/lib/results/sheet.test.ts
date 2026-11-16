@@ -70,6 +70,23 @@ describe("attendance volunteer search", () => {
     expect(matchesSheetVolunteer(volunteer, "@rano.k")).toBe(true);
     expect(matchesSheetVolunteer(volunteer, "Rano Karimova")).toBe(false);
   });
+
+  it("matches inside one field, not across the name and the username", () => {
+    const volunteer = sheetRow({
+      volunteer: { id: "v", displayName: "Rano Karimova", username: "rano.k", avatarUrl: null },
+    });
+    expect(matchesSheetVolunteer(volunteer, "rano   karimova")).toBe(true);
+    expect(matchesSheetVolunteer(volunteer, "karimova rano")).toBe(false);
+  });
+
+  it("ignores the Uzbek apostrophe marks, typed or not", () => {
+    const volunteer = sheetRow({
+      volunteer: { id: "v", displayName: "Gʻayrat Oʻktamov", username: "gayrat", avatarUrl: null },
+    });
+    expect(matchesSheetVolunteer(volunteer, "g'ayrat")).toBe(true);
+    expect(matchesSheetVolunteer(volunteer, "O’ktamov")).toBe(true);
+    expect(matchesSheetVolunteer(volunteer, "gayrat oktamov")).toBe(true);
+  });
 });
 
 describe("attendance sheet rows", () => {

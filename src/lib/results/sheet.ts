@@ -50,13 +50,23 @@ export function editableRow(row: SheetRow): EditableRow {
   };
 }
 
+// Uzbek Latin writes oʻ, gʻ and the tutuq belgisi with several look-alike
+// marks, and people often type none at all; the search ignores them.
+const APOSTROPHES = /[\u02BB\u02BC\u2018\u2019`\u00B4']/g;
+
+function searchable(text: string): string {
+  return text
+    .trim()
+    .replace(/\s+/g, " ")
+    .toLocaleLowerCase()
+    .replace(APOSTROPHES, "");
+}
+
 export function matchesSheetVolunteer(row: SheetRow, query: string): boolean {
-  const search = query.trim().toLocaleLowerCase().replace(/^@/, "");
-  return (
-    !search ||
-    `${row.volunteer.displayName ?? ""} ${row.volunteer.username}`
-      .toLocaleLowerCase()
-      .includes(search)
+  const search = searchable(query).replace(/^@/, "");
+  if (!search) return true;
+  return [row.volunteer.displayName ?? "", row.volunteer.username].some((field) =>
+    searchable(field).includes(search),
   );
 }
 
