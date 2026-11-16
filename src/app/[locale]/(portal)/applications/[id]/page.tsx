@@ -295,7 +295,11 @@ export default async function ApplicationPage({
           ) : null}
 
           {snapshot ? (
-            <Panel title={t("detail.snapshot")} description={t("detail.snapshotNote")}>
+            <Panel
+              id="profile"
+              title={t("detail.snapshot")}
+              description={t("detail.snapshotNote")}
+            >
               <VolunteerProfile
                 identity={{
                   name,

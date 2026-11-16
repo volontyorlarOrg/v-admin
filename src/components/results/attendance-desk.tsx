@@ -6,11 +6,13 @@ import {
   CalendarMinus,
   Clock,
   Eraser,
+  ExternalLink,
   FileText,
   History,
   Hourglass,
   Info,
   PencilLine,
+  Search,
   Send,
   TriangleAlert,
   Trophy,
@@ -29,6 +31,7 @@ import {
 } from "@/components/results/finish-attendance-dialog";
 import { Button } from "@/components/ui/button";
 import { compactInputClass } from "@/components/ui/input";
+import { Link } from "@/i18n/navigation";
 import {
   PLACEMENTS,
   RESOLVABLE_ATTENDANCE_OUTCOMES,
@@ -46,11 +49,13 @@ import {
   currentValues,
   differsFromVerified,
   editableRow,
+  matchesSheetVolunteer,
   previewXp,
   rowProblem,
   summarise,
   type EditableRow,
 } from "@/lib/results/sheet";
+import { applicationHref, userHref } from "@/lib/routing/routes";
 import { cn } from "@/lib/utils";
 
 export type SheetDates = {
@@ -112,6 +117,7 @@ export function AttendanceDesk({
   const [editing, setEditing] = useState(startsEditing);
   const [saved, setSaved] = useState(() => view.rows.map(editableRow));
   const [rows, setRows] = useState(saved);
+  const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<ReadonlySet<string>>(new Set());
   const [bulkHours, setBulkHours] = useState(
     view.estimatedTotalHours === null ? "" : String(view.estimatedTotalHours),
@@ -242,8 +248,12 @@ export function AttendanceDesk({
   }
 
   const correction = view.correction || (view.status === "verified" && editing);
-  const chosen = rows.filter((row) => selected.has(row.attendanceId));
-  const allChosen = rows.length > 0 && chosen.length === rows.length;
+  const visibleRows = rows.filter((row) =>
+    matchesSheetVolunteer(byId.get(row.attendanceId)!, query),
+  );
+  const chosen = visibleRows.filter((row) => selected.has(row.attendanceId));
+  const allChosen = visibleRows.length > 0 && chosen.length === visibleRows.length;
+  const selectAllLabel = query.trim() ? t("selectMatches") : t("selectAll");
   const verifiedRows = view.rows.filter((row) => row.verified.outcome === "attended");
   const verifiedHours = view.rows.reduce(
     (total, row) =>
@@ -419,6 +429,30 @@ export function AttendanceDesk({
           </p>
         </header>
 
+        <div className="flex flex-col gap-2 border-b border-border px-5 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <label className="relative min-w-0 sm:w-72">
+            <span className="sr-only">{t("search")}</span>
+            <Search
+              aria-hidden="true"
+              className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-ink-muted"
+            />
+            <input
+              type="search"
+              value={query}
+              onChange={(event) => {
+                setQuery(event.target.value);
+                setSelected(new Set());
+              }}
+              placeholder={t("search")}
+              autoComplete="off"
+              className={cn(compactInputClass, "pl-10")}
+            />
+          </label>
+          <p role="status" className="tabular text-sm text-ink-muted">
+            {t("matches", { count: visibleRows.length, total: rows.length })}
+          </p>
+        </div>
+
         {editing && chosen.length > 0 ? (
           <div
             role="toolbar"
@@ -528,16 +562,17 @@ export function AttendanceDesk({
             <input
               type="checkbox"
               checked={allChosen}
+              disabled={visibleRows.length === 0}
               onChange={(event) =>
                 setSelected(
                   event.target.checked
-                    ? new Set(rows.map((row) => row.attendanceId))
+                    ? new Set(visibleRows.map((row) => row.attendanceId))
                     : new Set(),
                 )
               }
               className="size-4 accent-action"
             />
-            {t("selectAll")}
+            {selectAllLabel}
           </label>
         ) : null}
 
@@ -550,12 +585,13 @@ export function AttendanceDesk({
                   <th scope="col" className="w-12 py-2.5 pl-5">
                     <input
                       type="checkbox"
-                      aria-label={t("selectAll")}
+                      aria-label={selectAllLabel}
                       checked={allChosen}
+                      disabled={visibleRows.length === 0}
                       onChange={(event) =>
                         setSelected(
                           event.target.checked
-                            ? new Set(rows.map((row) => row.attendanceId))
+                            ? new Set(visibleRows.map((row) => row.attendanceId))
                             : new Set(),
                         )
                       }
@@ -588,7 +624,29 @@ export function AttendanceDesk({
               </tr>
             </thead>
             <tbody className="block md:table-row-group">
-              {rows.map((row) => {
+              {visibleRows.length === 0 ? (
+                <tr className="block md:table-row">
+                  <td
+                    colSpan={editing ? 6 : 5}
+                    className="block px-5 py-10 text-center md:table-cell"
+                  >
+                    <p className="text-sm text-ink-muted">{t("noMatches")}</p>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="mt-2"
+                      onClick={() => {
+                        setQuery("");
+                        setSelected(new Set());
+                      }}
+                    >
+                      {t("clearSearch")}
+                    </Button>
+                  </td>
+                </tr>
+              ) : null}
+              {visibleRows.map((row) => {
                 const source = byId.get(row.attendanceId)!;
                 const name = nameOf(source);
                 const problem = editing ? rowProblem(row, kind) : null;
@@ -651,6 +709,21 @@ export function AttendanceDesk({
                               {t("manuallyAdded")}
                             </span>
                           ) : null}
+                          <Link
+                            href={
+                              source.applicationId
+                                ? `${applicationHref(source.applicationId)}#profile`
+                                : userHref(source.volunteer.id)
+                            }
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            prefetch={false}
+                            aria-label={t("profileFor", { name })}
+                            className="inline-flex min-h-9 items-center gap-1.5 text-xs font-semibold text-primary-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                          >
+                            {t("viewProfile")}
+                            <ExternalLink aria-hidden="true" className="size-3.5" />
+                          </Link>
                         </span>
                       </span>
                       {flagged ? (

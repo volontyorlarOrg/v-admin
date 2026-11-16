@@ -1028,6 +1028,72 @@ test.describe("the vacancy lifecycle", () => {
 });
 
 test.describe("review and attendance", () => {
+  test("searches attendance without losing edits and selects only matching volunteers", async ({
+    page,
+  }) => {
+    await signedIn(page);
+    await page.goto(
+      "/en/vacancies/00000000-0000-4000-8000-000000000401?tab=attendance",
+    );
+    const sheet = page.getByRole("region", { name: "2 volunteers" });
+    const search = sheet.getByRole("searchbox", { name: "Search by name or username" });
+    const first = sheet.getByRole("combobox", {
+      name: "Attendance of Sardor Toshmatov",
+    });
+    const second = sheet.getByRole("combobox", { name: "Attendance of Jasur Qodirov" });
+    await first.selectOption("excused");
+    await sheet
+      .getByRole("checkbox", { name: "Select Sardor Toshmatov", exact: true })
+      .check();
+    await search.fill("  Jasur Qodirov  ");
+    await expect(first).toHaveCount(0);
+    await expect(second).toBeVisible();
+    await expect(sheet.getByRole("toolbar")).toHaveCount(0);
+    await sheet
+      .getByRole("checkbox", { name: "Select every matching volunteer" })
+      .check();
+    await sheet.getByRole("button", { name: "No-show", exact: true }).click();
+    await search.fill("");
+    await expect(first).toHaveValue("excused");
+    await expect(second).toHaveValue("no_show");
+    await search.fill("@sardor_toshmatov");
+    await expect(first).toBeVisible();
+    await expect(second).toHaveCount(0);
+    await expect(sheet.getByRole("status")).toHaveText("Showing 1 of 2");
+    await search.fill("no-matching-volunteer");
+    await expect(sheet.getByText("No volunteers match this search.")).toBeVisible();
+    await sheet.getByRole("button", { name: "Clear search" }).click();
+    await expect(first).toHaveValue("excused");
+    await expect(second).toHaveValue("no_show");
+  });
+
+  test("opens the submitted volunteer profile from attendance in a new tab", async ({
+    page,
+    context,
+  }) => {
+    await signedIn(page);
+    await page.goto(
+      "/en/vacancies/00000000-0000-4000-8000-000000000401?tab=attendance",
+    );
+    const sheet = page.getByRole("region", { name: "2 volunteers" });
+    const link = sheet.getByRole("link", {
+      name: "View profile of Sardor Toshmatov (opens in a new tab)",
+    });
+    await expect(link).toHaveAttribute(
+      "href",
+      /\/en\/applications\/[0-9a-f-]+#profile$/,
+    );
+    const popupPromise = context.waitForEvent("page");
+    await link.click();
+    const profile = await popupPromise;
+    await expect(
+      profile.getByRole("heading", { name: "Profile as submitted" }),
+    ).toBeVisible();
+    await expect(profile.locator("#profile")).toContainText("Applicant snapshot");
+    await expect(page.getByRole("searchbox")).toBeVisible();
+    await profile.close();
+  });
+
   test("shows a profile-only application without an empty answers panel", async ({
     page,
   }) => {
