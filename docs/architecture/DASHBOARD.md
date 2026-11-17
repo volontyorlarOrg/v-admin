@@ -1,40 +1,44 @@
-# Dashboard
+# Today (the dashboard)
 
-`/dashboard` is the administrator's landing page. It reads top to bottom in the
-order an administrator works:
+`/dashboard` is the administrator's landing page, the **Today** tab of the Home
+hub. It reads top to bottom in the order an administrator works:
 
-1. **Volunteer journey** — the program as one line of five stations: published
-   vacancies (now), applications sent (all time), accepted volunteers (now),
-   attendances (all time) and confirmed hours (all time), from
-   `GET /admin/statistics`. Every figure carries its scope. Under each station
-   hangs what waits there — vacancies to approve, organizations to verify,
-   vacancies returned for changes, applications to decide, results to verify,
-   roll calls due, past-event items — each tagged with whose move it is: amber
-   for the administrator, blue for organizers. Stations and waiting lines are
-   links into the queue below or the filtered list. The line is institution
-   blue up to Applications and earned orange from Accepted on.
-2. **Waiting on you** — the work only an administrator can move, decided in the
-   row where one record is decided. Every row leads with how long it has waited,
-   with a bar on one scale for the whole queue, oldest first within each
-   section. The header's count is the sum of the section counts shown below
-   it, and its line names the oldest wait.
-3. **Recent activity** — the newest six audit events, under the queue.
-4. **Waiting on organizers** and **Decided today** — the side column: what
+1. **The headline** — the page's `h1` is a sentence counting what waits on the
+   administrator ("4 things wait on you"), with the date above it and the
+   longest wait beneath it in words ("The oldest has waited 3 days"). The count
+   is the same total as the "Waiting on you" count below. New vacancy sits on
+   the right.
+2. **Volunteer journey** — a strip of five figures: published vacancies (now),
+   applications sent (all time), accepted volunteers (now), attendances (all
+   time) and confirmed hours (all time), from `GET /admin/statistics`. Every
+   figure carries its scope. Under each station hangs what waits there —
+   vacancies to approve, organizations to verify, vacancies returned for
+   changes, applications to decide, results to verify, roll calls due,
+   past-event items — each tagged with whose move it is: amber for the
+   administrator, blue for organizers. Stations and waiting lines are links into
+   the cards below or the filtered list. The strip's top edge is institution
+   blue over the first two stations and earned orange from Accepted on.
+3. **Waiting on you** — the work only an administrator can move, as one
+   **work card** per kind (`WorkCard` and `WorkItem` in
+   `src/components/queue/work-card.tsx`), laid out in two balanced columns.
+   Each card names its oldest wait; every row leads with how long it has waited,
+   on one scale for the whole desk, and carries its decision. Kinds with nothing
+   waiting are not drawn.
+4. **Waiting on organizers** and **Decided today** — side by side: what
    organizations and coordinators hold, oldest first with its age, and the
    administrator's own decisions of the Tashkent day.
-5. **Trends** — User growth, Applications and Volunteer impact for 30 or 90
-   Tashkent days (`?days=90`, anything else falls back to 30), from
-   `GET /admin/analytics`. One period control scopes every figure below it, and
-   nothing below it is all-time or current. [Insights](INSIGHTS.md) keeps the
-   all-time breakdowns.
+5. **Recent activity** — the newest six audit events.
 
-The page header carries the primary action, New vacancy. The journey, the desk
-and the trends fail independently: if the queue cannot load, the journey still
-shows its totals but draws no waiting lines (it never claims "nothing waiting"
-when it does not know), and the trends stand.
+Trends are not on this page: they open [Insights](INSIGHTS.md), the Home hub's
+second tab. The journey and the desk fail independently: if the queue cannot
+load, the headline falls back to "Today", the journey still shows its totals but
+draws no waiting lines (it never claims "nothing waiting" when it does not
+know).
 
 The rules are pure functions in `src/lib/queue/dashboard.ts`, tested beside
-them; `src/components/dashboard/desk.tsx` renders what they return.
+them; `longestWait()` in `src/lib/datetime.ts` names the oldest wait for the
+headline and each card; `src/components/dashboard/desk.tsx` renders what they
+return.
 
 ## Who runs a vacancy
 
@@ -54,7 +58,7 @@ the administrators, which is what the dashboard showed before this split.
 
 ## Waiting on you
 
-| Section                              | An entry is                                                                                              | Order                        |
+| Card                                 | An entry is                                                                                              | Order                        |
 | ------------------------------------ | -------------------------------------------------------------------------------------------------------- | ---------------------------- |
 | Vacancies to approve                 | a vacancy `pending_review` and not archived, with what approval still needs                              | oldest request first         |
 | Organizations holding vacancies back | an unverified organization with a vacancy that is a draft, waiting for approval or returned for changes  | most vacancies held back     |
@@ -63,10 +67,10 @@ the administrators, which is what the dashboard showed before this split.
 | Applications to decide               | one row per administrator-run vacancy with sent applications undecided: how many, the oldest, staged     | longest wait first           |
 | Roll calls due                       | an administrator-run vacancy whose event ended with accepted volunteers unrecorded                       | earliest ended first         |
 
-The dateline counts every entry. Approve, Return, Reject and Verify are
+The headline counts every entry. Approve, Return, Reject and Verify are
 `InlineDecision`s built in `src/lib/queue/approval-decisions.server.ts`;
 approval is disabled until what it needs is in place, and the reason is the
-row's side line. **Applications are grouped by vacancy and decided on the
+item's facts line. **Applications are grouped by vacancy and decided on the
 vacancy's applications desk**, where decisions are staged and sent together —
 the same workflow an organization uses — rather than one by one from the
 dashboard. Individual application pages remain available from related records.
@@ -95,8 +99,12 @@ as the audit history in its compact form: day heading, time, family icon,
 action, named record and who did it. See
 [`ARCHITECTURE.md`](ARCHITECTURE.md#the-audit-timeline).
 
-## Trends
+## Trends (on Insights)
 
+User growth, Applications and Volunteer impact for 30 or 90 Tashkent days
+(`/insights?days=90`, anything else falls back to 30), from
+`GET /admin/analytics`, open the Insights page. One period control scopes every
+figure in the section, and nothing in it is all-time or current.
 `src/lib/statistics/analytics.ts` validates the response and derives chart
 data; `DashboardAnalytics` renders it. Each group opens with its figures for the
 period; signups and applications compare with the equal-length period before

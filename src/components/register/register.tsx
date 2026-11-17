@@ -62,7 +62,7 @@ export function Register({
       className={cn("min-w-0 overflow-hidden sheet", className)}
     >
       {title ? (
-        <header className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 border-b border-border px-4 py-3">
+        <header className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 border-b border-border px-5 py-3.5">
           <h2 id={titleId} className="text-section text-ink">
             {title}
           </h2>
@@ -82,7 +82,7 @@ export function Register({
         </header>
       ) : null}
       {toolbar ? (
-        <div className="flex flex-wrap items-center gap-3 border-b border-border px-4 py-2.5">
+        <div className="flex flex-wrap items-center gap-3 border-b border-border px-5 py-3">
           {toolbar}
         </div>
       ) : null}
@@ -107,18 +107,21 @@ export function RegisterTabs({
   items: RegisterTab[];
 }) {
   return (
-    <nav aria-label={label} className="-mx-1 max-w-full overflow-x-auto">
-      <ul className="flex w-max items-center gap-0.5 px-1 py-0.5">
+    <nav
+      aria-label={label}
+      className="relative max-w-full [scrollbar-width:none] overflow-x-auto"
+    >
+      <ul className="flex w-max items-center gap-0.5 rounded-lg bg-surface-sunk p-0.5">
         {items.map((item) => (
           <li key={item.key}>
             <Link
               href={item.href}
               aria-current={item.active ? "page" : undefined}
               className={cn(
-                "inline-flex min-h-8 items-center gap-1.5 rounded-md px-2.5 text-sm whitespace-nowrap transition-colors duration-150",
+                "inline-flex min-h-8 items-center gap-1.5 rounded-md px-3 text-sm whitespace-nowrap transition-colors duration-150",
                 item.active
-                  ? "bg-surface-sunk font-semibold text-ink shadow-[inset_0_0_0_1px_var(--color-border-strong)]"
-                  : "font-medium text-ink-muted hover:bg-surface-sunk hover:text-ink",
+                  ? "bg-surface font-semibold text-ink shadow-[0_0_0_1px_var(--color-border),0_1px_2px_rgb(15_27_42/0.06)]"
+                  : "font-medium text-ink-muted hover:text-ink",
               )}
             >
               {item.label}
@@ -197,7 +200,7 @@ export function RegisterNote({
   action?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-start gap-1.5 px-4 py-10 sm:items-center sm:text-center">
+    <div className="flex flex-col items-start gap-1.5 px-5 py-12 sm:items-center sm:text-center">
       <p className="text-section text-ink">{title}</p>
       {description ? (
         <p className="max-w-md text-sm leading-relaxed text-pretty text-ink-muted">

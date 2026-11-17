@@ -146,7 +146,7 @@ test.describe("sign-in", () => {
   }) => {
     await signedIn(page);
     await expect(
-      page.getByRole("heading", { level: 1, name: "Dashboard" }),
+      page.getByRole("heading", { level: 1, name: /wait on you$/ }),
     ).toBeVisible();
     await expect(
       page.getByRole("heading", { level: 2, name: "Waiting on you" }),
@@ -301,9 +301,7 @@ test.describe("the session", () => {
 
   test("signs out and clears the cookie", async ({ page }) => {
     await signedIn(page);
-    if ((page.viewportSize()?.width ?? 1280) < 1024) {
-      await page.getByRole("button", { name: "Open the menu" }).click();
-    }
+    await page.getByRole("button", { name: "Account and settings" }).click();
     await expect(
       page.getByRole("link", { name: "Change password", exact: true }),
     ).toHaveCount(0);
@@ -1550,6 +1548,48 @@ test.describe("every locale and the keyboard", () => {
     });
   }
 
+  test("folds fourteen sections into five hubs, each opening on its first tab", async ({
+    page,
+  }) => {
+    await signedIn(page);
+    const hubs = page.getByRole("navigation", { name: "Portal sections" });
+    await expect(hubs.getByRole("link")).toHaveCount(5);
+    await hubs.getByRole("link", { name: "People" }).click();
+    await page.waitForURL(/\/en\/users$/);
+    const tabs = page.getByRole("navigation", { name: "People pages" });
+    for (const name of ["Volunteers", "Coordinators", "Organizations", "Bulk awards"]) {
+      await expect(tabs.getByRole("link", { name, exact: true })).toBeVisible();
+    }
+    await tabs.getByRole("link", { name: "Coordinators", exact: true }).click();
+    await page.waitForURL(/\/en\/coordinators$/);
+    await expect(
+      tabs.getByRole("link", { name: "Coordinators", exact: true }),
+    ).toHaveAttribute("aria-current", "page");
+  });
+
+  test("jumps to a page, an action or a search from the keyboard", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, "the shortcut needs a keyboard");
+    await signedIn(page);
+    const search = page.getByRole("combobox", {
+      name: "Jump to a page, an action or a search",
+    });
+    await page.keyboard.press("ControlOrMeta+k");
+    await search.fill("new coord");
+    await search.press("Enter");
+    await page.waitForURL(/\/en\/coordinators\/new$/);
+
+    await page.getByRole("button", { name: "Jump to…" }).click();
+    await search.fill("dilnoza");
+    await page.getByRole("option", { name: "Volunteers matching “dilnoza”" }).click();
+    await page.waitForURL(/\/en\/users\?q=dilnoza$/);
+    await expect(
+      page.getByRole("link", { name: "Dilnoza Karimova" }).first(),
+    ).toBeVisible();
+  });
+
   test("keeps one h1 per page and a labelled navigation", async ({ page }) => {
     await signedIn(page);
 
@@ -1558,19 +1598,10 @@ test.describe("every locale and the keyboard", () => {
       await expect(page.getByRole("heading", { level: 1 }), path).toHaveCount(1);
     }
 
-    const narrow = (page.viewportSize()?.width ?? 1280) < 1024;
-
-    if (narrow) {
-      await page.getByRole("button", { name: "Open the menu" }).click();
-      await expect(
-        page.getByRole("navigation", { name: "Portal sections" }).first(),
-      ).toBeVisible();
-      await page.getByRole("button", { name: "Close the menu" }).click();
-    } else {
-      await expect(
-        page.getByRole("navigation", { name: "Portal sections" }).first(),
-      ).toBeVisible();
-    }
+    await expect(
+      page.getByRole("navigation", { name: "Portal sections" }),
+    ).toBeVisible();
+    await expect(page.getByRole("navigation", { name: "People pages" })).toBeVisible();
   });
 
   test("reaches the sign-in form and submits it with the keyboard alone", async ({

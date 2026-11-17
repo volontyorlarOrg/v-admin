@@ -2,9 +2,11 @@
 
 ## A section
 
-1. Add the key, path, area, guard, `inNav` and icon to
-   `src/lib/routing/routes.ts`. The sidebar, the mobile menu, the proxy's guard
-   and the route tests all read from there.
+1. Add the key, path, area, guard, `inNav`, `hub` and icon to
+   `src/lib/routing/routes.ts`. The hub rail, the bottom bar, the hub's tabs,
+   Jump to, the proxy's guard and the route tests all read from there. A new
+   section is a tab of an existing hub; a hub holds four tabs or fewer, and the
+   route test fails past that.
 2. Add `nav.<key>` to all three catalogs. A test asserts every navigation key
    exists.
 3. Add the icon name to `src/components/portal/nav-icon.tsx`.
@@ -75,19 +77,20 @@ close — keeps the confirmation inside the dialog, and shows the failure there
 rather than closing on an error. A refusal that needs a reason (returning or
 rejecting a vacancy) is an `InlineDecision` note, not a dialog.
 
-## A queue section
+## A work card
 
-The dashboard's "Waiting on you" is one register sheet. A new kind of work that
-waits on the administrator is a `QueueSection` in it
-(`src/components/dashboard/desk.tsx`), fed by a pure function in
+Today's "Waiting on you" is a set of work cards. A new kind of work that waits
+on the administrator is a `WorkCard` of `WorkItem`s in
+`src/components/dashboard/desk.tsx`, fed by a pure function in
 `src/lib/queue/dashboard.ts` with its test beside it: say what counts as
 waiting, in which order, and when it leaves. Decide first whose work it is —
 work an organization or coordinator does in their own portal belongs under
 "Waiting on organizers" (`runnerOf`), never in the administrator's count.
-Rows are `QueueRow`s with an entry number, a `QueueMain`, a `QueueSide` for the
-facts that justify the decision, and the decision itself. A section's link to
-the full list sits in its header on the desk and at its foot on a phone. Add the
-count to the waiting total in the dateline.
+Each item takes the age lead, the record as its title, meta, the facts that
+justify the decision, and the decision itself; the card's note is
+`longestWait()` of its items and its footer links to the full list. Add the
+count to the waiting total and the dates to the headline's `longestWait()`, and
+the stations' waiting lines in the journey if it belongs on one.
 
 ## An audit action
 

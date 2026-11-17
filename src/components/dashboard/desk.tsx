@@ -1,5 +1,6 @@
 import { ArrowRight } from "lucide-react";
 import { getFormatter, getTranslations } from "next-intl/server";
+import type { ReactNode } from "react";
 
 import { ClearedToday } from "@/components/dashboard/cleared-today";
 import {
@@ -8,17 +9,11 @@ import {
   type JourneyWaiting,
 } from "@/components/dashboard/journey";
 import { RecentActivity } from "@/components/dashboard/recent-activity";
-import {
-  AgeLead,
-  QUEUE_ACTIONS,
-  QUEUE_EXPAND,
-  QueueMain,
-  QueueRow,
-  QueueSection,
-  QueueSide,
-} from "@/components/queue/queue";
+import { TodayHeader } from "@/components/dashboard/today-header";
+import { AgeLead } from "@/components/queue/queue";
+import { WorkCard, WorkItem } from "@/components/queue/work-card";
 import { InlineDecision } from "@/components/register/inline-decision";
-import { Register, RegisterNote } from "@/components/register/register";
+import { Count, Register, RegisterNote } from "@/components/register/register";
 import { LoadFailure } from "@/components/states/load-failure";
 import { buttonClass } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
@@ -29,7 +24,7 @@ import { loadAudit } from "@/lib/audit/data.server";
 import { loadAuditDirectory } from "@/lib/audit/directory.server";
 import { roleOf } from "@/lib/audit/directory";
 import { getSession } from "@/lib/auth/session.server";
-import { waited, type Waited } from "@/lib/datetime";
+import { longestWait, waited, type Waited } from "@/lib/datetime";
 import { verifyOrganizationAction } from "@/lib/organizations/actions";
 import { loadPastEventRequests, loadPastEvents } from "@/lib/past-events/data.server";
 import {
@@ -63,8 +58,12 @@ const titleLink = "hover:text-primary-ink hover:underline";
 
 export async function DashboardDesk({
   statistics,
+  title,
+  actions,
 }: {
   statistics: Loaded<Statistics>;
+  title: string;
+  actions?: ReactNode;
 }) {
   const [t, journey, vocabulary, format, session] = await Promise.all([
     getTranslations("desk"),
@@ -96,6 +95,11 @@ export async function DashboardDesk({
 
   const now = new Date();
   const failure = firstFailure(vacancies, applications);
+  const today = format.dateTime(now, {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  });
 
   const totals = isReady(statistics) ? statistics.data.totals : null;
   const statisticsFailure = failureOf(statistics);
@@ -155,6 +159,7 @@ export async function DashboardDesk({
   if (failure || !isReady(vacancies) || !isReady(applications)) {
     return (
       <>
+        <TodayHeader date={today} headline={title} actions={actions} />
         {statisticsFailure ? <LoadFailure failure={statisticsFailure} /> : null}
         <Journey
           {...journeyCopy}
@@ -223,17 +228,18 @@ export async function DashboardDesk({
     value ? format.relativeTime(new Date(value), now) : "";
   const ageText = (age: Waited) =>
     format.number(age.value, { style: "unit", unit: age.unit, unitDisplay: "narrow" });
+  const ageLong = (age: Waited) =>
+    format.number(age.value, { style: "unit", unit: age.unit, unitDisplay: "long" });
 
-  const myAges = [
-    ...approve.map((entry) => waited(entry.receivedAt, now)),
-    ...toVerify.map((item) => waited(item.submittedAt, now)),
-    ...(waitingEvents?.items ?? []).map((event) => waited(event.createdAt, now)),
-    ...decide.map((group) => waited(group.oldestAt, now)),
-    ...myRollCalls.map((call) => waited(call.endedAt, now)),
-  ].filter((age): age is Waited => age !== null);
-  const oldest = myAges.reduce<Waited | null>(
-    (longest, age) => (longest === null || age.days > longest.days ? age : longest),
-    null,
+  const oldest = longestWait(
+    [
+      ...approve.map((entry) => entry.receivedAt),
+      ...toVerify.map((item) => item.submittedAt),
+      ...(waitingEvents?.items ?? []).map((event) => event.createdAt),
+      ...decide.map((group) => group.oldestAt),
+      ...myRollCalls.map((call) => call.endedAt),
+    ],
+    now,
   );
   const scale = Math.max(1, oldest?.days ?? 1);
 
@@ -376,49 +382,66 @@ export async function DashboardDesk({
     ),
   );
 
+  const allLink = (href: string, label: string) => (
+    <Link href={href} className={linkClass}>
+      {label}
+      <ArrowRight aria-hidden="true" className="size-4" />
+    </Link>
+  );
+  const oldestIn = (dates: readonly (string | Date | null | undefined)[]) => {
+    const longest = longestWait(dates, now);
+    return longest ? t("oldestNote", { age: ageText(longest) }) : undefined;
+  };
+
   return (
     <>
+      <TodayHeader
+        date={today}
+        headline={t("headline", { count: waiting })}
+        detail={
+          waiting === 0
+            ? t("headlineClear")
+            : oldest
+              ? t("headlineOldest", { age: ageLong(oldest) })
+              : undefined
+        }
+        actions={actions}
+      />
       {statisticsFailure ? <LoadFailure failure={statisticsFailure} /> : null}
       <Journey {...journeyCopy} stations={stations} />
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_23rem] xl:items-start">
-        <div className="grid min-w-0 gap-6">
-          <Register
-            id="operations"
-            title={t("listTitle")}
-            description={
-              oldest
-                ? t("datelineOldest", {
-                    date: format.dateTime(now, {
-                      weekday: "long",
-                      day: "numeric",
-                      month: "long",
-                    }),
-                    age: ageText(oldest),
-                  })
-                : format.dateTime(now, {
-                    weekday: "long",
-                    day: "numeric",
-                    month: "long",
-                  })
-            }
-            count={waiting}
-            countLabel={t("waitingLabel")}
-            countTone="waiting"
-          >
-            {waiting === 0 ? (
-              <RegisterNote
-                title={t("clear.title")}
-                description={t("clear.description")}
-              />
-            ) : null}
+      <section
+        id="operations"
+        aria-labelledby="operations-title"
+        className="grid gap-4"
+      >
+        <header className="flex flex-wrap items-center gap-2">
+          <h2 id="operations-title" className="text-section text-ink">
+            {t("listTitle")}
+          </h2>
+          <Count value={waiting} label={t("waitingLabel")} tone="waiting" />
+        </header>
 
+        {waiting === 0 ? (
+          <div className="sheet">
+            <RegisterNote
+              title={t("clear.title")}
+              description={t("clear.description")}
+            />
+          </div>
+        ) : (
+          <div className="-mb-4 gap-4 lg:columns-2 [&>*]:mb-4 [&>*]:break-inside-avoid">
             {approve.length > 0 ? (
-              <QueueSection
+              <WorkCard
                 id="approve"
                 title={t("approve.title")}
                 count={approve.length}
                 countLabel={t("approve.countLabel")}
+                note={oldestIn(approve.map((entry) => entry.receivedAt))}
+                footer={allLink(
+                  `${navHref("vacancies")}?state=pending_review`,
+                  t("approve.all"),
+                )}
               >
                 {approve.map((entry) => {
                   const ready = entry.missing.length === 0;
@@ -427,375 +450,394 @@ export async function DashboardDesk({
                     ? directory.people.get(entry.vacancy.createdById)
                     : undefined;
                   return (
-                    <QueueRow key={entry.vacancy.id} lead={lead(entry.receivedAt)}>
-                      <QueueMain
-                        title={
-                          <Link
-                            href={vacancyHref(entry.vacancy.id)}
-                            className={titleLink}
-                          >
-                            {entry.vacancy.title}
-                          </Link>
-                        }
-                        meta={[
-                          entry.organization?.name,
-                          person && person.role !== "organization"
-                            ? person.name
-                            : undefined,
-                          vocabulary(`regions.${entry.vacancy.region}`),
-                        ]
-                          .filter(Boolean)
-                          .join(" · ")}
-                      />
-                      <QueueSide id={sideId}>
-                        <span>
-                          {t("approve.sent", { when: when(entry.receivedAt) })}
-                        </span>
-                        {ready ? (
-                          <span className="font-medium text-success-ink">
-                            {t("approve.ready")}
+                    <WorkItem
+                      key={entry.vacancy.id}
+                      lead={lead(entry.receivedAt)}
+                      title={
+                        <Link
+                          href={vacancyHref(entry.vacancy.id)}
+                          className={titleLink}
+                        >
+                          {entry.vacancy.title}
+                        </Link>
+                      }
+                      meta={[
+                        entry.organization?.name,
+                        person && person.role !== "organization"
+                          ? person.name
+                          : undefined,
+                        vocabulary(`regions.${entry.vacancy.region}`),
+                      ]
+                        .filter(Boolean)
+                        .join(" · ")}
+                      facts={
+                        <>
+                          <span>
+                            {t("approve.sent", { when: when(entry.receivedAt) })}
                           </span>
-                        ) : (
-                          <span className="font-medium text-warning-ink">
-                            {t("approve.needs", {
-                              items: entry.missing
-                                .map((item) => t(`requirements.${item}`))
-                                .join(", "),
-                            })}
-                          </span>
-                        )}
-                      </QueueSide>
-                      <InlineDecision
-                        action={decideVacancyAction}
-                        hidden={{ id: entry.vacancy.id }}
-                        subject={entry.vacancy.title}
-                        labels={labels}
-                        options={vacancyOptions({
-                          title: entry.vacancy.title,
-                          ready,
-                          describedBy: sideId,
-                        })}
-                        className={QUEUE_ACTIONS}
-                        expandClassName={QUEUE_EXPAND}
-                      />
-                    </QueueRow>
+                          {ready ? (
+                            <span id={sideId} className="font-medium text-success-ink">
+                              {t("approve.ready")}
+                            </span>
+                          ) : (
+                            <span id={sideId} className="font-medium text-warning-ink">
+                              {t("approve.needs", {
+                                items: entry.missing
+                                  .map((item) => t(`requirements.${item}`))
+                                  .join(", "),
+                              })}
+                            </span>
+                          )}
+                        </>
+                      }
+                      actions={
+                        <InlineDecision
+                          action={decideVacancyAction}
+                          hidden={{ id: entry.vacancy.id }}
+                          subject={entry.vacancy.title}
+                          labels={labels}
+                          options={vacancyOptions({
+                            title: entry.vacancy.title,
+                            ready,
+                            describedBy: sideId,
+                          })}
+                        />
+                      }
+                    />
                   );
                 })}
-              </QueueSection>
-            ) : null}
-
-            {blocked.length > 0 ? (
-              <QueueSection
-                id="blocked"
-                title={t("blocked.title")}
-                count={blocked.length}
-                countLabel={t("blocked.countLabel")}
-              >
-                {blocked.map((entry) => (
-                  <QueueRow key={entry.organization.id} lead={lead(undefined)}>
-                    <QueueMain
-                      title={entry.organization.name}
-                      meta={t("blocked.meta", {
-                        count: entry.vacancies.length,
-                        titles: entry.vacancies.map((item) => item.title).join(", "),
-                      })}
-                    />
-                    <QueueSide>
-                      <span className="font-medium text-warning-ink">
-                        {t("blocked.state")}
-                      </span>
-                    </QueueSide>
-                    <InlineDecision
-                      action={verifyOrganizationAction}
-                      hidden={{ id: entry.organization.id }}
-                      subject={entry.organization.name}
-                      labels={labels}
-                      options={organizationOptions({ name: entry.organization.name })}
-                      className={QUEUE_ACTIONS}
-                      expandClassName={QUEUE_EXPAND}
-                    />
-                  </QueueRow>
-                ))}
-              </QueueSection>
+              </WorkCard>
             ) : null}
 
             {toVerify.length > 0 ? (
-              <QueueSection
+              <WorkCard
                 id="verify"
                 title={t("verify.title")}
                 count={toVerify.length}
                 countLabel={t("verify.countLabel")}
+                note={oldestIn(toVerify.map((item) => item.submittedAt))}
               >
                 {toVerify.map((item) => (
-                  <QueueRow key={item.opportunityId} lead={lead(item.submittedAt)}>
-                    <QueueMain
-                      title={
-                        <Link
-                          href={`${vacancyHref(item.opportunityId)}?tab=attendance`}
-                          className={titleLink}
-                        >
-                          {item.title}
-                        </Link>
-                      }
-                      meta={item.organization?.name}
-                    />
-                    <QueueSide>
-                      <span>
-                        {t("verify.submitted", { when: when(item.submittedAt) })}
-                      </span>
-                      <span className="font-medium text-ink">
-                        {item.correction
-                          ? t("verify.correction")
-                          : t("verify.volunteers", { count: item.volunteers })}
-                      </span>
-                    </QueueSide>
-                    <div className={`flex ${QUEUE_ACTIONS}`}>
+                  <WorkItem
+                    key={item.opportunityId}
+                    lead={lead(item.submittedAt)}
+                    title={
                       <Link
                         href={`${vacancyHref(item.opportunityId)}?tab=attendance`}
-                        className={buttonClass({ size: "row" })}
+                        className={titleLink}
                       >
-                        {t("verify.open")}
-                        <span className="sr-only"> — {item.title}</span>
+                        {item.title}
                       </Link>
-                    </div>
-                  </QueueRow>
+                    }
+                    meta={item.organization?.name}
+                    facts={
+                      <>
+                        <span>
+                          {t("verify.submitted", { when: when(item.submittedAt) })}
+                        </span>
+                        <span className="font-medium text-ink">
+                          {item.correction
+                            ? t("verify.correction")
+                            : t("verify.volunteers", { count: item.volunteers })}
+                        </span>
+                      </>
+                    }
+                    actions={
+                      <div className="flex">
+                        <Link
+                          href={`${vacancyHref(item.opportunityId)}?tab=attendance`}
+                          className={buttonClass({ size: "row" })}
+                        >
+                          {t("verify.open")}
+                          <span className="sr-only"> — {item.title}</span>
+                        </Link>
+                      </div>
+                    }
+                  />
                 ))}
-              </QueueSection>
+              </WorkCard>
             ) : null}
 
             {pastEventCount > 0 ? (
-              <QueueSection
+              <WorkCard
                 id="past-events"
                 title={t("pastEvents.title")}
                 count={pastEventCount}
                 countLabel={t("pastEvents.countLabel")}
-                action={
-                  <Link href={navHref("pastEvents")} className={linkClass}>
-                    {t("pastEvents.requestsOpen")}
-                    <ArrowRight aria-hidden="true" className="size-4" />
-                  </Link>
-                }
+                note={oldestIn(
+                  (waitingEvents?.items ?? []).map((event) => event.createdAt),
+                )}
+                footer={allLink(navHref("pastEvents"), t("pastEvents.requestsOpen"))}
               >
                 {(waitingEvents?.items ?? []).map((event) => (
-                  <QueueRow key={event.id} lead={lead(event.createdAt)}>
-                    <QueueMain
-                      title={
-                        <Link href={pastEventHref(event.id)} className={titleLink}>
-                          {event.title}
-                        </Link>
-                      }
-                      meta={t("pastEvents.meta", {
-                        organization: event.organization.name,
-                        date: format.dateTime(
-                          new Date(`${event.eventDate.slice(0, 10)}T12:00:00+05:00`),
-                          "date",
-                        ),
-                      })}
-                    />
-                    <QueueSide>
-                      <span className="font-medium text-ink">
-                        {t("pastEvents.waiting", {
-                          waiting: event.pending,
-                          total: event.participants,
-                        })}
-                      </span>
-                      <span>
-                        {t("verify.submitted", { when: when(event.createdAt) })}
-                      </span>
-                    </QueueSide>
-                    <div className={`flex ${QUEUE_ACTIONS}`}>
-                      <Link
-                        href={pastEventHref(event.id)}
-                        className={buttonClass({ size: "row" })}
-                      >
-                        {t("pastEvents.open")}
-                        <span className="sr-only"> — {event.title}</span>
+                  <WorkItem
+                    key={event.id}
+                    lead={lead(event.createdAt)}
+                    title={
+                      <Link href={pastEventHref(event.id)} className={titleLink}>
+                        {event.title}
                       </Link>
-                    </div>
-                  </QueueRow>
+                    }
+                    meta={t("pastEvents.meta", {
+                      organization: event.organization.name,
+                      date: format.dateTime(
+                        new Date(`${event.eventDate.slice(0, 10)}T12:00:00+05:00`),
+                        "date",
+                      ),
+                    })}
+                    facts={
+                      <>
+                        <span className="font-medium text-ink">
+                          {t("pastEvents.waiting", {
+                            waiting: event.pending,
+                            total: event.participants,
+                          })}
+                        </span>
+                        <span>
+                          {t("verify.submitted", { when: when(event.createdAt) })}
+                        </span>
+                      </>
+                    }
+                    actions={
+                      <div className="flex">
+                        <Link
+                          href={pastEventHref(event.id)}
+                          className={buttonClass({ size: "row" })}
+                        >
+                          {t("pastEvents.open")}
+                          <span className="sr-only"> — {event.title}</span>
+                        </Link>
+                      </div>
+                    }
+                  />
                 ))}
                 {pendingRequests > 0 ? (
-                  <li className="px-4 py-2.5 text-[0.8125rem] text-ink-muted">
+                  <li className="px-5 py-3 text-[0.8125rem] text-ink-muted">
                     {t("pastEvents.requests", { count: pendingRequests })}
                   </li>
                 ) : null}
-              </QueueSection>
+              </WorkCard>
+            ) : null}
+
+            {blocked.length > 0 ? (
+              <WorkCard
+                id="blocked"
+                title={t("blocked.title")}
+                count={blocked.length}
+                countLabel={t("blocked.countLabel")}
+                footer={allLink(
+                  `${navHref("organizations")}?verified=no`,
+                  t("blocked.all"),
+                )}
+              >
+                {blocked.map((entry) => (
+                  <WorkItem
+                    key={entry.organization.id}
+                    title={entry.organization.name}
+                    meta={t("blocked.meta", {
+                      count: entry.vacancies.length,
+                      titles: entry.vacancies.map((item) => item.title).join(", "),
+                    })}
+                    facts={
+                      <span className="font-medium text-warning-ink">
+                        {t("blocked.state")}
+                      </span>
+                    }
+                    actions={
+                      <InlineDecision
+                        action={verifyOrganizationAction}
+                        hidden={{ id: entry.organization.id }}
+                        subject={entry.organization.name}
+                        labels={labels}
+                        options={organizationOptions({ name: entry.organization.name })}
+                      />
+                    }
+                  />
+                ))}
+              </WorkCard>
             ) : null}
 
             {decide.length > 0 ? (
-              <QueueSection
+              <WorkCard
                 id="decide"
                 title={t("decide.title")}
                 count={sum(decide)}
                 countLabel={t("decide.countLabel")}
-                action={
-                  <Link
-                    href={navHref("vacancies")}
-                    className={linkClass}
-                  >
-                    {t("decide.all")}
-                    <ArrowRight aria-hidden="true" className="size-4" />
-                  </Link>
-                }
+                note={oldestIn(decide.map((group) => group.oldestAt))}
+                footer={allLink(navHref("vacancies"), t("decide.all"))}
               >
                 {decide.map((group) => (
-                  <QueueRow key={group.vacancyId} lead={lead(group.oldestAt)}>
-                    <QueueMain
-                      title={
-                        <Link href={vacancyHref(group.vacancyId)} className={titleLink}>
-                          {group.title}
-                        </Link>
-                      }
-                      meta={
-                        group.vacancy
-                          ? [
-                              organizationNames.get(group.vacancy.organizationId),
-                              vocabulary(`regions.${group.vacancy.region}`),
-                            ]
-                              .filter(Boolean)
-                              .join(" · ")
-                          : undefined
-                      }
-                    />
-                    <QueueSide>
-                      <span className="font-medium text-ink">
-                        {t("decide.waiting", { count: group.waiting })}
-                      </span>
-                      <span>{t("decide.oldest", { when: when(group.oldestAt) })}</span>
-                      {group.staged > 0 ? (
-                        <span className="text-primary-ink">
-                          {t("decide.staged", { count: group.staged })}
-                        </span>
-                      ) : null}
-                    </QueueSide>
-                    <div className={`flex ${QUEUE_ACTIONS}`}>
-                      <Link
-                        href={`${vacancyHref(group.vacancyId)}?tab=applications`}
-                        className={buttonClass({ size: "row", variant: "outline" })}
-                      >
-                        {t("decide.review")}
-                        <span className="sr-only"> — {group.title}</span>
+                  <WorkItem
+                    key={group.vacancyId}
+                    lead={lead(group.oldestAt)}
+                    title={
+                      <Link href={vacancyHref(group.vacancyId)} className={titleLink}>
+                        {group.title}
                       </Link>
-                    </div>
-                  </QueueRow>
+                    }
+                    meta={
+                      group.vacancy
+                        ? [
+                            organizationNames.get(group.vacancy.organizationId),
+                            vocabulary(`regions.${group.vacancy.region}`),
+                          ]
+                            .filter(Boolean)
+                            .join(" · ")
+                        : undefined
+                    }
+                    facts={
+                      <>
+                        <span className="font-medium text-ink">
+                          {t("decide.waiting", { count: group.waiting })}
+                        </span>
+                        <span>
+                          {t("decide.oldest", { when: when(group.oldestAt) })}
+                        </span>
+                        {group.staged > 0 ? (
+                          <span className="text-primary-ink">
+                            {t("decide.staged", { count: group.staged })}
+                          </span>
+                        ) : null}
+                      </>
+                    }
+                    actions={
+                      <div className="flex">
+                        <Link
+                          href={`${vacancyHref(group.vacancyId)}?tab=applications`}
+                          className={buttonClass({ size: "row", variant: "outline" })}
+                        >
+                          {t("decide.review")}
+                          <span className="sr-only"> — {group.title}</span>
+                        </Link>
+                      </div>
+                    }
+                  />
                 ))}
-              </QueueSection>
+              </WorkCard>
             ) : null}
 
             {myRollCalls.length > 0 ? (
-              <QueueSection
+              <WorkCard
                 id="roll-calls"
                 title={t("rollCalls.title")}
                 count={myRollCalls.length}
                 countLabel={t("rollCalls.countLabel")}
+                note={oldestIn(myRollCalls.map((call) => call.endedAt))}
+                footer={allLink(navHref("attendance"), t("rollCalls.all"))}
               >
                 {myRollCalls.map((call) => (
-                  <QueueRow key={call.vacancyId} lead={lead(call.endedAt)}>
-                    <QueueMain
-                      title={
-                        <Link href={vacancyHref(call.vacancyId)} className={titleLink}>
-                          {call.title}
-                        </Link>
-                      }
-                      meta={
-                        call.endedAt
-                          ? t("rollCalls.ended", { when: when(call.endedAt) })
-                          : undefined
-                      }
-                    />
-                    <QueueSide>
-                      <span className="font-medium text-ink">
-                        {t("rollCalls.waiting", { count: call.awaiting })}
-                      </span>
-                      {call.resolved > 0 ? (
-                        <span>{t("rollCalls.resolved", { count: call.resolved })}</span>
-                      ) : null}
-                    </QueueSide>
-                    <div className={`flex ${QUEUE_ACTIONS}`}>
-                      <Link
-                        href={`${vacancyHref(call.vacancyId)}?tab=attendance`}
-                        className={buttonClass({ size: "row" })}
-                      >
-                        {t("rollCalls.open")}
-                        <span className="sr-only"> — {call.title}</span>
+                  <WorkItem
+                    key={call.vacancyId}
+                    lead={lead(call.endedAt)}
+                    title={
+                      <Link href={vacancyHref(call.vacancyId)} className={titleLink}>
+                        {call.title}
                       </Link>
-                    </div>
-                  </QueueRow>
-                ))}
-              </QueueSection>
-            ) : null}
-          </Register>
-
-          <RecentActivity
-            recent={recent}
-            directory={directory}
-            now={now}
-            href={navHref("audit")}
-          />
-        </div>
-
-        <div className="grid min-w-0 gap-6">
-          <Register
-            id="organizers"
-            title={t("organizers.title")}
-            count={organizers.length}
-            countLabel={t("organizers.countLabel")}
-            description={t("organizers.description")}
-          >
-            {organizers.length === 0 ? (
-              <RegisterNote title={t("organizers.empty")} />
-            ) : (
-              <ol className="divide-y divide-border">
-                {organizers.slice(0, ORGANIZER_ROWS).map((item) => (
-                  <li
-                    key={item.vacancyId}
-                    className="grid grid-cols-[3.25rem_minmax(0,1fr)] items-start gap-x-3 px-4 py-3"
-                  >
-                    {lead(
-                      Number.isFinite(item.since) ? new Date(item.since) : undefined,
-                      organizerScale,
-                    )}
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold break-words text-ink">
+                    }
+                    meta={
+                      call.endedAt
+                        ? t("rollCalls.ended", { when: when(call.endedAt) })
+                        : undefined
+                    }
+                    facts={
+                      <>
+                        <span className="font-medium text-ink">
+                          {t("rollCalls.waiting", { count: call.awaiting })}
+                        </span>
+                        {call.resolved > 0 ? (
+                          <span>
+                            {t("rollCalls.resolved", { count: call.resolved })}
+                          </span>
+                        ) : null}
+                      </>
+                    }
+                    actions={
+                      <div className="flex">
                         <Link
-                          href={`${vacancyHref(item.vacancyId)}?tab=${item.applications ? "applications" : "attendance"}`}
-                          className={titleLink}
+                          href={`${vacancyHref(call.vacancyId)}?tab=attendance`}
+                          className={buttonClass({ size: "row" })}
                         >
-                          {item.title}
+                          {t("rollCalls.open")}
+                          <span className="sr-only"> — {call.title}</span>
                         </Link>
-                      </p>
-                      <p className="mt-0.5 text-[0.8125rem] text-ink-muted">
-                        {runnerName(item.createdById, item.organizationId)}
-                      </p>
-                      <p className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-[0.8125rem] text-ink">
-                        {item.applications ? (
-                          <span>
-                            {t("decide.waiting", { count: item.applications.waiting })}
-                          </span>
-                        ) : null}
-                        {item.rollCall ? (
-                          <span>
-                            {t("organizers.rollCall", {
-                              count: item.rollCall.awaiting,
-                            })}
-                          </span>
-                        ) : null}
-                      </p>
-                    </div>
-                  </li>
+                      </div>
+                    }
+                  />
                 ))}
-              </ol>
-            )}
-            {organizers.length > ORGANIZER_ROWS ? (
-              <p className="border-t border-border px-4 py-2.5 text-[0.8125rem] text-ink-muted">
-                {t("organizers.more", { count: organizers.length - ORGANIZER_ROWS })}
-              </p>
+              </WorkCard>
             ) : null}
-          </Register>
+          </div>
+        )}
+      </section>
 
-          <ClearedToday cleared={cleared} />
-        </div>
+      <div className="grid items-start gap-4 lg:grid-cols-2">
+        <Register
+          id="organizers"
+          title={t("organizers.title")}
+          count={organizers.length}
+          countLabel={t("organizers.countLabel")}
+          description={t("organizers.description")}
+        >
+          {organizers.length === 0 ? (
+            <RegisterNote title={t("organizers.empty")} />
+          ) : (
+            <ol className="divide-y divide-border">
+              {organizers.slice(0, ORGANIZER_ROWS).map((item) => (
+                <li
+                  key={item.vacancyId}
+                  className="grid grid-cols-[2.75rem_minmax(0,1fr)] items-start gap-x-4 px-5 py-3.5"
+                >
+                  {lead(
+                    Number.isFinite(item.since) ? new Date(item.since) : undefined,
+                    organizerScale,
+                  )}
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold break-words text-ink">
+                      <Link
+                        href={`${vacancyHref(item.vacancyId)}?tab=${item.applications ? "applications" : "attendance"}`}
+                        className={titleLink}
+                      >
+                        {item.title}
+                      </Link>
+                    </p>
+                    <p className="mt-0.5 text-[0.8125rem] text-ink-muted">
+                      {runnerName(item.createdById, item.organizationId)}
+                    </p>
+                    <p className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-[0.8125rem] text-ink">
+                      {item.applications ? (
+                        <span>
+                          {t("decide.waiting", { count: item.applications.waiting })}
+                        </span>
+                      ) : null}
+                      {item.rollCall ? (
+                        <span>
+                          {t("organizers.rollCall", {
+                            count: item.rollCall.awaiting,
+                          })}
+                        </span>
+                      ) : null}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          )}
+          {organizers.length > ORGANIZER_ROWS ? (
+            <p className="border-t border-border px-5 py-2.5 text-[0.8125rem] text-ink-muted">
+              {t("organizers.more", { count: organizers.length - ORGANIZER_ROWS })}
+            </p>
+          ) : null}
+        </Register>
+
+        <ClearedToday cleared={cleared} />
       </div>
+
+      <RecentActivity
+        recent={recent}
+        directory={directory}
+        now={now}
+        href={navHref("audit")}
+      />
     </>
   );
 }

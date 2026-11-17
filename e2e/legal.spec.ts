@@ -14,9 +14,14 @@ test.beforeEach(async ({ page }) => {
 test("data requests are a section of their own, with who sent each one and its deadline", async ({
   page,
 }) => {
-  const menu = page.getByRole("button", { name: "Open the menu" });
-  if (await menu.isVisible()) await menu.click();
-  await page.getByRole("link", { name: "Data requests" }).first().click();
+  await page
+    .getByRole("navigation", { name: "Portal sections" })
+    .getByRole("link", { name: "Oversight" })
+    .click();
+  await page
+    .getByRole("navigation", { name: "Oversight pages" })
+    .getByRole("link", { name: "Data requests" })
+    .click();
   await expect(page).toHaveURL(/\/en\/legal$/);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Data requests");
   await expect(page.getByText("Please send me a copy of my data.")).toBeVisible();

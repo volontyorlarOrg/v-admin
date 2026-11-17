@@ -3,8 +3,6 @@
     "organizationName": "Volontyorlar",
     "portalName": "Administrator portali",
     "skipToContent": "Asosiy qismga oʻtish",
-    "openMenu": "Menyuni ochish",
-    "closeMenu": "Menyuni yopish",
     "language": "Interfeys tili",
     "theme": "Yorugʻ va qorongʻi rejimni almashtirish",
     "signOut": "Chiqish",
@@ -36,7 +34,7 @@
   },
   "nav": {
     "label": "Portal boʻlimlari",
-    "dashboard": "Boshqaruv paneli",
+    "dashboard": "Bugun",
     "vacancies": "Vakansiyalar",
     "applications": "Arizalar",
     "users": "Volontyorlar",
@@ -54,14 +52,34 @@
     "blog": "Blog",
     "bulkAwards": "Ommaviy mukofotlash",
     "pastEvents": "Oʻtgan tadbirlar",
-    "groups": {
-      "overview": "Umumiy koʻrinish",
-      "volunteering": "Volontyorlik",
-      "participants": "Ishtirokchilar",
-      "administration": "Boshqaruv"
-    },
     "reports": "Muammo xabarlari",
-    "legal": "Maʼlumot soʻrovlari"
+    "legal": "Maʼlumot soʻrovlari",
+    "hubs": {
+      "overview": "Bosh sahifa",
+      "volunteering": "Volontyorlik",
+      "people": "Odamlar",
+      "publishing": "Blog",
+      "oversight": "Nazorat"
+    },
+    "sectionsOf": "«{hub}» sahifalari",
+    "hubWaiting": "{count} ta ish sizni kutmoqda",
+    "account": "Hisob",
+    "accountMenu": "Hisob va sozlamalar",
+    "accountCaption": "Administrator sifatida kirgansiz",
+    "darkTheme": "Qorongʻi rejim"
+  },
+  "jump": {
+    "open": "Oʻtish…",
+    "title": "Sahifa, amal yoki qidiruvga oʻtish",
+    "placeholder": "Boʻlim, amal yoki ism kiriting",
+    "empty": "«{query}» boʻyicha hech narsa topilmadi.",
+    "hint": "↑ ↓ — tanlash · Enter — ochish · Esc — yopish",
+    "groups": {
+      "pages": "Sahifalar",
+      "create": "Yaratish",
+      "search": "Qidiruv"
+    },
+    "searchIn": "{section}: «{query}» qidiruvi"
   },
   "auth": {
     "metaTitle": "Kirish",
@@ -220,7 +238,7 @@
   },
   "dashboard": {
     "title": "Tahlil",
-    "description": "Butun loyiha boʻyicha jami koʻrsatkichlar. Har bir panelda barcha vaqt yoki hozirgi holat hisoblangani koʻrsatilgan; kunlik dinamika boshqaruv panelida.",
+    "description": "Tanlangan davr uchun kunlik oʻzgarish, soʻng butun loyiha boʻyicha jami koʻrsatkichlar. Har bir panelda davr, barcha vaqt yoki hozirgi holat hisoblangani koʻrsatilgan.",
     "figures": {
       "vacancies": "Vakansiyalar",
       "publishedVacancies": "Eʼlon qilingan",
@@ -482,7 +500,43 @@
       "volunteering": "Volontyorlik",
       "competition": "Tanlovlar"
     },
-    "approvedOn": "{date} tasdiqlangan"
+    "approvedOn": "{date} tasdiqlangan",
+    "track": {
+      "label": "Vakansiya hozir qaysi bosqichda",
+      "stages": {
+        "draft": "Qoralama",
+        "approval": "Tasdiqlash",
+        "applications": "Arizalar",
+        "event": "Tadbir",
+        "results": "Natijalar"
+      },
+      "notes": {
+        "created": "{date} yaratilgan",
+        "preparing": "Tayyorlanmoqda",
+        "waiting": "Tasdiqlashni kutmoqda",
+        "returned": "Oʻzgartirish uchun qaytarilgan",
+        "rejected": "Rad etilgan",
+        "approved": "{date} tasdiqlangan",
+        "closes": "{date} gacha qabul",
+        "closed": "{date} yopilgan",
+        "starts": "{date} boshlanadi",
+        "running": "Hozir oʻtmoqda",
+        "held": "{date} oʻtkazilgan",
+        "due": "Ishtirokni belgilash kerak",
+        "recording": "Ishtirok belgilanmoqda",
+        "submitted": "Tekshiruvga yuborilgan",
+        "correcting": "Tuzatilmoqda",
+        "verified": "Tekshirilgan",
+        "archived": "Shu yerda arxivlangan",
+        "later": "Hali oldinda"
+      },
+      "status": {
+        "done": "bajarilgan",
+        "current": "joriy bosqich",
+        "upcoming": "hali oldinda",
+        "stopped": "toʻxtatilgan"
+      }
+    }
   },
   "applications": {
     "title": "Arizalar",
@@ -1269,7 +1323,6 @@
     }
   },
   "desk": {
-    "dateline": "{date} · {count, plural, =0 {sizni hech narsa kutmayapti} other {sizni # ta ish kutmoqda}}",
     "listTitle": "Sizni kutmoqda",
     "waitingLabel": "kutmoqda",
     "approve": {
@@ -1277,7 +1330,8 @@
       "countLabel": "vakansiya tasdiqlashni kutmoqda",
       "sent": "{when} yuborilgan",
       "ready": "Eʼlon qilishga tayyor",
-      "needs": "Kerak: {items}"
+      "needs": "Kerak: {items}",
+      "all": "Tasdiqlashni kutayotgan barcha vakansiyalar"
     },
     "requirements": {
       "organization": "tasdiqlangan tashkilot",
@@ -1292,7 +1346,8 @@
       "title": "Vakansiyalarni ushlab turgan tashkilotlar",
       "countLabel": "tasdiqlanishi kerak boʻlgan tashkilot",
       "meta": "{count, plural, other {# ta vakansiyani ushlab turibdi: {titles}}}",
-      "state": "Tasdiqlanmagan"
+      "state": "Tasdiqlanmagan",
+      "all": "Tashkilotlarni ochish"
     },
     "decide": {
       "title": "Qaror kutayotgan arizalar",
@@ -1314,7 +1369,8 @@
       "ended": "{when} tugagan",
       "waiting": "{count, plural, other {# ta volontyorni belgilash kerak}}",
       "resolved": "{count, plural, other {# tasi allaqachon belgilangan}}",
-      "open": "Davomatni belgilash"
+      "open": "Davomatni belgilash",
+      "all": "Ishtirokni ochish"
     },
     "clear": {
       "title": "Sizni hech narsa kutmayapti",
@@ -1372,7 +1428,10 @@
     },
     "age": "{age} kutmoqda",
     "ageUnknown": "Kutish vaqti qayd etilmagan",
-    "datelineOldest": "{date} · eng uzoq kutayotgani {age}"
+    "headline": "{count, plural, =0 {Sizni hech narsa kutmayapti} other {# ta ish sizni kutmoqda}}",
+    "headlineOldest": "Eng eskisi {age} kutmoqda. Quyidagilarning barchasini shu sahifada hal qilish mumkin.",
+    "headlineClear": "Yangi vakansiyalar, natijalar va oʻtgan tadbirlar kelishi bilan shu yerda paydo boʻladi.",
+    "oldestNote": "eng eskisi — {age}"
   },
   "blog": {
     "title": "Blog",
@@ -2135,8 +2194,7 @@
     }
   },
   "dashboardHome": {
-    "title": "Boshqaruv paneli",
-    "description": "Volontyor yoʻli qayerda turgani va navbat kimda ekanligi, keyin esa koʻrsatkichlar qanday oʻzgarayotgani.",
+    "title": "Bugun",
     "loadingOperations": "Vazifalar yuklanmoqda",
     "analytics": "Dinamika",
     "period": "Tahlil davri",

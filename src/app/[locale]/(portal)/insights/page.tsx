@@ -7,6 +7,7 @@ import { LineChart } from "@/components/charts/line-chart";
 import { Meter } from "@/components/charts/meter";
 import { RegionMap } from "@/components/charts/region-map";
 import { SegmentedBar } from "@/components/charts/segmented-bar";
+import { DashboardAnalytics } from "@/components/statistics/dashboard-analytics";
 import { Panel } from "@/components/portal/panel";
 import { LoadFailure } from "@/components/states/load-failure";
 import { PageHeader } from "@/components/states/page-header";
@@ -31,6 +32,8 @@ import {
   type CoordinatorStateKey,
   type PipelineStageKey,
 } from "@/lib/statistics/charts";
+import { analyticsDays } from "@/lib/statistics/analytics";
+import { loadAnalytics } from "@/lib/statistics/analytics.server";
 import { loadStatistics } from "@/lib/statistics/data.server";
 import { loadSignupTrend } from "@/lib/statistics/signup-trend.server";
 import { loadVacancies } from "@/lib/vacancies/data.server";
@@ -63,9 +66,11 @@ export async function generateMetadata({
 
 export default async function InsightsPage({
   params,
+  searchParams,
 }: PageProps<"/[locale]/insights">) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const days = analyticsDays(await searchParams);
 
   const [t, applicationsT, vacanciesT, vocabulary, format] = await Promise.all([
     getTranslations("dashboard"),
@@ -75,11 +80,12 @@ export default async function InsightsPage({
     getFormatter(),
   ]);
 
-  const [statistics, vacancies, applications, users] = await Promise.all([
+  const [statistics, vacancies, applications, users, analytics] = await Promise.all([
     loadStatistics(),
     loadVacancies(),
     loadApplications(),
     loadSignupTrend(),
+    loadAnalytics(days),
   ]);
 
   const header = <PageHeader title={t("title")} description={t("description")} />;
@@ -89,6 +95,7 @@ export default async function InsightsPage({
     return (
       <>
         {header}
+        <DashboardAnalytics analytics={analytics} days={days} />
         {failure ? <LoadFailure failure={failure} /> : null}
       </>
     );
@@ -141,6 +148,8 @@ export default async function InsightsPage({
   return (
     <>
       {header}
+
+      <DashboardAnalytics analytics={analytics} days={days} />
 
       <Panel
         id="regions"

@@ -3,8 +3,6 @@
     "organizationName": "Volontyorlar",
     "portalName": "Administrator portal",
     "skipToContent": "Skip to content",
-    "openMenu": "Open the menu",
-    "closeMenu": "Close the menu",
     "language": "Interface language",
     "theme": "Switch between light and dark",
     "signOut": "Sign out",
@@ -36,7 +34,7 @@
   },
   "nav": {
     "label": "Portal sections",
-    "dashboard": "Dashboard",
+    "dashboard": "Today",
     "vacancies": "Vacancies",
     "applications": "Applications",
     "users": "Volunteers",
@@ -54,14 +52,34 @@
     "blog": "Blog",
     "bulkAwards": "Bulk awards",
     "pastEvents": "Past events",
-    "groups": {
-      "overview": "Overview",
-      "volunteering": "Volunteering",
-      "participants": "Participants",
-      "administration": "Administration"
-    },
     "reports": "Reports",
-    "legal": "Data requests"
+    "legal": "Data requests",
+    "hubs": {
+      "overview": "Home",
+      "volunteering": "Volunteering",
+      "people": "People",
+      "publishing": "Blog",
+      "oversight": "Oversight"
+    },
+    "sectionsOf": "{hub} pages",
+    "hubWaiting": "{count, plural, one {# item waits on you} other {# items wait on you}}",
+    "account": "Account",
+    "accountMenu": "Account and settings",
+    "accountCaption": "Signed in as an administrator",
+    "darkTheme": "Dark theme"
+  },
+  "jump": {
+    "open": "Jump to…",
+    "title": "Jump to a page, an action or a search",
+    "placeholder": "Type a page, an action or a name",
+    "empty": "Nothing matches “{query}”.",
+    "hint": "↑ ↓ to move · Enter to open · Esc to close",
+    "groups": {
+      "pages": "Pages",
+      "create": "Create",
+      "search": "Search"
+    },
+    "searchIn": "{section} matching “{query}”"
   },
   "auth": {
     "metaTitle": "Sign in",
@@ -220,7 +238,7 @@
   },
   "dashboard": {
     "title": "Insights",
-    "description": "Totals for the whole product. Every panel says whether it counts all time or right now; day-by-day trends are on the Dashboard.",
+    "description": "Day-by-day trends for the period you choose, then totals for the whole product. Every panel says whether it counts the period, all time or right now.",
     "figures": {
       "vacancies": "Vacancies",
       "publishedVacancies": "Published",
@@ -482,7 +500,43 @@
       "volunteering": "Volunteering",
       "competition": "Competitions"
     },
-    "approvedOn": "Approved {date}"
+    "approvedOn": "Approved {date}",
+    "track": {
+      "label": "Where this vacancy stands",
+      "stages": {
+        "draft": "Draft",
+        "approval": "Approval",
+        "applications": "Applications",
+        "event": "Event",
+        "results": "Results"
+      },
+      "notes": {
+        "created": "Created {date}",
+        "preparing": "Being prepared",
+        "waiting": "Waiting for approval",
+        "returned": "Returned for changes",
+        "rejected": "Rejected",
+        "approved": "Approved {date}",
+        "closes": "Close {date}",
+        "closed": "Closed {date}",
+        "starts": "Starts {date}",
+        "running": "Under way",
+        "held": "Held {date}",
+        "due": "Attendance to record",
+        "recording": "Attendance being recorded",
+        "submitted": "Sent for verification",
+        "correcting": "Being corrected",
+        "verified": "Verified",
+        "archived": "Archived here",
+        "later": "Not yet"
+      },
+      "status": {
+        "done": "done",
+        "current": "current step",
+        "upcoming": "not reached yet",
+        "stopped": "stopped"
+      }
+    }
   },
   "applications": {
     "title": "Applications",
@@ -1269,7 +1323,6 @@
     }
   },
   "desk": {
-    "dateline": "{date} · {count, plural, =0 {nothing waits on you} one {# thing waits on you} other {# things wait on you}}",
     "listTitle": "Waiting on you",
     "waitingLabel": "waiting",
     "approve": {
@@ -1277,7 +1330,8 @@
       "countLabel": "vacancies waiting for approval",
       "sent": "Sent {when}",
       "ready": "Ready to publish",
-      "needs": "Needs {items}"
+      "needs": "Needs {items}",
+      "all": "Every vacancy waiting for approval"
     },
     "requirements": {
       "organization": "a verified organization",
@@ -1292,7 +1346,8 @@
       "title": "Organizations holding vacancies back",
       "countLabel": "organizations to verify",
       "meta": "{count, plural, one {Holds back # vacancy: {titles}} other {Holds back # vacancies: {titles}}}",
-      "state": "Not verified"
+      "state": "Not verified",
+      "all": "Open organizations"
     },
     "decide": {
       "title": "Applications to decide",
@@ -1314,7 +1369,8 @@
       "ended": "Ended {when}",
       "waiting": "{count, plural, one {# volunteer to record} other {# volunteers to record}}",
       "resolved": "{count, plural, one {# already recorded} other {# already recorded}}",
-      "open": "Take roll call"
+      "open": "Take roll call",
+      "all": "Open attendance"
     },
     "clear": {
       "title": "Nothing waits on you",
@@ -1372,7 +1428,10 @@
     },
     "age": "Waiting {age}",
     "ageUnknown": "Waiting time not recorded",
-    "datelineOldest": "{date} · oldest waiting {age}"
+    "headline": "{count, plural, =0 {Nothing waits on you} one {# thing waits on you} other {# things wait on you}}",
+    "headlineOldest": "The oldest has waited {age}. Everything below can be decided from this page.",
+    "headlineClear": "New vacancies, results and past events appear here the moment they arrive.",
+    "oldestNote": "oldest {age}"
   },
   "blog": {
     "title": "Blog",
@@ -2135,8 +2194,7 @@
     }
   },
   "dashboardHome": {
-    "title": "Dashboard",
-    "description": "Where the volunteer journey stands and whose move it is, then how the numbers are moving.",
+    "title": "Today",
     "loadingOperations": "Loading operations",
     "analytics": "Trends",
     "period": "Analytics period",

@@ -1,9 +1,10 @@
 # Insights
 
-`/insights` keeps the all-time and current breakdowns. The main
-[Dashboard](DASHBOARD.md) owns the period trends and the 30/90-day selector,
-using server aggregates from `/admin/analytics`. Insights retains its existing
-sources and completeness limits below. Both surfaces visualize published data
+`/insights` is the Home hub's second tab. It opens with the period trends and
+the 30/90-day selector (`?days=`), using server aggregates from
+`/admin/analytics` (see [Trends](DASHBOARD.md#trends-on-insights)), then keeps
+the all-time and current breakdowns below with their existing sources and
+completeness limits. [Today](DASHBOARD.md) holds no figures over time. Both surfaces visualize published data
 without estimating, smoothing, projecting or padding it.
 
 ## Sources
@@ -29,7 +30,7 @@ current states (applications by status, vacancies by state, the shares, the
 coordinator split). The application pipeline mixes both, so each of its rows
 carries its own tag, and each bar is that row's share of every application ever
 sent: these are states, not funnel steps, and one application can count in more
-than one. Day-by-day trends for 30 or 90 days belong to the Dashboard alone.
+than one. Day-by-day trends for 30 or 90 days stay in the trends section at the top.
 
 ## The region map
 
