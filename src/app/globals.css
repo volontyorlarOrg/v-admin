@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
 @theme {
-  --color-paper: #f5f7fa;
+  --color-paper: #f2f4f7;
   --color-surface: #ffffff;
-  --color-surface-sunk: #f0f3f7;
+  --color-surface-sunk: #f0f2f5;
   --color-surface-soft: #e8f2fa;
   --color-surface-raised: #ffffff;
   --color-field: #ffffff;
@@ -12,7 +12,7 @@
   --color-ink-muted: #5f6b7a;
   --color-ink-faint: #8a95a1;
 
-  --color-border: #dfe4ea;
+  --color-border: #e1e5ea;
   --color-border-strong: #c9d1da;
   --color-border-control: #8a95a1;
 
@@ -36,12 +36,12 @@
   --color-logo-orange: #e85d30;
   --color-logo-word: #007fc2;
 
-  --color-shell: #eef2f6;
-  --color-shell-raised: #e2e8ef;
-  --color-shell-line: #d8dfe7;
+  --color-shell: #ffffff;
+  --color-shell-raised: #f1f3f6;
+  --color-shell-line: #e1e5ea;
   --color-shell-ink: #0f1b2a;
-  --color-shell-muted: #4f5b6a;
-  --color-shell-active: #ffffff;
+  --color-shell-muted: #5a6676;
+  --color-shell-active: #e9eef4;
   --color-shell-active-ink: #005e92;
 
   --color-warning: #b87700;
@@ -98,16 +98,22 @@
   --font-sans: var(--font-onest), ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-source-serif), ui-serif, Georgia, serif;
 
-  --radius-sm: 0.25rem;
-  --radius-md: 0.375rem;
-  --radius-lg: 0.5rem;
-  --radius-xl: 0.625rem;
-  --radius-2xl: 0.75rem;
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.625rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
   --radius: var(--radius-md);
 
-  --text-page: 1.5rem;
-  --text-page--line-height: 1.25;
-  --text-page--letter-spacing: -0.015em;
+  --text-display: 2rem;
+  --text-display--line-height: 1.15;
+  --text-display--letter-spacing: -0.025em;
+  --text-display-compact: 1.5rem;
+  --text-display-compact--line-height: 1.2;
+  --text-display-compact--letter-spacing: -0.02em;
+  --text-page: 1.625rem;
+  --text-page--line-height: 1.2;
+  --text-page--letter-spacing: -0.02em;
   --text-page-compact: 1.375rem;
   --text-page-compact--line-height: 1.25;
   --text-page-compact--letter-spacing: -0.015em;
@@ -119,12 +125,14 @@
   --text-station--letter-spacing: -0.02em;
   --text-lead: 1rem;
   --text-lead--line-height: 1.55;
-  --text-section: 0.9375rem;
+  --text-section: 1rem;
   --text-section--line-height: 1.4;
   --text-label: 0.75rem;
   --text-label--line-height: 1.35;
 
-  --sidebar-width: 15rem;
+  --rail-width: 5.75rem;
+  --topbar-height: 3.5rem;
+  --bottombar-height: 4rem;
 }
 
 @layer base {
@@ -136,7 +144,7 @@
   :root[data-theme="dark"] {
     color-scheme: dark;
 
-    --color-paper: #0d131c;
+    --color-paper: #0c1219;
     --color-surface: #151c27;
     --color-surface-sunk: #111823;
     --color-surface-soft: #18304a;
@@ -166,12 +174,12 @@
     --color-accent-muted: #3a2618;
     --color-logo-word: #ffffff;
 
-    --color-shell: #111823;
-    --color-shell-raised: #1b2533;
+    --color-shell: #121923;
+    --color-shell-raised: #1a2330;
     --color-shell-line: #232e3d;
     --color-shell-ink: #e8edf3;
     --color-shell-muted: #a3afbf;
-    --color-shell-active: #1c2738;
+    --color-shell-active: #1f2a3a;
     --color-shell-active-ink: #8fcbf3;
 
     --color-warning: #e0a325;
@@ -213,7 +221,7 @@
 
   html {
     -webkit-text-size-adjust: 100%;
-    scroll-padding-top: 4.5rem;
+    scroll-padding-top: 5.5rem;
   }
 
   button:not(:disabled),

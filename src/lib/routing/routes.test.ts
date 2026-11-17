@@ -3,13 +3,15 @@ import { describe, expect, it } from "vitest";
 import {
   ENTRY_ROUTE,
   HOME_ROUTE,
-  NAV_GROUPS,
+  HUBS,
   PASSWORD_ROUTE,
   ACCOUNT_ROUTES,
   appRoutes,
   getRoute,
   guardFor,
-  navGroupRoutes,
+  hubFor,
+  hubHref,
+  hubRoutes,
   isActivePath,
   localePath,
   navHref,
@@ -55,22 +57,37 @@ describe("the route registry", () => {
     expect(navRoutes.length).toBeGreaterThan(3);
   });
 
-  it("keeps every rail group to four destinations or fewer so it can be scanned at a glance", () => {
-    for (const group of NAV_GROUPS) {
-      const routes = navGroupRoutes(group);
-      expect(routes.length, group).toBeGreaterThan(0);
-      expect(routes.length, group).toBeLessThanOrEqual(4);
+  it("keeps the rail to five hubs and every hub to four tabs or fewer, so neither needs scrolling", () => {
+    expect(HUBS.length).toBeLessThanOrEqual(5);
+    for (const hub of HUBS) {
+      const routes = hubRoutes(hub);
+      expect(routes.length, hub).toBeGreaterThan(0);
+      expect(routes.length, hub).toBeLessThanOrEqual(4);
     }
   });
 
-  it("keeps coordinators, insights, attendance and audit history reachable from the rail, not buried in another page", () => {
-    const inRail = navRoutes.map((route) => route.key);
+  it("puts every navigation section in exactly one hub", () => {
+    for (const route of navRoutes) {
+      expect(HUBS, route.key).toContain(route.hub);
+    }
+  });
+
+  it("keeps coordinators, insights, attendance and audit history one tab away, not buried in another page", () => {
+    const inTabs = navRoutes.map((route) => route.key);
     for (const key of ["coordinators", "insights", "attendance", "audit"] as const) {
-      expect(inRail, key).toContain(key);
+      expect(inTabs, key).toContain(key);
     }
   });
 
-  it("badges only work an administrator moves, so the rail never counts an organizer's backlog as theirs", () => {
+  it("opens each hub on its first tab and keeps detail pages inside their hub", () => {
+    expect(hubHref("overview")).toBe(navHref("dashboard"));
+    expect(hubHref("volunteering")).toBe(navHref("vacancies"));
+    expect(hubFor("/en/vacancies/abc-123")).toBe("volunteering");
+    expect(hubFor("/uz/coordinators/new")).toBe("people");
+    expect(hubFor("/ru/account/change-password")).toBeNull();
+  });
+
+  it("badges only work an administrator moves, so a hub never counts an organizer's backlog as theirs", () => {
     const badged = navRoutes.filter((route) => route.count).map((route) => route.key);
     expect(badged).toEqual(["vacancies", "pastEvents"]);
   });

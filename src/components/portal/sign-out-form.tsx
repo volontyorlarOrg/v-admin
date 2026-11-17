@@ -12,21 +12,19 @@ export function SignOutForm({
   locale: string;
   label: string;
   pendingLabel: string;
-  tone?: "default" | "shell";
+  tone?: "default" | "menu";
 }) {
+  const menu = tone === "menu";
   return (
-    <form action={signOutAction} className={tone === "shell" ? "w-full" : undefined}>
+    <form action={signOutAction} className={menu ? "w-full" : undefined}>
       <input type="hidden" name="locale" value={locale} />
       <SubmitButton
-        variant={tone === "shell" ? "shell" : "outline"}
+        variant={menu ? "danger-outline" : "outline"}
         size="sm"
         pendingLabel={pendingLabel}
-        className={tone === "shell" ? "min-h-9 w-full gap-2.5 px-2.5" : undefined}
+        className={menu ? "w-full" : undefined}
       >
-        <LogOut
-          aria-hidden="true"
-          className={tone === "shell" ? "size-[1.125rem]" : "size-4"}
-        />
+        <LogOut aria-hidden="true" className="size-4" />
         {label}
       </SubmitButton>
     </form>

@@ -25,11 +25,9 @@ function withLocale(pathname: string, locale: Locale): string {
 
 export function LocaleSwitcher({
   label,
-  tone = "default",
   className,
 }: {
   label: string;
-  tone?: "default" | "shell";
   className?: string;
 }) {
   const router = useRouter();
@@ -38,17 +36,13 @@ export function LocaleSwitcher({
   const [pending, startTransition] = useTransition();
   const segment = pathname.split("/")[1];
   const current = isLocale(segment) ? segment : defaultLocale;
-  const shell = tone === "shell";
 
   return (
     <label className={cn("relative flex min-w-0 items-center", className)}>
       <span className="sr-only">{label}</span>
       <Languages
         aria-hidden="true"
-        className={cn(
-          "pointer-events-none absolute left-3 z-10 size-4",
-          shell ? "text-shell-muted" : "text-ink-muted",
-        )}
+        className="pointer-events-none absolute left-3 z-10 size-4 text-ink-muted"
       />
       <NativeSelect
         value={current}
@@ -59,12 +53,7 @@ export function LocaleSwitcher({
             router.replace(search ? `${next}?${search}` : next);
           });
         }}
-        iconClassName={shell ? "text-shell-muted" : undefined}
-        className={cn(
-          "min-h-9 w-full rounded-md pl-9 text-sm",
-          shell &&
-            "border-shell-line bg-surface text-shell-ink hover:border-border-control [&_option]:bg-surface [&_option]:text-ink",
-        )}
+        className="min-h-9 w-full rounded-md pl-9 text-sm"
       >
         {locales.map((locale) => (
           <NativeSelectOption key={locale} value={locale}>

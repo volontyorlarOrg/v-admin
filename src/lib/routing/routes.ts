@@ -29,18 +29,27 @@ export type RouteArea = "auth" | "portal" | "account";
 
 export type RouteGuard = "guest" | "session";
 
-export const NAV_GROUPS = [
+export const HUBS = [
   "overview",
   "volunteering",
-  "participants",
-  "administration",
+  "people",
+  "publishing",
+  "oversight",
 ] as const;
 
 export const NAV_COUNTS = ["pendingApproval", "pastEventRequests"] as const;
 
 export type NavCount = (typeof NAV_COUNTS)[number];
 
-export type NavGroup = (typeof NAV_GROUPS)[number];
+export type Hub = (typeof HUBS)[number];
+
+export const HUB_ICONS: Record<Hub, string> = {
+  overview: "house",
+  volunteering: "clipboard-list",
+  people: "users",
+  publishing: "book-open",
+  oversight: "shield-check",
+};
 
 export type AppRoute = {
   key: RouteKey;
@@ -48,7 +57,7 @@ export type AppRoute = {
   area: RouteArea;
   guard: RouteGuard;
   inNav: boolean;
-  group?: NavGroup;
+  hub?: Hub;
   count?: NavCount;
   icon: string;
 };
@@ -64,34 +73,35 @@ export const appRoutes: readonly AppRoute[] = [
   },
   {
     key: "dashboard",
+    hub: "overview",
     path: "/dashboard",
     area: "portal",
     guard: "session",
     inNav: true,
-    group: "overview",
     icon: "layout-dashboard",
   },
   {
     key: "insights",
+    hub: "overview",
     path: "/insights",
     area: "portal",
     guard: "session",
     inNav: true,
-    group: "overview",
     icon: "chart-column",
   },
   {
     key: "vacancies",
+    hub: "volunteering",
     path: "/vacancies",
     area: "portal",
     guard: "session",
     inNav: true,
-    group: "volunteering",
     count: "pendingApproval",
     icon: "clipboard-list",
   },
   {
     key: "newVacancy",
+    hub: "volunteering",
     path: "/vacancies/new",
     area: "portal",
     guard: "session",
@@ -99,87 +109,54 @@ export const appRoutes: readonly AppRoute[] = [
     icon: "plus",
   },
   {
-    key: "blog",
-    path: "/blog",
-    area: "portal",
-    guard: "session",
-    inNav: true,
-    group: "administration",
-    icon: "book-open",
-  },
-  {
-    key: "newBlog",
-    path: "/blog/new",
-    area: "portal",
-    guard: "session",
-    inNav: false,
-    icon: "plus",
-  },
-  {
     key: "applications",
+    hub: "volunteering",
     path: "/applications",
     area: "portal",
     guard: "session",
     inNav: false,
-    group: "volunteering",
     icon: "inbox",
   },
   {
     key: "attendance",
+    hub: "volunteering",
     path: "/attendance",
     area: "portal",
     guard: "session",
     inNav: true,
-    group: "volunteering",
     icon: "clipboard-check",
   },
   {
-    key: "users",
-    path: "/users",
-    area: "portal",
-    guard: "session",
-    inNav: true,
-    group: "participants",
-    icon: "users",
-  },
-  {
-    key: "bulkAwards",
-    path: "/bulk-awards",
-    area: "portal",
-    guard: "session",
-    inNav: true,
-    group: "administration",
-    icon: "award",
-  },
-  {
     key: "pastEvents",
+    hub: "volunteering",
     path: "/past-events",
     area: "portal",
     guard: "session",
     inNav: true,
-    group: "volunteering",
     count: "pastEventRequests",
     icon: "calendar-clock",
   },
   {
-    key: "activity",
-    path: "/activity",
-    area: "account",
+    key: "users",
+    hub: "people",
+    path: "/users",
+    area: "portal",
     guard: "session",
-    inNav: false,
-    icon: "history",
+    inNav: true,
+    icon: "users",
   },
   {
     key: "coordinators",
+    hub: "people",
     path: "/coordinators",
     area: "portal",
     guard: "session",
     inNav: true,
-    group: "participants",
     icon: "user-cog",
   },
   {
     key: "newCoordinator",
+    hub: "people",
     path: "/coordinators/new",
     area: "portal",
     guard: "session",
@@ -188,39 +165,74 @@ export const appRoutes: readonly AppRoute[] = [
   },
   {
     key: "organizations",
+    hub: "people",
     path: "/organizations",
     area: "portal",
     guard: "session",
     inNav: true,
-    group: "participants",
     icon: "building-2",
   },
   {
-    key: "audit",
-    path: "/audit",
+    key: "bulkAwards",
+    hub: "people",
+    path: "/bulk-awards",
     area: "portal",
     guard: "session",
     inNav: true,
-    group: "administration",
-    icon: "scroll-text",
+    icon: "award",
+  },
+  {
+    key: "blog",
+    hub: "publishing",
+    path: "/blog",
+    area: "portal",
+    guard: "session",
+    inNav: true,
+    icon: "book-open",
+  },
+  {
+    key: "newBlog",
+    hub: "publishing",
+    path: "/blog/new",
+    area: "portal",
+    guard: "session",
+    inNav: false,
+    icon: "plus",
   },
   {
     key: "reports",
+    hub: "oversight",
     path: "/reports",
     area: "portal",
     guard: "session",
     inNav: true,
-    group: "administration",
     icon: "message-square-warning",
   },
   {
     key: "legal",
+    hub: "oversight",
     path: "/legal",
     area: "portal",
     guard: "session",
     inNav: true,
-    group: "participants",
     icon: "shield-check",
+  },
+  {
+    key: "audit",
+    hub: "oversight",
+    path: "/audit",
+    area: "portal",
+    guard: "session",
+    inNav: true,
+    icon: "scroll-text",
+  },
+  {
+    key: "activity",
+    path: "/activity",
+    area: "account",
+    guard: "session",
+    inNav: false,
+    icon: "history",
   },
   {
     key: "changePassword",
@@ -240,8 +252,31 @@ export const navRoutes = appRoutes.filter((route) => route.inNav);
 
 export const ACCOUNT_ROUTES: readonly RouteKey[] = ["activity"];
 
-export function navGroupRoutes(group: NavGroup): AppRoute[] {
-  return navRoutes.filter((route) => route.group === group);
+export const JUMP_CREATE: readonly { key: RouteKey; label: string }[] = [
+  { key: "newVacancy", label: "vacancies.new" },
+  { key: "newCoordinator", label: "coordinators.new" },
+  { key: "newBlog", label: "blog.new" },
+];
+
+export const JUMP_SEARCH: readonly RouteKey[] = [
+  "vacancies",
+  "users",
+  "coordinators",
+  "organizations",
+];
+
+export function hubRoutes(hub: Hub): AppRoute[] {
+  return navRoutes.filter((route) => route.hub === hub);
+}
+
+export function hubHref(hub: Hub): string {
+  const first = hubRoutes(hub)[0];
+  if (!first) throw new Error(`Empty portal hub: ${hub}`);
+  return first.path;
+}
+
+export function hubFor(pathname: string): Hub | null {
+  return routeFor(pathname)?.hub ?? null;
 }
 
 export function getRoute(key: RouteKey): AppRoute {

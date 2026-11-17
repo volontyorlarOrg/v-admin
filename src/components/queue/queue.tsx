@@ -1,46 +1,6 @@
 import type { ReactNode } from "react";
 
-import { Count } from "@/components/register/register";
 import { cn } from "@/lib/utils";
-
-export function QueueSection({
-  id,
-  title,
-  count,
-  countLabel,
-  note,
-  action,
-  children,
-}: {
-  id: string;
-  title: string;
-  count: number;
-  countLabel: string;
-  note?: ReactNode;
-  action?: ReactNode;
-  children: ReactNode;
-}) {
-  return (
-    <section
-      id={id}
-      aria-labelledby={`${id}-title`}
-      className="border-t border-border first:border-t-0"
-    >
-      <header className="flex flex-wrap items-center gap-x-2 gap-y-1 bg-surface-sunk/60 px-4 py-2">
-        <h3 id={`${id}-title`} className="text-sm font-semibold text-ink">
-          {title}
-        </h3>
-        <Count value={count} label={countLabel} tone="waiting" />
-        {note ? <span className="text-xs text-ink-muted">{note}</span> : null}
-        {action ? <div className="ml-auto hidden lg:block">{action}</div> : null}
-      </header>
-      <ol className="divide-y divide-border border-t border-border">{children}</ol>
-      {action ? (
-        <div className="border-t border-border px-4 py-2 lg:hidden">{action}</div>
-      ) : null}
-    </section>
-  );
-}
 
 export function QueueRow({
   lead,
@@ -131,4 +91,3 @@ export function AgeLead({
 
 export const QUEUE_ACTIONS =
   "col-start-1 group-data-[lead]/row:col-start-2 lg:col-start-auto lg:group-data-[lead]/row:col-start-auto lg:justify-end";
-export const QUEUE_EXPAND = "col-span-full lg:group-data-[lead]/row:col-[2/-1]";

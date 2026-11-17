@@ -19,13 +19,13 @@ test.beforeEach(async ({ page }) => {
   await page.request.post(`${STUB}/__stub/reset`);
 });
 
-test("dashboard leads with the volunteer journey, then the work that waits, then trends", async ({
+test("Today leads with what waits on you and leaves the trends to Insights", async ({
   page,
 }) => {
   await signedIn(page);
   await page.goto("/en/dashboard");
   await expect(
-    page.getByRole("heading", { level: 1, name: "Dashboard" }),
+    page.getByRole("heading", { level: 1, name: "4 things wait on you" }),
   ).toBeVisible();
   for (const name of [
     "Volunteer journey",
@@ -33,6 +33,20 @@ test("dashboard leads with the volunteer journey, then the work that waits, then
     "Waiting on organizers",
     "Decided today",
     "Recent activity",
+  ]) {
+    await expect(page.getByRole("heading", { name, exact: true })).toBeVisible();
+  }
+  expect(
+    await page
+      .locator("#journey, #operations, #organizers, #cleared, #activity")
+      .evaluateAll((sections) => sections.map((section) => section.id)),
+  ).toEqual(["journey", "operations", "organizers", "cleared", "activity"]);
+  await expect(page.getByRole("heading", { name: "Trends", exact: true })).toHaveCount(
+    0,
+  );
+
+  await page.goto("/en/insights");
+  for (const name of [
     "Trends",
     "User growth",
     "Applications",
@@ -47,21 +61,9 @@ test("dashboard leads with the volunteer journey, then the work that waits, then
   }
   expect(
     await page
-      .locator(
-        "#journey, #operations, #activity, #organizers, #cleared, #trends, #growth, #application-analytics, #impact",
-      )
+      .locator("#trends, #growth, #application-analytics, #impact, #regions")
       .evaluateAll((sections) => sections.map((section) => section.id)),
-  ).toEqual([
-    "journey",
-    "operations",
-    "activity",
-    "organizers",
-    "cleared",
-    "trends",
-    "growth",
-    "application-analytics",
-    "impact",
-  ]);
+  ).toEqual(["trends", "growth", "application-analytics", "impact", "regions"]);
 });
 
 test("labels every journey figure with its scope and says whose move each waiting item is", async ({
@@ -93,7 +95,7 @@ test("switches between 30 and 90 complete daily buckets and exposes the chart da
   page,
 }) => {
   await signedIn(page);
-  await page.goto("/en/dashboard");
+  await page.goto("/en/insights");
   const chart = page
     .locator("section")
     .filter({
@@ -115,17 +117,18 @@ test("switches between 30 and 90 complete daily buckets and exposes the chart da
   await expect(chart.locator("tbody tr")).toHaveCount(90);
 });
 
-test("keeps dashboard analytics visible when the operational queue fails", async ({
+test("keeps the journey and the trends visible when the operational queue fails", async ({
   page,
 }) => {
   await signedIn(page);
   await page.request.post(`${STUB}/__stub/break`, {
     data: { path: "/admin/opportunities", status: 503, code: "upstreamUnavailable" },
   });
-  await page.goto("/en/dashboard");
+  await page.goto("/en/insights");
   await expect(
     page.getByRole("heading", { name: "User growth", exact: true }),
   ).toBeVisible();
+  await page.goto("/en/dashboard");
   await expect(
     page.getByRole("heading", { name: "Volunteer journey", exact: true }),
   ).toBeVisible();
@@ -146,6 +149,12 @@ test("keeps totals and decisions visible when analytics is unavailable", async (
   ).toBeVisible();
   await expect(
     page.getByRole("heading", { name: "Waiting on you", exact: true }),
+  ).toBeVisible();
+  await expect(page.locator('[data-slot="state-panel"]')).toHaveCount(0);
+
+  await page.goto("/en/insights");
+  await expect(
+    page.getByRole("heading", { name: "Application pipeline", exact: true }),
   ).toBeVisible();
   await expect(page.locator('[data-slot="state-panel"]')).toHaveCount(1);
   await expect(
@@ -180,11 +189,9 @@ test("loads the signup trend without reading the volunteer directory", async ({
     data: { path: "/admin/users", status: 503, code: "upstreamUnavailable" },
   });
   await page.goto("/en/insights");
-  const joins = page
-    .locator("section")
-    .filter({
-      has: page.getByRole("heading", { name: "Volunteers joining", exact: true }),
-    });
+  const joins = page.locator("section").filter({
+    has: page.getByRole("heading", { name: "Volunteers joining", exact: true }),
+  });
   await expect(joins).toBeVisible();
   await expect(joins.locator('[data-slot="state-panel"]')).toHaveCount(0);
   await expect(joins.getByText(/\d+ volunteers? between/)).toBeVisible();
@@ -202,11 +209,9 @@ test("keeps other insights visible when the signup aggregate is unavailable", as
     },
   });
   await page.goto("/en/insights");
-  const joins = page
-    .locator("section")
-    .filter({
-      has: page.getByRole("heading", { name: "Volunteers joining", exact: true }),
-    });
+  const joins = page.locator("section").filter({
+    has: page.getByRole("heading", { name: "Volunteers joining", exact: true }),
+  });
   await expect(joins.locator('[data-slot="state-panel"]')).toBeVisible();
   await expect(
     page.getByRole("heading", { name: "Application pipeline", exact: true }),
@@ -245,12 +250,12 @@ test("keeps insights useful when one breakdown source fails", async ({ page }) =
 });
 
 for (const theme of ["light", "dark"] as const) {
-  test(`dashboard stays readable in ${theme} with reduced motion`, async ({
+  test(`insights stay readable in ${theme} with reduced motion`, async ({
     page,
   }, testInfo) => {
     await page.emulateMedia({ colorScheme: theme, reducedMotion: "reduce" });
     await signedIn(page);
-    await page.goto("/en/dashboard?days=90");
+    await page.goto("/en/insights?days=90");
     await expect(
       page.getByRole("heading", { name: "Attendance outcomes", exact: true }),
     ).toBeVisible();

@@ -11,9 +11,11 @@ It follows the codebase patterns of the volunteer application in `../v-app` —
 the same tokens and typeface, the same route registry, the same server-only API
 client and Zod-parsed responses, the same `ActionResult` envelope, the same
 documentation layout and verification loop. It does not carry its history, its
-volunteer routes, or its whiteboard ground. Its visual system is "The Line":
-the volunteer journey drawn as one line of five stations, on a quiet working
-shell. See [`DESIGN.md`](DESIGN.md).
+volunteer routes, or its whiteboard ground. Its visual system, since the
+November 2026 redesign, is "Whose move is it?": five hubs on a rail with their
+pages as tabs, Jump to (⌘K) for everything else, Today opening with what waits,
+work cards decided in place, and the volunteer journey as a strip whose top edge
+is the line. See [`DESIGN.md`](DESIGN.md).
 
 ## The one thing to know first
 

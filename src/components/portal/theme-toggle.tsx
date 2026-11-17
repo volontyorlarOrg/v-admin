@@ -10,15 +10,12 @@ const SERVER_THEME: Theme = "light";
 
 export function ThemeToggle({
   label,
-  tone = "default",
   className,
 }: {
   label: string;
-  tone?: "default" | "shell";
   className?: string;
 }) {
   const theme = useSyncExternalStore(subscribeToTheme, readTheme, () => SERVER_THEME);
-  const shell = tone === "shell";
 
   return (
     <button
@@ -27,10 +24,7 @@ export function ThemeToggle({
       aria-pressed={theme === "dark"}
       onClick={() => applyTheme(theme === "dark" ? "light" : "dark")}
       className={cn(
-        "flex size-9 shrink-0 items-center justify-center rounded-md border transition-colors duration-150",
-        shell
-          ? "border-shell-line bg-surface text-shell-muted hover:border-border-control hover:text-shell-ink"
-          : "border-border-strong bg-surface text-ink-muted hover:border-border-control hover:text-ink",
+        "flex size-9 shrink-0 items-center justify-center rounded-md border border-border-strong bg-surface text-ink-muted transition-colors duration-150 hover:border-border-control hover:text-ink",
         className,
       )}
     >

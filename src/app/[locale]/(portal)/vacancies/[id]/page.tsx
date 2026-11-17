@@ -24,6 +24,7 @@ import {
 } from "@/components/results/vacancy-tabs";
 import { LoadFailure } from "@/components/states/load-failure";
 import { PageHeader } from "@/components/states/page-header";
+import { VacancyTrack } from "@/components/vacancies/vacancy-track";
 import { StatePanel } from "@/components/states/state-panel";
 import { ArchiveVacancy } from "@/components/vacancies/archive-vacancy";
 import { ReadinessList } from "@/components/vacancies/readiness-list";
@@ -64,6 +65,7 @@ import {
 } from "@/lib/vacancies/actions";
 import { loadOrganizations, loadVacancy } from "@/lib/vacancies/data.server";
 import { errorCatalog } from "@/lib/vacancies/labels.server";
+import { TRACK_TONES, vacancyTrack } from "@/lib/vacancies/track";
 
 export const dynamic = "force-dynamic";
 
@@ -318,6 +320,19 @@ export default async function VacancyPage({
   const approved = state === "approved" && vacancy.approvalReviewedAt;
   const readinessId = "vacancy-readiness";
 
+  const track = vacancyTrack({ ...vacancy, state }, now).map((step) => ({
+    key: step.stage,
+    name: t(`track.stages.${step.stage}`),
+    note: step.at
+      ? t(`track.notes.${step.note}`, {
+          date: format.dateTime(new Date(step.at), "date"),
+        })
+      : t(`track.notes.${step.note}`, { date: "" }).trim(),
+    status: step.status,
+    statusLabel: t(`track.status.${step.status}`),
+    tone: TRACK_TONES[step.stage],
+  }));
+
   return (
     <>
       <PageHeader
@@ -418,16 +433,15 @@ export default async function VacancyPage({
         }
       />
 
+      <VacancyTrack label={t("track.label")} items={track} />
+
       {canApproveVacancy(vacancy) ? (
-        <section
-          aria-labelledby="decision-title"
-          className="rounded-xl border border-border bg-surface-soft px-5 py-4 shadow-(--sheet-shadow)"
-        >
+        <section aria-labelledby="decision-title" className="sheet px-5 py-4">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div className="flex min-w-0 gap-3" id={readinessId}>
               <span
                 aria-hidden="true"
-                className="grid size-9 shrink-0 place-items-center rounded-md bg-primary text-knockout"
+                className="grid size-9 shrink-0 place-items-center rounded-lg bg-warning-muted text-warning-ink"
               >
                 <Stamp className="size-4" strokeWidth={2} />
               </span>
