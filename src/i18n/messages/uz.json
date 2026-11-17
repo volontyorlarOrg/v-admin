@@ -66,7 +66,8 @@
     "account": "Hisob",
     "accountMenu": "Hisob va sozlamalar",
     "accountCaption": "Administrator sifatida kirgansiz",
-    "darkTheme": "Qorongʻi rejim"
+    "darkTheme": "Qorongʻi rejim",
+    "verification": "Tasdiqlash"
   },
   "jump": {
     "open": "Oʻtish…",
@@ -2473,5 +2474,22 @@
     "answerHelp": "Volontyor buni ilovada oʻqiydi. Haqiqatda nima qilganingizni yoki nega rad etganingizni yozing.",
     "answerSubmit": "Javobni saqlash",
     "answered": "Javob saqlandi."
+  },
+  "verification": {
+    "title": "Tasdiqlash",
+    "description": "Tasdiqlash belgilari va tashkilot aloqalarini boshqaring.",
+    "people": "Volontyorlar",
+    "count": "volontyor",
+    "search": "Volontyorlarni qidirish",
+    "empty": "Volontyor topilmadi",
+    "emptyHelp": "Boshqa soʻz bilan qidiring.",
+    "editHelp": "Volontyor nomi yonida koʻrsatiladigan belgilarni tanlang.",
+    "verified": "Tasdiqlash belgisi",
+    "organization": "Tashkilot aloqasi",
+    "none": "Tashkilotsiz",
+    "save": "Oʻzgarishlarni saqlash",
+    "saving": "Saqlanmoqda…",
+    "success": "Tasdiqlash yangilandi.",
+    "error": "Saqlab boʻlmadi. Qayta urinib koʻring."
   }
 }

@@ -66,7 +66,8 @@
     "account": "Account",
     "accountMenu": "Account and settings",
     "accountCaption": "Signed in as an administrator",
-    "darkTheme": "Dark theme"
+    "darkTheme": "Dark theme",
+    "verification": "Verification"
   },
   "jump": {
     "open": "Jump to…",
@@ -2473,5 +2474,22 @@
     "answerHelp": "The volunteer reads this in the app. Say what you actually did, or why you refused.",
     "answerSubmit": "Save answer",
     "answered": "Answer saved."
+  },
+  "verification": {
+    "title": "Verification",
+    "description": "Manage verification badges and organization affiliations.",
+    "people": "Volunteers",
+    "count": "volunteers",
+    "search": "Search volunteers",
+    "empty": "No volunteers found",
+    "emptyHelp": "Try another search.",
+    "editHelp": "Choose the marks shown beside this volunteer’s name.",
+    "verified": "Verified badge",
+    "organization": "Organization affiliation",
+    "none": "No organization",
+    "save": "Save changes",
+    "saving": "Saving…",
+    "success": "Verification updated.",
+    "error": "Could not save changes. Try again."
   }
 }

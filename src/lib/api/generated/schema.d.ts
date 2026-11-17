@@ -2007,6 +2007,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/verification/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read a volunteer verification assignment */
+        get: operations["AdminVerificationController_get"];
+        /** Assign or revoke volunteer verification and affiliation */
+        put: operations["AdminVerificationController_update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/essays": {
         parameters: {
             query?: never;
@@ -3496,7 +3514,7 @@ export interface components {
             /** @default [] */
             links: string[];
             /** @description Optional parts kept off the profile others see. Omit to keep the stored choice. */
-            hiddenFields?: ("region" | "hometownRegion" | "city" | "school" | "gradeYear" | "languages" | "phone" | "telegram" | "instagram" | "linkedin" | "links" | "joined" | "activity")[];
+            hiddenFields?: ("bio" | "region" | "hometownRegion" | "city" | "school" | "gradeYear" | "languages" | "phone" | "telegram" | "instagram" | "linkedin" | "links" | "joined" | "activity")[];
         };
         CreateOrganizationDto: {
             name: string;
@@ -3964,7 +3982,18 @@ export interface components {
         ResolveVacancyAttendanceDto: {
             records: components["schemas"]["AttendanceResolutionDto"][];
         };
+        VerificationOrganizationDto: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            logoUrl: string | null;
+        };
+        VerificationDto: {
+            verified: boolean;
+            organization: components["schemas"]["VerificationOrganizationDto"] | null;
+        };
         LeaderboardEntryDto: {
+            verification: components["schemas"]["VerificationDto"];
             /** @example 1 */
             rank: number;
             /** @example Aziza Karimova */
@@ -3979,6 +4008,7 @@ export interface components {
             isCurrentUser: boolean;
         };
         LeaderboardViewerDto: {
+            verification: components["schemas"]["VerificationDto"];
             /** @example 42 */
             rank: number | null;
             /** @example Dilnoza Karimova */
@@ -4175,6 +4205,11 @@ export interface components {
             previous: components["schemas"]["AnalyticsComparisonDto"];
             summary: components["schemas"]["AnalyticsSummaryDto"];
             daily: components["schemas"]["AnalyticsDayDto"][];
+        };
+        UpdateVerificationDto: {
+            verified: boolean;
+            /** Format: uuid */
+            organizationId: string | null;
         };
         SaveEssayDto: {
             title?: string;
@@ -4706,6 +4741,7 @@ export interface components {
             countsTowardProgress: boolean;
         };
         PublicProfileDto: {
+            verification: components["schemas"]["VerificationDto"];
             /** @example Aziza Karimova */
             displayName: string;
             /** @example aziza_volunteer */
@@ -14635,6 +14671,164 @@ export interface operations {
             };
             /** @description Authenticated account cannot perform this operation */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Request validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Request rate limit exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Authentication or an upstream dependency is unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminVerificationController_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VerificationDto"];
+                };
+            };
+            /** @description Missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Authenticated account cannot perform this operation */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Requested resource was not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Request validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Request rate limit exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Authentication or an upstream dependency is unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminVerificationController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateVerificationDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VerificationDto"];
+                };
+            };
+            /** @description Malformed request body */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Authenticated account cannot perform this operation */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Requested resource was not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Request body exceeds the configured limit */
+            413: {
                 headers: {
                     [name: string]: unknown;
                 };
