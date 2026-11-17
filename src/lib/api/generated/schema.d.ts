@@ -504,7 +504,7 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        /** Change the optional leaderboard and public-profile consents */
+        /** Change the optional leaderboard consent */
         put: operations["LegalAccountController_choose"];
         post?: never;
         delete?: never;
@@ -3305,12 +3305,15 @@ export interface components {
         ConsentDto: {
             /** @default false */
             leaderboard: boolean;
-            /** @default false */
-            publicProfile: boolean;
+            /**
+             * @deprecated
+             * @description Legacy compatibility; publication is required by the current consent.
+             */
+            publicProfile?: boolean;
             /** @enum {string} */
             locale: "uz" | "ru" | "en";
             /** @enum {string} */
-            version: "2026-11-14";
+            version: "2026-11-18";
             /** @enum {boolean} */
             accepted: true;
         };
@@ -3332,8 +3335,11 @@ export interface components {
         ConsentChoicesDto: {
             /** @default false */
             leaderboard: boolean;
-            /** @default false */
-            publicProfile: boolean;
+            /**
+             * @deprecated
+             * @description Legacy compatibility; publication is required by the current consent.
+             */
+            publicProfile?: boolean;
         };
         LegalRequestViewDto: {
             id: string;
@@ -3393,8 +3399,11 @@ export interface components {
             notifyDecisions?: boolean;
             profileToOrganisers?: boolean;
             levelPublic?: boolean;
-            /** @default false */
-            publicProfileEnabled: boolean;
+            /**
+             * @deprecated
+             * @description Legacy compatibility; the public profile cannot be disabled independently.
+             */
+            publicProfileEnabled?: boolean;
         };
         CheckpointDto: {
             /**
