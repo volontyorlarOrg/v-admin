@@ -1,6 +1,6 @@
 ---
 name: Volontyorlar administrator portal
-description: Five hubs instead of a long sidebar, and every screen answering one question — whose move is it now.
+description: The volunteer journey drawn as one line — five stations, the work waiting at each, and whose move it is.
 colors:
   institution-blue: "#007fc2"
   institution-ink: "#005e92"
@@ -24,15 +24,14 @@ colors:
   shell-raised: "#f1f3f6"
   shell-line: "#e1e5ea"
   shell-muted: "#5a6676"
-  shell-active: "#e9eef4"
-  paper: "#f2f4f7"
+  paper: "#f5f7fa"
   surface: "#ffffff"
-  surface-sunk: "#f0f2f5"
+  surface-sunk: "#f0f3f7"
   surface-soft: "#e8f2fa"
   ink: "#0f1b2a"
   ink-muted: "#5f6b7a"
   ink-faint: "#8a95a1"
-  border: "#e1e5ea"
+  border: "#dfe4ea"
   border-strong: "#c9d1da"
   border-control: "#8a95a1"
   knockout: "#ffffff"
@@ -49,18 +48,12 @@ colors:
   map-4: "#1a78b8"
   map-5: "#005e92"
 typography:
-  display:
-    fontFamily: "Onest, ui-sans-serif, system-ui, sans-serif"
-    fontSize: "2rem"
-    fontWeight: 600
-    lineHeight: 1.15
-    letterSpacing: "-0.025em"
   page:
     fontFamily: "Onest, ui-sans-serif, system-ui, sans-serif"
-    fontSize: "1.625rem"
+    fontSize: "1.5rem"
     fontWeight: 600
-    lineHeight: 1.2
-    letterSpacing: "-0.02em"
+    lineHeight: 1.25
+    letterSpacing: "-0.015em"
   page-compact:
     fontFamily: "Onest, ui-sans-serif, system-ui, sans-serif"
     fontSize: "1.375rem"
@@ -81,7 +74,7 @@ typography:
     letterSpacing: "-0.015em"
   section:
     fontFamily: "Onest, ui-sans-serif, system-ui, sans-serif"
-    fontSize: "1rem"
+    fontSize: "0.9375rem"
     fontWeight: 600
     lineHeight: 1.4
   body:
@@ -100,11 +93,11 @@ typography:
     fontWeight: 600
     lineHeight: 1.35
 rounded:
-  sm: "6px"
-  md: "8px"
-  lg: "10px"
-  xl: "12px"
-  2xl: "16px"
+  sm: "4px"
+  md: "6px"
+  lg: "8px"
+  xl: "10px"
+  2xl: "12px"
   full: "9999px"
 spacing:
   row-x: "16px"
@@ -172,14 +165,10 @@ components:
     textColor: "{colors.warning-ink}"
     rounded: "{rounded.sm}"
   filter-tab-active:
-    backgroundColor: "{colors.surface}"
+    backgroundColor: "{colors.surface-sunk}"
     textColor: "{colors.ink}"
     rounded: "{rounded.md}"
     height: "32px"
-  section-tab-active:
-    textColor: "{colors.ink}"
-    borderBottom: "2px {colors.action}"
-    height: "56px"
   sheet:
     backgroundColor: "{colors.surface}"
     rounded: "{rounded.xl}"
@@ -196,55 +185,57 @@ components:
     backgroundColor: "{colors.shell-active}"
     textColor: "{colors.ink}"
     iconColor: "{colors.institution-ink}"
-  track-marker:
+  section-tab-active:
+    textColor: "{colors.ink}"
+    borderBottom: "2px {colors.action}"
+    height: "56px"
+  station-marker:
+    backgroundColor: "{colors.surface}"
     rounded: "{rounded.full}"
-    size: "24px"
+    size: "18px"
 ---
 
 # Design System: Volontyorlar administrator portal
 
 ## Overview
 
-**Creative North Star: "Whose move is it?"**
+**Creative North Star: "The Line"**
 
-An administrator opens this portal to move work along: approve a vacancy,
-verify results, review a past event, unblock an organization. Every screen is
-arranged around one question — what waits, and whose move it is — and the
-navigation is arranged so that the answer is never more than one click away.
+Volontyorlar moves a vacancy from an organization's draft to a volunteer's
+confirmed hours through five checkpoints, and the administrator keeps every
+checkpoint moving. The portal draws that mechanism the way Tashkent reads its
+metro: one line, five stations — **Published vacancies, Applications sent,
+Accepted volunteers, Attendances, Confirmed hours** — with the institution's
+blue up to the applications and the volunteer's orange from acceptance on.
+Under each station hangs what waits there, and whose move it is.
 
-The November 2026 redesign replaced a fourteen-link sidebar with **five hubs**.
-Home, Volunteering, People, Blog and Oversight sit on a slim rail; the pages of
-the open hub are tabs in the top bar; and **Jump to** (⌘K or Ctrl K, or `/`)
-reaches any page, any create action, or a search of any list by typing.
-Language, theme, activity and sign-out live in the account menu, so the rail
-holds only places.
+Everything else is a quiet working product. A light shell, white sheets on a
+cool paper ground, one sans for every word and figure, and colour that only ever
+means something: a brand role, a state, or a data series. The line is the one
+signature; it is never repeated as ornament.
 
-**Today** opens with a sentence, not a title: _"4 things wait on you. The oldest
-has waited 3 days."_ Under it, the volunteer journey is a strip of five figures
-whose top edge is the line — blue for the institution's stations, orange from
-the moment a volunteer starts to earn. Then each kind of decision is its own
-**work card**, decided in place. Trends live on Insights, so Home is about work
-and Insights is about numbers.
-
-Everything else is a quiet working product: white chrome around a cool grey work
-floor, white sheets on the floor, one sans for every word and figure, and colour
-that only ever means something — a brand role, a state, or a data series.
+The brief is interpretability. Every number on screen says what it counts —
+now, all time, or the selected period — and how it compares when a comparison
+exists. Waiting is measured in time. A zero is drawn as a zero, and a missing
+baseline is said in words.
 
 **Key Characteristics:**
 
-- A rail of five hubs, an icon over a short label; only work an administrator
-  moves carries a count, on the hub and on its tab.
+- A rail of five hubs — Home, Volunteering, People, Blog, Oversight — an icon
+  over a short label; only work an administrator moves carries a count, on the
+  hub and on its tab.
 - Tabs in the top bar for the open hub, underlined in the action blue; on a phone
-  they scroll under the top bar and the hubs become a bottom bar.
-- Today leads with a sentence that counts what waits and names the oldest wait.
-- Work cards: one per kind of decision, each with its count, its oldest wait and
-  the decision on every row.
-- A vacancy record opens with its **track** — Draft, Approval, Applications,
-  Event, Results — so where it stands is the first thing read.
+  they scroll under the top bar and the hubs become a bottom bar. **Jump to**
+  (⌘K or Ctrl K, or `/`) reaches any page, create action or list search.
+- The volunteer journey line opens the dashboard; on a phone it runs vertically
+  like a metro line on a station wall.
+- Queues lead with how long each item has waited, on one scale per queue.
 - Only buttons fill. Status is a tinted chip with an icon, a filter is a soft
   selection, a count is a small tag.
 - Every panel and figure carries its scope; a period section holds only period
   figures.
+- Charts follow one mark grammar: thin marks, clean ticks, solid hairline
+  grids, a table view behind every trend.
 
 ## Colors
 
@@ -280,9 +271,8 @@ Each state colour means one thing and always arrives with an icon and words.
 
 ### Neutral
 
-- **Paper** (`paper`) is the work floor under **Sheets** (`surface`), with
-  **Sunk** (`surface-sunk`) for table heads, section bands, segmented controls
-  and board lanes.
+- **Paper** (`paper`) under **Sheets** (`surface`), with **Sunk** (`surface-sunk`)
+  for table heads, section bands and selections.
 - **Chrome** (`shell`, `shell-raised`, `shell-line`, `shell-muted`,
   `shell-active`): the rail, the top bar and the bottom bar are white with a
   hairline; the open hub is a neutral grey tile with a blue icon.
@@ -327,17 +317,14 @@ for the blog editor's article preview, loaded without preloading.
 
 ### Hierarchy
 
-- **Display** (600, 2rem from the small breakpoint, 1.5rem below): Today's
-  sentence, the one `h1` of Home.
-- **Page** (600, 1.625rem from the small breakpoint, 1.375rem below): the one
-  `h1` of every other page.
+- **Page** (600, 1.5rem from the small breakpoint, 1.375rem below): the one `h1`.
 - **Station** (600, 1.75rem, proportional figures): the journey's figures.
 - **Figure** (600, 1.5rem, proportional figures): stat tiles, record figures.
-- **Section** (600, 1rem): the `h2`/`h3` of a sheet or a work card.
+- **Section** (600, 0.9375rem): the `h2`/`h3` of a sheet.
 - **Body** (400, 0.875rem) and **Meta** (400, 0.8125rem): rows and their
   secondary lines.
-- **Label** (600, 0.75rem, sentence case): column heads, list labels and hub
-  labels (0.6875rem) — never tracked capitals.
+- **Label** (600, 0.75rem, sentence case): column heads and list labels — never
+  tracked capitals.
 
 ### Named Rules
 
@@ -359,7 +346,7 @@ small screens and 32px on the desk, 24px between blocks.
 
 | Hub          | Tabs                                                    |
 | ------------ | ------------------------------------------------------- |
-| Home         | Today · Insights                                        |
+| Home         | Dashboard · Insights                                    |
 | Volunteering | Vacancies · Attendance · Past events                    |
 | People       | Volunteers · Coordinators · Organizations · Bulk awards |
 | Blog         | Blog                                                    |
@@ -369,32 +356,33 @@ A hub opens on its first tab; a record belongs to the hub of its list, so a
 vacancy keeps Volunteering open. A hub with one tab shows no tab row. Account
 pages (My activity, Change password) belong to no hub and are reached from the
 account menu and from Jump to — Change password only through the forced flow,
-never as a menu link.
+never as a menu link. The navigation is the November 2026 hub shell; the pages
+inside it kept their earlier design.
 
 A screen is a page header (back link, title, meta, description; actions on the
-right), then sheets. **Today** is: the sentence header; the journey strip; the
-work cards in two balanced columns; then what waits on organizers beside what
-was decided today; then recent activity. **Insights** is: the trends behind one
-period control, then the all-time and current breakdowns. Records put details in
-a main column and actions or account in an aside. Tables scroll inside their own
-frame so the page never scrolls sideways.
+right), then sheets. The dashboard is: the journey line across the full width;
+then the administrator's queue with recent activity under it, beside a 23rem
+side column of what waits on organizers and what was decided today; then the
+trends behind one period control. Records put details in a main column and
+actions or account in an aside. Tables scroll inside their own frame so the
+page never scrolls sideways.
 
 Filters are a GET form and pagination is links, so both work without JavaScript
-and can be shared — which is also what lets Jump to search any list.
+and can be shared.
 
 ## Elevation & Depth
 
 Depth is tonal: a sheet is one step lighter than the paper with a hairline, and
-carries no shadow. Only what is truly above the page — dialogs, menus, the phone
+carries no shadow. Only what is truly above the page — dialogs, menus, the
 account menu, Jump to, the sticky decision bar — takes the raised shadow (`0 12px 32px -12px`).
 No glass, no blur, no glow, no decoration behind the screens.
 
 ## Shapes
 
-Sheets and work cards 12px, dialogs, popovers and the Jump to panel 12–16px,
-buttons, fields, segmented controls and hub tiles 8–10px, chips and counts 6px.
-Circles are kept for avatars, the account button, status dots and the track's
-markers. Rules are 1px hairlines; the journey's top edge is the one 4px stroke.
+Sheets 10px, dialogs and popovers 10–12px, buttons, fields, filter tabs and rail
+items 6px, chips and counts 4px. Circles are kept for avatars, status dots and
+the journey's station markers. Rules are 1px hairlines; the journey line is the
+one 4px stroke.
 
 ## Components
 
@@ -424,9 +412,9 @@ past events to review.
 
 ### Filter tabs and period control
 
-A filter is a segmented control: a sunk well holding the options, the active one
-a white tile with a hairline, muted text on the rest, the count beside the label.
-The trends' period is the same control with two options.
+A filter tab is a soft selection — sunk background with an inset hairline on the
+active one, muted text on the rest, the count beside the label. The trends'
+period is a two-option segmented control in the same grammar.
 
 ### Navigation
 
@@ -443,36 +431,15 @@ The trends' period is the same control with two options.
 - **Account menu.** A round button at the top bar's end opens a popover: My
   activity, the language, a dark-theme switch and a danger-outline Sign out.
 
-### The journey strip
+### The Line (volunteer journey)
 
-Five stations — **Published vacancies, Applications sent, Accepted volunteers,
-Attendances, Confirmed hours** — in one sheet, divided by hairlines. The sheet's
-top edge is the line: blue over the first two, orange from Accepted on. Each
-station: a dot in its colour, its name, its figure in the station size with its
-scope tag, then its waiting lines — a dot (amber for the administrator, blue for
-organizers), the count in words, and "· you" or "· organizers". Stations and
-waiting lines are links. On a phone the strip is two columns. When the queue
-cannot load, the stations keep their figures and draw no waiting lines.
-
-### Work cards
-
-One sheet per kind of decision — vacancies to approve, results to verify, past
-events to review, organizations holding vacancies back, applications to decide,
-roll calls due. The header carries the title, an amber count and "oldest 3d";
-each row leads with its age (`AgeLead`: the narrow-unit age over a 4px bar on the
-desk's shared scale), then the record, its facts and its decision beneath; a
-footer links to the whole list. Kinds with nothing waiting are not drawn.
-
-### The vacancy track
-
-Five stations on a 2px line — Draft, Approval, Applications, Event, Results —
-with 24px markers: filled with a check when done, ringed with a centre dot when
-current (`aria-current="step"`), hollow grey ahead, a red cross where a vacancy
-was rejected or archived. The line is blue through Applications and orange from
-Event on. Each station names its date or its state ("Close Nov 22", "Waiting for
-approval", "Sent for verification"). On a phone the track runs vertically.
-`vacancyTrack()` in `src/lib/vacancies/track.ts` decides it; the component only
-draws it.
+The signature. Five stations on a 4px line, 18px markers with a 4px ring in the
+station's colour on a white centre that fills on hover and focus. Each station:
+its name, its figure in the station size with its scope tag, then its waiting
+lines — a dot (amber for the administrator, blue for organizers), the count in
+words, and "· you" or "· organizers". Stations and waiting lines are links. On
+a phone the line runs vertically down the left. When the queue cannot load the
+stations keep their figures and draw no waiting lines.
 
 ### Queue rows
 
@@ -522,8 +489,6 @@ a small gray tag, and on the desk the actor's avatar, name and role.
 
 - **Do** give every figure its scope, and keep period sections period-only.
 - **Do** lead a queue with how long its items have waited.
-- **Do** add a new section as a tab of the hub it belongs to, not as a sixth hub;
-  a hub holds four tabs or fewer.
 - **Do** put the decision in the row: Approve, Return, Reject, Verify and Take
   roll call are reachable without opening the record. A vacancy's applicants are
   the one group decided together, on its applications desk.
@@ -531,7 +496,7 @@ a small gray tag, and on the desk the actor's avatar, name and role.
   blocking or removing a coordinator.
 - **Do** ship every list with loading, empty, no-matches, denied, failed and
   awaiting-contract states, and every write with pending, error and success.
-- **Do** keep one `h1` per page, label every control, give Jump to, the menus and
+- **Do** keep one `h1` per page, label every control, give Jump to and
   every decision a keyboard path, and honour reduced motion globally.
 - **Do** write every string in Uzbek, Russian and English.
 

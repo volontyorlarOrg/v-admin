@@ -63,13 +63,3 @@ export function waited(
   if (days < 14) return { unit: "day", value: Math.floor(days), days };
   return { unit: "week", value: Math.floor(days / 7), days };
 }
-
-export function longestWait(
-  values: readonly (string | Date | null | undefined)[],
-  now: Date,
-): Waited | null {
-  return values.reduce<Waited | null>((longest, value) => {
-    const age = waited(value, now);
-    return age && (longest === null || age.days > longest.days) ? age : longest;
-  }, null);
-}

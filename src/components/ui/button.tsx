@@ -18,6 +18,8 @@ const buttonVariants = cva(
         danger: "bg-danger-fill text-knockout hover:bg-danger-fill-hover",
         "danger-outline":
           "border border-danger/45 bg-surface text-danger-ink hover:border-danger hover:bg-danger-muted",
+        shell:
+          "justify-start font-medium text-shell-muted hover:bg-shell-raised hover:text-shell-ink",
       },
       size: {
         row: "min-h-8 px-3 text-sm [&_svg]:size-4",

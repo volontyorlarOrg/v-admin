@@ -4,9 +4,9 @@
 
 Next.js 16 App Router, React 19, Server Components by default. Every screen is
 rendered on the server from `v-backend`; the client bundle holds forms, the
-inline decisions, the theme toggle, the locale switcher, the hub rail and tabs
-(they read the path to know which hub is open), Jump to, the account menu, the
-confirmation dialog and the trend charts, and nothing else.
+inline decisions, the theme switch, the locale switcher, the account menu, Jump
+to, the hub tabs, the confirmation dialog and the trend charts, and nothing
+else.
 
 ```text
 src/proxy.ts                    locale routing, the session guard, session expiry,
@@ -185,8 +185,8 @@ and says so in [`../api/BACKEND_CONTRACT.md`](../api/BACKEND_CONTRACT.md).
 - Internal links use `Link` from `@/i18n/navigation` with `navHref()`, which
   adds the locale prefix itself.
 - Add a section by registering it in `src/lib/routing/routes.ts`: the hub rail,
-  the bottom bar, each hub's tabs and waiting counts, Jump to, the proxy's guard
-  and the tests all read from it.
+  the top-bar tabs and their waiting counts, the phone bottom bar, Jump to, the
+  proxy's guard and the tests all read from it.
 - The shell draws no decoration behind the screens. The fourteen regions appear
   only where they carry data: the tile map on Insights
   (`src/components/charts/region-map.tsx`, places in `src/lib/map/tiles.ts`).

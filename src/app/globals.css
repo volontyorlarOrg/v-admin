@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
 @theme {
-  --color-paper: #f2f4f7;
+  --color-paper: #f5f7fa;
   --color-surface: #ffffff;
-  --color-surface-sunk: #f0f2f5;
+  --color-surface-sunk: #f0f3f7;
   --color-surface-soft: #e8f2fa;
   --color-surface-raised: #ffffff;
   --color-field: #ffffff;
@@ -12,7 +12,7 @@
   --color-ink-muted: #5f6b7a;
   --color-ink-faint: #8a95a1;
 
-  --color-border: #e1e5ea;
+  --color-border: #dfe4ea;
   --color-border-strong: #c9d1da;
   --color-border-control: #8a95a1;
 
@@ -98,22 +98,16 @@
   --font-sans: var(--font-onest), ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-source-serif), ui-serif, Georgia, serif;
 
-  --radius-sm: 0.375rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.625rem;
-  --radius-xl: 0.75rem;
-  --radius-2xl: 1rem;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.625rem;
+  --radius-2xl: 0.75rem;
   --radius: var(--radius-md);
 
-  --text-display: 2rem;
-  --text-display--line-height: 1.15;
-  --text-display--letter-spacing: -0.025em;
-  --text-display-compact: 1.5rem;
-  --text-display-compact--line-height: 1.2;
-  --text-display-compact--letter-spacing: -0.02em;
-  --text-page: 1.625rem;
-  --text-page--line-height: 1.2;
-  --text-page--letter-spacing: -0.02em;
+  --text-page: 1.5rem;
+  --text-page--line-height: 1.25;
+  --text-page--letter-spacing: -0.015em;
   --text-page-compact: 1.375rem;
   --text-page-compact--line-height: 1.25;
   --text-page-compact--letter-spacing: -0.015em;
@@ -125,7 +119,7 @@
   --text-station--letter-spacing: -0.02em;
   --text-lead: 1rem;
   --text-lead--line-height: 1.55;
-  --text-section: 1rem;
+  --text-section: 0.9375rem;
   --text-section--line-height: 1.4;
   --text-label: 0.75rem;
   --text-label--line-height: 1.35;
@@ -144,7 +138,7 @@
   :root[data-theme="dark"] {
     color-scheme: dark;
 
-    --color-paper: #0c1219;
+    --color-paper: #0d131c;
     --color-surface: #151c27;
     --color-surface-sunk: #111823;
     --color-surface-soft: #18304a;

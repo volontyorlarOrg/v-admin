@@ -22,7 +22,7 @@ export function PageHeader({
   return (
     <header
       className={cn(
-        "flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between sm:gap-x-8 sm:gap-y-3",
+        "flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between sm:gap-x-8",
         className,
       )}
     >
@@ -30,7 +30,7 @@ export function PageHeader({
         {back ? (
           <Link
             href={back.href}
-            className="mb-3 -ml-1 inline-flex min-h-7 items-center gap-1.5 rounded-sm px-1 text-[0.8125rem] font-medium text-ink-muted transition-colors duration-150 hover:text-primary-ink"
+            className="mb-2 -ml-1 inline-flex min-h-7 items-center gap-1 rounded-sm px-1 text-sm font-medium text-ink-muted transition-colors duration-150 hover:text-primary-ink"
           >
             <ArrowLeft aria-hidden="true" className="size-4" />
             {back.label}
@@ -40,12 +40,12 @@ export function PageHeader({
           {title}
         </h1>
         {meta ? (
-          <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm text-ink-muted">
+          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm text-ink-muted">
             {meta}
           </div>
         ) : null}
         {description ? (
-          <p className="mt-2 max-w-2xl text-[0.9375rem] leading-relaxed text-pretty text-ink-muted">
+          <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-pretty text-ink-muted">
             {description}
           </p>
         ) : null}
