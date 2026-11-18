@@ -52,6 +52,7 @@ export const AUDIT_ACTIONS = [
   "user.checkpoint.claimed",
   "user.checkpoints.reached",
   "user.username.synchronized",
+  "user.verification.updated",
 ] as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];

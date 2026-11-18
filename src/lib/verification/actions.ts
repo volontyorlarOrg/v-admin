@@ -17,14 +17,14 @@ export async function updateVerificationAction(
 ): Promise<ActionResult> {
   const parsed = input.safeParse({
     id: data.get("id"),
-    organizationId: data.get("organizationId"),
+    organizationId: data.get("organizationId") ?? "",
     verified: data.get("verified") === "on",
   });
   if (!parsed.success) return failedResult("validationFailed");
   const { id, organizationId, verified } = parsed.data;
   const result = await write("updateVerification", {
     params: { id },
-    body: { verified, organizationId: organizationId || null },
+    body: { verified, organizationId: verified ? organizationId || null : null },
   });
   if (result.status === "ok") revalidatePath("/", "layout");
   return result;

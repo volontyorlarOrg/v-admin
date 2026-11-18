@@ -10,7 +10,6 @@ export const ROUTE_KEYS = [
   "newVacancy",
   "applications",
   "users",
-  "verification",
   "bulkAwards",
   "pastEvents",
   "attendance",
@@ -145,15 +144,6 @@ export const appRoutes: readonly AppRoute[] = [
     guard: "session",
     inNav: true,
     icon: "users",
-  },
-  {
-    key: "verification",
-    hub: "oversight",
-    path: "/verification",
-    area: "portal",
-    guard: "session",
-    inNav: true,
-    icon: "shield-check",
   },
   {
     key: "coordinators",
