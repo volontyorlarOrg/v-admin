@@ -1178,7 +1178,8 @@
       "auth_telegram_link": "Telegram account linked",
       "auth_account_merge_requested": "Account merge requested",
       "auth_account_merge_completed": "Accounts merged",
-      "attendance_volunteer_added": "Added a volunteer to attendance"
+      "attendance_volunteer_added": "Added a volunteer to attendance",
+      "user_verification_updated": "Verification changed"
     },
     "day": {
       "today": "Today",
@@ -2433,5 +2434,17 @@
     "answerHelp": "The volunteer reads this in the app. Say what you actually did, or why you refused.",
     "answerSubmit": "Save answer",
     "answered": "Answer saved."
+  },
+  "verification": {
+    "title": "Verification",
+    "editHelp": "Choose the marks shown beside this volunteer’s name.",
+    "verified": "Verified badge",
+    "organization": "Organization affiliation",
+    "none": "No organization",
+    "save": "Save changes",
+    "saving": "Saving…",
+    "success": "Verification updated.",
+    "error": "Could not save changes. Try again.",
+    "organizationHelp": "An organization is shown only beside the verified badge."
   }
 }

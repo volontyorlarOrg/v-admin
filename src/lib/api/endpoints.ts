@@ -20,6 +20,16 @@ export const endpoints = {
     contract: "published",
   },
   currentUser: { method: "GET", path: "/me", contract: "published" },
+  verification: {
+    method: "GET",
+    path: "/admin/verification/{id}",
+    contract: "published",
+  },
+  updateVerification: {
+    method: "PUT",
+    path: "/admin/verification/{id}",
+    contract: "published",
+  },
   reports: { method: "GET", path: "/admin/reports", contract: "published" },
   report: { method: "GET", path: "/admin/reports/{id}", contract: "published" },
   updateReportStatus: {
