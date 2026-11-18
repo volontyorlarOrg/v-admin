@@ -199,18 +199,18 @@ export async function DashboardAnalytics({
         </p>
       </div>
       <nav aria-label={t("period")}>
-        <ul className="inline-flex rounded-lg bg-surface-sunk p-0.5">
+        <ul className="inline-flex rounded-md border border-border-strong bg-surface p-0.5">
           {ANALYTICS_RANGES.map((option) => {
             const active = Number(option) === days;
             return (
               <li key={option}>
                 <Link
-                  href={`${navHref("insights")}?days=${option}#trends`}
+                  href={`${navHref("dashboard")}?days=${option}#trends`}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "inline-flex min-h-8 items-center rounded-md px-3 text-sm whitespace-nowrap transition-colors duration-150",
+                    "inline-flex min-h-8 items-center rounded-[0.3125rem] px-3 text-sm whitespace-nowrap transition-colors duration-150",
                     active
-                      ? "bg-surface font-semibold text-ink shadow-[0_0_0_1px_var(--color-border),0_1px_2px_rgb(15_27_42/0.06)]"
+                      ? "bg-surface-sunk font-semibold text-ink shadow-[inset_0_0_0_1px_var(--color-border-strong)]"
                       : "font-medium text-ink-muted hover:text-ink",
                   )}
                 >
