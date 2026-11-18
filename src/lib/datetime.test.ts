@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { longestWait, tashkentDayEnd, tashkentDayStart, waited } from "@/lib/datetime";
+import { tashkentDayEnd, tashkentDayStart, waited } from "@/lib/datetime";
 
 describe("Tashkent calendar days", () => {
   it("covers the whole local day, so filtering to a day includes it", () => {
@@ -41,17 +41,6 @@ describe("how long something has waited", () => {
 
   it("keeps the exact length in days so ages can share one scale", () => {
     expect(waited("2026-10-31T12:00:00.000Z", now)?.days).toBe(2);
-  });
-
-  it("names the longest wait in a set and skips entries with no recorded time", () => {
-    expect(
-      longestWait(
-        ["2026-11-01T12:00:00.000Z", undefined, "2026-10-29T00:00:00.000Z", null],
-        now,
-      ),
-    ).toMatchObject({ unit: "day", value: 4 });
-    expect(longestWait([undefined, null], now)).toBeNull();
-    expect(longestWait([], now)).toBeNull();
   });
 
   it("returns nothing for a missing or unreadable timestamp rather than inventing an age", () => {

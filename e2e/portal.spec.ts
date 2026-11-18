@@ -146,7 +146,7 @@ test.describe("sign-in", () => {
   }) => {
     await signedIn(page);
     await expect(
-      page.getByRole("heading", { level: 1, name: /wait on you$/ }),
+      page.getByRole("heading", { level: 1, name: "Dashboard" }),
     ).toBeVisible();
     await expect(
       page.getByRole("heading", { level: 2, name: "Waiting on you" }),

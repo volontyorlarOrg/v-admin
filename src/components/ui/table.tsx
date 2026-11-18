@@ -19,7 +19,7 @@ function TableHeader({ className, ...props }: ComponentProps<"thead">) {
     <thead
       data-slot="table-header"
       className={cn(
-        "bg-surface [&_tr]:border-b [&_tr]:border-border [&_tr]:text-left",
+        "bg-surface-sunk [&_tr]:border-b [&_tr]:border-border [&_tr]:text-left",
         className,
       )}
       {...props}
@@ -55,7 +55,7 @@ function TableHead({ className, ...props }: ComponentProps<"th">) {
     <th
       data-slot="table-head"
       className={cn(
-        "h-10 px-4 text-left align-middle column-label whitespace-nowrap first:pl-5 last:pr-5",
+        "h-9 px-4 text-left align-middle column-label whitespace-nowrap",
         className,
       )}
       {...props}
@@ -67,7 +67,7 @@ function TableCell({ className, ...props }: ComponentProps<"td">) {
   return (
     <td
       data-slot="table-cell"
-      className={cn("px-4 py-3 align-middle first:pl-5 last:pr-5", className)}
+      className={cn("px-4 py-2.5 align-middle", className)}
       {...props}
     />
   );

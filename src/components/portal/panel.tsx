@@ -30,7 +30,7 @@ export function Panel({
       className={cn("min-w-0 sheet", className)}
     >
       {title ? (
-        <header className="flex items-start justify-between gap-4 border-b border-border px-5 py-3.5">
+        <header className="flex items-start justify-between gap-4 border-b border-border px-4 py-3">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
               <h2 id={titleId} className="text-section text-ink">
@@ -51,7 +51,7 @@ export function Panel({
           {actions ? <div className="flex shrink-0 gap-2">{actions}</div> : null}
         </header>
       ) : null}
-      <div className={cn("px-5 py-4", bodyClassName)}>{children}</div>
+      <div className={cn("px-4 py-4", bodyClassName)}>{children}</div>
     </section>
   );
 }
