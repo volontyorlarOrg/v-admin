@@ -1214,7 +1214,8 @@
       "auth_telegram_link": "Telegram hisobi bogʻlandi",
       "auth_account_merge_requested": "Hisoblarni birlashtirish soʻraldi",
       "auth_account_merge_completed": "Hisoblar birlashtirildi",
-      "attendance_volunteer_added": "Qatnashuv roʻyxatiga volontyor qoʻshildi"
+      "attendance_volunteer_added": "Qatnashuv roʻyxatiga volontyor qoʻshildi",
+      "user_verification_updated": "Tasdiqlash oʻzgartirildi"
     },
     "day": {
       "today": "Bugun",
@@ -2473,5 +2474,17 @@
     "answerHelp": "Volontyor buni ilovada oʻqiydi. Haqiqatda nima qilganingizni yoki nega rad etganingizni yozing.",
     "answerSubmit": "Javobni saqlash",
     "answered": "Javob saqlandi."
+  },
+  "verification": {
+    "title": "Tasdiqlash",
+    "editHelp": "Volontyor nomi yonida koʻrsatiladigan belgilarni tanlang.",
+    "verified": "Tasdiqlash belgisi",
+    "organization": "Tashkilot aloqasi",
+    "none": "Tashkilotsiz",
+    "save": "Oʻzgarishlarni saqlash",
+    "saving": "Saqlanmoqda…",
+    "success": "Tasdiqlash yangilandi.",
+    "error": "Saqlab boʻlmadi. Qayta urinib koʻring.",
+    "organizationHelp": "Tashkilot faqat tasdiqlash belgisi bilan birga koʻrsatiladi."
   }
 }

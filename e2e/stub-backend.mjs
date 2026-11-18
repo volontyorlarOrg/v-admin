@@ -2493,6 +2493,37 @@ const server = createServer(async (request, response) => {
     }
   }
 
+  const verificationMatch = /^\/admin\/verification\/([^/]+)$/.exec(path);
+  if (verificationMatch) {
+    const target = userById(verificationMatch[1]);
+    if (!target || !target.roles.includes("volunteer"))
+      return send(response, 404, { code: "userNotFound" });
+    if (method === "GET")
+      return send(
+        response,
+        200,
+        target.verification ?? { verified: false, organization: null },
+      );
+    if (method === "PUT") {
+      const organization = body.organizationId
+        ? state.organizations.find((org) => org.id === body.organizationId)
+        : null;
+      if (body.organizationId && !organization)
+        return send(response, 404, { code: "organizationNotFound" });
+      target.verification = {
+        verified: body.verified,
+        organization: organization
+          ? {
+              id: organization.id,
+              name: organization.name,
+              logoUrl: organization.logoUrl,
+            }
+          : null,
+      };
+      return send(response, 200, target.verification);
+    }
+  }
+
   const userMatch =
     /^\/(staff|admin)\/users\/([^/]+)(?:\/(password|progress-adjustments))?$/.exec(
       path,
