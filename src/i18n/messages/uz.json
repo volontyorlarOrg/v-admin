@@ -66,8 +66,7 @@
     "account": "Hisob",
     "accountMenu": "Hisob va sozlamalar",
     "accountCaption": "Administrator sifatida kirgansiz",
-    "darkTheme": "Qorongʻi rejim",
-    "verification": "Tasdiqlash"
+    "darkTheme": "Qorongʻi rejim"
   },
   "jump": {
     "open": "Oʻtish…",
@@ -1215,7 +1214,8 @@
       "auth_telegram_link": "Telegram hisobi bogʻlandi",
       "auth_account_merge_requested": "Hisoblarni birlashtirish soʻraldi",
       "auth_account_merge_completed": "Hisoblar birlashtirildi",
-      "attendance_volunteer_added": "Qatnashuv roʻyxatiga volontyor qoʻshildi"
+      "attendance_volunteer_added": "Qatnashuv roʻyxatiga volontyor qoʻshildi",
+      "user_verification_updated": "Tasdiqlash oʻzgartirildi"
     },
     "day": {
       "today": "Bugun",
@@ -2477,12 +2477,6 @@
   },
   "verification": {
     "title": "Tasdiqlash",
-    "description": "Tasdiqlash belgilari va tashkilot aloqalarini boshqaring.",
-    "people": "Volontyorlar",
-    "count": "volontyor",
-    "search": "Volontyorlarni qidirish",
-    "empty": "Volontyor topilmadi",
-    "emptyHelp": "Boshqa soʻz bilan qidiring.",
     "editHelp": "Volontyor nomi yonida koʻrsatiladigan belgilarni tanlang.",
     "verified": "Tasdiqlash belgisi",
     "organization": "Tashkilot aloqasi",
@@ -2490,6 +2484,7 @@
     "save": "Oʻzgarishlarni saqlash",
     "saving": "Saqlanmoqda…",
     "success": "Tasdiqlash yangilandi.",
-    "error": "Saqlab boʻlmadi. Qayta urinib koʻring."
+    "error": "Saqlab boʻlmadi. Qayta urinib koʻring.",
+    "organizationHelp": "Tashkilot faqat tasdiqlash belgisi bilan birga koʻrsatiladi."
   }
 }

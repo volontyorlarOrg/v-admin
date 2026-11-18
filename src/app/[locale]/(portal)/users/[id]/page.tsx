@@ -41,6 +41,8 @@ import { isRegion } from "@/lib/domain/vocabulary";
 import { applicationHref, navHref, vacancyHref } from "@/lib/routing/routes";
 import { replaceUserPasswordAction } from "@/lib/users/actions";
 import { loadUser } from "@/lib/users/data.server";
+import { loadVerification } from "@/lib/verification/data.server";
+import { VerificationForm } from "@/components/verification/verification-form";
 import { loadOrganizations } from "@/lib/organizations/data.server";
 import {
   createPastEventAction,
@@ -67,23 +69,34 @@ export default async function UserPage({ params }: PageProps<"/[locale]/users/[i
   const { locale, id } = await params;
   setRequestLocale(locale);
 
-  const [t, applications, attendanceCopy, auth, common, errors, vocabulary, format] =
-    await Promise.all([
-      getTranslations("users"),
-      getTranslations("applications"),
-      getTranslations("attendance"),
-      getTranslations("auth"),
-      getTranslations("common"),
-      getTranslations("errors"),
-      getTranslations("vocabulary"),
-      getFormatter(),
-    ]);
+  const [
+    t,
+    applications,
+    attendanceCopy,
+    auth,
+    common,
+    errors,
+    vocabulary,
+    format,
+    verificationCopy,
+  ] = await Promise.all([
+    getTranslations("users"),
+    getTranslations("applications"),
+    getTranslations("attendance"),
+    getTranslations("auth"),
+    getTranslations("common"),
+    getTranslations("errors"),
+    getTranslations("vocabulary"),
+    getFormatter(),
+    getTranslations("verification"),
+  ]);
   const languages = new Intl.DisplayNames([locale], { type: "language" });
   const back = { href: navHref("users"), label: t("title") };
 
-  const [loaded, loadedOrganizations] = await Promise.all([
+  const [loaded, loadedOrganizations, verification] = await Promise.all([
     loadUser(id),
     loadOrganizations(),
+    loadVerification(id),
   ]);
   const failure = failureOf(loaded);
 
@@ -507,6 +520,31 @@ export default async function UserPage({ params }: PageProps<"/[locale]/users/[i
               ]}
             />
           </Panel>
+
+          {isReady(verification) ? (
+            <Panel
+              id="verification"
+              title={verificationCopy("title")}
+              description={verificationCopy("editHelp")}
+            >
+              <VerificationForm
+                id={user.id}
+                verified={verification.data.verified}
+                organizationId={verification.data.organization?.id ?? null}
+                organizations={organizations}
+                labels={{
+                  verified: verificationCopy("verified"),
+                  organization: verificationCopy("organization"),
+                  organizationHelp: verificationCopy("organizationHelp"),
+                  none: verificationCopy("none"),
+                  save: verificationCopy("save"),
+                  saving: verificationCopy("saving"),
+                  success: verificationCopy("success"),
+                  error: verificationCopy("error"),
+                }}
+              />
+            </Panel>
+          ) : null}
 
           {progress ? (
             <Panel title={t("progress.title")} description={t("progress.description")}>

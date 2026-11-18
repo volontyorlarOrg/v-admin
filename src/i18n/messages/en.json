@@ -66,8 +66,7 @@
     "account": "Account",
     "accountMenu": "Account and settings",
     "accountCaption": "Signed in as an administrator",
-    "darkTheme": "Dark theme",
-    "verification": "Verification"
+    "darkTheme": "Dark theme"
   },
   "jump": {
     "open": "Jump to…",
@@ -1215,7 +1214,8 @@
       "auth_telegram_link": "Telegram account linked",
       "auth_account_merge_requested": "Account merge requested",
       "auth_account_merge_completed": "Accounts merged",
-      "attendance_volunteer_added": "Added a volunteer to attendance"
+      "attendance_volunteer_added": "Added a volunteer to attendance",
+      "user_verification_updated": "Verification changed"
     },
     "day": {
       "today": "Today",
@@ -2477,12 +2477,6 @@
   },
   "verification": {
     "title": "Verification",
-    "description": "Manage verification badges and organization affiliations.",
-    "people": "Volunteers",
-    "count": "volunteers",
-    "search": "Search volunteers",
-    "empty": "No volunteers found",
-    "emptyHelp": "Try another search.",
     "editHelp": "Choose the marks shown beside this volunteer’s name.",
     "verified": "Verified badge",
     "organization": "Organization affiliation",
@@ -2490,6 +2484,7 @@
     "save": "Save changes",
     "saving": "Saving…",
     "success": "Verification updated.",
-    "error": "Could not save changes. Try again."
+    "error": "Could not save changes. Try again.",
+    "organizationHelp": "An organization is shown only beside the verified badge."
   }
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { FormMessage } from "@/components/forms/form-message";
 import { SubmitButton } from "@/components/forms/submit-button";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
@@ -21,6 +21,7 @@ export function VerificationForm({
   labels: {
     verified: string;
     organization: string;
+    organizationHelp: string;
     none: string;
     save: string;
     saving: string;
@@ -29,6 +30,7 @@ export function VerificationForm({
   };
 }) {
   const [result, action] = useActionState(updateVerificationAction, idleResult);
+  const [isVerified, setVerified] = useState(verified);
   return (
     <form action={action} className="flex max-w-lg flex-col gap-5">
       <input type="hidden" name="id" value={id} />
@@ -36,14 +38,23 @@ export function VerificationForm({
         <input
           type="checkbox"
           name="verified"
-          defaultChecked={verified}
+          checked={isVerified}
+          onChange={(event) => setVerified(event.target.checked)}
           className="size-4 accent-action"
         />
         {labels.verified}
       </label>
-      <label className="flex flex-col gap-2 text-sm font-medium text-ink">
-        {labels.organization}
-        <NativeSelect name="organizationId" defaultValue={organizationId ?? ""}>
+      <div className="flex flex-col gap-2">
+        <label htmlFor={`${id}-organization`} className="text-sm font-medium text-ink">
+          {labels.organization}
+        </label>
+        <NativeSelect
+          id={`${id}-organization`}
+          name="organizationId"
+          defaultValue={organizationId ?? ""}
+          disabled={!isVerified}
+          aria-describedby={`${id}-organization-help`}
+        >
           <NativeSelectOption value="">{labels.none}</NativeSelectOption>
           {organizations.map((org) => (
             <NativeSelectOption value={org.id} key={org.id}>
@@ -51,7 +62,10 @@ export function VerificationForm({
             </NativeSelectOption>
           ))}
         </NativeSelect>
-      </label>
+        <p id={`${id}-organization-help`} className="text-sm text-ink-muted">
+          {labels.organizationHelp}
+        </p>
+      </div>
       {result.status === "ok" ? (
         <FormMessage tone="success">{labels.success}</FormMessage>
       ) : null}
