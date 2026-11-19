@@ -11,6 +11,27 @@ export type Endpoint = {
 };
 
 export const endpoints = {
+  volunteerExportOptions: {
+    method: "GET",
+    path: "/admin/volunteer-exports/options",
+    contract: "published",
+  },
+  exportVolunteers: {
+    method: "POST",
+    path: "/admin/opportunities/{id}/volunteer-exports",
+    contract: "published",
+  },
+  authorizeGoogleSheetsExport: {
+    method: "POST",
+    path: "/admin/opportunities/{id}/volunteer-exports/google/authorization",
+    contract: "published",
+  },
+  createGoogleSheetsExport: {
+    method: "POST",
+    path: "/admin/volunteer-exports/google",
+    contract: "published",
+  },
+
   logIn: { method: "POST", path: "/auth/admin/login", contract: "published" },
   refresh: { method: "POST", path: "/auth/refresh", contract: "published" },
   logOut: { method: "POST", path: "/auth/logout", contract: "published" },

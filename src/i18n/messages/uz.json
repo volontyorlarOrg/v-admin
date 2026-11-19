@@ -1179,7 +1179,8 @@
       "auth_account_merge_requested": "Hisoblarni birlashtirish soʻraldi",
       "auth_account_merge_completed": "Hisoblar birlashtirildi",
       "attendance_volunteer_added": "Qatnashuv roʻyxatiga volontyor qoʻshildi",
-      "user_verification_updated": "Tasdiqlash oʻzgartirildi"
+      "user_verification_updated": "Tasdiqlash oʻzgartirildi",
+      "opportunity_volunteers_exported": "Vakansiya volontyorlari eksport qilindi"
     },
     "day": {
       "today": "Bugun",
@@ -2446,5 +2447,87 @@
     "success": "Tasdiqlash yangilandi.",
     "error": "Saqlab boʻlmadi. Qayta urinib koʻring.",
     "organizationHelp": "Tashkilot faqat tasdiqlash belgisi bilan birga koʻrsatiladi."
+  },
+  "exports": {
+    "trigger": "Volontyorlarni eksport qilish",
+    "title": "Volontyorlarni eksport qilish",
+    "matching": "Bu roʻyxatdagi {count, plural, other {# nafar volontyor}} eksport qilinadi.",
+    "matchingFiltered": "Joriy qidiruv va filtrga {count, plural, other {# nafar volontyor}} mos keladi; faqat ular eksport qilinadi.",
+    "nothing": "Joriy qidiruv va filtrga hech kim mos kelmaydi, eksport qilinadigan maʼlumot yoʻq.",
+    "format": "Format",
+    "formats": {
+      "pdf": "PDF",
+      "xlsx": "Excel (XLSX)",
+      "google_sheets": "Google Sheets",
+      "txt": "Matn (TXT)"
+    },
+    "formatHints": {
+      "pdf": "Chop etish yoki yuborishga tayyor jadval.",
+      "xlsx": "Excel, Numbers yoki LibreOfficeʼda ochiladi.",
+      "google_sheets": "Oʻz Google hisobingizdagi yopiq jadval.",
+      "txt": "Oddiy matn, har bir volontyor bir qatorda."
+    },
+    "googleUnavailable": "Bu serverda hali sozlanmagan.",
+    "googleNote": "Google hisobingizga kirib, Volontyorlarga shu bitta faylni yaratishga ruxsat berasiz. Siz ulashmaguningizcha jadvalni faqat oʻzingiz ochasiz.",
+    "fields": "Qaysi maʼlumotlar kiritilsin",
+    "reset": "Ism, Telegram va telefonga qaytarish",
+    "groups": {
+      "contact": "Ism va aloqa",
+      "profile": "Profil",
+      "participation": "Ishtirok"
+    },
+    "field": {
+      "fullName": "Toʻliq ism",
+      "telegram": "Telegram",
+      "phone": "Telefon raqami",
+      "username": "Volontyorlar foydalanuvchi nomi",
+      "region": "Viloyat",
+      "hometownRegion": "Tugʻilgan viloyat",
+      "city": "Shahar yoki tuman",
+      "school": "Taʼlim muassasasi",
+      "gradeYear": "Kurs yoki sinf",
+      "languages": "Tillar",
+      "instagram": "Instagram",
+      "linkedin": "LinkedIn",
+      "links": "Portfolio havolalari",
+      "bio": "Oʻzi haqida",
+      "applicationStatus": "Ariza holati",
+      "appliedAt": "Ariza sanasi",
+      "attendance": "Qatnashuv",
+      "hours": "Soatlar",
+      "placement": "Oʻrin",
+      "addedManually": "Qoʻlda qoʻshilgan"
+    },
+    "noneSelected": "Kamida bitta maʼlumotni tanlang.",
+    "unsaved": "Saqlanmagan qatnashuv eksportga kirmaydi. Avval uni saqlang.",
+    "privacy": "Profil rasmlari hech qachon eksport qilinmaydi. Ariza berganlar ariza berilgan paytdagi holatida, qoʻlda qoʻshilganlar esa faqat ochiq profilida koʻrinadigan maʼlumotlar bilan eksport qilinadi. Har bir eksport faoliyat jurnaliga yoziladi.",
+    "submitFile": "{format} yuklab olish",
+    "submitGoogle": "Google orqali davom etish",
+    "pending": "Tayyorlanmoqda…",
+    "cancel": "Bekor qilish",
+    "close": "Yopish",
+    "downloaded": "{count, plural, other {# nafar volontyor}} eksport qilindi.",
+    "sheetCreated": {
+      "title": "Google jadvali yaratildi",
+      "description": "{count, plural, other {# nafar volontyor}} Google hisobingizdagi yangi yopiq jadvalda.",
+      "open": "Jadvalni ochish"
+    },
+    "sheetFailed": "Google jadvali yaratilmadi",
+    "lists": {
+      "applications": "Arizalar",
+      "attendance": "Qatnashuv"
+    },
+    "subtitle": "{list} · {date} kuni eksport qilingan",
+    "yes": "Ha",
+    "errors": {
+      "exportEmpty": "Joriy qidiruv va filtrga hech kim mos kelmaydi.",
+      "exportFieldNotAllowed": "Bu maʼlumotlarning bir qismini ushbu roʻyxatdan eksport qilib boʻlmaydi.",
+      "googleSheetsExportUnavailable": "Google Sheetsʼga eksport bu serverda hali sozlanmagan.",
+      "exportAuthorizationExpired": "Google hisobiga kirish muddati tugadi. Eksportni qaytadan boshlang.",
+      "exportScopeDenied": "Google Volontyorlarga fayl yaratishga ruxsat bermadi. Qaytadan boshlab, ruxsat bering.",
+      "exportCancelled": "Google hisobiga kirish bekor qilindi, jadval yaratilmadi.",
+      "googleUnavailable": "Google hozir javob bermayapti. Birozdan soʻng urinib koʻring.",
+      "exportRedirectNotAllowed": "Bu manzil uchun Google Sheetsʼga eksport sozlanmagan."
+    }
   }
 }

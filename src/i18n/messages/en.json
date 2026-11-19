@@ -1179,7 +1179,8 @@
       "auth_account_merge_requested": "Account merge requested",
       "auth_account_merge_completed": "Accounts merged",
       "attendance_volunteer_added": "Added a volunteer to attendance",
-      "user_verification_updated": "Verification changed"
+      "user_verification_updated": "Verification changed",
+      "opportunity_volunteers_exported": "Exported a vacancy's volunteers"
     },
     "day": {
       "today": "Today",
@@ -2446,5 +2447,87 @@
     "success": "Verification updated.",
     "error": "Could not save changes. Try again.",
     "organizationHelp": "An organization is shown only beside the verified badge."
+  },
+  "exports": {
+    "trigger": "Export volunteers",
+    "title": "Export volunteers",
+    "matching": "{count, plural, one {# volunteer} other {# volunteers}} in this list will be exported.",
+    "matchingFiltered": "{count, plural, one {# volunteer matches} other {# volunteers match}} the current search and filter; only they will be exported.",
+    "nothing": "No volunteers match the current search and filter, so there is nothing to export.",
+    "format": "Format",
+    "formats": {
+      "pdf": "PDF",
+      "xlsx": "Excel (XLSX)",
+      "google_sheets": "Google Sheets",
+      "txt": "Text (TXT)"
+    },
+    "formatHints": {
+      "pdf": "A table ready to print or send.",
+      "xlsx": "Opens in Excel, Numbers or LibreOffice.",
+      "google_sheets": "A private sheet in your own Google account.",
+      "txt": "Plain text, one line per volunteer."
+    },
+    "googleUnavailable": "Not set up on this server yet.",
+    "googleNote": "Google will ask you to sign in and allow Volontyorlar to create this one file. Only you can open the sheet until you share it.",
+    "fields": "Information to include",
+    "reset": "Back to name, Telegram and phone",
+    "groups": {
+      "contact": "Name and contact",
+      "profile": "Profile",
+      "participation": "Participation"
+    },
+    "field": {
+      "fullName": "Full name",
+      "telegram": "Telegram",
+      "phone": "Phone number",
+      "username": "Volontyorlar username",
+      "region": "Region",
+      "hometownRegion": "Hometown region",
+      "city": "City or district",
+      "school": "School",
+      "gradeYear": "Year or grade",
+      "languages": "Languages",
+      "instagram": "Instagram",
+      "linkedin": "LinkedIn",
+      "links": "Portfolio links",
+      "bio": "Bio",
+      "applicationStatus": "Application status",
+      "appliedAt": "Applied on",
+      "attendance": "Attendance",
+      "hours": "Hours",
+      "placement": "Placement",
+      "addedManually": "Added manually"
+    },
+    "noneSelected": "Choose at least one piece of information.",
+    "unsaved": "Attendance you have not saved yet is not included. Save it first to export it.",
+    "privacy": "Profile pictures are never exported. Applicants are exported as they applied; people added by hand only with what their public profile shows. Every export is recorded in the activity log.",
+    "submitFile": "Download {format}",
+    "submitGoogle": "Continue with Google",
+    "pending": "Preparing…",
+    "cancel": "Cancel",
+    "close": "Close",
+    "downloaded": "Exported {count, plural, one {# volunteer} other {# volunteers}}.",
+    "sheetCreated": {
+      "title": "Google Sheet created",
+      "description": "{count, plural, one {# volunteer is} other {# volunteers are}} in a new private sheet in your Google account.",
+      "open": "Open the sheet"
+    },
+    "sheetFailed": "The Google Sheet was not created",
+    "lists": {
+      "applications": "Applications",
+      "attendance": "Attendance"
+    },
+    "subtitle": "{list} · exported {date}",
+    "yes": "Yes",
+    "errors": {
+      "exportEmpty": "No volunteers match the current search and filter.",
+      "exportFieldNotAllowed": "Some of that information cannot be exported from this list.",
+      "googleSheetsExportUnavailable": "Google Sheets export is not set up on this server yet.",
+      "exportAuthorizationExpired": "The Google sign-in expired. Start the export again.",
+      "exportScopeDenied": "Google did not allow Volontyorlar to create the file. Start again and allow it.",
+      "exportCancelled": "Google sign-in was cancelled, so no sheet was created.",
+      "googleUnavailable": "Google is not answering right now. Try again shortly.",
+      "exportRedirectNotAllowed": "Google Sheets export is not set up for this address."
+    }
   }
 }

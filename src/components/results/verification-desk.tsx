@@ -13,6 +13,8 @@ import { useTranslations } from "next-intl";
 import { useId, useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
 
+import { ExportVolunteersDialog } from "@/components/results/export-volunteers-dialog";
+import type { ExportOptions } from "@/lib/exports/schemas";
 import { Avatar } from "@/components/portal/avatar";
 import { StatusBadge, attendanceStatus } from "@/components/portal/status-badge";
 import { AttendanceDesk, type SheetDates } from "@/components/results/attendance-desk";
@@ -47,10 +49,12 @@ export function AdminAttendance({
   vacancyId,
   initial,
   dates,
+  exportOptions,
 }: {
   vacancyId: string;
   initial: AttendanceSheet;
   dates: SheetDates;
+  exportOptions?: ExportOptions | null;
 }) {
   const [adjusting, setAdjusting] = useState(false);
   if (initial.status === "submitted" && !adjusting) {
@@ -59,6 +63,7 @@ export function AdminAttendance({
         vacancyId={vacancyId}
         sheet={initial}
         dates={dates}
+        exportOptions={exportOptions}
         onAdjust={() => setAdjusting(true)}
       />
     );
@@ -68,6 +73,7 @@ export function AdminAttendance({
       vacancyId={vacancyId}
       initial={initial}
       dates={dates}
+      exportOptions={exportOptions}
       startEditing={adjusting}
     />
   );
@@ -77,11 +83,13 @@ function VerificationDesk({
   vacancyId,
   sheet,
   dates,
+  exportOptions,
   onAdjust,
 }: {
   vacancyId: string;
   sheet: AttendanceSheet;
   dates: SheetDates;
+  exportOptions?: ExportOptions | null;
   onAdjust: () => void;
 }) {
   const t = useTranslations("results.verify");
@@ -187,6 +195,15 @@ function VerificationDesk({
 
       <div className="min-w-0 sheet">
         <header className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-border px-5 py-4">
+          {exportOptions ? (
+            <ExportVolunteersDialog
+              vacancyId={vacancyId}
+              list="attendance"
+              options={exportOptions}
+              count={rows.length}
+              query=""
+            />
+          ) : null}
           <h2 className="text-section text-ink">
             {sheet.kind === "competition"
               ? sheetCopy("titleCompetition", { count: sheet.rows.length })

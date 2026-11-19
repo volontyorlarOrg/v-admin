@@ -298,3 +298,70 @@ export async function authedMultipart<
 
   return parsed.data as ApiResult<TSchema>;
 }
+
+export type Download = {
+  bytes: ArrayBuffer;
+  contentType: string;
+  fileName: string | null;
+  rows: number | null;
+};
+
+const FILE_NAME = /filename="([^"]+)"/;
+
+export async function authedDownload(
+  path: ApiPath,
+  accessToken: string,
+  body: unknown,
+  { timeoutMs = 60_000 }: { timeoutMs?: number } = {},
+): Promise<Download> {
+  const baseUrl = apiBaseUrl();
+  if (!baseUrl) {
+    throw new ApiError("notConfigured", {
+      message: "VOLONTYORLAR_API_URL is not set.",
+    });
+  }
+
+  const requestId = crypto.randomUUID();
+  let response: Response;
+
+  try {
+    response = await fetch(new URL(path, `${baseUrl}/`), {
+      method: "POST",
+      headers: {
+        Accept:
+          "application/pdf, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, text/plain, application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+        [REQUEST_ID_HEADER]: requestId,
+        ...(await forwardedVisitor()),
+      },
+      body: JSON.stringify(body),
+      cache: "no-store",
+      signal: AbortSignal.timeout(timeoutMs),
+    });
+  } catch (cause) {
+    const error = withRequestId(classifyApiError(cause), requestId);
+    logFailure("POST", path, error);
+    throw error;
+  }
+
+  if (!response.ok) {
+    const text = await response.text();
+    const error = new ApiError(codeForStatus(response.status), {
+      status: response.status,
+      requestId,
+      details: text ? parseJson(text) : null,
+    });
+    logFailure("POST", path, error);
+    throw error;
+  }
+
+  const rows = Number(response.headers.get("x-export-rows"));
+  return {
+    bytes: await response.arrayBuffer(),
+    contentType: response.headers.get("content-type") ?? "application/octet-stream",
+    fileName:
+      FILE_NAME.exec(response.headers.get("content-disposition") ?? "")?.[1] ?? null,
+    rows: Number.isFinite(rows) ? rows : null,
+  };
+}

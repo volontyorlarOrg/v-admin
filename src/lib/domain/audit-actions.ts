@@ -1,4 +1,5 @@
 export const AUDIT_ACTIONS = [
+  "opportunity.volunteers_exported",
   "report.submitted",
   "report.resolved",
   "report.reopened",

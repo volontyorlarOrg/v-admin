@@ -1179,7 +1179,8 @@
       "auth_account_merge_requested": "Запрошено объединение аккаунтов",
       "auth_account_merge_completed": "Аккаунты объединены",
       "attendance_volunteer_added": "Добавлен волонтёр в список посещаемости",
-      "user_verification_updated": "Верификация изменена"
+      "user_verification_updated": "Верификация изменена",
+      "opportunity_volunteers_exported": "Экспортированы волонтёры вакансии"
     },
     "day": {
       "today": "Сегодня",
@@ -2446,5 +2447,87 @@
     "success": "Верификация обновлена.",
     "error": "Не удалось сохранить. Попробуйте ещё раз.",
     "organizationHelp": "Организация показывается только вместе со значком верификации."
+  },
+  "exports": {
+    "trigger": "Экспорт волонтёров",
+    "title": "Экспорт волонтёров",
+    "matching": "Будет экспортировано: {count, plural, one {# волонтёр} few {# волонтёра} many {# волонтёров} other {# волонтёра}}.",
+    "matchingFiltered": "Текущему поиску и фильтру {count, plural, one {соответствует # волонтёр} few {соответствуют # волонтёра} many {соответствуют # волонтёров} other {соответствуют # волонтёра}} — экспортированы будут только они.",
+    "nothing": "Текущему поиску и фильтру никто не соответствует — экспортировать нечего.",
+    "format": "Формат",
+    "formats": {
+      "pdf": "PDF",
+      "xlsx": "Excel (XLSX)",
+      "google_sheets": "Google Таблицы",
+      "txt": "Текст (TXT)"
+    },
+    "formatHints": {
+      "pdf": "Таблица для печати или отправки.",
+      "xlsx": "Открывается в Excel, Numbers или LibreOffice.",
+      "google_sheets": "Закрытая таблица в вашем аккаунте Google.",
+      "txt": "Простой текст, по строке на волонтёра."
+    },
+    "googleUnavailable": "На этом сервере ещё не настроено.",
+    "googleNote": "Google попросит войти и разрешить Volontyorlar создать этот один файл. Пока вы не откроете доступ, таблица видна только вам.",
+    "fields": "Какие данные включить",
+    "reset": "Вернуть имя, Telegram и телефон",
+    "groups": {
+      "contact": "Имя и контакты",
+      "profile": "Профиль",
+      "participation": "Участие"
+    },
+    "field": {
+      "fullName": "Полное имя",
+      "telegram": "Telegram",
+      "phone": "Номер телефона",
+      "username": "Имя пользователя Volontyorlar",
+      "region": "Регион",
+      "hometownRegion": "Родной регион",
+      "city": "Город или район",
+      "school": "Учебное заведение",
+      "gradeYear": "Курс или класс",
+      "languages": "Языки",
+      "instagram": "Instagram",
+      "linkedin": "LinkedIn",
+      "links": "Ссылки на портфолио",
+      "bio": "О себе",
+      "applicationStatus": "Статус заявки",
+      "appliedAt": "Дата заявки",
+      "attendance": "Посещаемость",
+      "hours": "Часы",
+      "placement": "Место",
+      "addedManually": "Добавлен вручную"
+    },
+    "noneSelected": "Выберите хотя бы одно поле.",
+    "unsaved": "Несохранённая посещаемость не попадёт в экспорт. Сначала сохраните её.",
+    "privacy": "Фото профиля никогда не экспортируются. Заявители экспортируются такими, какими подали заявку; добавленные вручную — только с тем, что видно в их открытом профиле. Каждый экспорт записывается в журнал действий.",
+    "submitFile": "Скачать {format}",
+    "submitGoogle": "Продолжить с Google",
+    "pending": "Готовим…",
+    "cancel": "Отмена",
+    "close": "Закрыть",
+    "downloaded": "Экспортировано: {count, plural, one {# волонтёр} few {# волонтёра} many {# волонтёров} other {# волонтёра}}.",
+    "sheetCreated": {
+      "title": "Google Таблица создана",
+      "description": "{count, plural, one {# волонтёр} few {# волонтёра} many {# волонтёров} other {# волонтёра}} — в новой закрытой таблице в вашем аккаунте Google.",
+      "open": "Открыть таблицу"
+    },
+    "sheetFailed": "Google Таблица не создана",
+    "lists": {
+      "applications": "Заявки",
+      "attendance": "Посещаемость"
+    },
+    "subtitle": "{list} · экспорт от {date}",
+    "yes": "Да",
+    "errors": {
+      "exportEmpty": "Текущему поиску и фильтру никто не соответствует.",
+      "exportFieldNotAllowed": "Часть этих данных нельзя экспортировать из этого списка.",
+      "googleSheetsExportUnavailable": "Экспорт в Google Таблицы на этом сервере ещё не настроен.",
+      "exportAuthorizationExpired": "Вход в Google истёк. Начните экспорт заново.",
+      "exportScopeDenied": "Google не разрешил Volontyorlar создать файл. Начните заново и дайте разрешение.",
+      "exportCancelled": "Вход в Google отменён, таблица не создана.",
+      "googleUnavailable": "Google сейчас не отвечает. Попробуйте чуть позже.",
+      "exportRedirectNotAllowed": "Экспорт в Google Таблицы не настроен для этого адреса."
+    }
   }
 }

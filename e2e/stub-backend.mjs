@@ -1462,6 +1462,30 @@ const server = createServer(async (request, response) => {
   }
   if (admin && !isAdmin(actor)) return send(response, 403, { code: "forbidden" });
 
+  if (path === "/admin/volunteer-exports/options" && method === "GET") {
+    const fields = (extra) =>
+      ["fullName", "telegram", "phone", "username", "school", ...extra].map((key) => ({
+        key,
+        selected: ["fullName", "telegram", "phone"].includes(key),
+      }));
+    return send(response, 200, {
+      formats: ["pdf", "xlsx", "txt"],
+      applications: fields(["applicationStatus", "appliedAt"]),
+      attendance: fields(["attendance", "hours"]),
+      googleSheets: false,
+    });
+  }
+  if (
+    /^\/admin\/opportunities\/[^/]+\/volunteer-exports$/.test(path) &&
+    method === "POST"
+  ) {
+    response.writeHead(200, {
+      "content-type": "text/plain; charset=utf-8",
+      "content-disposition": 'attachment; filename="volunteers-stub.txt"',
+      "x-export-rows": "1",
+    });
+    return response.end(body.fields.join(" | "));
+  }
   state.legalRequests ??= [
     {
       id: "00000000-0000-4000-8000-000000000091",

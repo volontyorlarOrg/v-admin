@@ -23,6 +23,8 @@ import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
 
+import { ExportVolunteersDialog } from "@/components/results/export-volunteers-dialog";
+import type { ExportOptions } from "@/lib/exports/schemas";
 import { Avatar } from "@/components/portal/avatar";
 import { StatusBadge, attendanceStatus } from "@/components/portal/status-badge";
 import {
@@ -95,11 +97,13 @@ export function AttendanceDesk({
   initial,
   dates,
   startEditing = false,
+  exportOptions = null,
 }: {
   vacancyId: string;
   initial: AttendanceSheet;
   dates: SheetDates;
   startEditing?: boolean;
+  exportOptions?: ExportOptions | null;
 }) {
   const t = useTranslations("results.sheet");
   const outcomeLabel = useTranslations("attendance.outcome");
@@ -399,6 +403,16 @@ export function AttendanceDesk({
 
       <div className="min-w-0 sheet">
         <header className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-border px-5 py-4">
+          {exportOptions ? (
+            <ExportVolunteersDialog
+              vacancyId={vacancyId}
+              list="attendance"
+              options={exportOptions}
+              count={visibleRows.length}
+              query={query}
+              unsaved={dirty}
+            />
+          ) : null}
           <h2 id="sheet-title" className="text-section text-ink">
             {kind === "competition"
               ? t("titleCompetition", { count: view.rows.length })

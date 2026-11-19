@@ -1025,6 +1025,62 @@ test.describe("the vacancy lifecycle", () => {
   });
 });
 
+test.describe("volunteer exports", () => {
+  test("offers exports while reviewing submitted attendance", async ({ page }) => {
+    await resetBackend(page);
+    await page.request.post(`${STUB}/__stub/submit-sheet`, {
+      data: {
+        vacancyId: "00000000-0000-4000-8000-000000000401",
+        entries: [
+          {
+            applicationId: "00000000-0000-4000-8000-000000000602",
+            outcome: "attended",
+            hours: 4,
+          },
+        ],
+      },
+    });
+    await signedIn(page);
+    await page.goto(
+      "/en/vacancies/00000000-0000-4000-8000-000000000401?tab=attendance",
+    );
+    await expect(page.getByText("Results waiting for your verification")).toBeVisible();
+    await page.getByRole("button", { name: "Export volunteers" }).click();
+    await expect(page.getByRole("dialog", { name: "Export volunteers" })).toBeVisible();
+  });
+  test("exports applications and searched attendance with the selected fields", async ({
+    page,
+  }) => {
+    await resetBackend(page);
+    await signedIn(page);
+    for (const tab of ["applications", "attendance"]) {
+      await page.goto(`/en/vacancies/00000000-0000-4000-8000-000000000401?tab=${tab}`);
+      if (tab === "attendance")
+        await page
+          .getByRole("searchbox", { name: "Search by name or username" })
+          .fill("@sardor");
+      await page.getByRole("button", { name: "Export volunteers" }).click();
+      const dialog = page.getByRole("dialog", { name: "Export volunteers" });
+      await expect(
+        dialog.getByRole("checkbox", { name: "Full name", exact: true }),
+      ).toBeChecked();
+      await expect(
+        dialog.getByRole("checkbox", { name: "Telegram", exact: true }),
+      ).toBeChecked();
+      await expect(
+        dialog.getByRole("checkbox", { name: "Phone number", exact: true }),
+      ).toBeChecked();
+      await expect(dialog.getByRole("radio", { name: /Google Sheets/ })).toBeDisabled();
+      await dialog.getByRole("radio", { name: /Text \(TXT\)/ }).check();
+      const [download] = await Promise.all([
+        page.waitForEvent("download"),
+        dialog.getByRole("button", { name: "Download Text (TXT)" }).click(),
+      ]);
+      expect(download.suggestedFilename()).toBe("volunteers-stub.txt");
+    }
+  });
+});
+
 test.describe("review and attendance", () => {
   test("searches attendance without losing edits and selects only matching volunteers", async ({
     page,

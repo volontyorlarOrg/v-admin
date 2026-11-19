@@ -12,6 +12,7 @@ export async function ResultsCopy({ children }: { children: ReactNode }) {
         results: messages.results ?? {},
         applications: { status: messages.applications?.status ?? {} },
         attendance: { outcome: messages.attendance?.outcome ?? {} },
+        exports: messages.exports ?? {},
       }}
     >
       {children}

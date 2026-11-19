@@ -1,3 +1,6 @@
+import { ExportNotice } from "@/components/results/export-notice";
+import { loadExportOptions } from "@/lib/exports/google.server";
+import { readNotice } from "@/lib/exports/notice.server";
 import { CalendarDays, MapPin, PencilLine, Stamp, Tag } from "lucide-react";
 import { getFormatter, getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -164,12 +167,28 @@ export default async function VacancyPage({
           : "applications";
   const tabHref = (value: VacancyTab) => `${vacancyHref(vacancy.id)}?tab=${value}`;
 
-  const [labels, vacancyOptions, instructions, sheet] = await Promise.all([
+  const [
+    labels,
+    vacancyOptions,
+    instructions,
+    sheet,
+    exportOptionsLoaded,
+    exportNotice,
+    exportsCopy,
+  ] = await Promise.all([
     decisionLabels(),
     vacancyDecisions(),
     tab === "applications" && accepted.length > 0 ? loadInstructions(vacancy.id) : null,
     tab === "attendance" ? loadAttendanceSheet(vacancy.id) : null,
+    tab === "details" ? null : loadExportOptions(),
+    readNotice(vacancy.id),
+    getTranslations("exports"),
   ]);
+
+  const exportOptions =
+    exportOptionsLoaded && isReady(exportOptionsLoaded)
+      ? exportOptionsLoaded.data
+      : null;
 
   const readinessLabels = {
     met: t("approval.met"),
@@ -672,6 +691,27 @@ export default async function VacancyPage({
         </ResultsCopy>
       ) : null}
 
+      {exportNotice ? (
+        <ExportNotice
+          tone={exportNotice.status === "created" ? "done" : "failed"}
+          title={exportsCopy(
+            exportNotice.status === "created" ? "sheetCreated.title" : "sheetFailed",
+          )}
+          description={
+            exportNotice.status === "created"
+              ? exportsCopy("sheetCreated.description", { count: exportNotice.rows })
+              : exportsCopy.has(`errors.${exportNotice.code}`)
+                ? exportsCopy(`errors.${exportNotice.code}`)
+                : errors("server")
+          }
+          link={
+            exportNotice.status === "created"
+              ? { href: exportNotice.url, label: exportsCopy("sheetCreated.open") }
+              : undefined
+          }
+        />
+      ) : null}
+
       {tab === "applications" ? (
         applicationsFailure ? (
           <LoadFailure failure={applicationsFailure} />
@@ -690,6 +730,7 @@ export default async function VacancyPage({
                 capacity={vacancy.capacity ?? null}
                 archived={state === "archived"}
                 applicants={await deskApplicants(rows)}
+                exportOptions={exportOptions}
               />
               {accepted.length > 0 && instructions && isReady(instructions) ? (
                 <div className="xl:sticky xl:top-6">
@@ -717,6 +758,7 @@ export default async function VacancyPage({
               key={`${sheet.data.status}:${sheet.data.revision}:${sheet.data.correction}:${sheet.data.verifiedAt ?? ""}`}
               vacancyId={vacancy.id}
               initial={sheet.data}
+              exportOptions={exportOptions}
               dates={{
                 opens: format.dateTime(new Date(sheet.data.opensAt), "stamp"),
                 submittable: format.dateTime(
