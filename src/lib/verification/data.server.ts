@@ -8,6 +8,7 @@ export const verificationSchema = z.object({
   organization: z
     .object({ id: z.string().uuid(), name: z.string(), logoUrl: z.string().nullable() })
     .nullable(),
+  badgeUrl: z.string().nullable().default(null),
 });
 
 export function loadVerification(id: string) {

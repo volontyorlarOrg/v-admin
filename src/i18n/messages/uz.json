@@ -2446,7 +2446,28 @@
     "saving": "Saqlanmoqda…",
     "success": "Tasdiqlash yangilandi.",
     "error": "Saqlab boʻlmadi. Qayta urinib koʻring.",
-    "organizationHelp": "Tashkilot faqat tasdiqlash belgisi bilan birga koʻrsatiladi."
+    "organizationHelp": "Tashkilot faqat tasdiqlash belgisi bilan birga koʻrsatiladi.",
+    "badge": {
+      "title": "Maxsus nishon",
+      "help": "Shu qurilmadan oʻz rasmingizni yuklang. U koʻngilli tasdiqlangan yoki tasdiqlanmaganidan qatʼi nazar, uning ismi yonida koʻrsatiladi. JPEG, PNG yoki WebP, 1 MB gacha.",
+      "current": "Joriy maxsus nishon",
+      "none": "Nishon yoʻq",
+      "file": "Nishon rasmi",
+      "upload": "Nishonni yuklash",
+      "uploading": "Yuklanmoqda…",
+      "remove": "Nishonni olib tashlash",
+      "removing": "Olib tashlanmoqda…",
+      "uploaded": "Nishon saqlandi.",
+      "removed": "Nishon olib tashlandi.",
+      "error": "Nishonni yangilab boʻlmadi. Qayta urinib koʻring.",
+      "errors": {
+        "badgeImageInvalid": "Yaroqli rasm faylini tanlang.",
+        "badgeImageTooLarge": "1 MB dan kichik rasm tanlang.",
+        "badgeImageFormatUnsupported": "JPEG, PNG yoki WebP rasm tanlang.",
+        "badgeImageTooSmall": "Kamida 64 × 64 piksel rasm tanlang.",
+        "badgeImageStorageUnavailable": "Rasm saqlash xizmati mavjud emas. Keyinroq urinib koʻring."
+      }
+    }
   },
   "exports": {
     "trigger": "Volontyorlarni eksport qilish",

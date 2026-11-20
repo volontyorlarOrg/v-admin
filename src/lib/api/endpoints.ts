@@ -51,6 +51,16 @@ export const endpoints = {
     path: "/admin/verification/{id}",
     contract: "published",
   },
+  uploadVerificationBadge: {
+    method: "PUT",
+    path: "/admin/verification/{id}/badge",
+    contract: "published",
+  },
+  removeVerificationBadge: {
+    method: "DELETE",
+    path: "/admin/verification/{id}/badge",
+    contract: "published",
+  },
   reports: { method: "GET", path: "/admin/reports", contract: "published" },
   report: { method: "GET", path: "/admin/reports/{id}", contract: "published" },
   updateReportStatus: {

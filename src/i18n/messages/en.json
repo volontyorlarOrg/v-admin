@@ -2446,7 +2446,28 @@
     "saving": "Saving…",
     "success": "Verification updated.",
     "error": "Could not save changes. Try again.",
-    "organizationHelp": "An organization is shown only beside the verified badge."
+    "organizationHelp": "An organization is shown only beside the verified badge.",
+    "badge": {
+      "title": "Custom badge",
+      "help": "Upload your own image from this device. It is shown beside the volunteer’s name, whether or not they are verified. JPEG, PNG or WebP, up to 1 MB.",
+      "current": "Current custom badge",
+      "none": "No badge",
+      "file": "Badge image",
+      "upload": "Upload badge",
+      "uploading": "Uploading…",
+      "remove": "Remove badge",
+      "removing": "Removing…",
+      "uploaded": "Badge saved.",
+      "removed": "Badge removed.",
+      "error": "Could not update the badge. Try again.",
+      "errors": {
+        "badgeImageInvalid": "Choose a valid image file.",
+        "badgeImageTooLarge": "Choose an image under 1 MB.",
+        "badgeImageFormatUnsupported": "Choose a JPEG, PNG or WebP image.",
+        "badgeImageTooSmall": "Choose an image at least 64 × 64 pixels.",
+        "badgeImageStorageUnavailable": "Image storage is unavailable. Try again later."
+      }
+    }
   },
   "exports": {
     "trigger": "Export volunteers",

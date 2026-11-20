@@ -43,6 +43,7 @@ import { replaceUserPasswordAction } from "@/lib/users/actions";
 import { loadUser } from "@/lib/users/data.server";
 import { loadVerification } from "@/lib/verification/data.server";
 import { VerificationForm } from "@/components/verification/verification-form";
+import { VerificationBadgeForm } from "@/components/verification/verification-badge-form";
 import { loadOrganizations } from "@/lib/organizations/data.server";
 import {
   createPastEventAction,
@@ -543,6 +544,43 @@ export default async function UserPage({ params }: PageProps<"/[locale]/users/[i
                   error: verificationCopy("error"),
                 }}
               />
+              <div className="mt-6 border-t border-border pt-6">
+                <VerificationBadgeForm
+                  id={user.id}
+                  badgeUrl={verification.data.badgeUrl}
+                  labels={{
+                    title: verificationCopy("badge.title"),
+                    help: verificationCopy("badge.help"),
+                    current: verificationCopy("badge.current"),
+                    none: verificationCopy("badge.none"),
+                    file: verificationCopy("badge.file"),
+                    upload: verificationCopy("badge.upload"),
+                    uploading: verificationCopy("badge.uploading"),
+                    remove: verificationCopy("badge.remove"),
+                    removing: verificationCopy("badge.removing"),
+                    uploaded: verificationCopy("badge.uploaded"),
+                    removed: verificationCopy("badge.removed"),
+                    error: verificationCopy("badge.error"),
+                    errors: {
+                      badgeImageInvalid: verificationCopy(
+                        "badge.errors.badgeImageInvalid",
+                      ),
+                      badgeImageTooLarge: verificationCopy(
+                        "badge.errors.badgeImageTooLarge",
+                      ),
+                      badgeImageFormatUnsupported: verificationCopy(
+                        "badge.errors.badgeImageFormatUnsupported",
+                      ),
+                      badgeImageTooSmall: verificationCopy(
+                        "badge.errors.badgeImageTooSmall",
+                      ),
+                      badgeImageStorageUnavailable: verificationCopy(
+                        "badge.errors.badgeImageStorageUnavailable",
+                      ),
+                    },
+                  }}
+                />
+              </div>
             </Panel>
           ) : null}
 

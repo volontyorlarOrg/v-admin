@@ -2,6 +2,11 @@ import { createServer } from "node:http";
 import { randomUUID } from "node:crypto";
 
 const PORT = Number(process.env.STUB_PORT ?? 3603);
+const STUB_BADGE_URL =
+  "data:image/svg+xml;utf8," +
+  encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="#0F66AC"/><path d="M32 14l6 12 13 2-9 9 2 13-12-6-12 6 2-13-9-9 13-2z" fill="#fff"/></svg>',
+  );
 const ACCESS_TOKEN_TTL_SECONDS = Number(process.env.STUB_ACCESS_TTL ?? 172_800);
 const DAY = 86_400_000;
 const START = new Date(new Date().setUTCHours(6, 0, 0, 0)).getTime();
@@ -2517,6 +2522,25 @@ const server = createServer(async (request, response) => {
     }
   }
 
+  const badgeMatch = /^\/admin\/verification\/([^/]+)\/badge$/.exec(path);
+  if (badgeMatch) {
+    const target = userById(badgeMatch[1]);
+    if (!target || !target.roles.includes("volunteer"))
+      return send(response, 404, { code: "userNotFound" });
+    target.verification ??= { verified: false, organization: null };
+    if (method === "PUT") {
+      if (!isMultipart) return send(response, 422, { code: "badgeImageInvalid" });
+      target.verification.badgeUrl = STUB_BADGE_URL;
+      record("user.verification.badge.updated", "User", target.id, actor.id);
+      return send(response, 200, { badgeUrl: target.verification.badgeUrl });
+    }
+    if (method === "DELETE") {
+      target.verification.badgeUrl = null;
+      record("user.verification.badge.removed", "User", target.id, actor.id);
+      return send(response, 200, { badgeUrl: null });
+    }
+  }
+
   const verificationMatch = /^\/admin\/verification\/([^/]+)$/.exec(path);
   if (verificationMatch) {
     const target = userById(verificationMatch[1]);
@@ -2526,7 +2550,11 @@ const server = createServer(async (request, response) => {
       return send(
         response,
         200,
-        target.verification ?? { verified: false, organization: null },
+        target.verification ?? {
+          verified: false,
+          organization: null,
+          badgeUrl: null,
+        },
       );
     if (method === "PUT") {
       const organization = body.organizationId
@@ -2535,6 +2563,7 @@ const server = createServer(async (request, response) => {
       if (body.organizationId && !organization)
         return send(response, 404, { code: "organizationNotFound" });
       target.verification = {
+        badgeUrl: target.verification?.badgeUrl ?? null,
         verified: body.verified,
         organization: organization
           ? {

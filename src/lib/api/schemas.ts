@@ -61,6 +61,7 @@ export function pageOf<T extends z.ZodTypeAny>(item: T) {
 }
 
 export const imageUploadSchema = z.object({ imageUrl: z.url() });
+export const badgeUploadSchema = z.object({ badgeUrl: z.url() });
 
 export const blogLocaleSchema = z.enum(["uz", "ru", "en"]);
 export const blogTranslationSchema = z.object({
