@@ -12,25 +12,17 @@ test("an administrator assigns and revokes a volunteer's marks on their record",
   await expect(page).toHaveURL(/\/en\/dashboard$/);
   await page.goto("/en/users?q=dilnoza");
   await page.getByRole("link", { name: "Dilnoza Karimova" }).first().click();
-  await expect(page.getByLabel("Organization affiliation")).toBeDisabled();
+  await expect(page.getByLabel("Organization affiliation")).toHaveCount(0);
   await page.getByLabel("Verified badge").check();
-  await page
-    .getByLabel("Organization affiliation")
-    .selectOption({ label: "Chilonzor Reading Corners" });
   await page.getByRole("button", { name: "Save changes" }).click();
   await expect(page.getByText("Verification updated.")).toBeVisible();
   await page.reload();
   await expect(page.getByLabel("Verified badge")).toBeChecked();
-  await expect(page.getByLabel("Organization affiliation")).toHaveValue(
-    "00000000-0000-4000-8000-000000000301",
-  );
   await page.getByLabel("Verified badge").uncheck();
-  await expect(page.getByLabel("Organization affiliation")).toBeDisabled();
   await page.getByRole("button", { name: "Save changes" }).click();
   await expect(page.getByText("Verification updated.")).toBeVisible();
   await page.reload();
   await expect(page.getByLabel("Verified badge")).not.toBeChecked();
-  await expect(page.getByLabel("Organization affiliation")).toHaveValue("");
 });
 
 const PNG = Buffer.from(
@@ -72,6 +64,15 @@ test("an administrator uploads a custom badge from their device and removes it",
   await expect(page.getByRole("button", { name: "Remove badge" })).toBeVisible();
   await page.locator("#verification").screenshot({
     path: testInfo.outputPath("custom-badge.png"),
+  });
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.evaluate(() => {
+    document.documentElement.dataset.theme = "dark";
+    delete document.documentElement.dataset.motion;
+  });
+  await expect(page.getByLabel("Organization affiliation")).toHaveCount(0);
+  await page.locator("#verification").screenshot({
+    path: testInfo.outputPath("custom-badge-dark-reduced-motion.png"),
   });
 
   await expect(page.getByLabel("Verified badge")).not.toBeChecked();

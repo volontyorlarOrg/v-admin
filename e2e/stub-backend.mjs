@@ -2557,21 +2557,11 @@ const server = createServer(async (request, response) => {
         },
       );
     if (method === "PUT") {
-      const organization = body.organizationId
-        ? state.organizations.find((org) => org.id === body.organizationId)
-        : null;
-      if (body.organizationId && !organization)
-        return send(response, 404, { code: "organizationNotFound" });
+      if ("organizationId" in body)
+        return send(response, 422, { code: "validationFailed" });
       target.verification = {
         badgeUrl: target.verification?.badgeUrl ?? null,
         verified: body.verified,
-        organization: organization
-          ? {
-              id: organization.id,
-              name: organization.name,
-              logoUrl: organization.logoUrl,
-            }
-          : null,
       };
       return send(response, 200, target.verification);
     }

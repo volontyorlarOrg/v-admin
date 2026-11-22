@@ -3,26 +3,18 @@
 import { useActionState, useState } from "react";
 import { FormMessage } from "@/components/forms/form-message";
 import { SubmitButton } from "@/components/forms/submit-button";
-import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { idleResult } from "@/lib/api/action-result";
 import { updateVerificationAction } from "@/lib/verification/actions";
 
 export function VerificationForm({
   id,
   verified,
-  organizationId,
-  organizations,
   labels,
 }: {
   id: string;
   verified: boolean;
-  organizationId: string | null;
-  organizations: { id: string; name: string }[];
   labels: {
     verified: string;
-    organization: string;
-    organizationHelp: string;
-    none: string;
     save: string;
     saving: string;
     success: string;
@@ -44,28 +36,6 @@ export function VerificationForm({
         />
         {labels.verified}
       </label>
-      <div className="flex flex-col gap-2">
-        <label htmlFor={`${id}-organization`} className="text-sm font-medium text-ink">
-          {labels.organization}
-        </label>
-        <NativeSelect
-          id={`${id}-organization`}
-          name="organizationId"
-          defaultValue={organizationId ?? ""}
-          disabled={!isVerified}
-          aria-describedby={`${id}-organization-help`}
-        >
-          <NativeSelectOption value="">{labels.none}</NativeSelectOption>
-          {organizations.map((org) => (
-            <NativeSelectOption value={org.id} key={org.id}>
-              {org.name}
-            </NativeSelectOption>
-          ))}
-        </NativeSelect>
-        <p id={`${id}-organization-help`} className="text-sm text-ink-muted">
-          {labels.organizationHelp}
-        </p>
-      </div>
       {result.status === "ok" ? (
         <FormMessage tone="success">{labels.success}</FormMessage>
       ) : null}

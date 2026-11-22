@@ -2440,13 +2440,10 @@
     "title": "Tasdiqlash",
     "editHelp": "Volontyor nomi yonida koʻrsatiladigan belgilarni tanlang.",
     "verified": "Tasdiqlash belgisi",
-    "organization": "Tashkilot aloqasi",
-    "none": "Tashkilotsiz",
     "save": "Oʻzgarishlarni saqlash",
     "saving": "Saqlanmoqda…",
     "success": "Tasdiqlash yangilandi.",
     "error": "Saqlab boʻlmadi. Qayta urinib koʻring.",
-    "organizationHelp": "Tashkilot faqat tasdiqlash belgisi bilan birga koʻrsatiladi.",
     "badge": {
       "title": "Maxsus nishon",
       "help": "Shu qurilmadan oʻz rasmingizni yuklang. U koʻngilli tasdiqlangan yoki tasdiqlanmaganidan qatʼi nazar, uning ismi yonida koʻrsatiladi. JPEG, PNG yoki WebP, 1 MB gacha.",

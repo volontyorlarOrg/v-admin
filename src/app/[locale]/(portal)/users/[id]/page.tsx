@@ -531,13 +531,8 @@ export default async function UserPage({ params }: PageProps<"/[locale]/users/[i
               <VerificationForm
                 id={user.id}
                 verified={verification.data.verified}
-                organizationId={verification.data.organization?.id ?? null}
-                organizations={organizations}
                 labels={{
                   verified: verificationCopy("verified"),
-                  organization: verificationCopy("organization"),
-                  organizationHelp: verificationCopy("organizationHelp"),
-                  none: verificationCopy("none"),
                   save: verificationCopy("save"),
                   saving: verificationCopy("saving"),
                   success: verificationCopy("success"),

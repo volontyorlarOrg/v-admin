@@ -9,7 +9,6 @@ import { badgeFromFormData } from "@/lib/verification/badge";
 
 const input = z.object({
   id: z.string().uuid(),
-  organizationId: z.union([z.literal(""), z.string().uuid()]),
   verified: z.boolean(),
 });
 
@@ -19,14 +18,13 @@ export async function updateVerificationAction(
 ): Promise<ActionResult> {
   const parsed = input.safeParse({
     id: data.get("id"),
-    organizationId: data.get("organizationId") ?? "",
     verified: data.get("verified") === "on",
   });
   if (!parsed.success) return failedResult("validationFailed");
-  const { id, organizationId, verified } = parsed.data;
+  const { id, verified } = parsed.data;
   const result = await write("updateVerification", {
     params: { id },
-    body: { verified, organizationId: verified ? organizationId || null : null },
+    body: { verified },
   });
   if (result.status === "ok") revalidatePath("/", "layout");
   return result;

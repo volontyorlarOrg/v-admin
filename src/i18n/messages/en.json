@@ -2440,13 +2440,10 @@
     "title": "Verification",
     "editHelp": "Choose the marks shown beside this volunteer’s name.",
     "verified": "Verified badge",
-    "organization": "Organization affiliation",
-    "none": "No organization",
     "save": "Save changes",
     "saving": "Saving…",
     "success": "Verification updated.",
     "error": "Could not save changes. Try again.",
-    "organizationHelp": "An organization is shown only beside the verified badge.",
     "badge": {
       "title": "Custom badge",
       "help": "Upload your own image from this device. It is shown beside the volunteer’s name, whether or not they are verified. JPEG, PNG or WebP, up to 1 MB.",

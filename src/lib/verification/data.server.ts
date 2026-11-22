@@ -5,9 +5,6 @@ import { read } from "@/lib/api/gateway.server";
 
 export const verificationSchema = z.object({
   verified: z.boolean(),
-  organization: z
-    .object({ id: z.string().uuid(), name: z.string(), logoUrl: z.string().nullable() })
-    .nullable(),
   badgeUrl: z.string().nullable().default(null),
 });
 
