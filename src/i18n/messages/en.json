@@ -684,7 +684,7 @@
       "hours": "Hours",
       "amountHelp": "Leave one empty to change only the other. Hours added here do not add XP by themselves.",
       "reason": "Reason",
-      "reasonHelp": "Kept with the change on this record and in the audit history.",
+      "reasonHelp": "Kept with the change on this record and in the audit history. When XP is taken away, the volunteer sees this reason on their profile.",
       "submit": "Save the change",
       "pending": "Saving…",
       "success": "Saved. The figures above now include it.",
