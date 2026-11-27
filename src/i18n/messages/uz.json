@@ -684,7 +684,7 @@
       "hours": "Soatlar",
       "amountHelp": "Faqat bittasini oʻzgartirish uchun ikkinchisini boʻsh qoldiring. Bu yerda qoʻshilgan soatlar oʻz-oʻzidan XP qoʻshmaydi.",
       "reason": "Sabab",
-      "reasonHelp": "Oʻzgarish bilan birga shu yozuvda va audit tarixida saqlanadi. XP ayirilganda volontyor bu sababni oʻz profilida koʻradi.",
+      "reasonHelp": "Oʻzgarish bilan birga shu yozuvda va audit tarixida saqlanadi. XP ayirilganda bu sabab volontyorning ochiq profilida u bilan birga koʻrinadi va uni har kim oʻqiy oladi.",
       "submit": "Oʻzgarishni saqlash",
       "pending": "Saqlanmoqda…",
       "success": "Saqlandi. Yuqoridagi raqamlar uni hisobga oldi.",
