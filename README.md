@@ -13,19 +13,19 @@ history.
 
 ```bash
 npm ci
-npm run dev:local
+npm run dev
 ```
 
-http://localhost:3003 redirects to `/uz/login`. The local command loads the
-shared real-API configuration and keeps fixtures off. Use `npm run dev` with an
-ignored `.env.local` for a standalone setup or fixture work.
+http://localhost:3003 redirects to `/uz/login`. `npm run dev` loads the shared
+`../env/local` configuration and talks to the real local API; the Playwright
+suite alone uses the stub backend in `e2e/`.
 
 ## Commands
 
 | Command             | What it does                                    |
 | ------------------- | ----------------------------------------------- |
-| `npm run dev`       | Turbopack development server on port 3003       |
-| `npm run dev:local` | Server with the shared real-API local config    |
+| `npm run dev`       | Development server on port 3003, shared local API  |
+| `npm run dev:local` | Same as `npm run dev`                           |
 | `npm run build`     | Production build                                |
 | `npm run start`     | Serve an existing production build on port 3003 |
 | `npm run lint`      | ESLint                                          |
@@ -66,8 +66,6 @@ ignored `.env.local` for a standalone setup or fixture work.
 
 There is no administrator creation and no impersonation anywhere in this portal.
 
-## Where to read next
+## Working guide
 
-| You want                       | Go to                    |
-| ------------------------------ | ------------------------ |
-| How to work in this repository | [`AGENTS.md`](AGENTS.md) |
+The working guide for this repository (`AGENTS.md`) is kept in each developer's local checkout and is not part of the repository.

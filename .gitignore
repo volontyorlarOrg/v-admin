@@ -19,3 +19,8 @@ next-env.d.ts
 npm-debug.log*
 
 .impeccable/
+
+# agent guides and docs stay in local checkouts
+AGENTS.md
+CLAUDE.md
+docs/
